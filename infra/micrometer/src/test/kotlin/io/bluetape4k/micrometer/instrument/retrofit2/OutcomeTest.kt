@@ -1,12 +1,14 @@
 package io.bluetape4k.micrometer.instrument.retrofit2
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.micrometer.AbstractMicrometerTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
-class OutcomeTest {
+class OutcomeTest: AbstractMicrometerTest() {
     companion object: KLogging()
 
     @ParameterizedTest
@@ -31,6 +33,7 @@ class OutcomeTest {
         expectedOutcome: String,
     ) {
         val outcome = Outcome.fromHttpStatus(statusCode)
+        log.debug { "statusCode=$statusCode, expectedOutcome=$expectedOutcome, outcome=$outcome" }
         outcome.name shouldBeEqualTo expectedOutcome
     }
 

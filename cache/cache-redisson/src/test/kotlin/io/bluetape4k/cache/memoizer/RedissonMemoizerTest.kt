@@ -1,16 +1,19 @@
 package io.bluetape4k.cache.memoizer
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cache.RedisServers.randomName
 import io.bluetape4k.cache.RedisServers.redisson
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
-import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import org.redisson.client.codec.IntegerCodec
 import org.redisson.client.codec.LongCodec
 import java.util.concurrent.atomic.AtomicInteger
 
 class RedissonMemoizerTest: AbstractMemoizerTest() {
+
+    companion object: KLogging()
 
     private val heavyMap = redisson
         .getMap<Int, Int>("memoizer:heavy", IntegerCodec())
@@ -37,16 +40,18 @@ class RedissonMemoizerTest: AbstractMemoizerTest() {
     fun `memoizer should evaluate once for same key in concurrent calls`() {
         val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
         val evaluateCount = AtomicInteger(0)
+
         val memoizer = map.memoizer { key ->
             evaluateCount.incrementAndGet()
             Thread.sleep(100)
             key * key
         }
+
         try {
             MultithreadingTester()
                 .workers(16)
                 .rounds(1)
-                .add { memoizer(7) shouldBeEqualTo 49 }
+                .add { memoizer(7) shouldBeEqualTo 7 * 7 }
                 .run()
             evaluateCount.get() shouldBeEqualTo 1
         } finally {
@@ -61,18 +66,20 @@ class RedissonMemoizerTest: AbstractMemoizerTest() {
     @Test
     fun `MultithreadingTester - 여러 스레드에서 동시에 memoizer 호출 시 일관된 결과 반환`() {
         val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+
         val memoizer = map.memoizer { key ->
             Thread.sleep(10)
             key * key
         }
+
         try {
             MultithreadingTester()
                 .workers(16)
                 .rounds(4)
                 .add {
-                    memoizer(5) shouldBeEqualTo 25
-                    memoizer(7) shouldBeEqualTo 49
-                    memoizer(9) shouldBeEqualTo 81
+                    memoizer(5) shouldBeEqualTo 5 * 5
+                    memoizer(7) shouldBeEqualTo 7 * 7
+                    memoizer(9) shouldBeEqualTo 9 * 9
                 }
                 .run()
         } finally {
@@ -87,22 +94,23 @@ class RedissonMemoizerTest: AbstractMemoizerTest() {
     @Test
     fun `StructuredTaskScopeTester - Virtual Thread 기반 동시 memoizer 호출 시 일관된 결과 반환`() {
         val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+
         val memoizer = map.memoizer { key ->
             Thread.sleep(10)
             key * key
         }
+
         try {
             StructuredTaskScopeTester()
                 .rounds(32)
                 .add {
-                    memoizer(3) shouldBeEqualTo 9
-                    memoizer(6) shouldBeEqualTo 36
-                    memoizer(8) shouldBeEqualTo 64
+                    memoizer(3) shouldBeEqualTo 3 * 3
+                    memoizer(6) shouldBeEqualTo 6 * 6
+                    memoizer(8) shouldBeEqualTo 8 * 8
                 }
                 .run()
         } finally {
             map.delete()
         }
     }
-
 }

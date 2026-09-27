@@ -32,7 +32,8 @@ import java.nio.file.Path
 fun InputStream.readAsDataBuffers(
     bufferFactory: DataBufferFactory,
     bufferSize: Int = DEFAULT_BUFFER_SIZE,
-): Flow<DataBuffer> = DataBufferUtils.readInputStream({ this }, bufferFactory, bufferSize).asFlow()
+): Flow<DataBuffer> =
+    DataBufferUtils.readInputStream({ this }, bufferFactory, bufferSize).asFlow()
 
 /**
  * [ReadableByteChannel]을 [DataBuffer] 스트림으로 읽습니다.
@@ -49,7 +50,8 @@ fun InputStream.readAsDataBuffers(
 fun ReadableByteChannel.readAsDataBuffer(
     bufferFactory: DataBufferFactory,
     bufferSize: Int = DEFAULT_BUFFER_SIZE,
-): Flow<DataBuffer> = DataBufferUtils.readByteChannel({ this }, bufferFactory, bufferSize).asFlow()
+): Flow<DataBuffer> =
+    DataBufferUtils.readByteChannel({ this }, bufferFactory, bufferSize).asFlow()
 
 /**
  * [AsynchronousFileChannel]을 [DataBuffer] 스트림으로 읽습니다.
@@ -69,9 +71,7 @@ fun AsynchronousFileChannel.readAsDataBuffer(
     bufferSize: Int = DEFAULT_BUFFER_SIZE,
 ): Flow<DataBuffer> =
     DataBufferUtils
-        .readAsynchronousFileChannel({
-            this
-        }, position, bufferFactory, bufferSize)
+        .readAsynchronousFileChannel({ this }, position, bufferFactory, bufferSize)
         .asFlow()
 
 /**
@@ -89,7 +89,8 @@ fun AsynchronousFileChannel.readAsDataBuffer(
 fun Path.readAsDataBuffer(
     bufferFactory: DataBufferFactory,
     bufferSize: Int = DEFAULT_BUFFER_SIZE,
-): Flow<DataBuffer> = DataBufferUtils.read(this, bufferFactory, bufferSize).asFlow()
+): Flow<DataBuffer> =
+    DataBufferUtils.read(this, bufferFactory, bufferSize).asFlow()
 
 /**
  * [Resource]를 [DataBuffer] 스트림으로 읽습니다.
@@ -107,7 +108,8 @@ fun Resource.readAsDataBuffer(
     bufferFactory: DataBufferFactory,
     position: Long = 0L,
     bufferSize: Int = DEFAULT_BUFFER_SIZE,
-): Flow<DataBuffer> = DataBufferUtils.read(this, position, bufferFactory, bufferSize).asFlow()
+): Flow<DataBuffer> =
+    DataBufferUtils.read(this, position, bufferFactory, bufferSize).asFlow()
 
 /**
  * [DataBuffer] 퍼블리셔를 [OutputStream]으로 씁니다.
@@ -179,7 +181,7 @@ suspend fun Publisher<out DataBuffer>.write(
     destination: Path,
     vararg options: OpenOption,
 ) {
-    DataBufferUtils.write(this as Publisher<DataBuffer>, destination, *options).collect {}
+    DataBufferUtils.write(this as Publisher<DataBuffer>, destination, *options).collect { }
 }
 
 /**

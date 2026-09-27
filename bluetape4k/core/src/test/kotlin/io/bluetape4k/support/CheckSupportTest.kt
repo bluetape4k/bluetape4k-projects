@@ -4,6 +4,8 @@ import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldFailCheck
+import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
@@ -14,12 +16,14 @@ class CheckSupportTest {
     @Test
     fun `check null and not-null state`() {
         val value: String? = "blue"
-        (value.checkNotNull("value") === value).shouldBeTrue()
+        value.checkNotNull("value") shouldBe value
 
         val empty: String? = null
-        (empty.checkNull("value") === empty).shouldBeTrue()
-        shouldFailCheck { empty.checkNotNull("value") }.message shouldBeEqualTo
-                "value[null] must not be null."
+        empty.checkNull("value") shouldBe empty
+
+        shouldFailCheck { empty.checkNotNull("value") }
+            .message shouldBeEqualTo "value[null] must not be null."
+
         shouldFailCheck { value.checkNull("value") }
     }
 
@@ -38,6 +42,7 @@ class CheckSupportTest {
     @Test
     fun `check null-or-empty and null-or-blank state`() {
         val empty: String? = null
+
         empty.checkNullOrEmpty("value")
         "".checkNullOrEmpty("value")
         empty.checkNullOrBlank("value")
@@ -50,9 +55,9 @@ class CheckSupportTest {
     @Test
     fun `check string contains startsWith endsWith`() {
         val value: String? = "Hello World"
-        (value.checkContains("World", "value") === value).shouldBeTrue()
-        (value.checkStartsWith("hello", "value", ignoreCase = true) === value).shouldBeTrue()
-        (value.checkEndsWith("WORLD", "value", ignoreCase = true) === value).shouldBeTrue()
+        value.checkContains("World", "value") shouldBe value
+        value.checkStartsWith("hello", "value", ignoreCase = true) shouldBe value
+        value.checkEndsWith("WORLD", "value", ignoreCase = true) shouldBe value
 
         shouldFailCheck { "hello".checkContains("world", "value") }
         shouldFailCheck { "hello world".checkStartsWith("world", "value") }
@@ -62,30 +67,33 @@ class CheckSupportTest {
     @Test
     fun `check bounded lengths and sizes`() {
         val text: String? = "blue"
-        (text.checkLengthInRange(4, 4, "text") === text).shouldBeTrue()
+        text.checkLengthInRange(4, 4, "text") shouldBe text
         shouldFailCheck { "".checkLengthInRange(1, 4, "text") }
         shouldFailCheck { (null as String?).checkLengthInRange(1, 4, "text") }
 
         val array = arrayOf(1, 2)
-        (array.checkSizeInRange(1, 2, "items") === array).shouldBeTrue()
+        array.checkSizeInRange(1, 2, "items") shouldBe array
         shouldFailCheck { emptyArray<Int>().checkSizeInRange(1, 2, "items") }
         shouldFailCheck { (null as Array<Int>?).checkSizeInRange(1, 2, "items") }
 
         val collection = listOf(1, 2)
-        (collection.checkSizeInRange(1, 2, "items") === collection).shouldBeTrue()
+        collection.checkSizeInRange(1, 2, "items") shouldBe collection
         shouldFailCheck { listOf(1, 2, 3).checkSizeInRange(1, 2, "items") }
 
         val map = mapOf("one" to 1)
-        (map.checkSizeInRange(1, 2, "items") === map).shouldBeTrue()
+        map.checkSizeInRange(1, 2, "items") shouldBe map
         shouldFailCheck { emptyMap<String, Int>().checkSizeInRange(1, 2, "items") }
     }
 
     @Test
     fun `check regex and finite checks`() {
         val value: String? = "SKU-42"
-        (value.checkMatches(Regex("SKU-\\d+"), "sku") === value).shouldBeTrue()
-        val failure = shouldFailCheck { "secret".checkMatches(Regex("SKU-\\d+"), "sku") }
-        failure.message.orEmpty().contains("secret").shouldBeFalse()
+        value.checkMatches(Regex("SKU-\\d+"), "sku") shouldBe value
+
+        val failure = shouldFailCheck {
+            "secret".checkMatches(Regex("SKU-\\d+"), "sku")
+        }
+        failure.message shouldNotContain "secret"
 
         1.0f.checkFinite("ratio") shouldBeEqualTo 1.0f
         Double.MAX_VALUE.checkFinite("ratio") shouldBeEqualTo Double.MAX_VALUE
@@ -154,9 +162,10 @@ class CheckSupportTest {
     @Test
     fun `check collection and array not empty`() {
         val array = arrayOf(1, 2)
-        (array.checkNotEmpty("items") === array).shouldBeTrue()
+        array.checkNotEmpty("items") shouldBe array
+
         val list = listOf(1, 2)
-        (list.checkNotEmpty("items") === list).shouldBeTrue()
+        list.checkNotEmpty("items") shouldBe list
 
         shouldFailCheck { emptyArray<Int>().checkNotEmpty("items") }
         shouldFailCheck { (null as Array<Int>?).checkNotEmpty("items") }
@@ -168,24 +177,24 @@ class CheckSupportTest {
     fun `check not empty returns non-null collection types`() {
         val nullableArray: Array<Int>? = arrayOf(1, 2)
         val array: Array<Int> = nullableArray.checkNotEmpty("items")
-        array.size.shouldBeEqualTo(2)
+        array.size shouldBeEqualTo 2
 
         val nullableCollection: Collection<Int>? = listOf(1, 2)
         val collection: Collection<Int> = nullableCollection.checkNotEmpty("items")
-        collection.size.shouldBeEqualTo(2)
+        collection.size shouldBeEqualTo 2
 
         val nullableMap: Map<String, Int>? = mapOf("one" to 1)
         val map: Map<String, Int> = nullableMap.checkNotEmpty("items")
-        map.size.shouldBeEqualTo(1)
+        map.size shouldBeEqualTo 1
     }
 
     @Test
     fun `check map operations`() {
         val map = mapOf("a" to 1, "b" to 2)
-        (map.checkNotEmpty("map") === map).shouldBeTrue()
-        (map.checkHasKey("a", "map") === map).shouldBeTrue()
-        (map.checkHasValue(1, "map") === map).shouldBeTrue()
-        (map.checkContains("a", 1, "map") === map).shouldBeTrue()
+        map.checkNotEmpty("map") shouldBe map
+        map.checkHasKey("a", "map") shouldBe map
+        map.checkHasValue(1, "map") shouldBe map
+        map.checkContains("a", 1, "map") shouldBe map
 
         shouldFailCheck { emptyMap<String, Int>().checkNotEmpty("map") }
         shouldFailCheck { (null as Map<String, Int>?).checkNotEmpty("map") }

@@ -60,10 +60,9 @@ fun apiErrorResponseEntityOf(
     errorCode: String? = null,
     message: String? = null,
 ): ApiErrorResponseEntity {
-    val body =
-        ApiErrorBody(
-            errorCode = errorCode,
-            message = message,
-        )
+    val body = ApiErrorBody(
+        errorCode = errorCode,
+        message = message,
+    )
     return ResponseEntity.status(statusCode).body(body)
 }

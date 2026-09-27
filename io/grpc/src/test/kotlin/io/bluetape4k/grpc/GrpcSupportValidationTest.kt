@@ -1,14 +1,18 @@
 package io.bluetape4k.grpc
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.grpc.examples.helloworld.GreeterService
 import io.bluetape4k.grpc.inprocess.AbstractGrpcInprocessClient
 import io.bluetape4k.grpc.inprocess.AbstractGrpcInprocessServer
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class GrpcSupportValidationTest {
+
+    companion object: KLogging()
 
     @Test
     fun `managedChannel 은 blank host 를 허용하지 않는다`() {
@@ -49,6 +53,7 @@ class GrpcSupportValidationTest {
         val channel = managedChannel("localhost", 50051) { usePlaintext() }
         channel.authority() shouldBeEqualTo "localhost:50051"
         channel.shutdownNow()
+        channel.isShutdown.shouldBeTrue()
 
         val serverBuilder = grpcServerBuilder(50051) { addService(GreeterService()) }
         serverBuilder.shouldNotBeNull()

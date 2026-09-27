@@ -28,7 +28,7 @@ class MvelAction(val expression: String): Action {
         expression.requireNotBlank("expression")
     }
 
-    private val compiledExpression by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+    private val compiledExpression by lazy {
         MVEL.compileExpression(expression)
     }
 
@@ -36,9 +36,8 @@ class MvelAction(val expression: String): Action {
         try {
             MVEL.executeExpression(compiledExpression, facts.asMap())
         } catch (e: Exception) {
-            log.error {
-                "Fail to execute MVEL expression. ${expression.toRuleSourceLogContext()}, " +
-                        "exceptionType=${e.javaClass.name}, factCount=${facts.size}"
+            log.error(e) {
+                "Fail to execute MVEL expression. ${expression.toRuleSourceLogContext()}, factCount=${facts.size}"
             }
             throw RuleException("Fail to execute MVEL expression", e)
         }

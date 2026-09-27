@@ -3,12 +3,13 @@ package io.bluetape4k.http.okhttp3.examples
 import com.alibaba.fastjson2.toJSONByteArray
 import com.alibaba.fastjson2.toJSONString
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.assertions.fail
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.http.AbstractHttpTest
@@ -45,8 +46,8 @@ import java.net.SocketTimeoutException
 import java.time.Duration
 import java.util.concurrent.CompletionException
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.seconds
 
 @RandomizedTest
 class Recipes: AbstractHttpTest() {
@@ -105,7 +106,7 @@ class Recipes: AbstractHttpTest() {
             }
         }
         client.newCall(request).enqueue(callback)
-        lock.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        lock.await(5.seconds).shouldBeTrue()
         callbackFailure.get()?.let { fail("비동기 HTTP GET callback이 실패했습니다.", it) }
     }
 
@@ -240,7 +241,7 @@ class Recipes: AbstractHttpTest() {
 
         call.cancel()
 
-        lock.await(3, TimeUnit.SECONDS).shouldBeTrue()
+        lock.await(3.seconds).shouldBeTrue()
         call.isCanceled().shouldBeTrue()
         failure.get().shouldBeInstanceOf<IOException>()
     }
@@ -276,7 +277,7 @@ class Recipes: AbstractHttpTest() {
         assertFailsWith<CompletionException> {
             client.executeAsync(request)
                 .onSuccess { fail("Timeout 에러가 나야합니다.") }
-                .onFailure { error -> error.cause shouldBeInstanceOf SocketTimeoutException::class }
+                .onFailure { error -> error.cause.shouldBeInstanceOf<SocketTimeoutException>() }
                 .join()
         }
     }

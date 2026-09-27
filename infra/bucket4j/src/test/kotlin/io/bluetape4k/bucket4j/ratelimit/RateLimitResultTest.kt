@@ -7,6 +7,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -15,6 +16,9 @@ import java.io.ObjectOutputStream
 import java.time.Duration
 
 class RateLimitResultTest {
+
+    companion object: KLogging()
+
     @Test
     fun `consumed factory 는 consumed 상태와 잔여 토큰을 유지한다`() {
         val result = RateLimitResult.consumed(consumedTokens = 2, availableTokens = 8)

@@ -129,10 +129,7 @@ class DaeadChunkEncryptSink(
             }
         }
 
-        if (thrown == null) {
-            return
-        }
-        throw thrown
+        thrown?.let { throw it }
     }
 
     private fun emitCompleteChunks() {

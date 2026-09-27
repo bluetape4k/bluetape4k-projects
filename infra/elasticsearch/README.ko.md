@@ -8,7 +8,7 @@ Kotlin + Coroutines 환경에서 쓰기 위한 Elasticsearch 클라이언트 라
 
 - **Kotlin Coroutines 지원**: Elasticsearch 비동기 작업을 suspend 함수로 감쌉니다.
 - **DSL 빌더 패턴**: `ElasticsearchAsyncClient`와 `ElasticsearchClient`를 Kotlin DSL로 구성합니다.
-- **고급 검색**: Point-in-Time(PIT) + `search_after` 페이징을 Flow 기반 무한 스크롤로 제공합니다.
+- **고급 검색**: Point-in-Time (PIT) + `search_after` 페이징을 Flow 기반 무한 스크롤로 제공합니다.
 - **일괄 작업**: Flow 백프레셔를 유지하면서 bulk indexing을 처리합니다.
 - **Virtual Thread 안전성**: `synchronized` 블록을 쓰지 않고, 필요한 경우 명시적 lock을 사용합니다.
 - **Elasticsearch 9.x 호환**: HC5 기반 `Rest5ClientTransport`를 기본 transport로 사용합니다.
@@ -120,7 +120,7 @@ client.use { c ->
 }
 ```
 
-### 3. Point-in-Time(PIT)을 사용한 무한 스크롤
+### 3. Point-in-Time (PIT)을 사용한 무한 스크롤
 
 ```kotlin
 import io.bluetape4k.elasticsearch.coroutines.searchAsFlow
@@ -192,10 +192,7 @@ suspend fun bulkIndexDocuments() {
 }
 ```
 
-`bulkProgressListener()`는 기본적으로 bounded progress-event buffer를 사용합니다
-(`bufferCapacity = 256`, `onBufferOverflow = BufferOverflow.SUSPEND`). Listener callback은
-Elasticsearch client thread를 블로킹하지 않으며, collector가 느리거나 없어서 `trySend`가 실패하면
-warn 로그를 남기고 overflow된 progress event를 드롭합니다. 워크로드에 다른 보존 정책이 필요하면
+`bulkProgressListener()`는 기본적으로 bounded progress-event buffer를 사용합니다 (`bufferCapacity = 256`, `onBufferOverflow = BufferOverflow.SUSPEND`). Listener callback은 Elasticsearch client thread를 블로킹하지 않으며, collector가 느리거나 없어서 `trySend`가 실패하면 warn 로그를 남기고 overflow된 progress event를 드롭합니다. 워크로드에 다른 보존 정책이 필요하면
 `bufferCapacity`와 `onBufferOverflow`를 조정하세요.
 
 ### 5. 직접 일괄 작업
@@ -371,7 +368,7 @@ val client = elasticsearchAsyncClient {
 
 ### Flow 기반 페이징 (searchAsFlow)
 
-Kotlin Flow를 사용한 지연(lazy), 백프레셔 인식 페이징. Cancellation 중에도 best-effort non-cancellable PIT close를 수행해 PIT 생명주기를 자동으로 관리합니다.
+Kotlin Flow를 사용한 지연 (lazy), 백프레셔 인식 페이징. Cancellation 중에도 best-effort non-cancellable PIT close를 수행해 PIT 생명주기를 자동으로 관리합니다.
 
 ### Coroutine 래퍼 (suspendBulk)
 

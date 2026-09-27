@@ -3,6 +3,7 @@ package io.bluetape4k.vertx.resilience4j
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.asCompletableFuture
@@ -15,7 +16,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 @Suppress("UNUSED_PARAMETER")
 class VertxFutureBulkheadSupportTest: AbstractVertxFutureTest() {
@@ -100,7 +101,7 @@ class VertxFutureBulkheadSupportTest: AbstractVertxFutureTest() {
                 }
             } finally {
                 executor.shutdown()
-                executor.awaitTermination(1, TimeUnit.SECONDS)
+                executor.awaitTermination(1.seconds)
             }
 
             permittedEvents shouldBeEqualTo 1

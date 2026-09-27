@@ -8,6 +8,7 @@ import io.micrometer.observation.ObservationRegistry
 import io.micrometer.observation.contextpropagation.ObservationThreadLocalAccessor
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ThreadContextElement
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.reactor.ReactorContext
 import kotlinx.coroutines.reactor.asCoroutineContext
 import kotlinx.coroutines.withContext
@@ -15,7 +16,6 @@ import reactor.util.context.Context
 import java.io.Serializable
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.coroutineContext
 
 /**
  * Micrometer key values applied when a Spring Boot observation is created.
@@ -154,8 +154,8 @@ private class SpringObservationScopeContextElement(
 }
 
 private suspend fun Observation.asSpringCoroutineObservationContext(): CoroutineContext {
-    val reactorContext = (coroutineContext[ReactorContext]?.context ?: Context.empty())
-        .put(ObservationThreadLocalAccessor.KEY, this)
+    val reactorContext = (currentCoroutineContext()[ReactorContext]?.context ?: Context.empty())
+    reactorContext.put(ObservationThreadLocalAccessor.KEY, this)
 
     return reactorContext.asCoroutineContext() + SpringObservationScopeContextElement(this)
 }

@@ -21,9 +21,8 @@ import org.springframework.r2dbc.core.DatabaseClient
  */
 inline fun databaseClient(
     builder: DatabaseClient.Builder.() -> Unit,
-): DatabaseClient {
-    return DatabaseClient.builder().also(builder).build()
-}
+): DatabaseClient =
+    DatabaseClient.builder().also(builder).build()
 
 /**
  * [ConnectionFactory]를 기본으로 설정한 [DatabaseClient]를 생성합니다.
@@ -43,7 +42,8 @@ inline fun databaseClient(
 inline fun databaseClient(
     factory: ConnectionFactory,
     builder: DatabaseClient.Builder.() -> Unit = {},
-): DatabaseClient = databaseClient {
-    connectionFactory(factory)
-    builder()
-}
+): DatabaseClient =
+    databaseClient {
+        connectionFactory(factory)
+        builder()
+    }

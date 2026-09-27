@@ -28,7 +28,8 @@ import java.sql.Timestamp
  * @param columnIndex 컬럼 인덱스 (1부터 시작)
  * @return 컬럼 값 또는 null
  */
-operator fun ResultSet.get(columnIndex: Int): Any? = retrieveValueOrNull(this.getObject(columnIndex))
+operator fun ResultSet.get(columnIndex: Int): Any? =
+    retrieveValueOrNull(this.getObject(columnIndex))
 
 /**
  * 컬럼 레이블을 이용하여 컬럼 값을 가져옵니다.
@@ -43,7 +44,8 @@ operator fun ResultSet.get(columnIndex: Int): Any? = retrieveValueOrNull(this.ge
  * @param columnLabel 컬럼 레이블 (이름)
  * @return 컬럼 값 또는 null
  */
-operator fun ResultSet.get(columnLabel: String): Any? = retrieveValueOrNull(this.getObject(columnLabel))
+operator fun ResultSet.get(columnLabel: String): Any? =
+    retrieveValueOrNull(this.getObject(columnLabel))
 
 /**
  * ResultSet에서 정보를 읽어 객체 리스트를 생성합니다.

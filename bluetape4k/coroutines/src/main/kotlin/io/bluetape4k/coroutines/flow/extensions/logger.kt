@@ -35,25 +35,25 @@ internal val logger by lazy { KotlinLogging.logger(LibraryName) }
 fun <T> Flow<T>.log(tag: Any, log: org.slf4j.Logger = logger): Flow<T> {
     return this
         .onStart {
-            log.debug { "[$tag] \uD83D\uDE80" }
+            log.debug { "[$tag] \uD83D\uDE80 Flow 시작" }
         }
         .onEmpty {
-            log.debug { "[$tag] \uD83D\uDEAB" }
+            log.debug { "[$tag] \uD83D\uDEAB empty" }
         }
         .onEach {
             val item = when (it) {
                 is Flow<*> -> "<Flow>"
                 else       -> it
             }
-            log.debug { "[$tag] ➡️emit $item" }
+            log.debug { "[$tag] ➡️Emit $item" }
         }
         .onCompletion {
             if (it == null) {
-                log.debug { "[$tag] ✅" }
+                log.debug { "[$tag] ✅Flow 완료" }
             } else {
                 when (it) {
-                    is CancellationException -> log.debug { "[$tag] \uD83D\uDEAB" }
-                    else                     -> log.debug(it) { "[$tag] 🔥" }
+                    is CancellationException -> log.debug { "[$tag] \uD83D\uDEAB Flow 취소" }
+                    else                     -> log.debug(it) { "[$tag] 🔥예외 발생." }
                 }
             }
         }

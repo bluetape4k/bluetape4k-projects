@@ -1,6 +1,7 @@
 package io.bluetape4k.json.compat.issue756.java;
 
 import io.bluetape4k.json.JsonSerializer;
+
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
@@ -13,12 +14,12 @@ public final class LegacyJsonStreamCaller {
     public static void main(String[] args) throws Exception {
         JsonSerializer serializer = new LegacyJsonImplementation();
         require("json".equals(new String(serializer.serialize("json"), StandardCharsets.UTF_8)),
-            "legacy JSON call changed");
+                "legacy JSON call changed");
 
         Method method = JsonSerializer.class.getMethod(
-            "serializeJsonToStream",
-            Object.class,
-            OutputStream.class
+                "serializeJsonToStream",
+                Object.class,
+                OutputStream.class
         );
         require(method.isDefault(), "JSON stream method is not a default");
 

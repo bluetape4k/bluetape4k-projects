@@ -9,7 +9,9 @@ import org.apache.commons.math3.special.Gamma as ApacheGamma
 
 class GammaFunctionsTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-10
+    }
 
     // ----- gammaLowerRegularized -----
 
@@ -21,8 +23,8 @@ class GammaFunctionsTest {
     @Test
     fun `gammaLowerRegularized a 가 1 이면 1-exp(-x) 와 일치한다`() {
         // P(1, x) = 1 - exp(-x)
-        gammaLowerRegularized(1.0, 1.0).shouldBeNear(1.0 - Math.exp(-1.0), 1e-10)
-        gammaLowerRegularized(1.0, 2.0).shouldBeNear(1.0 - Math.exp(-2.0), 1e-10)
+        gammaLowerRegularized(1.0, 1.0).shouldBeNear(1.0 - Math.exp(-1.0), EPSILON)
+        gammaLowerRegularized(1.0, 2.0).shouldBeNear(1.0 - Math.exp(-2.0), EPSILON)
     }
 
     @Test
@@ -31,7 +33,7 @@ class GammaFunctionsTest {
         val x = 3.0
         val lower = gammaLowerRegularized(a, x)
         val upper = gammaUpperRegularized(a, x)
-        (lower + upper).shouldBeNear(1.0, 1e-10)
+        (lower + upper).shouldBeNear(1.0, EPSILON)
     }
 
     // ----- gammaUpperRegularized -----
@@ -44,7 +46,7 @@ class GammaFunctionsTest {
 
     @Test
     fun `gammaUpperRegularized 큰 x 에서 0 에 수렴한다`() {
-        gammaUpperRegularized(1.0, 100.0).shouldBeNear(0.0, 1e-10)
+        gammaUpperRegularized(1.0, 100.0).shouldBeNear(0.0, EPSILON)
     }
 
     // ----- gammaLn (DoubleArray extension) -----
@@ -55,9 +57,9 @@ class GammaFunctionsTest {
         val result = input.gammaLn()
 
         result.size shouldBeEqualTo 4
-        result[0].shouldBeNear(ln(1.0), 1e-10) // logGamma(1) = 0
-        result[1].shouldBeNear(ln(1.0), 1e-10) // logGamma(2) = 0
-        result[2].shouldBeNear(ln(2.0), 1e-10) // logGamma(3) = ln(2)
+        result[0].shouldBeNear(ln(1.0), EPSILON) // logGamma(1) = 0
+        result[1].shouldBeNear(ln(1.0), EPSILON) // logGamma(2) = 0
+        result[2].shouldBeNear(ln(2.0), EPSILON) // logGamma(3) = ln(2)
     }
 
     @Test
@@ -66,9 +68,9 @@ class GammaFunctionsTest {
         val result = input.gammaLn()
 
         result.size shouldBeEqualTo 3
-        result[0].shouldBeNear(0.0, 1e-10)
-        result[1].shouldBeNear(0.0, 1e-10)
-        result[2].shouldBeNear(ln(2.0), 1e-10)
+        result[0].shouldBeNear(0.0, EPSILON)
+        result[1].shouldBeNear(0.0, EPSILON)
+        result[2].shouldBeNear(ln(2.0), EPSILON)
     }
 
     // ----- gamma (DoubleArray extension) -----
@@ -79,10 +81,10 @@ class GammaFunctionsTest {
         val result = input.gamma()
 
         result.size shouldBeEqualTo 4
-        result[0].shouldBeNear(1.0, 1e-10)  // gamma(1) = 1
-        result[1].shouldBeNear(1.0, 1e-10)  // gamma(2) = 1
-        result[2].shouldBeNear(2.0, 1e-10)  // gamma(3) = 2
-        result[3].shouldBeNear(6.0, 1e-10)  // gamma(4) = 6
+        result[0].shouldBeNear(1.0, EPSILON)  // gamma(1) = 1
+        result[1].shouldBeNear(1.0, EPSILON)  // gamma(2) = 1
+        result[2].shouldBeNear(2.0, EPSILON)  // gamma(3) = 2
+        result[2].shouldBeNear(2.0, EPSILON)
     }
 
     @Test
@@ -91,9 +93,9 @@ class GammaFunctionsTest {
         val result = input.gamma()
 
         result.size shouldBeEqualTo 3
-        result[0].shouldBeNear(1.0, 1e-10)
-        result[1].shouldBeNear(1.0, 1e-10)
-        result[2].shouldBeNear(2.0, 1e-10)
+        result[0].shouldBeNear(1.0, EPSILON)
+        result[1].shouldBeNear(1.0, EPSILON)
+        result[2].shouldBeNear(2.0, EPSILON)
     }
 
     @Test
@@ -104,9 +106,9 @@ class GammaFunctionsTest {
         val result = items.gamma { it.value }
 
         result.size shouldBeEqualTo 3
-        result[0].shouldBeNear(1.0, 1e-10)
-        result[1].shouldBeNear(1.0, 1e-10)
-        result[2].shouldBeNear(2.0, 1e-10)
+        result[0].shouldBeNear(1.0, EPSILON)
+        result[1].shouldBeNear(1.0, EPSILON)
+        result[2].shouldBeNear(2.0, EPSILON)
     }
 
     // ----- gammaLowerIncomplete -----
@@ -118,7 +120,7 @@ class GammaFunctionsTest {
         val x = 1.0
         // gammaLowerIncomplete(a, x) = gammaLowerRegularized(a, x) * gamma(a)
         // gamma(1) = 1이므로 gammaLowerRegularized(1, x) = gammaLowerIncomplete(1, x)
-        gammaLowerIncomplete(a, x).shouldBeNear(1.0 - Math.exp(-x), 1e-10)
+        gammaLowerIncomplete(a, x).shouldBeNear(1.0 - Math.exp(-x), EPSILON)
     }
 
     @Test
@@ -127,7 +129,7 @@ class GammaFunctionsTest {
         val x = 1.5
         val lower = gammaLowerIncomplete(a, x)
         val upper = gammaUpperIncomplete(a, x)
-        (lower + upper).shouldBeNear(ApacheGamma.gamma(a), 1e-10)
+        (lower + upper).shouldBeNear(ApacheGamma.gamma(a), EPSILON)
     }
 
     // ----- gammaUpperIncomplete -----
@@ -135,11 +137,11 @@ class GammaFunctionsTest {
     @Test
     fun `gammaUpperIncomplete x=0 이면 gamma(a) 이다`() {
         val a = 3.0
-        gammaUpperIncomplete(a, 0.0).shouldBeNear(ApacheGamma.gamma(a), 1e-10)
+        gammaUpperIncomplete(a, 0.0).shouldBeNear(ApacheGamma.gamma(a), EPSILON)
     }
 
     @Test
     fun `gammaUpperIncomplete 큰 x 에서 0 에 수렴한다`() {
-        gammaUpperIncomplete(1.0, 100.0).shouldBeNear(0.0, 1e-10)
+        gammaUpperIncomplete(1.0, 100.0).shouldBeNear(0.0, EPSILON)
     }
 }

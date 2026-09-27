@@ -1,10 +1,11 @@
 package io.bluetape4k.avro.compat.issue754.java;
 
 import io.bluetape4k.avro.AvroGenericRecordSerializer;
-import java.nio.charset.StandardCharsets;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
+
+import java.nio.charset.StandardCharsets;
 
 public final class LegacyAvroGenericRecordImplementation implements AvroGenericRecordSerializer {
     public int serializeCalls;

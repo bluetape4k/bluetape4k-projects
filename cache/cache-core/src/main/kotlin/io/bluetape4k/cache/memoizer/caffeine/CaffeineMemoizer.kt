@@ -3,6 +3,8 @@ package io.bluetape4k.cache.memoizer.caffeine
 import com.github.benmanes.caffeine.cache.Cache
 import io.bluetape4k.cache.memoizer.Memoizer
 import io.bluetape4k.logging.KLogging
+import okio.withLock
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * Caffeine Cache를 이용하여 [CaffeineMemoizer]를 생성합니다.
@@ -59,15 +61,14 @@ class CaffeineMemoizer<T: Any, R: Any>(
 ): Memoizer<T, R> {
     companion object: KLogging()
 
+    private val lock = ReentrantLock()
+
     override fun invoke(input: T): R =
-        cache.getIfPresent(input)
-            ?: run {
-                val result = evaluator(input)
-                cache.put(input, result)
-                result
-            }
+        cache.getIfPresent(input) ?: evaluator(input).apply { cache.put(input, this) }
 
     override fun clear() {
-        cache.invalidateAll()
+        lock.withLock {
+            cache.invalidateAll()
+        }
     }
 }

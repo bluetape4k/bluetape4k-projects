@@ -8,7 +8,8 @@ import java.nio.ByteOrder;
 
 public final class JdkGlobalObjectInputFilterFixture {
 
-    private JdkGlobalObjectInputFilterFixture() {}
+    private JdkGlobalObjectInputFilterFixture() {
+    }
 
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -39,7 +40,7 @@ public final class JdkGlobalObjectInputFilterFixture {
                 assertRejected(arrayFailure);
                 assertRejected(directFailure);
                 if (!arrayFailure.getClass().equals(directFailure.getClass()) ||
-                    !arrayFailure.getCause().getClass().equals(directFailure.getCause().getClass())) {
+                        !arrayFailure.getCause().getClass().equals(directFailure.getCause().getClass())) {
                     throw new AssertionError("Global reject filter failure parity failed.");
                 }
                 assertSourceState(source, wire.length);
@@ -65,7 +66,7 @@ public final class JdkGlobalObjectInputFilterFixture {
 
     private static void assertSourceState(ByteBuffer source, int wireLength) {
         if (source.position() != 2 || source.limit() != 2 + wireLength ||
-            source.order() != ByteOrder.LITTLE_ENDIAN) {
+                source.order() != ByteOrder.LITTLE_ENDIAN) {
             throw new AssertionError("Source state changed during bounded direct decode.");
         }
         source.reset();
@@ -85,7 +86,7 @@ public final class JdkGlobalObjectInputFilterFixture {
 
     private static void assertRejected(Throwable failure) {
         if (!(failure instanceof BinarySerializationException) ||
-            !(failure.getCause() instanceof InvalidClassException)) {
+                !(failure.getCause() instanceof InvalidClassException)) {
             throw new AssertionError("Expected BinarySerializationException caused by InvalidClassException.", failure);
         }
     }

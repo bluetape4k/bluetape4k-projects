@@ -1,11 +1,14 @@
 package io.bluetape4k.io.serializer
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 
 class BinarySerializerDecoratorOutputStreamTest {
+
+    companion object: KLogging()
 
     @Test
     fun `stream serialization preserves Java style subclass transform`() {

@@ -1,12 +1,12 @@
 package io.bluetape4k.jdbc.sql
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
@@ -29,8 +29,8 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
         }
 
         // 데이터가 커밋되었는지 확인
-        val count =
-            dataSource.runQuery("SELECT COUNT(*) FROM Actors WHERE firstname = 'Transaction'") { rs ->
+        val count = dataSource
+            .runQuery("SELECT COUNT(*) FROM Actors WHERE firstname = 'Transaction'") { rs ->
                 rs.next()
                 rs.getInt(1)
             }
@@ -47,8 +47,8 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
         }
 
         // 데이터가 롤백되었는지 확인
-        val count =
-            dataSource.runQuery("SELECT COUNT(*) FROM Actors WHERE firstname = 'Rollback'") { rs ->
+        val count = dataSource
+            .runQuery("SELECT COUNT(*) FROM Actors WHERE firstname = 'Rollback'") { rs ->
                 rs.next()
                 rs.getInt(1)
             }
@@ -57,8 +57,8 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `withTransaction - 결과값 반환`() {
-        val result =
-            dataSource.withTransaction { conn ->
+        val result = dataSource
+            .withTransaction { conn ->
                 conn.executeUpdate("INSERT INTO Actors (firstname, lastname) VALUES ('Result', 'Test')")
                 42 // 결과 반환
             }
@@ -69,8 +69,8 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
     @Test
     fun `withReadOnlyTransaction - 읽기 전용 트랜잭션`() {
         dataSource.withReadOnlyTransaction { conn ->
-            val count =
-                conn.runQuery("SELECT COUNT(*) FROM Actors") { rs ->
+            val count = conn
+                .runQuery("SELECT COUNT(*) FROM Actors") { rs ->
                     rs.next()
                     rs.getInt(1)
                 }
@@ -82,11 +82,10 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
     fun `withReadOnlyTransaction restores pre existing readOnly state`() {
         val recording = RecordingConnection(readOnly = true)
 
-        val result =
-            recording.connection.withReadOnlyTransaction { conn ->
-                conn.isReadOnly.shouldBeTrue()
-                "read-only"
-            }
+        val result = recording.connection.withReadOnlyTransaction { conn ->
+            conn.isReadOnly.shouldBeTrue()
+            "read-only"
+        }
 
         result shouldBeEqualTo "read-only"
         recording.readOnly.shouldBeTrue()
@@ -97,24 +96,22 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
         val recording = RecordingConnection()
         val failure = AssertionError("boom")
 
-        val thrown =
-            assertFailsWith<AssertionError> {
-                recording.connection.withTransaction {
-                    throw failure
-                }
+        val thrown = assertFailsWith<AssertionError> {
+            recording.connection.withTransaction {
+                throw failure
             }
+        }
 
-        thrown shouldBeEqualTo failure
+        thrown shouldBe failure
         recording.calls shouldContain "rollback"
     }
 
     @Test
     fun `withTransaction restores pre existing autoCommit false and isolation state`() {
-        val recording =
-            RecordingConnection(
-                autoCommit = false,
-                isolation = Connection.TRANSACTION_SERIALIZABLE,
-            )
+        val recording = RecordingConnection(
+            autoCommit = false,
+            isolation = Connection.TRANSACTION_SERIALIZABLE,
+        )
 
         recording.connection.withTransaction { conn ->
             conn.autoCommit.shouldBeFalse()
@@ -128,23 +125,21 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
     @Test
     fun `withTransaction suppresses restore failures on primary failure and restores independently`() {
         val restoreFailure = SQLException("restore autoCommit")
-        val recording =
-            RecordingConnection(
-                isolation = Connection.TRANSACTION_SERIALIZABLE,
-                readOnly = true,
-                failRestoringAutoCommit = restoreFailure,
-            )
+        val recording = RecordingConnection(
+            isolation = Connection.TRANSACTION_SERIALIZABLE,
+            readOnly = true,
+            failRestoringAutoCommit = restoreFailure,
+        )
         val primaryFailure = RuntimeException("primary")
 
-        val thrown =
-            assertFailsWith<RuntimeException> {
-                recording.connection.withTransaction { conn ->
-                    conn.isReadOnly = false
-                    throw primaryFailure
-                }
+        val thrown = assertFailsWith<RuntimeException> {
+            recording.connection.withTransaction { conn ->
+                conn.isReadOnly = false
+                throw primaryFailure
             }
+        }
 
-        thrown shouldBeEqualTo primaryFailure
+        thrown shouldBe primaryFailure
         thrown.suppressed.toList() shouldContain restoreFailure
         recording.calls shouldContain "setTransactionIsolation(${Connection.TRANSACTION_SERIALIZABLE})"
         recording.calls shouldContain "setReadOnly(true)"
@@ -155,56 +150,52 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
         val restoreFailure = SQLException("restore autoCommit")
         val recording = RecordingConnection(failRestoringAutoCommit = restoreFailure)
 
-        val thrown =
-            assertFailsWith<SQLException> {
-                recording.connection.withTransaction {}
-            }
+        val thrown = assertFailsWith<SQLException> {
+            recording.connection.withTransaction {}
+        }
 
-        thrown shouldBeEqualTo restoreFailure
+        thrown shouldBe restoreFailure
     }
 
     @Test
     fun `withTransaction does not commit when rollback fails`() {
         val marker = "rollback-failure-${System.nanoTime()}"
         val url = "jdbc:h2:mem:rollback-failure-${System.nanoTime()};DB_CLOSE_DELAY=-1"
+
         DriverManager.getConnection(url).use { realConnection ->
             realConnection.createStatement().use { statement ->
                 statement.executeUpdate("CREATE TABLE records (payload VARCHAR(255))")
             }
-            val failingConnection =
-                Proxy.newProxyInstance(
-                    Connection::class.java.classLoader,
-                    arrayOf(Connection::class.java),
-                ) { _, method, args ->
-                    if (method.name == "rollback") {
-                        throw SQLException("injected rollback failure")
-                    }
-                    try {
-                        method.invoke(realConnection, *(args ?: emptyArray()))
-                    } catch (error: java.lang.reflect.InvocationTargetException) {
-                        throw error.targetException
-                    }
-                } as Connection
+            val failingConnection = Proxy.newProxyInstance(
+                Connection::class.java.classLoader,
+                arrayOf(Connection::class.java),
+            ) { _, method, args ->
+                if (method.name == "rollback") {
+                    throw SQLException("injected rollback failure")
+                }
+                try {
+                    method.invoke(realConnection, *(args ?: emptyArray()))
+                } catch (error: java.lang.reflect.InvocationTargetException) {
+                    throw error.targetException
+                }
+            } as Connection
 
             assertFailsWith<IllegalStateException> {
                 failingConnection.withTransaction { connection ->
-                    connection.executeUpdate(
-                        "INSERT INTO records (payload) VALUES ('$marker')",
-                    )
+                    connection.executeUpdate("INSERT INTO records (payload) VALUES ('$marker')")
                     error("work failed")
                 }
             }
             realConnection.autoCommit.shouldBeFalse()
 
-            val committedRows =
-                DriverManager.getConnection(url).use { observer ->
-                    observer.createStatement()
-                        .executeQuery("SELECT COUNT(*) FROM records WHERE payload = '$marker'")
-                        .use { resultSet ->
-                            resultSet.next()
-                            resultSet.getInt(1)
-                        }
-                }
+            val committedRows = DriverManager.getConnection(url).use { observer ->
+                observer.createStatement()
+                    .executeQuery("SELECT COUNT(*) FROM records WHERE payload = '$marker'")
+                    .use { resultSet ->
+                        resultSet.next()
+                        resultSet.getInt(1)
+                    }
+            }
             committedRows shouldBeEqualTo 0
         }
     }
@@ -261,14 +252,13 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
         val primaryFailure = RuntimeException("primary")
         val recording = RecordingConnection(failRestoringIsolation = restoreFailure)
 
-        val thrown =
-            assertFailsWith<RuntimeException> {
-                recording.connection.withIsolationLevel(Connection.TRANSACTION_SERIALIZABLE) {
-                    throw primaryFailure
-                }
+        val thrown = assertFailsWith<RuntimeException> {
+            recording.connection.withIsolationLevel(Connection.TRANSACTION_SERIALIZABLE) {
+                throw primaryFailure
             }
+        }
 
-        thrown shouldBeEqualTo primaryFailure
+        thrown shouldBe primaryFailure
         thrown.suppressed.toList() shouldContain restoreFailure
     }
 
@@ -278,14 +268,13 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
         val primaryFailure = RuntimeException("primary")
         val recording = RecordingConnection(failRestoringAutoCommit = restoreFailure)
 
-        val thrown =
-            assertFailsWith<RuntimeException> {
-                recording.connection.withAutoCommit(false) {
-                    throw primaryFailure
-                }
+        val thrown = assertFailsWith<RuntimeException> {
+            recording.connection.withAutoCommit(false) {
+                throw primaryFailure
             }
+        }
 
-        thrown shouldBeEqualTo primaryFailure
+        thrown shouldBe primaryFailure
         thrown.suppressed.toList() shouldContain restoreFailure
     }
 
@@ -295,14 +284,13 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
         val primaryFailure = RuntimeException("primary")
         val recording = RecordingConnection(failRestoringReadOnly = restoreFailure)
 
-        val thrown =
-            assertFailsWith<RuntimeException> {
-                recording.connection.withReadOnly {
-                    throw primaryFailure
-                }
+        val thrown = assertFailsWith<RuntimeException> {
+            recording.connection.withReadOnly {
+                throw primaryFailure
             }
+        }
 
-        thrown shouldBeEqualTo primaryFailure
+        thrown shouldBe primaryFailure
         thrown.suppressed.toList() shouldContain restoreFailure
     }
 
@@ -312,42 +300,36 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
         val primaryFailure = RuntimeException("primary")
         val recording = RecordingConnection(failRestoringHoldability = restoreFailure)
 
-        val thrown =
-            assertFailsWith<RuntimeException> {
-                recording.connection.withHoldability(ResultSet.CLOSE_CURSORS_AT_COMMIT) {
-                    throw primaryFailure
-                }
+        val thrown = assertFailsWith<RuntimeException> {
+            recording.connection.withHoldability(ResultSet.CLOSE_CURSORS_AT_COMMIT) {
+                throw primaryFailure
             }
+        }
 
-        thrown shouldBeEqualTo primaryFailure
+        thrown shouldBe primaryFailure
         thrown.suppressed.toList() shouldContain restoreFailure
     }
 
     @Test
     fun `복합 트랜잭션 작업`() {
-        val actorId =
-            dataSource.withTransaction { conn ->
-                // 첫 번째 INSERT
-                conn.executeUpdate("INSERT INTO Actors (firstname, lastname) VALUES ('Actor', 'One')")
+        val actorId = dataSource.withTransaction { conn ->
+            // 첫 번째 INSERT
+            conn.executeUpdate("INSERT INTO Actors (firstname, lastname) VALUES ('Actor', 'One')")
 
-                // 두 번째 INSERT
-                conn.executeUpdate("INSERT INTO Actors (firstname, lastname) VALUES ('Actor', 'Two')")
+            // 두 번째 INSERT
+            conn.executeUpdate("INSERT INTO Actors (firstname, lastname) VALUES ('Actor', 'Two')")
 
-                // 결과 확인
-                conn.runQuery("SELECT id FROM Actors WHERE firstname = 'Actor' AND lastname = 'One'") { rs ->
-                    rs.next()
-                    rs.getInt("id")
-                }
+            // 결과 확인
+            conn.runQuery("SELECT id FROM Actors WHERE firstname = 'Actor' AND lastname = 'One'") { rs ->
+                rs.next()
+                rs.getInt("id")
             }
-
-        actorId.shouldNotBeNull()
+        }
         actorId shouldBeGreaterThan 0
 
         // 두 개의 레코드가 모두 커밋되었는지 확인
-        val count =
-            dataSource.runQuery(
-                "SELECT COUNT(*) FROM Actors WHERE firstname = 'Actor' AND lastname IN ('One', 'Two')",
-            ) { rs ->
+        val count = dataSource
+            .runQuery("SELECT COUNT(*) FROM Actors WHERE firstname = 'Actor' AND lastname IN ('One', 'Two')") { rs ->
                 rs.next()
                 rs.getInt(1)
             }
@@ -359,7 +341,6 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
         try {
             dataSource.withTransaction { conn ->
                 conn.executeUpdate("INSERT INTO Actors (firstname, lastname) VALUES ('Before', 'Exception')")
-
                 // 의도적인 예외 발생
                 error("의도적인 에러")
             }
@@ -368,10 +349,8 @@ class TransactionExtensionsTest: AbstractJdbcSqlTest() {
         }
 
         // 롤백되었는지 확인
-        val count =
-            dataSource.runQuery(
-                "SELECT COUNT(*) FROM Actors WHERE firstname = 'Before'",
-            ) { rs ->
+        val count = dataSource
+            .runQuery("SELECT COUNT(*) FROM Actors WHERE firstname = 'Before'") { rs ->
                 rs.next()
                 rs.getInt(1)
             }
@@ -418,8 +397,8 @@ private class RecordingConnection(
         val arguments = args ?: emptyArray()
 
         return when (method.name) {
-            "getAutoCommit" -> autoCommit
-            "setAutoCommit" -> {
+            "getAutoCommit"  -> autoCommit
+            "setAutoCommit"  -> {
                 val value = arguments[0] as Boolean
                 val isRestore = calls.any { it.startsWith("setAutoCommit") } && value == originalAutoCommit
                 calls.add("setAutoCommit($value)")
@@ -437,8 +416,8 @@ private class RecordingConnection(
                 isolation = value
                 null
             }
-            "isReadOnly" -> readOnly
-            "setReadOnly" -> {
+            "isReadOnly"     -> readOnly
+            "setReadOnly"    -> {
                 val value = arguments[0] as Boolean
                 val isRestore = calls.any { it.startsWith("setReadOnly") } && value == originalReadOnly
                 calls.add("setReadOnly($value)")
@@ -455,38 +434,38 @@ private class RecordingConnection(
                 holdability = value
                 null
             }
-            "commit" -> {
+            "commit"         -> {
                 calls.add("commit")
                 null
             }
-            "rollback" -> {
+            "rollback"       -> {
                 calls.add("rollback")
                 rollbackFailure?.let { throw it }
                 null
             }
-            "close" -> {
+            "close"          -> {
                 calls.add("close")
                 null
             }
-            "isClosed" -> false
-            "toString" -> "RecordingConnection"
-            "hashCode" -> System.identityHashCode(proxy)
-            "equals" -> proxy === arguments[0]
-            else -> defaultValue(method.returnType)
+            "isClosed"       -> false
+            "toString"       -> "RecordingConnection"
+            "hashCode"       -> System.identityHashCode(proxy)
+            "equals"         -> proxy === arguments[0]
+            else             -> defaultValue(method.returnType)
         }
     }
 
     private fun defaultValue(returnType: Class<*>): Any? =
         when (returnType) {
             Boolean::class.javaPrimitiveType -> false
-            Byte::class.javaPrimitiveType -> 0.toByte()
-            Short::class.javaPrimitiveType -> 0.toShort()
-            Int::class.javaPrimitiveType -> 0
-            Long::class.javaPrimitiveType -> 0L
-            Float::class.javaPrimitiveType -> 0F
+            Byte::class.javaPrimitiveType   -> 0.toByte()
+            Short::class.javaPrimitiveType  -> 0.toShort()
+            Int::class.javaPrimitiveType    -> 0
+            Long::class.javaPrimitiveType   -> 0L
+            Float::class.javaPrimitiveType  -> 0F
             Double::class.javaPrimitiveType -> 0.0
-            Char::class.javaPrimitiveType -> '\u0000'
-            Void.TYPE -> null
-            else -> null
+            Char::class.javaPrimitiveType   -> '\u0000'
+            Void.TYPE                       -> null
+            else                            -> null
         }
 }

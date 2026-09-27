@@ -1,8 +1,10 @@
 package io.bluetape4k.io
 
-import org.junit.jupiter.api.Assertions.assertArrayEquals
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -21,6 +23,8 @@ import java.util.concurrent.CancellationException
 
 class AtomicFileFailurePolicyTest {
 
+    companion object: KLogging()
+
     @TempDir
     lateinit var tempDir: Path
 
@@ -36,9 +40,9 @@ class AtomicFileFailurePolicyTest {
             AtomicFileWriter(operations).write(requested) {}
         }
 
-        assertSame(expected, actual)
-        assertEquals(requested.toAbsolutePath().normalize().parent, operations.createdDirectory)
-        assertEquals(0, operations.tempCalls)
+        actual shouldBeEqualTo expected
+        operations.createdDirectory shouldBeEqualTo requested.toAbsolutePath().normalize().parent
+        operations.tempCalls shouldBeEqualTo 0
     }
 
     @Test
@@ -51,14 +55,14 @@ class AtomicFileFailurePolicyTest {
             output.write(3)
         }
 
-        assertEquals(3L, written)
-        assertTrue(operations.closedBeforeMove)
-        assertEquals(
-            listOf(StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING),
-            operations.moveOptions,
+        written shouldBeEqualTo 3L
+        operations.closedBeforeMove.shouldBeTrue()
+        operations.moveOptions shouldBeEqualTo listOf(
+            StandardCopyOption.ATOMIC_MOVE,
+            StandardCopyOption.REPLACE_EXISTING
         )
-        assertEquals(target.toAbsolutePath().normalize(), operations.lastMoveTarget)
-        assertEquals(0, operations.deleteCalls)
+        operations.lastMoveTarget shouldBeEqualTo target.toAbsolutePath().normalize()
+        operations.deleteCalls shouldBeEqualTo 0
     }
 
     @Test
@@ -71,11 +75,11 @@ class AtomicFileFailurePolicyTest {
             AtomicFileWriter(operations).write(tempDir.resolve("target.bin")) { writerCalled = true }
         }
 
-        assertSame(expected, actual)
-        assertFalse(writerCalled)
-        assertEquals(0, operations.tempCalls)
-        assertEquals(0, operations.openCalls)
-        assertEquals(0, operations.moveCalls)
+        actual shouldBeEqualTo expected
+        writerCalled.shouldBeFalse()
+        operations.tempCalls shouldBeEqualTo 0
+        operations.openCalls shouldBeEqualTo 0
+        operations.moveCalls shouldBeEqualTo 0
     }
 
     @Test
@@ -88,11 +92,11 @@ class AtomicFileFailurePolicyTest {
             AtomicFileWriter(operations).write(tempDir.resolve("target.bin")) { writerCalled = true }
         }
 
-        assertSame(expected, actual)
-        assertFalse(writerCalled)
-        assertEquals(0, operations.openCalls)
-        assertEquals(0, operations.moveCalls)
-        assertEquals(0, operations.deleteCalls)
+        actual shouldBeEqualTo expected
+        writerCalled.shouldBeFalse()
+        operations.openCalls shouldBeEqualTo 0
+        operations.moveCalls shouldBeEqualTo 0
+        operations.deleteCalls shouldBeEqualTo 0
     }
 
     @Test
@@ -105,10 +109,10 @@ class AtomicFileFailurePolicyTest {
             AtomicFileWriter(operations).write(tempDir.resolve("target.bin")) { writerCalled = true }
         }
 
-        assertSame(expected, actual)
-        assertFalse(writerCalled)
-        assertEquals(0, operations.moveCalls)
-        assertEquals(1, operations.deleteCalls)
+        actual shouldBeEqualTo expected
+        writerCalled.shouldBeFalse()
+        operations.moveCalls shouldBeEqualTo 0
+        operations.deleteCalls shouldBeEqualTo 1
     }
 
     @Test
@@ -120,9 +124,9 @@ class AtomicFileFailurePolicyTest {
             AtomicFileWriter(operations).write(tempDir.resolve("target.bin")) {}
         }
 
-        assertSame(expected, actual)
-        assertEquals(0, operations.moveCalls)
-        assertEquals(1, operations.deleteCalls)
+        actual shouldBeEqualTo expected
+        operations.moveCalls shouldBeEqualTo 0
+        operations.deleteCalls shouldBeEqualTo 1
     }
 
     @Test
@@ -140,8 +144,8 @@ class AtomicFileFailurePolicyTest {
                 AtomicFileWriter(operations).write(tempDir.resolve("target.bin")) { throw callback }
             }
 
-            assertSame(callback, actual)
-            assertArrayEquals(arrayOf(close, cleanup), actual.suppressed)
+            actual shouldBeEqualTo callback
+            actual.suppressed shouldBeEqualTo arrayOf(close, cleanup)
         } finally {
             operations.lastTemp?.let(Files::deleteIfExists)
         }
@@ -215,21 +219,23 @@ class AtomicFileFailurePolicyTest {
 
     @Test
     fun `CancellationException과 Error primary identity를 유지한다`() {
-        listOf<Throwable>(CancellationException("cancel"), AssertionError("fatal")).forEach { primary ->
-            val cleanup = IOException("cleanup")
-            val operations = RecordingAtomicFileOperations().apply { deleteFailure = cleanup }
-            try {
-                val actual = assertThrows<Throwable> {
-                    AtomicFileWriter(operations).write(tempDir.resolve("${primary.javaClass.simpleName}.bin")) {
-                        throw primary
+        listOf(CancellationException("cancel"), AssertionError("fatal"))
+            .forEach { primary ->
+                val cleanup = IOException("cleanup")
+                val operations = RecordingAtomicFileOperations().apply { deleteFailure = cleanup }
+                try {
+                    val actual = assertThrows<Throwable> {
+                        AtomicFileWriter(operations)
+                            .write(tempDir.resolve("${primary.javaClass.simpleName}.bin")) {
+                                throw primary
+                            }
                     }
+                    assertSame(primary, actual)
+                    assertSame(cleanup, actual.suppressed.single())
+                } finally {
+                    operations.lastTemp?.let(Files::deleteIfExists)
                 }
-                assertSame(primary, actual)
-                assertSame(cleanup, actual.suppressed.single())
-            } finally {
-                operations.lastTemp?.let(Files::deleteIfExists)
             }
-        }
     }
 
     @Test

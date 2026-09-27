@@ -9,7 +9,6 @@ import re
 import sys
 from pathlib import Path
 
-
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 EVIDENCE_ROOT = ROOT / "docs/benchmarks/raw/issue-756-fory-followup/feasibility"
@@ -152,14 +151,14 @@ def validate_leaf(evidence_root, run_id):
         candidate_thrpt, _ = metric(candidate, "throughput", "ops/ms")
         allocation_ratio = candidate_alloc / baseline_alloc
         allocation_interval_separated = (
-            candidate_alloc + candidate_alloc_error
-            < baseline_alloc - baseline_alloc_error
+                candidate_alloc + candidate_alloc_error
+                < baseline_alloc - baseline_alloc_error
         )
         throughput_delta = candidate_thrpt / baseline_thrpt - 1.0
         accepted = (
-            allocation_ratio <= 0.95
-            and allocation_interval_separated
-            and throughput_delta > -0.20
+                allocation_ratio <= 0.95
+                and allocation_interval_separated
+                and throughput_delta > -0.20
         )
         reason = "accepted" if accepted else (
             f"allocationRatio={allocation_ratio:.6f}, "

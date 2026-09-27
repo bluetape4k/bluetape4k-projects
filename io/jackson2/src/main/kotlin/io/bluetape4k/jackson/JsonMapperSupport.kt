@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions", "MatchingDeclarationName")
+
 package io.bluetape4k.jackson
 
 import com.fasterxml.jackson.core.JsonParser
@@ -6,7 +8,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import java.io.File
 import java.io.InputStream
@@ -15,8 +17,10 @@ import java.io.StringWriter
 import java.net.URL
 import kotlin.use
 
+internal object JacksonMapperLogger: KLogging()
+
 @PublishedApi
-internal val log = KotlinLogging.logger {}
+internal val log = JacksonMapperLogger.log
 
 /**
  * [JsonMapper.Builder] DSL로 [JsonMapper]를 생성합니다.

@@ -198,8 +198,7 @@ This allows callers to distinguish "corrupt input" (returns `null`) from "empty 
 
 ### Strictly bounded `InputStream` reads
 
-Use `readAllBytes(maxBytes)` when a complete body is required and exceeding the
-limit must fail without returning a partial result:
+Use `readAllBytes(maxBytes)` when a complete body is required and exceeding the limit must fail without returning a partial result:
 
 ```kotlin
 import io.bluetape4k.io.ByteLimitExceededException
@@ -211,18 +210,12 @@ val bytes = inputStream.use {
 ```
 
 The primitive does not close the stream; the caller owns it, so the example uses
-`use`. Only `ByteLimitExceededException.maxBytes` is stable for branching. Do not
-log the exception message or body payload. The final EOF check can block, so set
-transport timeouts and let a supervisor close the stream when an operation must be
-aborted. Budget temporary heap as approximately
-`concurrent reads * (2 * maxBytes + segment overhead)`. A later decompression step
-needs a separate decoded-byte limit because this limit applies only to bytes read
-from the supplied stream.
+`use`. Only `ByteLimitExceededException.maxBytes` is stable for branching. Do not log the exception message or body payload. The final EOF check can block, so set transport timeouts and let a supervisor close the stream when an operation must be aborted. Budget temporary heap as approximately
+`concurrent reads * (2 * maxBytes + segment overhead)`. A later decompression step needs a separate decoded-byte limit because this limit applies only to bytes read from the supplied stream.
 
 ### Bounded line reads
 
-Use `boundedLineReader(maxLineChars)` when a line-oriented input must be rejected
-while it is being read instead of allocating an unbounded complete line first:
+Use `boundedLineReader(maxLineChars)` when a line-oriented input must be rejected while it is being read instead of allocating an unbounded complete line first:
 
 ```kotlin
 import io.bluetape4k.io.boundedLineReader
@@ -236,17 +229,8 @@ reader.use {
 }
 ```
 
-`maxLineChars` counts UTF-16 code units, so a supplementary character counts as
-two units. LF, CRLF, and CR terminate a line and are not included in the limit.
-An over-limit line throws `LineLimitExceededException` as soon as its first
-out-of-range code unit is read; no partial line is returned. Draining the current
-line and reusing the same wrapper after overflow are not supported; abort that
-source and close its reader. A negative `maxLineChars` or non-positive
-`bufferSize` throws `IllegalArgumentException` during construction. The wrapper uses a
-fixed read buffer and does not close the supplied `Reader`, so the caller owns
-the reader lifecycle, timeouts, blocking behavior, and any JSON/NDJSON parsing.
-These limits bound read-ahead, not total process heap, so externally configured
-values must be capped against the deployment's memory budget.
+`maxLineChars` counts UTF-16 code units, so a supplementary character counts as two units. LF, CRLF, and CR terminate a line and are not included in the limit. An over-limit line throws `LineLimitExceededException` as soon as its first out-of-range code unit is read; no partial line is returned. Draining the current line and reusing the same wrapper after overflow are not supported; abort that source and close its reader. A negative `maxLineChars` or non-positive
+`bufferSize` throws `IllegalArgumentException` during construction. The wrapper uses a fixed read buffer and does not close the supplied `Reader`, so the caller owns the reader lifecycle, timeouts, blocking behavior, and any JSON/NDJSON parsing. These limits bound read-ahead, not total process heap, so externally configured values must be capped against the deployment's memory budget.
 
 ### Compression
 
@@ -291,13 +275,13 @@ Existing one-argument `ByteBuffer` APIs may consume the source `position`; the n
 
 <!-- issue-755-storage-matrix:start -->
 
-| Codec        | heap -> heap           | direct -> direct       | mixed storage          | Allocation claim       |
-|--------------|------------------------|------------------------|------------------------|------------------------|
-| LZ4          | optimized              | optimized              | optimized              | accepted for all pairs |
-| Deflate      | optimized              | optimized              | optimized              | accepted for all pairs |
+| Codec        | heap -> heap           | direct -> direct       | mixed storage          | Allocation claim                     |
+|--------------|------------------------|------------------------|------------------------|--------------------------------------|
+| LZ4          | optimized              | optimized              | optimized              | accepted for all pairs               |
+| Deflate      | optimized              | optimized              | optimized              | accepted for all pairs               |
 | Snappy       | compatibility fallback | optimized              | compatibility fallback | accepted for direct compression only |
-| Zstd         | optimized              | optimized              | compatibility fallback | accepted for matched pairs |
-| Other codecs | compatibility fallback | compatibility fallback | compatibility fallback | ineligible             |
+| Zstd         | optimized              | optimized              | compatibility fallback | accepted for matched pairs           |
+| Other codecs | compatibility fallback | compatibility fallback | compatibility fallback | ineligible                           |
 
 `optimized` means that the codec uses a backend `ByteBuffer` path for that storage pairing. Two canonical JMH GC-profiler runs accepted the allocation claim for the pairings shown above. This is not a general throughput or zero-allocation claim. See the [allocation report](../../docs/benchmarks/2026-07-21-bytebuffer-compressor-allocation.md).
 
@@ -508,30 +492,16 @@ File("huge-file.txt").readLineSequence().forEach { line ->
 
 `Path.writeAtomically` writes through a provider-owned sibling temporary file and attempts
 `ATOMIC_MOVE` only after the callback and stream close succeed. The callback borrows the
-`OutputStream`; it must not close or retain it. Existing-target replacement, temporary-file
-permissions, and file attributes follow the filesystem provider. The API does not guarantee
-`fsync`, process-crash, or power-loss durability. Unsupported atomic replacement fails without a
-non-atomic fallback.
+`OutputStream`; it must not close or retain it. Existing-target replacement, temporary-file permissions, and file attributes follow the filesystem provider. The API does not guarantee
+`fsync`, process-crash, or power-loss durability. Unsupported atomic replacement fails without a non-atomic fallback.
 
 This is a blocking call. It creates missing parents, rejects an empty or root target with
-`IllegalArgumentException`, and returns the `Long` byte count accepted by its provider-owned
-stream. A parent created by the call remains if a later stage fails. Callback, close, and commit
-unchecked exceptions, `CancellationException`, and `Error` keep their identity; only cleanup
-failures are attached as suppressed exceptions.
-Coroutine callers own dispatcher selection and must check the context captured outside the
-callback before the callback returns; cancellation after commit does not roll the replacement back.
+`IllegalArgumentException`, and returns the `Long` byte count accepted by its provider-owned stream. A parent created by the call remains if a later stage fails. Callback, close, and commit unchecked exceptions, `CancellationException`, and `Error` keep their identity; only cleanup failures are attached as suppressed exceptions. Coroutine callers own dispatcher selection and must check the context captured outside the callback before the callback returns; cancellation after commit does not roll the replacement back.
 
-Normalization is lexical; it does not provide a path sandbox or protect against symlink,
-hard-link, mount-swap, or TOCTOU attacks. Use an opaque basename and an access-restricted private
-parent for sensitive payloads. Do not use an attacker-controlled shared writable directory; use
-a secure directory-handle API when that threat model applies. Enforce byte and time limits in
-the caller, and redact full paths, basenames, and sensitive exception text when recording the
-provider plus primary and suppressed cleanup failures.
+Normalization is lexical; it does not provide a path sandbox or protect against symlink, hard-link, mount-swap, or TOCTOU attacks. Use an opaque basename and an access-restricted private parent for sensitive payloads. Do not use an attacker-controlled shared writable directory; use a secure directory-handle API when that threat model applies. Enforce byte and time limits in the caller, and redact full paths, basenames, and sensitive exception text when recording the provider plus primary and suppressed cleanup failures.
 
 A process crash can leave `.<basename>.*.tmp` files. The application operator owns cleanup:
-monitor file count and allocated bytes in the private parent, exclude active writers, wait for a
-configured retention interval, and then remove only matching stale entries. Never run an
-unbounded glob deletion while writers are active. Redact the basename and parent in telemetry.
+monitor file count and allocated bytes in the private parent, exclude active writers, wait for a configured retention interval, and then remove only matching stale entries. Never run an unbounded glob deletion while writers are active. Redact the basename and parent in telemetry.
 
 ```kotlin
 import io.bluetape4k.io.writeAtomically
@@ -576,8 +546,7 @@ suspend fun copyAtomically(source: Path, destination: Path): Long {
 }
 ```
 
-Java calls the `AtomicFileSupport` facade with `Function1<OutputStream, Unit>`. The method declares
-checked `IOException`; because `Function1` does not declare it, wrap callback I/O failures in
+Java calls the `AtomicFileSupport` facade with `Function1<OutputStream, Unit>`. The method declares checked `IOException`; because `Function1` does not declare it, wrap callback I/O failures in
 `UncheckedIOException` and return `Unit.INSTANCE`.
 
 ```java

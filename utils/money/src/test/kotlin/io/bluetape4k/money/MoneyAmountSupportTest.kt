@@ -205,8 +205,8 @@ class MoneyAmountSupportTest {
         val a = 100.toMonetaryAmount(USD)
         val b = 200.toMonetaryAmount(USD)
 
-        a.compareTo(b) shouldBeLessThan 0
-        b.compareTo(a) shouldBeGreaterThan 0
-        a.compareTo(100.toMonetaryAmount(USD)) shouldBeEqualTo 0
+        a shouldBeLessThan b
+        b shouldBeGreaterThan a
+        a shouldBeEqualTo 100.toMonetaryAmount(USD)
     }
 }

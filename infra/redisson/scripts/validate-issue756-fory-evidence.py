@@ -91,11 +91,11 @@ def validate_records(records: list[dict], encode_disposition: str) -> list[dict]
         baseline, candidate = by_method[cell["baseline"]], by_method[cell["candidate"]]
         for record in (baseline, candidate):
             if (
-                record.get("mode") != "thrpt"
-                or record.get("threads") != 1
-                or record.get("forks") != 2
-                or record.get("warmupIterations") != 3
-                or record.get("measurementIterations") != 5
+                    record.get("mode") != "thrpt"
+                    or record.get("threads") != 1
+                    or record.get("forks") != 2
+                    or record.get("warmupIterations") != 3
+                    or record.get("measurementIterations") != 5
             ):
                 raise ValidationError("JMH protocol mismatch")
         b_alloc, b_error, b_unit = _metric(baseline, True)

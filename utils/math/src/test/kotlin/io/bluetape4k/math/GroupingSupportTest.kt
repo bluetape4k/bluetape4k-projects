@@ -40,9 +40,9 @@ class GroupingSupportTest {
         }
 
         log.debug { "fold=$fold" }
-        fold["princeofnigeria2000@aol.com"]!! shouldBeEqualTo 14
-        fold["lotterybacklog@gmail.com"]!! shouldBeEqualTo 44
-        fold["jessica47@gmail.com"]!! shouldBeEqualTo 3
+        fold["princeofnigeria2000@aol.com"] shouldBeEqualTo 14
+        fold["lotterybacklog@gmail.com"] shouldBeEqualTo 44
+        fold["jessica47@gmail.com"] shouldBeEqualTo 3
     }
 
     @Test
@@ -51,8 +51,8 @@ class GroupingSupportTest {
             element.copy(subject = accumulator.subject + element.subject)
         }
 
-        reduce["princeofnigeria2000@aol.com"]!!.subject.length shouldBeEqualTo 14
-        reduce["lotterybacklog@gmail.com"]!!.subject.length shouldBeEqualTo 44
-        reduce["jessica47@gmail.com"]!!.subject.length shouldBeEqualTo 3
+        reduce["princeofnigeria2000@aol.com"]?.subject?.length shouldBeEqualTo 14
+        reduce["lotterybacklog@gmail.com"]?.subject?.length shouldBeEqualTo 44
+        reduce["jessica47@gmail.com"]?.subject?.length shouldBeEqualTo 3
     }
 }

@@ -14,11 +14,11 @@ import java.util.concurrent.atomic.AtomicLong
  * @param idExtractor 엔티티에서 ID를 추출하는 함수
  * @param withId 엔티티에 새 ID를 적용하는 함수
  */
-class InMemoryRepository<T : Any>(
+class InMemoryRepository<T: Any>(
     private val idExtractor: (T) -> Long,
     private val withId: (T, Long) -> T,
 ) {
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val store = ConcurrentHashMap<Long, T>()
     private val seq = AtomicLong(0L)

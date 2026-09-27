@@ -1,5 +1,7 @@
 package io.bluetape4k.redis.lettuce.coordination.internal
 
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.requirePositiveNumber
 import io.lettuce.core.cluster.SlotHash
 import io.lettuce.core.codec.RedisCodec
 import java.nio.ByteBuffer
@@ -11,11 +13,16 @@ internal class CoordinationKeyspace(
     private val codec: RedisCodec<String, *>,
     version: Int = 1,
 ) {
+    private companion object: KLogging() {
+        const val FINGERPRINT_BYTES = 8
+        val OBJECT_KIND_PATTERN = Regex("[a-z][a-z0-9-]{0,31}")
+        val NAME_PATTERN = Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,127}")
+        val SUFFIX_PATTERN = Regex("[a-z][a-z0-9-]{0,63}")
+    }
+
     private val validObjectKind = objectKind.requirePattern(OBJECT_KIND_PATTERN, "objectKind")
     private val validName = name.requirePattern(NAME_PATTERN, "name")
-    private val validVersion = version.also {
-        require(it > 0) { "version must be positive" }
-    }
+    private val validVersion = version.requirePositiveNumber("version")
 
     private val prefix = "bt4k:coord:v$validVersion:{$validName}:$validObjectKind:$validName"
 
@@ -43,7 +50,8 @@ internal class CoordinationKeyspace(
     private fun encodedFingerprint(key: String): String {
         val encoded = codec.encodeKey(key).toByteArray()
         val digest = MessageDigest.getInstance("SHA-256").digest(encoded)
-        return digest.take(FINGERPRINT_BYTES).joinToString("") { byte -> "%02x".format(byte) }
+        return digest.take(FINGERPRINT_BYTES)
+            .joinToString("") { byte -> "%02x".format(byte) }
     }
 
     private fun String.requirePattern(pattern: Regex, parameterName: String): String {
@@ -54,10 +62,4 @@ internal class CoordinationKeyspace(
     private fun ByteBuffer.toByteArray(): ByteArray =
         duplicate().let { copy -> ByteArray(copy.remaining()).also(copy::get) }
 
-    private companion object {
-        const val FINGERPRINT_BYTES = 8
-        val OBJECT_KIND_PATTERN = Regex("[a-z][a-z0-9-]{0,31}")
-        val NAME_PATTERN = Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,127}")
-        val SUFFIX_PATTERN = Regex("[a-z][a-z0-9-]{0,63}")
-    }
 }

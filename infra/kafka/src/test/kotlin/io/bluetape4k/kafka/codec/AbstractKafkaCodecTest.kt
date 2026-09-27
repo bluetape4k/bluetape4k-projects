@@ -1,14 +1,14 @@
 package io.bluetape4k.kafka.codec
 
-import io.bluetape4k.junit5.random.RandomValue
-import io.bluetape4k.junit5.random.RandomizedTest
-import io.bluetape4k.kafka.AbstractKafkaTest
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.trace
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.random.RandomValue
+import io.bluetape4k.junit5.random.RandomizedTest
+import io.bluetape4k.kafka.AbstractKafkaTest
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import org.apache.kafka.common.header.internals.RecordHeaders
 import org.junit.jupiter.api.RepeatedTest
 import java.io.Serializable
@@ -31,8 +31,7 @@ abstract class AbstractKafkaCodecTest: AbstractKafkaTest() {
         bytes.shouldNotBeEmpty()
 
         val actual = codec.deserialize(TEST_TOPIC_NAME, headers, bytes) as MessageData
-
-        log.trace { "actual=$actual" }
+        log.debug { "actual=$actual" }
 
         actual.shouldNotBeNull()
         actual shouldBeInstanceOf MessageData::class
@@ -48,8 +47,7 @@ abstract class AbstractKafkaCodecTest: AbstractKafkaTest() {
         bytes.shouldNotBeEmpty()
 
         val actual = codec.deserialize(TEST_TOPIC_NAME, headers, bytes) as MasterData
-
-        log.trace { "actual=$actual" }
+        log.debug { "actual=$actual" }
 
         actual.shouldNotBeNull()
         actual.name shouldBeEqualTo master.name

@@ -1,12 +1,14 @@
 package io.bluetape4k.mutiny
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.debug
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.concurrent.completableFutureOf
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
+import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
 
@@ -88,8 +90,8 @@ class UniSupportTest {
 
     @Test
     fun `Future를 Uni로 변환한다`() {
-        val future = CompletableFuture.completedFuture(99)
-        val result = future.asUni(java.time.Duration.ofSeconds(1)).await().indefinitely()
+        val future = completableFutureOf(99)
+        val result = future.asUni(Duration.ofSeconds(1)).await().indefinitely()
         result shouldBeEqualTo 99
     }
 
@@ -102,7 +104,7 @@ class UniSupportTest {
 
     @Test
     fun `uniCompletionStageOf supplier`() {
-        val uni = uniCompletionStageOf { CompletableFuture.completedFuture("ok") }
+        val uni = uniCompletionStageOf { completableFutureOf("ok") }
         val result = uni.await().indefinitely()
         result shouldBeEqualTo "ok"
     }

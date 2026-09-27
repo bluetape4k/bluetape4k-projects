@@ -68,7 +68,7 @@ open class TimePeriodContainer(
 
     override fun add(element: ITimePeriod): Boolean = when (element) {
         is ITimePeriodContainer -> addAll(element)
-        else -> if (containsPeriod(element)) false else periods.add(element)
+        else -> !containsPeriod(element) && periods.add(element)
     }
 
     override fun add(index: Int, element: ITimePeriod) {
@@ -80,15 +80,11 @@ open class TimePeriodContainer(
     }
 
     override fun addAll(elements: Collection<ITimePeriod>): Boolean {
-        return if (elements.isNotEmpty()) {
-            elements.map { add(it) }.any()
-        } else false
+        return elements.isNotEmpty() && elements.map { add(it) }.any()
     }
 
     override fun addAll(index: Int, elements: Collection<ITimePeriod>): Boolean {
-        return if (elements.isNotEmpty()) {
-            elements.mapIndexed { i, element -> add(index + i, element) }.any()
-        } else false
+        return elements.isNotEmpty() && elements.mapIndexed { i, element -> add(index + i, element) }.any()
     }
 
     override fun move(offset: Duration) {

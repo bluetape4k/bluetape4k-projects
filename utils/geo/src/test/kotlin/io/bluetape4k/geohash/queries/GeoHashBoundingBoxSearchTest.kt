@@ -1,12 +1,12 @@
 package io.bluetape4k.geohash.queries
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInRange
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.geohash.geoHashOfBinaryString
 import io.bluetape4k.geohash.geoHashOfString
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeInRange
-import io.bluetape4k.assertions.shouldBeTrue
 import kotlin.test.Test
 
 class GeoHashBoundingBoxSearchTest {
@@ -71,7 +71,7 @@ class GeoHashBoundingBoxSearchTest {
         for (hash in hashes) {
             val expectedHash = geoHashOfString(hash)
             log.debug { "expected hash: $expectedHash" }
-            searchHashes.contains(expectedHash).shouldBeTrue()
+            searchHashes shouldContain expectedHash
         }
     }
 
@@ -91,7 +91,7 @@ class GeoHashBoundingBoxSearchTest {
         for (hash in hashes) {
             val expectedHash = geoHashOfBinaryString(hash)
             log.debug { "expected hash: $expectedHash" }
-            searchHashes.contains(expectedHash).shouldBeTrue()
+            searchHashes shouldContain expectedHash
         }
     }
 

@@ -33,4 +33,5 @@ inline fun <reified T: Any> MappingR2dbcConverter.read(row: Row, metadata: RowMe
  * // target != null
  * ```
  */
-inline fun <reified T> MappingR2dbcConverter.getTargetType(): Class<*> = getTargetType(T::class.java)
+inline fun <reified T> MappingR2dbcConverter.getTargetType(): Class<*> =
+    getTargetType(T::class.java)

@@ -76,7 +76,7 @@ sealed class NetCdfException(message: String, cause: Throwable? = null): Runtime
         val latitude: Double,
     ): NetCdfException(
         "Duplicate coordinate: fileId=$fileId variable=$variableName time=$timeIdx level=$levelIdx " +
-            "lon=$longitude lat=$latitude",
+                "lon=$longitude lat=$latitude",
     )
 
     /** import 가 bounded resource budget 을 초과할 때 발생합니다. */

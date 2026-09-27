@@ -1,16 +1,16 @@
 package io.bluetape4k.javatimes.period
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeInRange
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.temporal.WeekFields
 
 class WeekyearWeekTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `constructor with direct weekyear and weekOfWeekyear`() {

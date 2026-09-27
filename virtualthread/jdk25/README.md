@@ -234,9 +234,9 @@ class Jdk25VirtualThreadRuntimeTest {
 
 | JDK Version     | Supported | Activation Condition                                    |
 |-----------------|-----------|---------------------------------------------------------|
-| JDK 17 or lower | ❌         | `isSupported()` returns `false`                         |
+| JDK 17 or lower | ❌        | `isSupported()` returns `false`                         |
 | JDK 21          | ⚠️        | class-version conflict is possible, not recommended     |
-| JDK 25          | ✅         | activated automatically, selected with highest priority |
+| JDK 25          | ✅        | activated automatically, selected with highest priority |
 
 ## Priority-Based Selection
 

@@ -8,10 +8,14 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 class ExpressionExtensionsTest {
+
+    companion object: KLogging()
 
     private val flag = Expressions.booleanPath("flag")
     private val num = Expressions.numberPath(Int::class.javaObjectType, "num")
@@ -49,10 +53,11 @@ class ExpressionExtensionsTest {
         concat.toString().shouldNotBeEmpty()
 
         val concatExpr = str + Expressions.constant("expr")
+        log.debug { "concatExpr:$concatExpr" }
         concatExpr.toString().shouldNotBeEmpty()
 
         val ch = str[1]
-        ch.shouldNotBeNull()
+        log.debug { "ch:$ch" }
         ch.type shouldBeEqualTo Character::class.java
     }
 
@@ -84,17 +89,17 @@ class ExpressionExtensionsTest {
 
     @Test
     fun `string trimming and padding helpers are exposed`() {
-        str.ltrim().toString().shouldContain("ltrim")
-        str.rtrim().toString().shouldContain("rtrim")
+        str.ltrim().toString() shouldContain "ltrim"
+        str.rtrim().toString() shouldContain "rtrim"
 
-        str.lpad(5).toString().shouldContain("lpad")
-        str.lpad(5, '0').toString().shouldContain("lpad")
-        str.rpad(6).toString().shouldContain("rpad")
-        str.rpad(6, ' ').toString().shouldContain("rpad")
+        str.lpad(5).toString() shouldContain "lpad"
+        str.lpad(5, '0').toString() shouldContain "lpad"
+        str.rpad(6).toString() shouldContain "rpad"
+        str.rpad(6, ' ').toString() shouldContain "rpad"
 
         // expression overloads
         val len = Expressions.numberPath(Int::class.javaObjectType, "len")
-        str.lpad(len).toString().shouldContain("lpad")
-        str.rpad(len).toString().shouldContain("rpad")
+        str.lpad(len).toString() shouldContain "lpad"
+        str.rpad(len).toString() shouldContain "rpad"
     }
 }

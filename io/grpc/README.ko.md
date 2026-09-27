@@ -129,25 +129,25 @@ class TestGrpcClient: AbstractGrpcInprocessClient("test-server") {
 
 ### gRPC Core
 
-| 파일                         | 설명                |
-|----------------------------|-------------------|
-| `GrpcServer.kt`            | gRPC 서버 인터페이스     |
-| `AbstractGrpcServer.kt`    | gRPC 서버 추상 클래스    |
+| 파일                       | 설명                        |
+|----------------------------|-----------------------------|
+| `GrpcServer.kt`            | gRPC 서버 인터페이스        |
+| `AbstractGrpcServer.kt`    | gRPC 서버 추상 클래스       |
 | `AbstractGrpcClient.kt`    | gRPC 클라이언트 추상 클래스 |
-| `ServerSupport.kt`         | 서버 확장 함수          |
-| `ManagedChannelSupport.kt` | 채널 확장 함수          |
+| `ServerSupport.kt`         | 서버 확장 함수              |
+| `ManagedChannelSupport.kt` | 채널 확장 함수              |
 
 ### In-process (inprocess/)
 
-| 파일                               | 설명         |
-|----------------------------------|------------|
-| `AbstractGrpcInprocessServer.kt` | 인메모리 서버    |
+| 파일                             | 설명                |
+|----------------------------------|---------------------|
+| `AbstractGrpcInprocessServer.kt` | 인메모리 서버       |
 | `AbstractGrpcInprocessClient.kt` | 인메모리 클라이언트 |
 
 ### Interceptor (interceptor/)
 
-| 파일                            | 설명         |
-|-------------------------------|------------|
+| 파일                          | 설명               |
+|-------------------------------|--------------------|
 | `ServerInterceptorSupport.kt` | 서버 인터셉터 확장 |
 
 ## 관련 모듈

@@ -1,14 +1,14 @@
 package io.bluetape4k.http.hc5.http
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.net.URI
 
 class HttpHostTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `URI toHttpHost - HTTP URL 파싱`() {

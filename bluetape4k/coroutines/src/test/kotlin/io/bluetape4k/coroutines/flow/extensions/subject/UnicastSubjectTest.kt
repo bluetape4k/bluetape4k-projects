@@ -9,12 +9,12 @@ import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.junit5.coroutines.withSingleThread
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -49,6 +49,7 @@ class UnicastSubjectTest {
     @Test
     fun `offline - after error`() = runSuspendTest {
         val us = UnicastSubject<Int>()
+
         repeat(5) {
             us.emit(it)
         }
@@ -150,7 +151,7 @@ class UnicastSubjectTest {
         withSingleThread {
             val us = UnicastSubject<Int>()
 
-            launch {
+            this@runSuspendTest.launch {
                 us.awaitCollector()
 
                 repeat(5) {
@@ -175,7 +176,7 @@ class UnicastSubjectTest {
         withSingleThread {
             val us = UnicastSubject<Int>()
 
-            launch {
+            this@runSuspendTest.launch {
                 us.awaitCollector()
 
                 repeat(BUFFER_SIZE) {
@@ -200,7 +201,7 @@ class UnicastSubjectTest {
         withSingleThread {
             val us = UnicastSubject<Int>()
 
-            launch {
+            this@runSuspendTest.launch {
                 us.awaitCollector()
 
                 repeat(BUFFER_SIZE) {
@@ -218,12 +219,12 @@ class UnicastSubjectTest {
     }
 
     @Test
-    fun `collector 가 시작하기 전에는 버퍼링을 합니다`() = runSuspendTest {
+    fun `collector 가 시작하기 전에는 버퍼링을 합니다`() = runSuspendIO {
         withSingleThread {
             val us = UnicastSubject<Int>()
             val emitSize = 200
 
-            launch(Dispatchers.IO) {
+            this@runSuspendIO.launch {
                 us.awaitCollector()
 
                 repeat(emitSize) {

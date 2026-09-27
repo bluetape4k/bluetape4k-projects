@@ -69,10 +69,8 @@ val pool = r2dbcConnectionPool("r2dbc:postgresql://user:secret@localhost:5432/ap
 }
 ```
 
-Use `maxSize` with the database server's connection limit and total application
-instance count in mind. For latency-sensitive services, prefer a bounded
-`maxAcquireTime` and `maxPendingAcquire` so overload fails quickly instead of
-building an unbounded queue.
+Use `maxSize` with the database server's connection limit and total application instance count in mind. For latency-sensitive services, prefer a bounded
+`maxAcquireTime` and `maxPendingAcquire` so overload fails quickly instead of building an unbounded queue.
 
 Run the pool benchmarks with:
 
@@ -84,57 +82,47 @@ Run the pool benchmarks with:
 ./gradlew :bluetape4k-r2dbc:benchmarkH2PoolContentionBenchmark
 ```
 
-Run PostgreSQL and MySQL benchmark tasks sequentially because they use
-Testcontainers-backed databases. Each acquire task measures two explicit validation modes:
+Run PostgreSQL and MySQL benchmark tasks sequentially because they use Testcontainers-backed databases. Each acquire task measures two explicit validation modes:
 
 - `local`: `ValidationDepth.LOCAL` with no validation query.
 - `sql`: `ValidationDepth.LOCAL` with `validationQuery = "SELECT 1"`.
 
-Every acquire benchmark method has a `30s` JMH iteration timeout. The generated Gradle
-tasks also have a `5m` task timeout so an interrupt-resistant JMH worker cannot block
-automation indefinitely. Trial lifecycle logs include the validation mode, pool
-configuration, and acquired/failed counts.
+Every acquire benchmark method has a `30s` JMH iteration timeout. The generated Gradle tasks also have a `5m` task timeout so an interrupt-resistant JMH worker cannot block automation indefinitely. Trial lifecycle logs include the validation mode, pool configuration, and acquired/failed counts.
 
 The following local snapshot was recorded on 2026-07-19 with `8` JMH threads,
-`1` warmup iteration, and `3` measurement iterations. Throughput is higher-is-better.
-The short `1s` windows produced wide error intervals, especially for `0 ms`, so these
-scores describe the observed validation cost and are not profile rankings.
+`1` warmup iteration, and `3` measurement iterations. Throughput is higher-is-better. The short `1s` windows produced wide error intervals, especially for `0 ms`, so these scores describe the observed validation cost and are not profile rankings.
 
 | Database                    | Hold time | Validation | Default ops/s | High-throughput ops/s |
 |-----------------------------|----------:|------------|--------------:|----------------------:|
-| H2                          | 0 ms      | local      | 110,992       | 93,080                |
-| H2                          | 0 ms      | sql        | 101,184       | 86,400                |
-| H2                          | 1 ms      | local      | 6,899         | 6,962                 |
-| H2                          | 1 ms      | sql        | 6,911         | 6,895                 |
-| H2                          | 5 ms      | local      | 1,417         | 1,442                 |
-| H2                          | 5 ms      | sql        | 1,430         | 1,428                 |
-| PostgreSQL 18 Testcontainer | 0 ms      | local      | 113,743       | 114,217               |
-| PostgreSQL 18 Testcontainer | 0 ms      | sql        | 16,970        | 16,780                |
-| PostgreSQL 18 Testcontainer | 1 ms      | local      | 6,312         | 6,875                 |
-| PostgreSQL 18 Testcontainer | 1 ms      | sql        | 3,981         | 4,229                 |
-| PostgreSQL 18 Testcontainer | 5 ms      | local      | 1,438         | 1,426                 |
-| PostgreSQL 18 Testcontainer | 5 ms      | sql        | 1,048         | 1,052                 |
-| MySQL 8.4 Testcontainer     | 0 ms      | local      | 17,132        | 16,176                |
-| MySQL 8.4 Testcontainer     | 0 ms      | sql        | 8,385         | 8,010                 |
-| MySQL 8.4 Testcontainer     | 1 ms      | local      | 3,952         | 3,470                 |
-| MySQL 8.4 Testcontainer     | 1 ms      | sql        | 4,075         | 3,899                 |
-| MySQL 8.4 Testcontainer     | 5 ms      | local      | 1,084         | 1,044                 |
-| MySQL 8.4 Testcontainer     | 5 ms      | sql        | 913           | 925                   |
+| H2                          |      0 ms | local      |       110,992 |                93,080 |
+| H2                          |      0 ms | sql        |       101,184 |                86,400 |
+| H2                          |      1 ms | local      |         6,899 |                 6,962 |
+| H2                          |      1 ms | sql        |         6,911 |                 6,895 |
+| H2                          |      5 ms | local      |         1,417 |                 1,442 |
+| H2                          |      5 ms | sql        |         1,430 |                 1,428 |
+| PostgreSQL 18 Testcontainer |      0 ms | local      |       113,743 |               114,217 |
+| PostgreSQL 18 Testcontainer |      0 ms | sql        |        16,970 |                16,780 |
+| PostgreSQL 18 Testcontainer |      1 ms | local      |         6,312 |                 6,875 |
+| PostgreSQL 18 Testcontainer |      1 ms | sql        |         3,981 |                 4,229 |
+| PostgreSQL 18 Testcontainer |      5 ms | local      |         1,438 |                 1,426 |
+| PostgreSQL 18 Testcontainer |      5 ms | sql        |         1,048 |                 1,052 |
+| MySQL 8.4 Testcontainer     |      0 ms | local      |        17,132 |                16,176 |
+| MySQL 8.4 Testcontainer     |      0 ms | sql        |         8,385 |                 8,010 |
+| MySQL 8.4 Testcontainer     |      1 ms | local      |         3,952 |                 3,470 |
+| MySQL 8.4 Testcontainer     |      1 ms | sql        |         4,075 |                 3,899 |
+| MySQL 8.4 Testcontainer     |      5 ms | local      |         1,084 |                 1,044 |
+| MySQL 8.4 Testcontainer     |      5 ms | sql        |           913 |                   925 |
 
-The contention benchmark uses `64` JMH threads with `maxSize` below concurrency.
-Default uses an unbounded pending queue in this benchmark; high-throughput uses
-bounded pending acquire plus a `250 ms` acquire timeout so overload is visible as
-fast rejection. The JMH score is operations per second, so read it together with
-the acquired/failed trial counts.
+The contention benchmark uses `64` JMH threads with `maxSize` below concurrency. Default uses an unbounded pending queue in this benchmark; high-throughput uses bounded pending acquire plus a `250 ms` acquire timeout so overload is visible as fast rejection. The JMH score is operations per second, so read it together with the acquired/failed trial counts.
 
 | Hold time | maxSize | Default ops/s | Default acquired/failed | High-throughput ops/s | High-throughput acquired/failed |
-|-----------|--------:|--------------:|-------------------------:|----------------------:|--------------------------------:|
-| 10 ms     | 4       | 360 ops/s     | 1,885 / 0                | 38,342 ops/s          | 1,508 / 150,669                |
-| 10 ms     | 8       | 733 ops/s     | 3,321 / 0                | 21,530 ops/s          | 3,043 / 82,978                 |
-| 10 ms     | 16      | 1,476 ops/s   | 6,173 / 0                | 1,477 ops/s           | 6,195 / 0                      |
-| 50 ms     | 4       | 76 ops/s      | 796 / 0                  | 37,763 ops/s          | 386 / 150,891                  |
-| 50 ms     | 8       | 155 ops/s     | 1,092 / 0                | 20,810 ops/s          | 775 / 82,893                   |
-| 50 ms     | 16      | 313 ops/s     | 1,676 / 0                | 310 ops/s             | 1,676 / 0                      |
+|-----------|--------:|--------------:|------------------------:|----------------------:|--------------------------------:|
+| 10 ms     |       4 |     360 ops/s |               1,885 / 0 |          38,342 ops/s |                 1,508 / 150,669 |
+| 10 ms     |       8 |     733 ops/s |               3,321 / 0 |          21,530 ops/s |                  3,043 / 82,978 |
+| 10 ms     |      16 |   1,476 ops/s |               6,173 / 0 |           1,477 ops/s |                       6,195 / 0 |
+| 50 ms     |       4 |      76 ops/s |                 796 / 0 |          37,763 ops/s |                   386 / 150,891 |
+| 50 ms     |       8 |     155 ops/s |               1,092 / 0 |          20,810 ops/s |                    775 / 82,893 |
+| 50 ms     |      16 |     313 ops/s |               1,676 / 0 |             310 ops/s |                       1,676 / 0 |
 
 ![R2DBC Pool Contention Throughput chart](../../docs/images/readme-charts/data-r2dbc-pool-contention-throughput-chart-01.png)
 
@@ -156,8 +144,7 @@ the acquired/failed trial counts.
 - If `maxPendingAcquire` is too low, r2dbc-pool rejects extra acquire attempts once the pool and pending queue are full. This is useful for fail-fast overload control, but it should be paired with application metrics for acquire failures/timeouts.
 - Keep `maxAcquireTime` finite.
   `2-3s` is a reasonable starting point for API services; batch jobs can use a longer timeout if waiting is preferable to failing.
-- Prefer `ValidationDepth.LOCAL` and no `validationQuery` in production drivers that support
-  local validation. Use the benchmark's `sql` mode when the deployment deliberately requires
+- Prefer `ValidationDepth.LOCAL` and no `validationQuery` in production drivers that support local validation. Use the benchmark's `sql` mode when the deployment deliberately requires
   `SELECT 1`; it adds one database round trip to every connection acquisition.
 - Treat benchmark numbers as local baselines, not universal limits. Re-run the DB-specific pool acquire benchmark against your driver/database shape when query latency, transaction duration, instance count, or DB connection limits change.
 
@@ -166,14 +153,11 @@ the acquired/failed trial counts.
 The tenant registries keep lookup and lifecycle ownership explicit:
 
 - `TenantConnectionFactoryRegistry<K>` is caller-owned. It snapshots a
-  `Map<K, ConnectionFactory>` and never closes its values, including values that
-  happen to be `ConnectionPool` instances.
+  `Map<K, ConnectionFactory>` and never closes its values, including values that happen to be `ConnectionPool` instances.
 - `TenantConnectionPoolRegistry<K>` is registry-owned. It snapshots a
-  `Map<K, ConnectionPool>` and implements `AutoCloseable`; `close()` disposes
-  each distinct pool at most once.
+  `Map<K, ConnectionPool>` and implements `AutoCloseable`; `close()` disposes each distinct pool at most once.
 
-Both registries expose `configuredKeys`, `get(key)`, and `asRoutingMap()`.
-An unknown key fails fast with `NoSuchElementException`. Pass a key mapper to
+Both registries expose `configuredKeys`, `get(key)`, and `asRoutingMap()`. An unknown key fails fast with `NoSuchElementException`. Pass a key mapper to
 `asRoutingMap(keyMapper)` when the adapter uses a different key shape.
 
 ```kotlin
@@ -194,20 +178,8 @@ try {
 }
 ```
 
-Pool creation, tenant parsing, request context, authentication, transactions,
-and framework lifecycle callbacks remain caller responsibilities. Pool cleanup
-continues after a failure: the first failure is rethrown and later failures are
-attached as suppressed exceptions. Dynamic `register`/`unregister` is not part
-of this static registry API. Lookups after `close()` starts fail with
-`IllegalStateException`; lifecycle adapters must serialize in-flight lookups
-against shutdown. Because `close()` is synchronous, invoke it from a blocking
-lifecycle executor rather than an event loop, or use `closeSuspending()` from a
-coroutine. The suspending path completes cleanup in a non-cancellable boundary,
-then propagates caller cancellation. Concurrent `close()` calls serialize with
-a `ReentrantLock` rather than a JVM monitor until the first close completes and
-observe the same failure. JVM `Error` values propagate immediately instead
-of entering the recoverable cleanup aggregation. Discard routing maps obtained
-before `close()` because they can still reference disposed pools.
+Pool creation, tenant parsing, request context, authentication, transactions, and framework lifecycle callbacks remain caller responsibilities. Pool cleanup continues after a failure: the first failure is rethrown and later failures are attached as suppressed exceptions. Dynamic `register`/`unregister` is not part of this static registry API. Lookups after `close()` starts fail with
+`IllegalStateException`; lifecycle adapters must serialize in-flight lookups against shutdown. Because `close()` is synchronous, invoke it from a blocking lifecycle executor rather than an event loop, or use `closeSuspending()` from a coroutine. The suspending path completes cleanup in a non-cancellable boundary, then propagates caller cancellation. Concurrent `close()` calls serialize with a `ReentrantLock` rather than a JVM monitor until the first close completes and observe the same failure. JVM `Error` values propagate immediately instead of entering the recoverable cleanup aggregation. Discard routing maps obtained before `close()` because they can still reference disposed pools.
 
 ### 2. Executing SQL with DatabaseClient
 
@@ -508,10 +480,7 @@ owned.close().block() // observe asynchronous close errors
 owned.dispose() // fire-and-forget adapter for lifecycle callbacks
 ```
 
-Use `R2dbcConnectionFactoryEntry.owned(factory, closeAction)` when a factory
-has a custom asynchronous close operation. The registry deduplicates aliases
-by factory identity and closes each owned resource once. `keys` remains a
-creation-time snapshot, while lookup and map access are rejected after close.
+Use `R2dbcConnectionFactoryEntry.owned(factory, closeAction)` when a factory has a custom asynchronous close operation. The registry deduplicates aliases by factory identity and closes each owned resource once. `keys` remains a creation-time snapshot, while lookup and map access are rejected after close.
 
 ## References
 

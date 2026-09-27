@@ -1,17 +1,19 @@
 package io.bluetape4k.grpc.examples.helloworld
 
-import io.bluetape4k.junit5.coroutines.runSuspendTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.closeSafe
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class GreeterServiceTest {
+
     companion object: KLogging() {
         private const val PROCESS_NAME = "greeter.service"
     }
@@ -26,8 +28,8 @@ class GreeterServiceTest {
 
     @AfterAll
     fun cleanup() {
-        client.close()
-        server.close()
+        client.closeSafe()
+        server.closeSafe()
     }
 
     @Test
@@ -46,29 +48,25 @@ class GreeterServiceTest {
     }
 
     @Test
-    fun `일반 이름으로 sayHello 호출 시 인사 메시지를 반환해야 한다`() =
-        runSuspendTest {
+    fun `일반 이름으로 sayHello 호출 시 인사 메시지를 반환해야 한다`() = runSuspendTest {
             val message = client.sayHello("Debop")
             message shouldBeEqualTo "Hello Debop"
         }
 
     @Test
-    fun `빈 문자열 이름으로 sayHello 호출 시 빈 이름 인사를 반환해야 한다`() =
-        runSuspendTest {
+    fun `빈 문자열 이름으로 sayHello 호출 시 빈 이름 인사를 반환해야 한다`() = runSuspendTest {
             val message = client.sayHello("")
             message shouldBeEqualTo "Hello "
         }
 
     @Test
-    fun `공백 이름으로 sayHello 호출 시 공백을 포함한 인사를 반환해야 한다`() =
-        runSuspendTest {
+    fun `공백 이름으로 sayHello 호출 시 공백을 포함한 인사를 반환해야 한다`() = runSuspendTest {
             val message = client.sayHello("  ")
             message shouldBeEqualTo "Hello   "
         }
 
     @Test
-    fun `여러 번 연속 호출해도 정상 동작해야 한다`() =
-        runSuspendTest {
+    fun `여러 번 연속 호출해도 정상 동작해야 한다`() = runSuspendTest {
             val names = listOf("Alice", "Bob", "Charlie")
             names.forEach { name ->
                 val message = client.sayHello(name)
@@ -77,8 +75,7 @@ class GreeterServiceTest {
         }
 
     @Test
-    fun `응답 메시지가 비어있지 않아야 한다`() =
-        runSuspendTest {
+    fun `응답 메시지가 비어있지 않아야 한다`() = runSuspendTest {
             val message = client.sayHello("World")
             message.shouldNotBeEmpty()
         }

@@ -1,14 +1,19 @@
 package io.bluetape4k.geohash
 
-import io.bluetape4k.geohash.tests.RandomGeoHashes
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeGreaterOrEqualTo
+import io.bluetape4k.geohash.tests.RandomGeoHashes
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class GeoHashEdgeCaseTest: AbstractGeoHashTest() {
+
     companion object: KLogging()
 
     @Test
@@ -168,10 +173,11 @@ class GeoHashEdgeCaseTest: AbstractGeoHashTest() {
         val hash1 = geoHashOfString("9q8y")
         val hash2 = geoHashOfString("9q8z")
 
-        (hash1 < hash2).shouldBeTrue()
-        (hash1 >= hash2).shouldBeFalse()
+        hash1 shouldBeLessThan hash2
+        hash1 shouldNotBeGreaterOrEqualTo hash2
 
         hash1 shouldBeEqualTo hash1
+        hash2 shouldBeEqualTo hash2
     }
 
     @Test
@@ -202,9 +208,9 @@ class GeoHashEdgeCaseTest: AbstractGeoHashTest() {
     fun `random GeoHash 생성`() {
         val hashes = RandomGeoHashes.fullRange().take(100).toList()
 
-        hashes.size shouldBeEqualTo 100
+        hashes shouldHaveSize 100
         hashes.forEach { hash ->
-            hash.significantBits() > 0
+            hash.significantBits() shouldBeGreaterThan 0
         }
     }
 

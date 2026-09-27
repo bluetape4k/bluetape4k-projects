@@ -1,12 +1,12 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
-import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.debug
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.coroutines.support.awaitUntil
+import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import org.redisson.api.BatchOptions
 import java.util.concurrent.TimeUnit
@@ -29,49 +29,49 @@ class SetMultimapCacheExamples: AbstractRedissonCoroutineTest() {
             putAsync("4", 7)
             putAsync("2", 5)
         }
-        batch.executeAsync().await()
+        batch.executeAsync().awaitUntil()
     }
 
     @Test
-    fun `use RSetMultimapCache`() = runTest {
+    fun `use RSetMultimapCache`() = runSuspendIO {
         val mmapName = randomName()
         val mmap = redisson.getSetMultimapCache<String, Int>(mmapName)
         addSampleData(mmapName)
 
-        mmap.getAllAsync("1").await() shouldBeEqualTo setOf(1, 2, 3)
+        mmap.getAllAsync("1").awaitUntil() shouldBeEqualTo setOf(1, 2, 3)
 
         // expire 설정
-        mmap.expireKeyAsync("1", 60, TimeUnit.SECONDS).await()
+        mmap.expireKeyAsync("1", 60, TimeUnit.SECONDS).awaitUntil()
 
-        mmap.containsEntryAsync("1", 3).await().shouldBeTrue()
-        mmap.containsKeyAsync("1").await().shouldBeTrue()
-        mmap.containsValueAsync(3).await().shouldBeTrue()
+        mmap.containsEntryAsync("1", 3).awaitUntil().shouldBeTrue()
+        mmap.containsKeyAsync("1").awaitUntil().shouldBeTrue()
+        mmap.containsValueAsync(3).awaitUntil().shouldBeTrue()
 
 
         mmap.entries().forEach { entry ->
             log.debug { "key=${entry.key}, value=${entry.value}" }
         }
 
-        mmap.removeAsync("1", 3).await().shouldBeTrue()
-        mmap.getAllAsync("1").await() shouldBeEqualTo setOf(1, 2)
+        mmap.removeAsync("1", 3).awaitUntil().shouldBeTrue()
+        mmap.getAllAsync("1").awaitUntil() shouldBeEqualTo setOf(1, 2)
 
         // put all
-        mmap.putAllAsync("5", listOf(5, 6, 7, 8, 9)).await().shouldBeTrue()
+        mmap.putAllAsync("5", listOf(5, 6, 7, 8, 9)).awaitUntil().shouldBeTrue()
 
         // 기존 List를 반환하고 새로운 값을 설정
-        mmap.replaceValuesAsync("2", listOf(5, 6, 7, 8, 9)).await() shouldBeEqualTo setOf(5, 6)
+        mmap.replaceValuesAsync("2", listOf(5, 6, 7, 8, 9)).awaitUntil() shouldBeEqualTo setOf(5, 6)
 
         // RList 를 반환한다
-        mmap.get("2").addAsync(100).await()
+        mmap.get("2").addAsync(100).awaitUntil()
 
         // List Value를 반환한다
-        mmap.getAllAsync("2").await() shouldBeEqualTo setOf(5, 6, 7, 8, 9, 100)
+        mmap.getAllAsync("2").awaitUntil() shouldBeEqualTo setOf(5, 6, 7, 8, 9, 100)
 
         // fast remove
-        mmap.fastRemoveAsync("2").await() shouldBeEqualTo 1
+        mmap.fastRemoveAsync("2").awaitUntil() shouldBeEqualTo 1
         // fast remove with not exists key
-        mmap.fastRemoveAsync("9999").await() shouldBeEqualTo 0
+        mmap.fastRemoveAsync("9999").awaitUntil() shouldBeEqualTo 0
 
-        mmap.deleteAsync().await()
+        mmap.deleteAsync().awaitUntil()
     }
 }

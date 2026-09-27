@@ -1,8 +1,9 @@
 package io.bluetape4k.redis.lettuce.synchronizer.internal
 
+import io.bluetape4k.concurrent.completableFutureOf
+import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.script.RedisScript
 import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
-import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.synchronizer.LatchAwaitResult
 import io.bluetape4k.redis.lettuce.synchronizer.LatchConfig
 import io.bluetape4k.redis.lettuce.synchronizer.LatchCountResult
@@ -17,22 +18,24 @@ import io.bluetape4k.redis.lettuce.synchronizer.SynchronizerIntegrityFailure
 import io.bluetape4k.redis.lettuce.synchronizer.SynchronizerIntegrityFailureKind
 import io.bluetape4k.redis.lettuce.synchronizer.SynchronizerRecoveryAction
 import io.bluetape4k.redis.lettuce.synchronizer.requirePositive
-import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.RedisCommandTimeoutException
 import io.lettuce.core.RedisConnectionException
+import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisScriptingAsyncCommands
 import io.lettuce.core.api.sync.RedisScriptingCommands
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
+import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import java.time.Duration
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CancellationException
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration.Companion.milliseconds
 
 internal class LatchClient private constructor(
     private val keys: LatchKeys,
@@ -41,11 +44,12 @@ internal class LatchClient private constructor(
     private val async: RedisScriptingAsyncCommands<String, String>,
     private val poller: SynchronizerAsyncPoller,
 ) {
-    private val closed = AtomicBoolean()
+    private val closed = atomic(false)
 
     fun trySetCount(count: Long, requestId: LatchRequestId): LatchSetCountResult {
         if (count !in 0..config.maxCount) return LatchSetCountResult.InvalidCount
-        if (closed.get()) return LatchSetCountResult.Closed
+        if (closed.value) return LatchSetCountResult.Closed
+
         return try {
             decodeSet(run(LatchScripts.TRY_SET_COUNT_SCRIPT, count.toString(), requestId.value))
         } catch (error: Exception) {
@@ -55,7 +59,8 @@ internal class LatchClient private constructor(
 
     fun trySetCountAsync(count: Long, requestId: LatchRequestId): CompletableFuture<LatchSetCountResult> {
         if (count !in 0..config.maxCount) return CompletableFuture.completedFuture(LatchSetCountResult.InvalidCount)
-        if (closed.get()) return CompletableFuture.completedFuture(LatchSetCountResult.Closed)
+        if (closed.value) return completableFutureOf(LatchSetCountResult.Closed)
+
         return runAsync(LatchScripts.TRY_SET_COUNT_SCRIPT, count.toString(), requestId.value)
             .handle { raw, error ->
                 if (error != null) LatchSetCountResult.BackendFailure(backend(error)) else decodeSet(raw)
@@ -63,7 +68,8 @@ internal class LatchClient private constructor(
     }
 
     fun getCount(generation: LatchGeneration): LatchCountResult {
-        if (closed.get()) return LatchCountResult.Closed
+        if (closed.value) return LatchCountResult.Closed
+
         return try {
             decodeCount(run(LatchScripts.GET_COUNT_SCRIPT, generation.value.toString()))
         } catch (error: Exception) {
@@ -72,17 +78,22 @@ internal class LatchClient private constructor(
     }
 
     fun getCountAsync(generation: LatchGeneration): CompletableFuture<LatchCountResult> {
-        if (closed.get()) return CompletableFuture.completedFuture(LatchCountResult.Closed)
+        if (closed.value) return completableFutureOf(LatchCountResult.Closed)
+
         return runAsync(LatchScripts.GET_COUNT_SCRIPT, generation.value.toString()).handle { raw, error ->
             if (error != null) LatchCountResult.BackendFailure(backend(error)) else decodeCount(raw)
         }
     }
 
     fun countDown(generation: LatchGeneration, requestId: LatchRequestId): LatchMutationResult {
-        if (closed.get()) return LatchMutationResult.Closed
+        if (closed.value) return LatchMutationResult.Closed
+
         return try {
             decodeMutation(
-                run(LatchScripts.COUNT_DOWN_SCRIPT, generation.value.toString(), requestId.value),
+                run(
+                    LatchScripts.COUNT_DOWN_SCRIPT,
+                    generation.value.toString(), requestId.value
+                ),
             )
         } catch (error: Exception) {
             ambiguousMutation(error, requestId)
@@ -93,15 +104,19 @@ internal class LatchClient private constructor(
         generation: LatchGeneration,
         requestId: LatchRequestId,
     ): CompletableFuture<LatchMutationResult> {
-        if (closed.get()) return CompletableFuture.completedFuture(LatchMutationResult.Closed)
-        return runAsync(LatchScripts.COUNT_DOWN_SCRIPT, generation.value.toString(), requestId.value)
-            .handle { raw, error ->
-                if (error != null) ambiguousMutation(error, requestId) else decodeMutation(raw)
-            }
+        if (closed.value) return completableFutureOf(LatchMutationResult.Closed)
+
+        return runAsync(
+            LatchScripts.COUNT_DOWN_SCRIPT,
+            generation.value.toString(), requestId.value
+        ).handle { raw, error ->
+            if (error != null) ambiguousMutation(error, requestId) else decodeMutation(raw)
+        }
     }
 
     fun delete(generation: LatchGeneration, requestId: LatchRequestId): LatchMutationResult {
-        if (closed.get()) return LatchMutationResult.Closed
+        if (closed.value) return LatchMutationResult.Closed
+
         return try {
             decodeMutation(run(LatchScripts.DELETE_SCRIPT, generation.value.toString(), requestId.value))
         } catch (error: Exception) {
@@ -113,11 +128,14 @@ internal class LatchClient private constructor(
         generation: LatchGeneration,
         requestId: LatchRequestId,
     ): CompletableFuture<LatchMutationResult> {
-        if (closed.get()) return CompletableFuture.completedFuture(LatchMutationResult.Closed)
-        return runAsync(LatchScripts.DELETE_SCRIPT, generation.value.toString(), requestId.value)
-            .handle { raw, error ->
-                if (error != null) ambiguousMutation(error, requestId) else decodeMutation(raw)
-            }
+        if (closed.value) return completableFutureOf(LatchMutationResult.Closed)
+
+        return runAsync(
+            LatchScripts.DELETE_SCRIPT,
+            generation.value.toString(), requestId.value
+        ).handle { raw, error ->
+            if (error != null) ambiguousMutation(error, requestId) else decodeMutation(raw)
+        }
     }
 
     fun await(
@@ -126,7 +144,8 @@ internal class LatchClient private constructor(
         waitTime: Duration,
     ): LatchAwaitResult {
         validateWait(waitTime)
-        if (closed.get()) return LatchAwaitResult.Closed
+        if (closed.value) return LatchAwaitResult.Closed
+
         val registered = try {
             decodeAwait(
                 run(
@@ -142,18 +161,19 @@ internal class LatchClient private constructor(
             return ambiguousAwait(error, requestId)
         }
         if (registered != null) return registered
+
         val outcome = try {
             val deadline = System.nanoTime() + waitTime.toNanos()
             var result: LatchAwaitResult? = null
             do {
                 when (val count = getCount(generation)) {
-                    is LatchCountResult.Active -> {
+                    is LatchCountResult.Active         -> {
                         // Keep polling while this generation remains active.
                     }
-                    is LatchCountResult.Completed -> result = LatchAwaitResult.Completed
-                    LatchCountResult.Deleted -> result = LatchAwaitResult.Deleted
-                    LatchCountResult.StaleGeneration -> result = LatchAwaitResult.StaleGeneration
-                    LatchCountResult.Closed -> result = LatchAwaitResult.Closed
+                    is LatchCountResult.Completed      -> result = LatchAwaitResult.Completed
+                    LatchCountResult.Deleted           -> result = LatchAwaitResult.Deleted
+                    LatchCountResult.StaleGeneration   -> result = LatchAwaitResult.StaleGeneration
+                    LatchCountResult.Closed            -> result = LatchAwaitResult.Closed
                     is LatchCountResult.BackendFailure -> result = LatchAwaitResult.BackendFailure(count.failure)
                     is LatchCountResult.IntegrityFailure -> result = LatchAwaitResult.IntegrityFailure(count.failure)
                 }
@@ -164,6 +184,7 @@ internal class LatchClient private constructor(
         } catch (error: Exception) {
             ambiguousAwait(error, requestId)
         }
+
         return try {
             run(LatchScripts.UNREGISTER_WAITER_SCRIPT, generation.value.toString(), requestId.value)
             outcome
@@ -178,7 +199,8 @@ internal class LatchClient private constructor(
         waitTime: Duration,
     ): CompletableFuture<LatchAwaitResult> {
         validateWait(waitTime)
-        if (closed.get()) return CompletableFuture.completedFuture(LatchAwaitResult.Closed)
+        if (closed.value) return completableFutureOf(LatchAwaitResult.Closed)
+
         val source = runAsync(
             LatchScripts.REGISTER_WAITER_SCRIPT,
             generation.value.toString(),
@@ -190,15 +212,16 @@ internal class LatchClient private constructor(
             .thenCompose { raw ->
                 decodeAwait(raw)?.let { CompletableFuture.completedFuture(it) }
                     ?: poller.poll<LatchAwaitResult?>(
-                            deadlineNanos = System.nanoTime() + waitTime.toNanos(),
-                            interval = config.pollInterval,
-                            closedResult = LatchAwaitResult.Closed,
-                            capacityResult = LatchAwaitResult.CapacityExceeded,
-                            timedOutResult = LatchAwaitResult.TimedOut,
-                            shouldRetry = { it == null },
-                            attempt = { getCountAsync(generation).thenApply(::countToAwaitResult) },
-                        ).thenApply { it ?: LatchAwaitResult.TimedOut }
+                        deadlineNanos = System.nanoTime() + waitTime.toNanos(),
+                        interval = config.pollInterval,
+                        closedResult = LatchAwaitResult.Closed,
+                        capacityResult = LatchAwaitResult.CapacityExceeded,
+                        timedOutResult = LatchAwaitResult.TimedOut,
+                        shouldRetry = { it == null },
+                        attempt = { getCountAsync(generation).thenApply(::countToAwaitResult) },
+                    ).thenApply { it ?: LatchAwaitResult.TimedOut }
             }.exceptionally { ambiguousAwait(it, requestId) }
+
         return cleanupAfter(source, generation, requestId)
     }
 
@@ -208,7 +231,8 @@ internal class LatchClient private constructor(
         waitTime: Duration,
     ): LatchAwaitResult {
         validateWait(waitTime)
-        if (closed.get()) return LatchAwaitResult.Closed
+        if (closed.value) return LatchAwaitResult.Closed
+
         val registered = try {
             decodeAwait(
                 runAsync(
@@ -232,22 +256,24 @@ internal class LatchClient private constructor(
         } catch (error: Exception) {
             return ambiguousAwait(error, requestId)
         }
+
         if (registered != null) return registered
+
         return try {
             val deadline = System.nanoTime() + waitTime.toNanos()
             do {
                 when (val count = getCountAsync(generation).await()) {
-                    is LatchCountResult.Active -> {
+                    is LatchCountResult.Active         -> {
                         // Keep polling while this generation remains active.
                     }
-                    is LatchCountResult.Completed -> return LatchAwaitResult.Completed
-                    LatchCountResult.Deleted -> return LatchAwaitResult.Deleted
-                    LatchCountResult.StaleGeneration -> return LatchAwaitResult.StaleGeneration
-                    LatchCountResult.Closed -> return LatchAwaitResult.Closed
+                    is LatchCountResult.Completed      -> return LatchAwaitResult.Completed
+                    LatchCountResult.Deleted           -> return LatchAwaitResult.Deleted
+                    LatchCountResult.StaleGeneration   -> return LatchAwaitResult.StaleGeneration
+                    LatchCountResult.Closed            -> return LatchAwaitResult.Closed
                     is LatchCountResult.BackendFailure -> return LatchAwaitResult.BackendFailure(count.failure)
                     is LatchCountResult.IntegrityFailure -> return LatchAwaitResult.IntegrityFailure(count.failure)
                 }
-                delay(config.pollInterval.toMillis().coerceAtLeast(1))
+                delay(config.pollInterval.toMillis().coerceAtLeast(1).milliseconds)
             } while (System.nanoTime() < deadline)
             LatchAwaitResult.TimedOut
         } finally {
@@ -262,11 +288,14 @@ internal class LatchClient private constructor(
     }
 
     fun close() {
-        if (closed.compareAndSet(false, true)) poller.close()
+        if (closed.compareAndSet(expect = false, update = true)) {
+            poller.close()
+        }
     }
 
     private fun run(script: RedisScript, vararg args: String): List<String> =
         RedisScriptRunner.run(sync, script, ScriptOutputType.MULTI, keys.array, *args)
+
     private fun runAsync(script: RedisScript, vararg args: String): CompletableFuture<List<String>> =
         RedisScriptRunner.runAsync(async, script, ScriptOutputType.MULTI, keys.array, *args)
 
@@ -274,21 +303,21 @@ internal class LatchClient private constructor(
         val reply = decodeReply(raw) ?: return integritySet()
         val generation = reply.getOrNull(1)?.toLongOrNull()?.takeIf { it > 0 }?.let(::LatchGeneration)
         return when (reply[0]) {
-            "CREATED" -> generation?.let(LatchSetCountResult::Created) ?: integritySet()
+            "CREATED"       -> generation?.let(LatchSetCountResult::Created) ?: integritySet()
             "ACTIVE_GENERATION" -> {
                 val count = reply.getOrNull(2)?.toLongOrNull()
                 if (generation == null || count == null || count < 0) integritySet()
                 else LatchSetCountResult.ActiveGeneration(generation, count)
             }
             "INVALID_COUNT" -> LatchSetCountResult.InvalidCount
-            else -> integritySet()
+            else            -> integritySet()
         }
     }
 
     private fun decodeCount(raw: List<String>): LatchCountResult {
         val reply = decodeReply(raw) ?: return integrityCount()
         return when (reply[0]) {
-            "ACTIVE" -> {
+            "ACTIVE"    -> {
                 val generation = reply.getOrNull(1)?.toLongOrNull()
                 val count = reply.getOrNull(2)?.toLongOrNull()
                 val waiters = reply.getOrNull(3)?.toIntOrNull()
@@ -300,37 +329,37 @@ internal class LatchClient private constructor(
             }
             "COMPLETED" -> reply.getOrNull(1)?.toLongOrNull()?.takeIf { it > 0 }
                 ?.let { LatchCountResult.Completed(LatchGeneration(it)) } ?: integrityCount()
-            "DELETED" -> LatchCountResult.Deleted
+            "DELETED"   -> LatchCountResult.Deleted
             "STALE_GENERATION" -> LatchCountResult.StaleGeneration
-            else -> integrityCount()
+            else        -> integrityCount()
         }
     }
 
     private fun decodeMutation(raw: List<String>): LatchMutationResult {
         val reply = decodeReply(raw) ?: return integrityMutation()
         return when (reply[0]) {
-            "DECREMENTED" -> reply.getOrNull(1)?.toLongOrNull()?.let(LatchMutationResult::Decremented)
+            "DECREMENTED"      -> reply.getOrNull(1)?.toLongOrNull()?.let(LatchMutationResult::Decremented)
                 ?: integrityMutation()
-            "COMPLETED" -> LatchMutationResult.Completed
+            "COMPLETED"        -> LatchMutationResult.Completed
             "ALREADY_COMPLETED" -> LatchMutationResult.AlreadyCompleted
-            "DELETED" -> LatchMutationResult.Deleted
-            "NOT_FOUND" -> LatchMutationResult.NotFound
+            "DELETED"          -> LatchMutationResult.Deleted
+            "NOT_FOUND"        -> LatchMutationResult.NotFound
             "STALE_GENERATION" -> LatchMutationResult.StaleGeneration
-            "ACTIVE_WAITERS" -> reply.getOrNull(1)?.toIntOrNull()?.takeIf { it > 0 }
+            "ACTIVE_WAITERS"   -> reply.getOrNull(1)?.toIntOrNull()?.takeIf { it > 0 }
                 ?.let(LatchMutationResult::ActiveWaiters) ?: integrityMutation()
-            else -> integrityMutation()
+            else               -> integrityMutation()
         }
     }
 
     private fun decodeAwait(raw: List<String>): LatchAwaitResult? {
         val reply = decodeReply(raw) ?: return LatchAwaitResult.IntegrityFailure(integrity())
         return when (reply[0]) {
-            "REGISTERED" -> null
-            "COMPLETED" -> LatchAwaitResult.Completed
-            "DELETED" -> LatchAwaitResult.Deleted
+            "REGISTERED"       -> null
+            "COMPLETED"        -> LatchAwaitResult.Completed
+            "DELETED"          -> LatchAwaitResult.Deleted
             "STALE_GENERATION" -> LatchAwaitResult.StaleGeneration
             "CAPACITY_EXCEEDED" -> LatchAwaitResult.CapacityExceeded
-            else -> LatchAwaitResult.IntegrityFailure(integrity())
+            else               -> LatchAwaitResult.IntegrityFailure(integrity())
         }
     }
 
@@ -340,11 +369,11 @@ internal class LatchClient private constructor(
     }
 
     private fun countToAwaitResult(count: LatchCountResult): LatchAwaitResult? = when (count) {
-        is LatchCountResult.Active -> null
-        is LatchCountResult.Completed -> LatchAwaitResult.Completed
-        LatchCountResult.Deleted -> LatchAwaitResult.Deleted
-        LatchCountResult.StaleGeneration -> LatchAwaitResult.StaleGeneration
-        LatchCountResult.Closed -> LatchAwaitResult.Closed
+        is LatchCountResult.Active         -> null
+        is LatchCountResult.Completed      -> LatchAwaitResult.Completed
+        LatchCountResult.Deleted           -> LatchAwaitResult.Deleted
+        LatchCountResult.StaleGeneration   -> LatchAwaitResult.StaleGeneration
+        LatchCountResult.Closed            -> LatchAwaitResult.Closed
         is LatchCountResult.BackendFailure -> LatchAwaitResult.BackendFailure(count.failure)
         is LatchCountResult.IntegrityFailure -> LatchAwaitResult.IntegrityFailure(count.failure)
     }
@@ -370,11 +399,22 @@ internal class LatchClient private constructor(
     }
 
     companion object {
-        fun create(connection: StatefulRedisConnection<String, String>, name: String, config: LatchConfig): LatchClient {
+        fun create(
+            connection: StatefulRedisConnection<String, String>,
+            name: String,
+            config: LatchConfig
+        ): LatchClient {
             val keys = deriveLatchKeys(name, config, connection.codec)
             val registration = CoordinationRuntime.forConnection(connection).registerObject(keys.fingerprint)
-            return LatchClient(keys, config, connection.sync(), connection.async(), SynchronizerAsyncPoller(registration))
+            return LatchClient(
+                keys,
+                config,
+                connection.sync(),
+                connection.async(),
+                SynchronizerAsyncPoller(registration)
+            )
         }
+
         fun create(
             connection: StatefulRedisClusterConnection<String, String>,
             name: String,
@@ -382,7 +422,13 @@ internal class LatchClient private constructor(
         ): LatchClient {
             val keys = deriveLatchKeys(name, config, connection.codec)
             val registration = CoordinationRuntime.forConnection(connection).registerObject(keys.fingerprint)
-            return LatchClient(keys, config, connection.sync(), connection.async(), SynchronizerAsyncPoller(registration))
+            return LatchClient(
+                keys,
+                config,
+                connection.sync(),
+                connection.async(),
+                SynchronizerAsyncPoller(registration)
+            )
         }
     }
 }
@@ -413,9 +459,9 @@ private class CleanupCompletableFuture<T>(
         cleanup().whenComplete { _, cleanupError ->
             when {
                 cleanupError != null -> super.complete(cleanupFailure(cleanupError))
-                cancelled -> super.cancel(false)
+                cancelled     -> super.cancel(false)
                 error != null -> super.completeExceptionally(unwrap(error))
-                else -> super.complete(value)
+                else          -> super.complete(value)
             }
         }
     }
@@ -429,26 +475,35 @@ private fun backend(error: Throwable): SynchronizerBackendFailure {
     val kind = when (cause) {
         is RedisCommandTimeoutException -> SynchronizerBackendFailureKind.TIMEOUT
         is RedisConnectionException -> SynchronizerBackendFailureKind.CONNECTION
-        else -> SynchronizerBackendFailureKind.COMMAND
+        else                        -> SynchronizerBackendFailureKind.COMMAND
     }
     return SynchronizerBackendFailure(kind, SynchronizerRecoveryAction.RETRY)
 }
+
 private fun ambiguousMutation(error: Throwable, requestId: LatchRequestId): LatchMutationResult {
     val failure = backend(error)
-    return if (failure.kind in setOf(SynchronizerBackendFailureKind.TIMEOUT, SynchronizerBackendFailureKind.CONNECTION)) {
+    return if (failure.kind in setOf(
+            SynchronizerBackendFailureKind.TIMEOUT,
+            SynchronizerBackendFailureKind.CONNECTION
+        )) {
         LatchMutationResult.Ambiguous(requestId)
     } else {
         LatchMutationResult.BackendFailure(failure)
     }
 }
+
 private fun ambiguousAwait(error: Throwable, requestId: LatchRequestId): LatchAwaitResult {
     val failure = backend(error)
-    return if (failure.kind in setOf(SynchronizerBackendFailureKind.TIMEOUT, SynchronizerBackendFailureKind.CONNECTION)) {
+    return if (failure.kind in setOf(
+            SynchronizerBackendFailureKind.TIMEOUT,
+            SynchronizerBackendFailureKind.CONNECTION
+        )) {
         LatchAwaitResult.Ambiguous(requestId)
     } else {
         LatchAwaitResult.BackendFailure(failure)
     }
 }
+
 private fun integrity() = SynchronizerIntegrityFailure(SynchronizerIntegrityFailureKind.MALFORMED_REPLY)
 private fun integritySet() = LatchSetCountResult.IntegrityFailure(integrity())
 private fun integrityCount() = LatchCountResult.IntegrityFailure(integrity())

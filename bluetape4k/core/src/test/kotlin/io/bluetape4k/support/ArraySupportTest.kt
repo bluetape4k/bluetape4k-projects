@@ -1,11 +1,12 @@
 package io.bluetape4k.support
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
@@ -45,7 +46,7 @@ class ArraySupportTest {
             false,
             false
         ).also { it.setAll { idx -> idx % 2 == 0 } } shouldBeEqualTo booleanArrayOf(true, false, true, false)
-        intArrayOf().also { it.setAll { it + 1 } }.size shouldBeEqualTo 0
+        intArrayOf().also { it.setAll { it + 1 } }.shouldBeEmpty()
     }
 
     @Test
@@ -73,7 +74,7 @@ class ArraySupportTest {
     @Test
     fun `mapCatching keeps order and handles empty`() {
         intArrayOf(5, 4, 3).mapCatching { it }.map { it.getOrNull() } shouldBeEqualTo listOf(5, 4, 3)
-        intArrayOf().mapCatching { it * 2 }.size shouldBeEqualTo 0
+        intArrayOf().mapCatching { it * 2 }.shouldBeEmpty()
     }
 
     @Test

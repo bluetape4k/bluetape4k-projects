@@ -1,8 +1,10 @@
 package io.bluetape4k.redis.lettuce.synchronizer.internal
 
+import io.bluetape4k.concurrent.completableFutureOf
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.script.RedisScript
 import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
-import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.synchronizer.ExpirablePermitHandle
 import io.bluetape4k.redis.lettuce.synchronizer.ExpirablePermitLease
 import io.bluetape4k.redis.lettuce.synchronizer.ExpirableSemaphoreConfig
@@ -21,19 +23,20 @@ import io.bluetape4k.redis.lettuce.synchronizer.SynchronizerIntegrityFailure
 import io.bluetape4k.redis.lettuce.synchronizer.SynchronizerIntegrityFailureKind
 import io.bluetape4k.redis.lettuce.synchronizer.SynchronizerRecoveryAction
 import io.bluetape4k.redis.lettuce.synchronizer.SynchronizerScripts
-import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.RedisCommandTimeoutException
 import io.lettuce.core.RedisConnectionException
+import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisScriptingAsyncCommands
 import io.lettuce.core.api.sync.RedisScriptingCommands
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import java.time.Duration
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration.Companion.milliseconds
 
 internal class ExpirableSemaphoreClient private constructor(
     private val keys: SemaphoreKeys,
@@ -43,20 +46,23 @@ internal class ExpirableSemaphoreClient private constructor(
     private val bootstrap: SemaphoreClient,
     private val poller: SynchronizerAsyncPoller,
 ) {
-    private val closed = AtomicBoolean()
+    private val closed = atomic(false)
     private val cleanupLimit get() = config.cleanupBatchLimit.toString()
 
-    fun trySetPermits(permits: Int): SemaphoreInitializationResult = bootstrap.trySetPermits(permits)
-    fun trySetPermitsAsync(permits: Int) = bootstrap.trySetPermitsAsync(permits)
+    fun trySetPermits(permits: Int): SemaphoreInitializationResult =
+        bootstrap.trySetPermits(permits)
+
+    fun trySetPermitsAsync(permits: Int) =
+        bootstrap.trySetPermitsAsync(permits)
 
     fun availablePermits(): Int {
-        if (closed.get()) return -1
+        if (closed.value) return -1
         return decodeReply(run(SynchronizerScripts.EXPIRABLE_CLEANUP_SCRIPT, cleanupLimit))
             ?.singleOrNull()?.toIntOrNull() ?: -1
     }
 
     fun availablePermitsAsync(): CompletableFuture<Int> {
-        if (closed.get()) return CompletableFuture.completedFuture(-1)
+        if (closed.value) return completableFutureOf(-1)
         return runAsync(SynchronizerScripts.EXPIRABLE_CLEANUP_SCRIPT, cleanupLimit)
             .thenApply { decodeReply(it)?.singleOrNull()?.toIntOrNull() ?: -1 }
     }
@@ -67,7 +73,7 @@ internal class ExpirableSemaphoreClient private constructor(
         permits: Int,
     ): PermitAcquireResult<ExpirablePermitHandle> {
         validatePermits(permits)
-        if (closed.get()) return PermitAcquireResult.Closed
+        if (closed.value) return PermitAcquireResult.Closed
         return classified(
             { ambiguousAcquire(it, requestId) },
             { PermitAcquireResult.IntegrityFailure(it) },
@@ -95,7 +101,8 @@ internal class ExpirableSemaphoreClient private constructor(
         permits: Int,
     ): CompletableFuture<PermitAcquireResult<ExpirablePermitHandle>> {
         validatePermits(permits)
-        if (closed.get()) return CompletableFuture.completedFuture(PermitAcquireResult.Closed)
+        if (closed.value) return completableFutureOf(PermitAcquireResult.Closed)
+
         return runAsync(
             SynchronizerScripts.EXPIRABLE_ACQUIRE_SCRIPT,
             cleanupLimit,
@@ -114,7 +121,9 @@ internal class ExpirableSemaphoreClient private constructor(
 
     fun inspect(handle: ExpirablePermitHandle): PermitInspectResult<ExpirablePermitHandle> {
         validateHandle(handle)
-        if (closed.get()) return PermitInspectResult.Closed
+
+        if (closed.value) return PermitInspectResult.Closed
+
         return classified(
             { PermitInspectResult.BackendFailure(it) },
             { PermitInspectResult.IntegrityFailure(it) },
@@ -130,13 +139,17 @@ internal class ExpirableSemaphoreClient private constructor(
         waitTime: Duration,
     ): PermitAcquireResult<ExpirablePermitHandle> {
         validateWait(waitTime)
+
         val deadline = System.nanoTime() + waitTime.toNanos()
         do {
             when (val result = tryAcquire(ownerId, requestId, permits)) {
-                PermitAcquireResult.Unavailable -> Thread.sleep(config.semaphore.pollInterval.toMillis().coerceAtLeast(1))
-                else -> return result
+                PermitAcquireResult.Unavailable ->
+                    Thread.sleep(config.semaphore.pollInterval.toMillis().coerceAtLeast(1))
+                else                            ->
+                    return result
             }
         } while (System.nanoTime() < deadline)
+
         return PermitAcquireResult.TimedOut
     }
 
@@ -168,16 +181,20 @@ internal class ExpirableSemaphoreClient private constructor(
         val deadline = System.nanoTime() + waitTime.toNanos()
         do {
             when (val result = tryAcquireAsync(ownerId, requestId, permits).await()) {
-                PermitAcquireResult.Unavailable -> delay(config.semaphore.pollInterval.toMillis().coerceAtLeast(1))
-                else -> return result
+                PermitAcquireResult.Unavailable ->
+                    delay(config.semaphore.pollInterval.toMillis().coerceAtLeast(1).milliseconds)
+                else                            ->
+                    return result
             }
         } while (System.nanoTime() < deadline)
+
         return PermitAcquireResult.TimedOut
     }
 
     fun inspectAsync(handle: ExpirablePermitHandle): CompletableFuture<PermitInspectResult<ExpirablePermitHandle>> {
         validateHandle(handle)
-        if (closed.get()) return CompletableFuture.completedFuture(PermitInspectResult.Closed)
+        if (closed.value) return completableFutureOf(PermitInspectResult.Closed)
+
         return runAsync(SynchronizerScripts.EXPIRABLE_INSPECT_SCRIPT, *handleArgs(handle))
             .classifiedFuture(
                 { decodeInspect(it, handle) },
@@ -188,7 +205,8 @@ internal class ExpirableSemaphoreClient private constructor(
 
     fun release(handle: ExpirablePermitHandle): PermitMutationResult<ExpirablePermitHandle> {
         validateHandle(handle)
-        if (closed.get()) return PermitMutationResult.Closed
+        if (closed.value) return PermitMutationResult.Closed
+
         return classified(
             { ambiguousMutation(it, handle.permit.requestId) },
             { PermitMutationResult.IntegrityFailure(it) },
@@ -199,7 +217,8 @@ internal class ExpirableSemaphoreClient private constructor(
 
     fun releaseAsync(handle: ExpirablePermitHandle): CompletableFuture<PermitMutationResult<ExpirablePermitHandle>> {
         validateHandle(handle)
-        if (closed.get()) return CompletableFuture.completedFuture(PermitMutationResult.Closed)
+        if (closed.value) return completableFutureOf(PermitMutationResult.Closed)
+
         return runAsync(SynchronizerScripts.EXPIRABLE_RELEASE_SCRIPT, *handleArgs(handle))
             .classifiedFuture(
                 { decodeRelease(it, handle) },
@@ -211,7 +230,8 @@ internal class ExpirableSemaphoreClient private constructor(
     fun renew(handle: ExpirablePermitHandle, extension: Duration): PermitRenewResult<ExpirablePermitHandle> {
         validateHandle(handle)
         require(!extension.isZero && !extension.isNegative && extension.toMillis() >= 100)
-        if (closed.get()) return PermitRenewResult.Closed
+        if (closed.value) return PermitRenewResult.Closed
+
         return classified(
             { ambiguousRenew(it, handle.permit.requestId) },
             { PermitRenewResult.IntegrityFailure(it) },
@@ -233,7 +253,8 @@ internal class ExpirableSemaphoreClient private constructor(
     ): CompletableFuture<PermitRenewResult<ExpirablePermitHandle>> {
         validateHandle(handle)
         require(!extension.isZero && !extension.isNegative && extension.toMillis() >= 100)
-        if (closed.get()) return CompletableFuture.completedFuture(PermitRenewResult.Closed)
+        if (closed.value) return completableFutureOf(PermitRenewResult.Closed)
+
         return runAsync(
             SynchronizerScripts.EXPIRABLE_RENEW_SCRIPT,
             *handleArgs(handle),
@@ -247,16 +268,25 @@ internal class ExpirableSemaphoreClient private constructor(
 
     suspend fun tryAcquireSuspending(owner: SemaphoreOwnerId, request: SemaphoreRequestId, permits: Int) =
         tryAcquireAsync(owner, request, permits).await()
-    suspend fun inspectSuspending(handle: ExpirablePermitHandle) = inspectAsync(handle).await()
-    suspend fun releaseSuspending(handle: ExpirablePermitHandle) = releaseAsync(handle).await()
-    suspend fun renewSuspending(handle: ExpirablePermitHandle, extension: Duration) =
+
+    suspend fun inspectSuspending(handle: ExpirablePermitHandle): PermitInspectResult<ExpirablePermitHandle> =
+        inspectAsync(handle).await()
+
+    suspend fun releaseSuspending(handle: ExpirablePermitHandle): PermitMutationResult<ExpirablePermitHandle> =
+        releaseAsync(handle).await()
+
+    suspend fun renewSuspending(
+        handle: ExpirablePermitHandle,
+        extension: Duration
+    ): PermitRenewResult<ExpirablePermitHandle> =
         renewAsync(handle, extension).await()
 
     fun reconcile(
         ownerId: SemaphoreOwnerId,
         requestId: SemaphoreRequestId,
     ): PermitReconcileResult<ExpirablePermitHandle> {
-        if (closed.get()) return PermitReconcileResult.Closed
+        if (closed.value) return PermitReconcileResult.Closed
+
         return classified(
             { PermitReconcileResult.BackendFailure(it) },
             { PermitReconcileResult.IntegrityFailure(it) },
@@ -273,7 +303,8 @@ internal class ExpirableSemaphoreClient private constructor(
         ownerId: SemaphoreOwnerId,
         requestId: SemaphoreRequestId,
     ): CompletableFuture<PermitReconcileResult<ExpirablePermitHandle>> {
-        if (closed.get()) return CompletableFuture.completedFuture(PermitReconcileResult.Closed)
+        if (closed.value) return completableFutureOf(PermitReconcileResult.Closed)
+
         return runAsync(
             SynchronizerScripts.EXPIRABLE_RECONCILE_SCRIPT,
             cleanupLimit,
@@ -287,7 +318,7 @@ internal class ExpirableSemaphoreClient private constructor(
     }
 
     fun close() {
-        if (closed.compareAndSet(false, true)) {
+        if (closed.compareAndSet(expect = false, update = true)) {
             poller.close()
             bootstrap.close()
         }
@@ -295,6 +326,7 @@ internal class ExpirableSemaphoreClient private constructor(
 
     private fun run(script: RedisScript, vararg args: String): List<String> =
         RedisScriptRunner.run(sync, script, ScriptOutputType.MULTI, keys.expirable, *args)
+
     private fun runAsync(script: RedisScript, vararg args: String): CompletableFuture<List<String>> =
         RedisScriptRunner.runAsync(async, script, ScriptOutputType.MULTI, keys.expirable, *args)
 
@@ -341,16 +373,18 @@ internal class ExpirableSemaphoreClient private constructor(
         handle: ExpirablePermitHandle,
     ): PermitInspectResult<ExpirablePermitHandle> {
         val reply = decodeReply(raw) ?: return integrityInspect()
+
         return when (reply[0]) {
-            "OWNED" -> reply.getOrNull(1)?.toIntOrNull()?.let { PermitInspectResult.Owned(handle, it) }
+            "OWNED"          -> reply.getOrNull(1)?.toIntOrNull()
+                ?.let { PermitInspectResult.Owned(handle, it) }
                 ?: integrityInspect()
-            "RELEASED" -> PermitInspectResult.Released
-            "EXPIRED" -> PermitInspectResult.Expired
+            "RELEASED"       -> PermitInspectResult.Released
+            "EXPIRED"        -> PermitInspectResult.Expired
             "OWNERSHIP_LOST" -> PermitInspectResult.IntegrityFailure(
-                SynchronizerIntegrityFailure(SynchronizerIntegrityFailureKind.STATE_MISMATCH),
+                SynchronizerIntegrityFailure(SynchronizerIntegrityFailureKind.STATE_MISMATCH)
             )
             "STALE_GENERATION" -> PermitInspectResult.StaleGeneration
-            else -> integrityInspect()
+            else             -> integrityInspect()
         }
     }
 
@@ -359,16 +393,18 @@ internal class ExpirableSemaphoreClient private constructor(
         handle: ExpirablePermitHandle,
     ): PermitMutationResult<ExpirablePermitHandle> {
         val reply = decodeReply(raw) ?: return integrityMutation()
+
         return when (reply[0]) {
-            "RELEASED" -> reply.getOrNull(1)?.toIntOrNull()?.let { PermitMutationResult.Released(handle, it) }
+            "RELEASED"       -> reply.getOrNull(1)?.toIntOrNull()
+                ?.let { PermitMutationResult.Released(handle, it) }
                 ?: integrityMutation()
             "ALREADY_RELEASED" -> PermitMutationResult.AlreadyReleased
-            "EXPIRED" -> PermitMutationResult.Expired
+            "EXPIRED"        -> PermitMutationResult.Expired
             "OWNERSHIP_LOST" -> PermitMutationResult.IntegrityFailure(
                 SynchronizerIntegrityFailure(SynchronizerIntegrityFailureKind.STATE_MISMATCH),
             )
             "STALE_GENERATION" -> PermitMutationResult.StaleGeneration
-            else -> integrityMutation()
+            else             -> integrityMutation()
         }
     }
 
@@ -377,18 +413,19 @@ internal class ExpirableSemaphoreClient private constructor(
         handle: ExpirablePermitHandle,
     ): PermitRenewResult<ExpirablePermitHandle> {
         val reply = decodeReply(raw) ?: return integrityRenew()
+
         return when (reply[0]) {
-            "RENEWED" -> {
+            "RENEWED"        -> {
                 val deadline = reply.getOrNull(1)?.toLongOrNull() ?: return integrityRenew()
                 val ids = reply.getOrNull(2)?.split(',') ?: return integrityRenew()
                 if (ids != handle.leases.map { it.permitId }) return integrityRenew()
                 PermitRenewResult.Renewed(handle.copy(leases = ids.map { ExpirablePermitLease(it, deadline) }))
             }
-            "EXPIRED" -> PermitRenewResult.Expired
-            "RELEASED" -> PermitRenewResult.Released
+            "EXPIRED"        -> PermitRenewResult.Expired
+            "RELEASED"       -> PermitRenewResult.Released
             "OWNERSHIP_LOST" -> PermitRenewResult.OwnershipLost
             "STALE_GENERATION" -> PermitRenewResult.StaleGeneration
-            else -> integrityRenew()
+            else             -> integrityRenew()
         }
     }
 
@@ -398,8 +435,9 @@ internal class ExpirableSemaphoreClient private constructor(
         request: SemaphoreRequestId,
     ): PermitReconcileResult<ExpirablePermitHandle> {
         val reply = decodeReply(raw) ?: return integrityReconcile()
+
         return when (reply[0]) {
-            "OWNED" -> {
+            "OWNED"    -> {
                 val generation = reply.getOrNull(2)?.toLongOrNull() ?: return integrityReconcile()
                 val permits = reply.getOrNull(3)?.toIntOrNull() ?: return integrityReconcile()
                 val ids = reply.getOrNull(4)?.split(',')?.filter(String::isNotBlank) ?: return integrityReconcile()
@@ -414,7 +452,7 @@ internal class ExpirableSemaphoreClient private constructor(
             }
             "RELEASED" -> PermitReconcileResult.Released
             "NOT_FOUND" -> PermitReconcileResult.NotFound
-            else -> integrityReconcile()
+            else       -> integrityReconcile()
         }
     }
 
@@ -429,6 +467,7 @@ internal class ExpirableSemaphoreClient private constructor(
     private fun validateHandle(handle: ExpirablePermitHandle) {
         require(handle.permit.objectFingerprint == keys.fingerprint) { "Permit handle belongs to another object." }
     }
+
     private fun validatePermits(permits: Int) {
         require(permits in 1..minOf(config.semaphore.maxPermits, config.maxPermitsPerAcquire))
     }
@@ -438,7 +477,7 @@ internal class ExpirableSemaphoreClient private constructor(
         require(waitTime <= Duration.ofHours(24))
     }
 
-    companion object {
+    companion object: KLoggingChannel() {
         fun create(
             connection: StatefulRedisConnection<String, String>,
             name: String,
@@ -446,6 +485,7 @@ internal class ExpirableSemaphoreClient private constructor(
         ): ExpirableSemaphoreClient {
             val keys = deriveSemaphoreKeys(name, config.semaphore, connection.codec)
             val registration = CoordinationRuntime.forConnection(connection).registerObject(keys.fingerprint)
+
             return ExpirableSemaphoreClient(
                 keys,
                 config,
@@ -455,6 +495,7 @@ internal class ExpirableSemaphoreClient private constructor(
                 SynchronizerAsyncPoller(registration),
             )
         }
+
         fun create(
             connection: StatefulRedisClusterConnection<String, String>,
             name: String,
@@ -462,6 +503,7 @@ internal class ExpirableSemaphoreClient private constructor(
         ): ExpirableSemaphoreClient {
             val keys = deriveSemaphoreKeys(name, config.semaphore, connection.codec)
             val registration = CoordinationRuntime.forConnection(connection).registerObject(keys.fingerprint)
+
             return ExpirableSemaphoreClient(
                 keys,
                 config,
@@ -475,16 +517,18 @@ internal class ExpirableSemaphoreClient private constructor(
 }
 
 private data class Quad<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
+
 private fun token(): String = UUID.randomUUID().toString().replace("-", "")
 private fun backend(error: Throwable): SynchronizerBackendFailure {
     val cause = generateSequence(error) { it.cause }.last()
     val kind = when (cause) {
         is RedisCommandTimeoutException -> SynchronizerBackendFailureKind.TIMEOUT
         is RedisConnectionException -> SynchronizerBackendFailureKind.CONNECTION
-        else -> SynchronizerBackendFailureKind.COMMAND
+        else                        -> SynchronizerBackendFailureKind.COMMAND
     }
     return SynchronizerBackendFailure(kind, SynchronizerRecoveryAction.RECONCILE_REQUEST)
 }
+
 private fun integrityFailure() = SynchronizerIntegrityFailure(SynchronizerIntegrityFailureKind.MALFORMED_REPLY)
 private fun integrityAcquire() = PermitAcquireResult.IntegrityFailure(integrityFailure())
 private fun integrityInspect() = PermitInspectResult.IntegrityFailure(integrityFailure())

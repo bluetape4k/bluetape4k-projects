@@ -1,7 +1,7 @@
 package io.bluetape4k.opentelemetry
 
 import io.bluetape4k.junit5.params.provider.argumentOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.opentelemetry.metrics.loggingMetricExporterOf
 import io.bluetape4k.opentelemetry.metrics.periodicMetricReader
 import io.bluetape4k.opentelemetry.metrics.sdkMeterProvider
@@ -16,7 +16,7 @@ import java.util.logging.LogManager
 
 abstract class AbstractOtelTest {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         init {
             /**
              * Java logging configuration for Slf4j

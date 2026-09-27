@@ -1,12 +1,13 @@
 package io.bluetape4k.pulsar.reader
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.pulsar.AbstractPulsarTest
 import io.bluetape4k.pulsar.producer.sendSuspend
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldHaveSize
 import org.apache.pulsar.client.api.MessageId
 import org.apache.pulsar.client.api.Schema
 import org.junit.jupiter.api.Test
@@ -16,79 +17,73 @@ import kotlin.time.Duration.Companion.seconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ReaderExtensionsTest: AbstractPulsarTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @Test
-    fun `readNextSuspend - 단일 메시지 읽기`() = runTest(timeout = 30.seconds) {
-        val client = newClient()
-        val topic = newTopic()
+    fun `readNextSuspend - 단일 메시지 읽기`() = runSuspendIO(30.seconds) {
+        newClient().use { client ->
+            val topic = newTopic()
 
-        val producer = client.newProducer(Schema.STRING)
-            .topic(topic)
-            .create()
-        val reader = client.newReader(Schema.STRING)
-            .topic(topic)
-            .startMessageId(MessageId.earliest)
-            .create()
-        try {
-            producer.sendSuspend("reader test")
-            val msg = reader.readNextSuspend()
-            msg.value shouldBeEqualTo "reader test"
-        } finally {
-            reader.close()
-            producer.close()
-            client.close()
-        }
-    }
-
-    @Test
-    fun `readAsFlow - hasMessageAvailable 기반 Flow 읽기`() = runTest(timeout = 30.seconds) {
-        val client = newClient()
-        val topic = newTopic()
-        val messageCount = 5
-
-        val producer = client.newProducer(Schema.STRING)
-            .topic(topic)
-            .create()
-        try {
-            // 메시지를 미리 모두 발행한 후 Reader로 읽기
-            repeat(messageCount) { i -> producer.sendSuspend("read-msg-$i") }
-        } finally {
-            producer.close()
-        }
-
-        // Reader는 earliest 시점부터 읽으므로 미리 발행된 메시지 전부 수신
-        val reader = client.newReader(Schema.STRING)
-            .topic(topic)
-            .startMessageId(MessageId.earliest)
-            .create()
-        try {
-            val messages = reader.readAsFlow().toList()
-            messages shouldHaveSize messageCount
-            messages.forEachIndexed { i, msg ->
-                msg.value shouldBeEqualTo "read-msg-$i"
+            val producer = client.newProducer(Schema.STRING)
+                .topic(topic)
+                .create()
+            val reader = client.newReader(Schema.STRING)
+                .topic(topic)
+                .startMessageId(MessageId.earliest)
+                .create()
+            try {
+                producer.sendSuspend("reader test")
+                val msg = reader.readNextSuspend()
+                msg.value shouldBeEqualTo "reader test"
+            } finally {
+                reader.close()
+                producer.close()
             }
-        } finally {
-            reader.close()
-            client.close()
         }
     }
 
     @Test
-    fun `readAsFlow - 메시지 없으면 빈 Flow`() = runTest(timeout = 30.seconds) {
-        val client = newClient()
-        val topic = newTopic()
+    fun `readAsFlow - hasMessageAvailable 기반 Flow 읽기`() = runSuspendIO(30.seconds) {
+        newClient().use { client ->
+            val topic = newTopic()
+            val messageCount = 5
 
-        val reader = client.newReader(Schema.STRING)
-            .topic(topic)
-            .startMessageId(MessageId.latest)
-            .create()
-        try {
-            val messages = reader.readAsFlow().toList()
-            messages shouldHaveSize 0
-        } finally {
-            reader.close()
-            client.close()
+            client.newProducer(Schema.STRING)
+                .topic(topic)
+                .create()
+                .use { producer ->
+                    // 메시지를 미리 모두 발행한 후 Reader로 읽기
+                    repeat(messageCount) { i -> producer.sendSuspend("read-msg-$i") }
+                }
+
+            // Reader는 earliest 시점부터 읽으므로 미리 발행된 메시지 전부 수신
+            client.newReader(Schema.STRING)
+                .topic(topic)
+                .startMessageId(MessageId.earliest)
+                .create()
+                .use { reader ->
+                    val messages = reader.readAsFlow().toList()
+                    messages shouldHaveSize messageCount
+                    messages.forEachIndexed { i, msg ->
+                        msg.value shouldBeEqualTo "read-msg-$i"
+                    }
+                }
+        }
+    }
+
+    @Test
+    fun `readAsFlow - 메시지 없으면 빈 Flow`() = runSuspendIO(30.seconds) {
+        newClient().use { client ->
+            val topic = newTopic()
+
+            client.newReader(Schema.STRING)
+                .topic(topic)
+                .startMessageId(MessageId.latest)
+                .create()
+                .use { reader ->
+                    val messages = reader.readAsFlow().toList()
+                    messages.shouldBeEmpty()
+                }
         }
     }
 }

@@ -3,7 +3,7 @@ package io.bluetape4k.resilience4j.retry
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.SuspendHelloWorldService
 import io.github.resilience4j.kotlin.retry.retry
@@ -19,7 +19,7 @@ class FlowRetryTest {
     companion object: KLoggingChannel()
 
     @Test
-    fun `성공하는 함수를 실행합니다`() = runSuspendTest {
+    fun `성공하는 함수를 실행합니다`() = runSuspendIO {
         val retry = Retry.ofDefaults("testName")
         val metrics = retry.metrics
         val helloWorldService = SuspendHelloWorldService()
@@ -46,7 +46,7 @@ class FlowRetryTest {
     }
 
     @Test
-    fun `함수 실행을 재시도 합니다`() = runSuspendTest {
+    fun `함수 실행을 재시도 합니다`() = runSuspendIO {
         val retry = Retry.of("testName") {
             RetryConfig.custom<Any?>()
                 .waitDuration(Duration.ofMillis(10))
@@ -59,8 +59,8 @@ class FlowRetryTest {
         val results = flow {
             repeat(3) {
                 when (helloWorldService.invocationCount) {
-                    0 -> helloWorldService.throwException()
-                    else -> emit(helloWorldService.returnHelloWorld() + it)
+                    0    -> helloWorldService.throwException()
+                    else -> emit(helloWorldService.returnHelloWorld() + " $it")
                 }
             }
         }
@@ -68,7 +68,7 @@ class FlowRetryTest {
             .toList()
 
         repeat(3) {
-            results[it] shouldBeEqualTo "Hello world$it"
+            results[it] shouldBeEqualTo "Hello world $it"
         }
 
         results.size shouldBeEqualTo 3
@@ -81,7 +81,7 @@ class FlowRetryTest {
     }
 
     @Test
-    fun `재시도 결과에 따라 실행합니다`() = runSuspendTest {
+    fun `재시도 결과에 따라 실행합니다`() = runSuspendIO {
         val helloWorldService = SuspendHelloWorldService()
         val retry = Retry.of("testName") {
             RetryConfig.custom<Any?>()
@@ -110,7 +110,7 @@ class FlowRetryTest {
     }
 
     @Test
-    fun `반복적인 실패 시에도 함수는 실행됩니다`() = runSuspendTest {
+    fun `반복적인 실패 시에도 함수는 실행됩니다`() = runSuspendIO {
         val helloWorldService = SuspendHelloWorldService()
         val retry = Retry.of("testName") {
             RetryConfig.custom<Any?>()

@@ -306,7 +306,8 @@ class SuspendJsonParser(
                     }
                 }
 
-                else                         -> error("Unknown json token $token")
+                else                         ->
+                    error("Unknown json token $token")
             }
         } catch (e: Exception) {
             log.error(e) { "JSON 파싱 오류: ${e.message}" }

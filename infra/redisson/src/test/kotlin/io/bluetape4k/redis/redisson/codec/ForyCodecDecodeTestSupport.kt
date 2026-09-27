@@ -83,13 +83,12 @@ internal class CodecInputState private constructor(
     }
 
     companion object {
-        fun capture(buf: ByteBuf): CodecInputState =
-            CodecInputState(
-                readerIndex = buf.readerIndex(),
-                writerIndex = buf.writerIndex(),
-                refCnt = buf.refCnt(),
-                bytes = ByteBufUtil.getBytes(buf, 0, buf.capacity(), true).toList(),
-            )
+        fun capture(buf: ByteBuf): CodecInputState = CodecInputState(
+            readerIndex = buf.readerIndex(),
+            writerIndex = buf.writerIndex(),
+            refCnt = buf.refCnt(),
+            bytes = ByteBufUtil.getBytes(buf, 0, buf.capacity(), true).toList(),
+        )
     }
 }
 
@@ -99,12 +98,11 @@ internal fun framedCodecInput(
 ): ByteBuf {
     val prefixSize = 3
     val suffixSize = 4
-    val buf =
-        if (direct) {
-            Unpooled.directBuffer(prefixSize + payload.size + suffixSize)
-        } else {
-            Unpooled.buffer(prefixSize + payload.size + suffixSize)
-        }
+    val buf = if (direct) {
+        Unpooled.directBuffer(prefixSize + payload.size + suffixSize)
+    } else {
+        Unpooled.buffer(prefixSize + payload.size + suffixSize)
+    }
     buf.writeBytes(byteArrayOf(11, 12, 13))
     buf.writeBytes(payload)
     buf.writeBytes(byteArrayOf(21, 22, 23, 24))

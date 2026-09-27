@@ -9,7 +9,7 @@ Spring Data Cassandra 기반 개발에서 자주 쓰는 코루틴 확장, 편의
 ## 주요 기능
 
 - `ReactiveSession`/`ReactiveCassandraOperations`/`AsyncCassandraOperations` 코루틴 확장
-- CQL 옵션(`QueryOptions`, `WriteOptions` 등) DSL 헬퍼
+- CQL 옵션 (`QueryOptions`, `WriteOptions` 등) DSL 헬퍼
 - 스키마 생성/트렁케이트 유틸 (`SchemaGenerator`)
 
 ## 아키텍처 다이어그램
@@ -55,13 +55,13 @@ val options = writeOptions {
 
 `WriteOptions`는 Cassandra 문장별 다음 계약을 따릅니다.
 
-| 입력 | 결과 |
-| --- | --- |
-| `ttl == null` | TTL 절을 렌더링하지 않습니다. |
-| `ttl == Duration.ZERO` 또는 `1ms`/`500ms` 같은 subsecond duration | whole-second 값으로 절삭하며 TTL 0을 렌더링합니다(`INSERT`는 `USING TTL 0`, `UPDATE`는 `AND TTL 0`). |
-| 음수 TTL | Spring Data builder가 `IllegalArgumentException("TTL must be greater than equal to zero")`로 실패합니다. |
-| `Int` 범위를 벗어난 TTL 초 | 문장을 실행하기 전에 `addWriteOptions`가 `ArithmeticException`으로 실패합니다. |
-| `timestamp` | Cassandra microseconds 단위로 적용합니다. `Delete`는 timestamp를 보존하지만 TTL은 적용하지 않습니다. |
+| 입력                                                              | 결과                                                                                                     |
+|-------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
+| `ttl == null`                                                     | TTL 절을 렌더링하지 않습니다.                                                                            |
+| `ttl == Duration.ZERO` 또는 `1ms`/`500ms` 같은 subsecond duration | whole-second 값으로 절삭하며 TTL 0을 렌더링합니다(`INSERT`는 `USING TTL 0`, `UPDATE`는 `AND TTL 0`).     |
+| 음수 TTL                                                          | Spring Data builder가 `IllegalArgumentException("TTL must be greater than equal to zero")`로 실패합니다. |
+| `Int` 범위를 벗어난 TTL 초                                        | 문장을 실행하기 전에 `addWriteOptions`가 `ArithmeticException`으로 실패합니다.                           |
+| `timestamp`                                                       | Cassandra microseconds 단위로 적용합니다. `Delete`는 timestamp를 보존하지만 TTL은 적용하지 않습니다.     |
 
 기존 `isPositiveTtl` 확장은 이름과 달리 0을 포함한 모든 non-negative TTL에서 `true`, TTL이 없을 때 `false`를 반환합니다.
 

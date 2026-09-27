@@ -2,8 +2,9 @@ package io.bluetape4k.redis.lettuce.codec
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.PooledByteBufAllocator
 import io.netty.buffer.Unpooled
@@ -12,6 +13,8 @@ import java.io.IOException
 import java.nio.ByteBuffer
 
 class BoundedByteBufOutputStreamTest {
+
+    companion object: KLogging()
 
     @Test
     fun `writes from the construction writer index across supported target kinds`() {
@@ -31,9 +34,7 @@ class BoundedByteBufOutputStreamTest {
                 target.writerIndex() shouldBeEqualTo 1
                 target.readerIndex() shouldBeEqualTo 0
                 target.refCnt() shouldBeEqualTo 1
-                target.bytes(0, 6).contentEquals(
-                    byteArrayOf(0x5A, 0x11, 0x22, 0x33, 0x55, 0x66),
-                ).shouldBeTrue()
+                target.bytes(0, 6) shouldBeEqualTo byteArrayOf(0x5A, 0x11, 0x22, 0x33, 0x55, 0x66)
             } catch (failure: Throwable) {
                 throw AssertionError("target fixture failed: $name", failure)
             } finally {
@@ -54,7 +55,7 @@ class BoundedByteBufOutputStreamTest {
             output.writtenBytes() shouldBeEqualTo 3
             target.capacity() shouldBeEqualTo 4
             target.writerIndex() shouldBeEqualTo 1
-            target.bytes(0, 4).contentEquals(byteArrayOf(0x5A, 1, 2, 3)).shouldBeTrue()
+            target.bytes(0, 4) shouldBeEqualTo byteArrayOf(0x5A, 1, 2, 3)
         } finally {
             target.release()
         }
@@ -71,11 +72,11 @@ class BoundedByteBufOutputStreamTest {
             val firstCapacity = target.capacity()
             output.write(byteArrayOf(4, 5, 6, 7))
 
-            (firstCapacity >= 4).shouldBeTrue()
-            (target.capacity() >= 8).shouldBeTrue()
+            firstCapacity shouldBeGreaterOrEqualTo 4
+            target.capacity() shouldBeGreaterOrEqualTo 8
             output.writtenBytes() shouldBeEqualTo 7
             target.writerIndex() shouldBeEqualTo 1
-            target.bytes(1, 7).contentEquals(byteArrayOf(1, 2, 3, 4, 5, 6, 7)).shouldBeTrue()
+            target.bytes(1, 7) shouldBeEqualTo byteArrayOf(1, 2, 3, 4, 5, 6, 7)
         } finally {
             target.release()
         }
@@ -93,12 +94,12 @@ class BoundedByteBufOutputStreamTest {
             val failure = assertFailsWith<IllegalStateException> {
                 output.write(byteArrayOf(1, 2, 3, 4, 5))
             }
-
             failure.message shouldBeEqualTo "Serialized output exceeds target maxCapacity."
+
             output.writtenBytes() shouldBeEqualTo 0
             target.capacity() shouldBeEqualTo 4
             target.writerIndex() shouldBeEqualTo 2
-            target.bytes(0, target.capacity()).contentEquals(before).shouldBeTrue()
+            target.bytes(0, target.capacity()) shouldBeEqualTo before
         } finally {
             target.release()
         }
@@ -116,7 +117,7 @@ class BoundedByteBufOutputStreamTest {
             }
 
             output.writtenBytes() shouldBeEqualTo 0
-            target.bytes(0, target.capacity()).contentEquals(before).shouldBeTrue()
+            target.bytes(0, target.capacity()) shouldBeEqualTo before
         } finally {
             target.releaseDelegate()
         }
@@ -131,18 +132,20 @@ class BoundedByteBufOutputStreamTest {
             val before = target.bytes(0, target.capacity())
             val output = BoundedByteBufOutputStream(target)
 
-            listOf<() -> Unit>(
+            listOf(
                 { output.write(byteArrayOf(1, 2, 3), -1, 1) },
                 { output.write(byteArrayOf(1, 2, 3), 0, -1) },
                 { output.write(byteArrayOf(1, 2, 3), 2, 2) },
                 { output.write(byteArrayOf(1, 2, 3), Int.MAX_VALUE, 1) },
             ).forEach { invalidWrite ->
-                assertFailsWith<IndexOutOfBoundsException> { invalidWrite() }
+                assertFailsWith<IndexOutOfBoundsException> {
+                    invalidWrite()
+                }
             }
 
             output.writtenBytes() shouldBeEqualTo 0
             target.writerIndex() shouldBeEqualTo 2
-            target.bytes(0, target.capacity()).contentEquals(before).shouldBeTrue()
+            target.bytes(0, target.capacity()) shouldBeEqualTo before
         } finally {
             target.release()
         }
@@ -164,7 +167,7 @@ class BoundedByteBufOutputStreamTest {
             output.writtenBytes() shouldBeEqualTo 0
             output.highWaterBytes() shouldBeEqualTo 4
             target.writerIndex() shouldBeEqualTo 1
-            (target.capacity() >= 5).shouldBeTrue()
+            target.capacity() shouldBeGreaterOrEqualTo 5
             target.getUnsignedByte(0) shouldBeEqualTo 0x5A
             target.getUnsignedByte(1) shouldBeEqualTo 1
             target.getUnsignedByte(2) shouldBeEqualTo 2
@@ -188,8 +191,8 @@ class BoundedByteBufOutputStreamTest {
 
             output.writtenBytes() shouldBeEqualTo 0
             output.highWaterBytes() shouldBeEqualTo 3
-            target.bytes(0, 2).contentEquals(byteArrayOf(0x7F, 0x7F)).shouldBeTrue()
-            target.bytes(5, 3).contentEquals(byteArrayOf(0x7F, 0x7F, 0x7F)).shouldBeTrue()
+            target.bytes(0, 2) shouldBeEqualTo byteArrayOf(0x7F, 0x7F)
+            target.bytes(5, 3) shouldBeEqualTo byteArrayOf(0x7F, 0x7F, 0x7F)
         } finally {
             target.release()
         }
@@ -197,7 +200,11 @@ class BoundedByteBufOutputStreamTest {
 
     @Test
     fun `a shorter retry never commits dirty suffix from a failed write`() {
-        val target = PartialFailingBulkByteBuf(Unpooled.buffer(2, 16), IOException("partial bulk failure"))
+        val target = PartialFailingBulkByteBuf(
+            Unpooled.buffer(2, 16),
+            IOException("partial bulk failure")
+        )
+
         try {
             target.writeByte(0x5A)
             val output = BoundedByteBufOutputStream(target)
@@ -205,13 +212,14 @@ class BoundedByteBufOutputStreamTest {
             assertFailsWith<IOException> {
                 output.write(byteArrayOf(1, 2, 3, 4))
             }
+
             target.failBulkWrites = false
             output.write(byteArrayOf(9))
             target.writerIndex(Math.addExact(output.startIndex(), output.writtenBytes()))
 
             target.readableBytes() shouldBeEqualTo 2
             output.highWaterBytes() shouldBeEqualTo 4
-            target.bytes(0, target.writerIndex()).contentEquals(byteArrayOf(0x5A, 9)).shouldBeTrue()
+            target.bytes(0, target.writerIndex()) shouldBeEqualTo byteArrayOf(0x5A, 9)
             target.getUnsignedByte(2) shouldBeEqualTo 2
         } finally {
             target.release()
@@ -367,13 +375,18 @@ class BoundedByteBufOutputStreamTest {
             val output = BoundedByteBufOutputStream(target)
             output.seal()
 
-            val singleFailure = assertFailsWith<IOException> { output.write(1) }
-            val bulkFailure = assertFailsWith<IOException> { output.write(byteArrayOf(1, 2, 3)) }
+            val singleFailure = assertFailsWith<IOException> {
+                output.write(1)
+            }
+            val bulkFailure = assertFailsWith<IOException> {
+                output.write(byteArrayOf(1, 2, 3))
+            }
             output.flush()
             output.close()
 
             singleFailure.message shouldBeEqualTo "Bounded ByteBuf output stream is sealed."
             bulkFailure.message shouldBeEqualTo "Bounded ByteBuf output stream is sealed."
+
             output.writtenBytes() shouldBeEqualTo 0
             target.writerIndex() shouldBeEqualTo 1
             target.getUnsignedByte(0) shouldBeEqualTo 0x5A
@@ -394,7 +407,7 @@ class BoundedByteBufOutputStreamTest {
             target.nioCalls shouldBeEqualTo 0
             output.writtenBytes() shouldBeEqualTo 4
             target.writerIndex() shouldBeEqualTo 1
-            target.bytes(1, 4).contentEquals(byteArrayOf(1, 2, 3, 4)).shouldBeTrue()
+            target.bytes(1, 4) shouldBeEqualTo byteArrayOf(1, 2, 3, 4)
         } finally {
             target.release()
         }
@@ -408,16 +421,21 @@ class BoundedByteBufOutputStreamTest {
             "pooled direct" to { PooledByteBufAllocator.DEFAULT.directBuffer(4, 16) },
             "slice" to { Unpooled.buffer(16, 16).slice(0, 16) },
             "composite" to {
-                Unpooled.compositeBuffer().addComponents(
-                    true,
-                    Unpooled.buffer(4, 4).writeZero(4),
-                    Unpooled.buffer(4, 4).writeZero(4),
-                )
+                Unpooled
+                    .compositeBuffer()
+                    .addComponents(
+                        true,
+                        Unpooled.buffer(4, 4).writeZero(4),
+                        Unpooled.buffer(4, 4).writeZero(4),
+                    )
             },
         )
 
     private fun ByteBuf.bytes(index: Int, length: Int): ByteArray =
-        ByteArray(length).also { bytes -> getBytes(index, bytes) }
+        ByteArray(length)
+            .also { bytes ->
+                getBytes(index, bytes)
+            }
 
     @Suppress("DEPRECATION")
     private class PartialFailingBulkByteBuf(

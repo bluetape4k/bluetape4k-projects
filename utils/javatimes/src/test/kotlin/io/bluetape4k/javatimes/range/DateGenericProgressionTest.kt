@@ -1,5 +1,8 @@
 package io.bluetape4k.javatimes.range
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.javatimes.dateOf
 import io.bluetape4k.javatimes.days
 import io.bluetape4k.javatimes.hours
@@ -7,11 +10,8 @@ import io.bluetape4k.javatimes.minus
 import io.bluetape4k.javatimes.plus
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
 
 class DateGenericProgressionTest {
 

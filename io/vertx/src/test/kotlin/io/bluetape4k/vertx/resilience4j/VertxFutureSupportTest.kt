@@ -4,12 +4,12 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.vertx.resilience4j.recover as recoverFuture
 import io.bluetape4k.vertx.tests.withTestContext
 import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import org.junit.jupiter.api.Test
+import io.bluetape4k.vertx.resilience4j.recover as recoverFuture
 
 class VertxFutureSupportTest: AbstractVertxFutureTest() {
 
@@ -30,8 +30,7 @@ class VertxFutureSupportTest: AbstractVertxFutureTest() {
             .result() shouldBeEqualTo "iterable"
         with(Future.failedFuture<String>(failure)) {
             recoverFuture(IllegalStateException::class.java) { "single" }
-        }
-            .result() shouldBeEqualTo "single"
+        }.result() shouldBeEqualTo "single"
 
         val notRecovered = with(Future.failedFuture<String>(failure)) {
             recoverFuture(IllegalArgumentException::class.java) { "wrong" }
@@ -47,8 +46,7 @@ class VertxFutureSupportTest: AbstractVertxFutureTest() {
 
         with(Future.succeededFuture("ok")) {
             recoverFuture(IllegalStateException::class.java) { "unused" }
-        }
-            .result() shouldBeEqualTo "ok"
+        }.result() shouldBeEqualTo "ok"
     }
 
     @Test
@@ -81,7 +79,9 @@ class VertxFutureSupportTest: AbstractVertxFutureTest() {
             .result() shouldBeEqualTo "needs fallback"
 
         val alwaysMatching: (String) -> Boolean = { true }
-        val failureThroughPredicate = with(failedSupplier) { recoverFuture(alwaysMatching) { "unused" } }()
+        val failureThroughPredicate = with(failedSupplier) {
+            recoverFuture(alwaysMatching) { "unused" }
+        }()
         failureThroughPredicate.failed().shouldBeTrue()
         failureThroughPredicate.succeeded().shouldBeFalse()
     }

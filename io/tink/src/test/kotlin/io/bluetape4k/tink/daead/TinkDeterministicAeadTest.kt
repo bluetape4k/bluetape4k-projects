@@ -1,41 +1,45 @@
 package io.bluetape4k.tink.daead
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.tink.daeadKeysetHandle
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.tink.AbstractTinkTest
+import io.bluetape4k.tink.daeadKeysetHandle
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.security.GeneralSecurityException
 
-class TinkDeterministicAeadTest {
+class TinkDeterministicAeadTest: AbstractTinkTest() {
+
     companion object: KLogging()
 
     private val daead = TinkDeterministicAead(daeadKeysetHandle())
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `바이트 배열 encryptDeterministically decrypt 라운드트립`() {
-        val plaintext = "결정적 암호화 테스트".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
         val ciphertext = daead.encryptDeterministically(plaintext)
 
         ciphertext shouldNotBeEqualTo plaintext
         daead.decryptDeterministically(ciphertext) shouldBeEqualTo plaintext
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `문자열 encryptDeterministically decrypt 라운드트립`() {
-        val plaintext = "결정적 문자열 암호화"
+        val plaintext = faker.lorem().paragraph()
         val ciphertext = daead.encryptDeterministically(plaintext)
 
         ciphertext shouldNotBeEqualTo plaintext
         daead.decryptDeterministically(ciphertext) shouldBeEqualTo plaintext
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `동일한 평문은 항상 동일한 암호문을 생성한다 (결정적 특성)`() {
-        val plaintext = "검색 가능한 필드 값".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
 
         val ct1 = daead.encryptDeterministically(plaintext)
         val ct2 = daead.encryptDeterministically(plaintext)
@@ -44,20 +48,20 @@ class TinkDeterministicAeadTest {
         ct1 shouldBeEqualTo ct2
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `associatedData가 있는 라운드트립`() {
-        val plaintext = "민감한 데이터".toByteArray()
-        val associatedData = "table=users,column=email".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
+        val associatedData = "table=users,column=email".toUtf8Bytes()
 
         val ciphertext = daead.encryptDeterministically(plaintext, associatedData)
         daead.decryptDeterministically(ciphertext, associatedData) shouldBeEqualTo plaintext
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `잘못된 associatedData로 decrypt시 예외 발생`() {
-        val plaintext = "데이터".toByteArray()
-        val correctAd = "올바른-AD".toByteArray()
-        val wrongAd = "잘못된-AD".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
+        val correctAd = "올바른-AD".toUtf8Bytes()
+        val wrongAd = "잘못된-AD".toUtf8Bytes()
 
         val ciphertext = daead.encryptDeterministically(plaintext, correctAd)
 
@@ -66,16 +70,16 @@ class TinkDeterministicAeadTest {
         }
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `TinkDaeads 싱글턴 AES256_SIV 라운드트립`() {
-        val plaintext = "싱글턴 인스턴스 테스트"
+        val plaintext = faker.lorem().paragraph()
         val ciphertext = TinkDaeads.AES256_SIV.encryptDeterministically(plaintext)
         TinkDaeads.AES256_SIV.decryptDeterministically(ciphertext) shouldBeEqualTo plaintext
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `TinkDaeads 싱글턴 동일 평문 결정적 특성 검증`() {
-        val plaintext = "검색 인덱스 값"
+        val plaintext = faker.lorem().paragraph()
         val ct1 = TinkDaeads.AES256_SIV.encryptDeterministically(plaintext)
         val ct2 = TinkDaeads.AES256_SIV.encryptDeterministically(plaintext)
         ct1 shouldBeEqualTo ct2
@@ -88,10 +92,10 @@ class TinkDeterministicAeadTest {
         daead.decryptDeterministically(ct) shouldBeEqualTo plaintext
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `다른 키로 decryptDeterministically시 예외 발생`() {
         val daead2 = TinkDeterministicAead(daeadKeysetHandle())
-        val plaintext = "비밀 필드".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
         val ciphertext = daead.encryptDeterministically(plaintext)
 
         assertFailsWith<GeneralSecurityException> {
@@ -99,9 +103,9 @@ class TinkDeterministicAeadTest {
         }
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `변조된 암호문으로 decryptDeterministically시 예외 발생`() {
-        val plaintext = "변조 테스트".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
         val ciphertext = daead.encryptDeterministically(plaintext)
         val tampered = ciphertext.copyOf()
             .apply { this[ciphertext.size / 2] = (this[ciphertext.size / 2].toInt() xor 0xFF).toByte() }

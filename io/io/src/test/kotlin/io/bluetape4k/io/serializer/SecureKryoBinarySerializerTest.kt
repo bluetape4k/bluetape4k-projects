@@ -1,11 +1,11 @@
 package io.bluetape4k.io.serializer
 
-import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
-import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
+import net.datafaker.Faker
+import org.junit.jupiter.api.Test
+import java.util.*
 
 /**
  * 보안 설정의 [KryoBinarySerializer] 사용 예제 테스트
@@ -23,7 +23,7 @@ import io.bluetape4k.assertions.assertFailsWith
 class SecureKryoBinarySerializerTest {
 
     companion object: KLogging() {
-        private val faker = Fakers.faker
+        private val faker = Faker(Locale.getDefault())
     }
 
     // 직렬화를 허용할 클래스 (등록 대상)
@@ -53,7 +53,7 @@ class SecureKryoBinarySerializerTest {
         val bytes = serializer.serialize(expected)
         val actual = serializer.deserialize<AllowedProduct>(bytes)
 
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 
     @Test
@@ -74,6 +74,6 @@ class SecureKryoBinarySerializerTest {
         val bytes = defaultSerializer.serialize(cart)
         val actual = defaultSerializer.deserialize<UnregisteredCart>(bytes)
 
-        actual.shouldNotBeNull() shouldBeEqualTo cart
+        actual shouldBeEqualTo cart
     }
 }

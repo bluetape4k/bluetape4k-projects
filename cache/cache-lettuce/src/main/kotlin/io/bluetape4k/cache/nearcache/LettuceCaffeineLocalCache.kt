@@ -16,8 +16,11 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats
  * cache.close()
  * ```
  */
-class LettuceCaffeineLocalCache<K: Any, V: Any>(private val config: LettuceNearCacheConfig<K, V>):
-    LettuceLocalCache<K, V> {
+// 이 adapter는 LettuceLocalCache의 모든 연산을 Caffeine 구현에 연결합니다.
+@Suppress("TooManyFunctions")
+class LettuceCaffeineLocalCache<K: Any, V: Any>(
+    private val config: LettuceNearCacheConfig<K, V>
+): LettuceLocalCache<K, V> {
 
     private val cache: Cache<K, V> = Caffeine.newBuilder()
         .maximumSize(config.maxLocalSize)

@@ -2,6 +2,8 @@ package io.bluetape4k.resilience4j.timelimiter
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.timelimiter.TimeLimiter
@@ -12,15 +14,16 @@ import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeoutException
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class TimeLimiterExtensionsTest {
 
     companion object: KLoggingChannel()
 
-    private fun defaultTimeLimiter() = TimeLimiter.ofDefaults("test-${System.nanoTime()}")
+    private fun defaultTimeLimiter() = TimeLimiter.ofDefaults("test-${Base58.randomString(8)}")
 
     private fun shortTimeLimiter() = TimeLimiter.of(
-        "test-short-${System.nanoTime()}",
+        "test-short-${Base58.randomString(8)}",
         TimeLimiterConfig.custom()
             .timeoutDuration(Duration.ofMillis(50))
             .build()
@@ -118,7 +121,7 @@ class TimeLimiterExtensionsTest {
         val func = tl.completableFuture { input: Int ->
             CompletableFuture.supplyAsync { input * 2 } as CompletableFuture<Int>
         }
-        val result = func(21).get()
+        val result = func(21).get(1.seconds)
         result shouldBeEqualTo 42
     }
 
@@ -130,7 +133,7 @@ class TimeLimiterExtensionsTest {
         val func = tl.decorateCompletableFuture { input: Int ->
             CompletableFuture.supplyAsync { input * 2 } as CompletableFuture<Int>
         }
-        val result = func(21).get()
+        val result = func(21).get(1.seconds)
         result shouldBeEqualTo 42
     }
 }

@@ -147,8 +147,11 @@ class NearJCacheConfigBinaryCompatibilityTest {
     }
 
     private fun extractHash(manifest: String, name: String): String {
-        val line = manifest.lineSequence().first { it.contains("\"$name\"") }
-        return line.substringAfter("\"sha256\": \"").substringBefore('"')
+        val entry = Regex(
+            """(?s)\{\s*"name":\s*"${Regex.escape(name)}".*?"sha256":\s*"([^"]+)"""",
+        ).find(manifest)
+            ?: error("Missing manifest hash: $name")
+        return entry.groupValues[1]
     }
 
     private fun extractObjectField(manifest: String, objectName: String, fieldName: String): String {

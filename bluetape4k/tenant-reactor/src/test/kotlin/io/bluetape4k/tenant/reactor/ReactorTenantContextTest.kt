@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldNotBeSameInstanceAs
 import io.bluetape4k.tenant.MissingTenantContextException
 import io.bluetape4k.tenant.TenantId
@@ -114,7 +115,7 @@ class ReactorTenantContextTest {
         }.contextWrite {
             bindingCount.incrementAndGet()
             ReactorTenantContext.withTenant(it, tenantId)
-        }.collectList().block(Duration.ofSeconds(5))!!
+        }.collectList().block(Duration.ofSeconds(5)).shouldNotBeNull()
 
         bindingCount.get() shouldBeEqualTo 1
         observed.all { it == tenantId }.shouldBeTrue()

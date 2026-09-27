@@ -1,5 +1,6 @@
 package io.bluetape4k.bucket4j.ratelimit
 
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import java.io.Serializable
 import java.time.Duration
 
@@ -50,12 +51,8 @@ data class RateLimitDiagnostics(
 ): Serializable {
 
     init {
-        require(nanosToWaitForRefill >= 0) {
-            "nanosToWaitForRefill must be greater than or equal to 0. nanosToWaitForRefill=$nanosToWaitForRefill"
-        }
-        require(nanosToWaitForReset >= 0) {
-            "nanosToWaitForReset must be greater than or equal to 0. nanosToWaitForReset=$nanosToWaitForReset"
-        }
+        nanosToWaitForRefill.requireZeroOrPositiveNumber("nanosToWaitForRefill")
+        nanosToWaitForReset.requireZeroOrPositiveNumber("nanosToWaitForReset")
     }
 
     companion object {
@@ -97,8 +94,8 @@ data class RateLimitResult(
 ): Serializable {
 
     init {
-        require(consumedTokens >= 0) { "consumedTokens must be greater than or equal to 0. consumedTokens=$consumedTokens" }
-        require(availableTokens >= 0) { "availableTokens must be greater than or equal to 0. availableTokens=$availableTokens" }
+        consumedTokens.requireZeroOrPositiveNumber("consumedTokens")
+        availableTokens.requireZeroOrPositiveNumber("availableTokens")
         require(status == RateLimitStatus.REJECTED || diagnostics.rejectionReason == null) {
             "rejectionReason is meaningful only for REJECTED results. status=$status, rejectionReason=${diagnostics.rejectionReason}"
         }

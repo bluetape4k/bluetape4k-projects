@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
  * @param runnable 실행할 코드
  * @return CircuitBreaker 를 적용한 Runnable
  */
-inline fun CircuitBreaker.runnable(crossinline runnable: () -> Unit): () -> Unit = {
+fun CircuitBreaker.runnable(runnable: () -> Unit): () -> Unit = {
     CircuitBreaker.decorateRunnable(this) { runnable() }.run()
 }
 
@@ -42,7 +42,7 @@ inline fun CircuitBreaker.runnable(crossinline runnable: () -> Unit): () -> Unit
  * @param runnable 실행할 코드
  * @return CircuitBreaker 를 적용한 CheckedRunnable
  */
-inline fun CircuitBreaker.checkedRunnable(crossinline runnable: () -> Unit): CheckedRunnable =
+fun CircuitBreaker.checkedRunnable(runnable: () -> Unit): CheckedRunnable =
     CircuitBreaker.decorateCheckedRunnable(this) { runnable() }
 
 /**
@@ -61,9 +61,7 @@ inline fun CircuitBreaker.checkedRunnable(crossinline runnable: () -> Unit): Che
  * @param callable 실행할 코드
  * @return CircuitBreaker 를 적용한 Callable
  */
-inline fun <T> CircuitBreaker.callable(
-    crossinline callable: () -> T,
-): () -> T = {
+fun <T> CircuitBreaker.callable(callable: () -> T): () -> T = {
     CircuitBreaker.decorateCallable(this) { callable() }.call()
 }
 
@@ -83,9 +81,7 @@ inline fun <T> CircuitBreaker.callable(
  * @param supplier 실행할 코드
  * @return CircuitBreaker 를 적용한 Supplier
  */
-inline fun <T> CircuitBreaker.supplier(
-    crossinline supplier: () -> T,
-): () -> T = {
+fun <T> CircuitBreaker.supplier(supplier: () -> T): () -> T = {
     CircuitBreaker.decorateSupplier(this) { supplier() }.get()
 }
 
@@ -105,9 +101,7 @@ inline fun <T> CircuitBreaker.supplier(
  * @param supplier 실행할 코드
  * @return CircuitBreaker 를 적용한 Checked Supplier
  */
-inline fun <T> CircuitBreaker.checkedSupplier(
-    crossinline supplier: () -> T,
-): () -> T = {
+fun <T> CircuitBreaker.checkedSupplier(supplier: () -> T): () -> T = {
     CircuitBreaker.decorateCheckedSupplier(this) { supplier() }.get()
 }
 
@@ -126,9 +120,7 @@ inline fun <T> CircuitBreaker.checkedSupplier(
  * @param consumer 실행할 코드
  * @return CircuitBreaker 를 적용한 Consumer
  */
-inline fun <T> CircuitBreaker.consumer(
-    crossinline consumer: (T) -> Unit,
-): (T) -> Unit = { input: T ->
+fun <T> CircuitBreaker.consumer(consumer: (T) -> Unit): (T) -> Unit = { input: T ->
     CircuitBreaker.decorateConsumer<T>(this) { consumer(it) }.accept(input)
 }
 
@@ -147,9 +139,7 @@ inline fun <T> CircuitBreaker.consumer(
  * @param consumer 실행할 코드
  * @return CircuitBreaker 를 적용한 Checked Consumer
  */
-inline fun <T> CircuitBreaker.checkedConsumer(
-    crossinline consumer: (T) -> Unit,
-): CheckedConsumer<T> {
+fun <T> CircuitBreaker.checkedConsumer(consumer: (T) -> Unit): CheckedConsumer<T> {
     return CircuitBreaker.decorateCheckedConsumer(this) { consumer(it) }
 }
 
@@ -169,9 +159,7 @@ inline fun <T> CircuitBreaker.checkedConsumer(
  * @param func 실행할 코드
  * @return CircuitBreaker 를 적용한 Function
  */
-inline fun <T, R> CircuitBreaker.function(
-    crossinline func: (T) -> R,
-): (T) -> R = { input ->
+fun <T, R> CircuitBreaker.function(func: (T) -> R): (T) -> R = { input ->
     CircuitBreaker.decorateFunction<T, R>(this) { func(it) }.apply(input)
 }
 
@@ -191,9 +179,7 @@ inline fun <T, R> CircuitBreaker.function(
  * @param func 실행할 코드
  * @return CircuitBreaker 를 적용한 Checked Function
  */
-inline fun <T, R> CircuitBreaker.checkedFunction(
-    crossinline func: (T) -> R,
-): (T) -> R = { input ->
+fun <T, R> CircuitBreaker.checkedFunction(func: (T) -> R): (T) -> R = { input ->
     CircuitBreaker.decorateCheckedFunction<T, R>(this) { func(it) }.apply(input)
 }
 
@@ -217,9 +203,7 @@ inline fun <T, R> CircuitBreaker.checkedFunction(
  * @param supplier 실행할 코드
  * @return CircuitBreaker 를 적용한 Supplier
  */
-inline fun <T> CircuitBreaker.completionStatge(
-    crossinline supplier: () -> CompletionStage<T>,
-): () -> CompletionStage<T> = {
+fun <T> CircuitBreaker.completionStatge(supplier: () -> CompletionStage<T>): () -> CompletionStage<T> = {
     CircuitBreaker.decorateCompletionStage(this) { supplier() }.get()
 }
 
@@ -239,9 +223,7 @@ inline fun <T> CircuitBreaker.completionStatge(
  * @param supplier 실행할 코드
  * @return CircuitBreaker 를 적용한 Supplier
  */
-inline fun <T, R> CircuitBreaker.completableFuture(
-    crossinline func: (T) -> CompletableFuture<R>,
-): (T) -> CompletableFuture<R> {
+fun <T, R> CircuitBreaker.completableFuture(func: (T) -> CompletableFuture<R>): (T) -> CompletableFuture<R> {
     return decorateCompletableFuture(func)
 }
 
@@ -261,8 +243,8 @@ inline fun <T, R> CircuitBreaker.completableFuture(
  * @param func 실행할 코드
  * @return CircuitBreaker 를 적용한 Function
  */
-inline fun <T, R> CircuitBreaker.decorateCompletableFuture(
-    crossinline func: (T) -> CompletableFuture<R>,
+fun <T, R> CircuitBreaker.decorateCompletableFuture(
+    func: (T) -> CompletableFuture<R>,
 ): (T) -> CompletableFuture<R> = { input: T ->
 
     val promise = CompletableFuture<R>()

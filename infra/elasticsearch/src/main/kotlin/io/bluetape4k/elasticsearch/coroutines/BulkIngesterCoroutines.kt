@@ -9,7 +9,7 @@ import co.elastic.clients.elasticsearch.core.BulkResponse
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation
 import co.elastic.clients.util.ObjectBuilder
 import io.bluetape4k.elasticsearch.ElasticsearchDefaults
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +29,7 @@ import java.util.function.Function
 
 private const val DEFAULT_BULK_PROGRESS_BUFFER_CAPACITY = 256
 
-private val bulkIngesterLog = KotlinLogging.logger {}
+private object BulkIngesterLogger: KLogging()
 
 /**
  * [ElasticsearchAsyncClient] 기반의 [BulkIngester] 를 생성합니다.
@@ -188,7 +188,7 @@ sealed interface BulkProgressEvent<Context> {
         val executionId: Long,
         val request: BulkRequest,
         val contexts: List<Context>,
-    ) : BulkProgressEvent<Context>
+    ): BulkProgressEvent<Context>
 
     /**
      * Bulk 요청이 성공적으로 처리된 후 발생하는 이벤트.
@@ -205,7 +205,7 @@ sealed interface BulkProgressEvent<Context> {
         val request: BulkRequest,
         val response: BulkResponse,
         val contexts: List<Context>,
-    ) : BulkProgressEvent<Context>
+    ): BulkProgressEvent<Context>
 
     /**
      * Bulk 요청 전송 중 예외가 발생했을 때 발생하는 이벤트.
@@ -220,7 +220,7 @@ sealed interface BulkProgressEvent<Context> {
         val request: BulkRequest,
         val exception: Throwable,
         val contexts: List<Context>,
-    ) : BulkProgressEvent<Context>
+    ): BulkProgressEvent<Context>
 }
 
 /**
@@ -236,7 +236,7 @@ data class BulkListenerHandle<Context>(
     val listener: BulkListener<Context>,
     val events: Flow<BulkProgressEvent<Context>>,
     private val closeAction: () -> Unit,
-) : Closeable {
+): Closeable {
     override fun close() = closeAction()
 }
 
@@ -291,7 +291,7 @@ fun <Context> bulkProgressListener(
         onBufferOverflow = onBufferOverflow,
     )
 
-    val listener = object : BulkListener<Context> {
+    val listener = object: BulkListener<Context> {
         override fun beforeBulk(
             executionId: Long,
             request: BulkRequest,
@@ -355,7 +355,7 @@ private fun <Context> Channel<BulkProgressEvent<Context>>.trySendOrLog(
 ) {
     val result = trySend(event)
     if (result.isFailure) {
-        bulkIngesterLog.warn(result.exceptionOrNull()) {
+        BulkIngesterLogger.log.warn(result.exceptionOrNull()) {
             "Dropped Elasticsearch bulk progress event because the listener buffer is full or closed: event=$eventName"
         }
     }

@@ -1,12 +1,17 @@
 package io.bluetape4k.io.compressor
 
-import io.bluetape4k.assertions.shouldContentEqual
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContentEqual
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
 
 class CompressorByteBufferKotlinExampleTest {
+
+    companion object: KLogging() {
+        private const val MAX_WIRE_SIZE = 64 * 1024
+    }
 
     @Test
     fun `caller grows a direct target without consuming the source`() {
@@ -19,6 +24,7 @@ class CompressorByteBufferKotlinExampleTest {
         restored.flip()
 
         source.position() shouldBeEqualTo 0
+
         ByteArray(restored.remaining()).also(restored::get) shouldContentEqual payload
     }
 
@@ -34,9 +40,5 @@ class CompressorByteBufferKotlinExampleTest {
             }
         }
         throw BufferOverflowException()
-    }
-
-    companion object {
-        private const val MAX_WIRE_SIZE = 64 * 1024
     }
 }

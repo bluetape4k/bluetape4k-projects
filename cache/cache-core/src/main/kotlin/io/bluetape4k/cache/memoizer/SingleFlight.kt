@@ -69,7 +69,7 @@ internal class SingleFlight<K: Any, V: Any> {
                     result == null -> promise.completeExceptionally(
                         NullPointerException("evaluator returned null for input $key")
                     )
-                    else -> promise.complete(result)
+                    else          -> promise.complete(result)
                 }
             }
         } catch (e: Throwable) {

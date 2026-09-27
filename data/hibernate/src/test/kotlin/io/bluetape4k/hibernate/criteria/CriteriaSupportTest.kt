@@ -1,13 +1,17 @@
 package io.bluetape4k.hibernate.criteria
 
-import io.bluetape4k.hibernate.AbstractHibernateTest
-import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.hibernate.AbstractHibernateTest
+import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 
 class CriteriaSupportTest: AbstractHibernateTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `attribute 와 eq 를 사용해 criteria query를 작성할 수 있다`() {
@@ -24,6 +28,9 @@ class CriteriaSupportTest: AbstractHibernateTest() {
             .where(cb.eq(root.attribute(SimpleEntity::name), "alpha"))
 
         val loaded = em.createQuery(cq).resultList
+        loaded.forEach {
+            log.debug { "simple entity: $it" }
+        }
         loaded shouldHaveSize 1
         loaded.first().name shouldBeEqualTo "alpha"
     }
@@ -33,6 +40,7 @@ class CriteriaSupportTest: AbstractHibernateTest() {
         val alpha = SimpleEntity("alpha").apply { description = "keep" }
         val beta = SimpleEntity("beta").apply { description = "skip" }
         val gamma = SimpleEntity("gamma").apply { description = "keep" }
+
         listOf(alpha, beta, gamma).forEach { tem.persist(it) }
         flushAndClear()
 
@@ -51,12 +59,17 @@ class CriteriaSupportTest: AbstractHibernateTest() {
             )
 
         val loaded = em.createQuery(cq).resultList
+        loaded.forEach {
+            log.debug { "simple entity: $it" }
+        }
         loaded shouldHaveSize 2
     }
 
     @Test
     fun `eq 와 ne 를 Expression 간 비교로 조합할 수 있다`() {
-        listOf("delta", "epsilon").forEach { tem.persist(SimpleEntity(it)) }
+        listOf("delta", "epsilon").forEach {
+            tem.persist(SimpleEntity(it))
+        }
         flushAndClear()
 
         val cb = em.criteriaBuilder
@@ -73,6 +86,9 @@ class CriteriaSupportTest: AbstractHibernateTest() {
             )
 
         val loaded = em.createQuery(cq).resultList
+        loaded.forEach {
+            log.debug { "simple entity: $it" }
+        }
         loaded shouldHaveSize 1
         loaded.first().name shouldBeEqualTo "delta"
     }

@@ -1,7 +1,5 @@
 package io.bluetape4k.measured
 
-import io.bluetape4k.measured.GraphicsLength.Companion.pixels
-
 
 /**
  * 그래픽/디스플레이 좌표계 길이 단위를 나타냅니다.

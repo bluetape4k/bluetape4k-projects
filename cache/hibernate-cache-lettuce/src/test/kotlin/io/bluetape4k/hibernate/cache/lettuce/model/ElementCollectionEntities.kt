@@ -1,5 +1,6 @@
 package io.bluetape4k.hibernate.cache.lettuce.model
 
+import io.bluetape4k.support.hashOf
 import jakarta.persistence.Cacheable
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
@@ -37,4 +38,13 @@ class Article: Serializable {
     @Column(name = "rating")
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     val ratings: MutableList<Int> = mutableListOf()
+
+    override fun equals(other: Any?): Boolean =
+        other is Article && id == other.id && title == other.title && tags == other.tags && ratings == other.ratings
+
+    override fun hashCode(): Int =
+        id?.hashCode() ?: hashOf(title, tags, ratings)
+
+    override fun toString(): String =
+        "Article(id=$id, title='$title', tags=$tags, ratings=$ratings)"
 }

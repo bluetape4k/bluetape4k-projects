@@ -1,13 +1,19 @@
 package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.LettuceCaches
 import io.bluetape4k.cache.RedisServers
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class LettuceNearJCacheWriteThroughReentrancyTest {
+
+    companion object: KLogging()
 
     @Test
     fun `동기 Lettuce write-through은 inline listener 재진입으로 timeout되지 않는다`() {
@@ -21,21 +27,22 @@ class LettuceNearJCacheWriteThroughReentrancyTest {
             val startedAt = System.nanoTime()
             cache.put("key", "value")
             cache.putAll(mapOf("bulk-key" to "bulk-value"))
-            check(cache.putIfAbsent("absent-key", "absent-value"))
-            cache.put("replace-key", "old-value")
-            check(cache.replace("replace-key", "new-value"))
-            cache.put("remove-key", "remove-value")
-            check(cache.remove("remove-key"))
-            val elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedAt)
+            cache.putIfAbsent("absent-key", "absent-value").shouldBeTrue()
 
-            check(elapsedMillis < 2_000L) {
-                "synchronous Lettuce CRUD write-through exceeded bounded completion: ${elapsedMillis}ms"
-            }
-            cache.get("key") shouldBeEqualTo "value"
-            cache.get("bulk-key") shouldBeEqualTo "bulk-value"
-            cache.get("absent-key") shouldBeEqualTo "absent-value"
-            cache.get("replace-key") shouldBeEqualTo "new-value"
-            cache.get("remove-key") shouldBeEqualTo null
+            cache.put("replace-key", "old-value")
+            cache.replace("replace-key", "new-value").shouldBeTrue()
+
+            cache.put("remove-key", "remove-value")
+            cache.remove("remove-key").shouldBeTrue()
+
+            val elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedAt)
+            elapsedMillis shouldBeLessThan 2_000L
+
+            cache["key"] shouldBeEqualTo "value"
+            cache["bulk-key"] shouldBeEqualTo "bulk-value"
+            cache["absent-key"] shouldBeEqualTo "absent-value"
+            cache["replace-key"] shouldBeEqualTo "new-value"
+            cache["remove-key"].shouldBeNull()
         } finally {
             cache.close()
         }

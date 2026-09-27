@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBePositive
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.script.RedisScript
 import io.lettuce.core.RedisNoScriptException
 import io.lettuce.core.ScriptOutputType
@@ -22,6 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class CoordinationObservationTest {
 
+    companion object: KLogging()
+
     @Test
     fun `dimensions accept only low-cardinality allowlisted labels`() {
         val dimensions = CoordinationDimensions.of(
@@ -33,6 +36,7 @@ class CoordinationObservationTest {
         )
 
         dimensions.size shouldBeEqualTo 5
+
         assertFailsWith<IllegalArgumentException> {
             CoordinationDimensions.of("owner_id" to "raw-owner")
         }
@@ -69,8 +73,12 @@ class CoordinationObservationTest {
             "coordination.cleanup.batch.size" to CoordinationObservationKind.HISTOGRAM,
         )
 
-        expected.forEach { (name, kind) -> catalog.getValue(name).kind shouldBeEqualTo kind }
-        CoordinationObservationName.entries.forEach { name -> observer.emit(name, value = 2.0) }
+        expected.forEach { (name, kind) ->
+            catalog.getValue(name).kind shouldBeEqualTo kind
+        }
+        CoordinationObservationName.entries.forEach { name ->
+            observer.emit(name, value = 2.0)
+        }
         emitted.map { it.name }.toSet() shouldBeEqualTo CoordinationObservationName.entries.toSet()
         emitted.all { it.value == 2.0 }.shouldBeTrue()
     }
@@ -151,6 +159,7 @@ class CoordinationObservationTest {
     fun `throwing sink preserves exception cancellation and future identity`() = runTest {
         val observer = CoordinationObserver { throw IllegalStateException("sink failed") }
         val expectedFailure = IllegalStateException("backend")
+
         val failure = assertFailsWith<IllegalStateException> {
             observer.observe(
                 CoordinationObservationName.OPERATION_OUTCOME,
@@ -159,7 +168,7 @@ class CoordinationObservationTest {
                 throw expectedFailure
             }
         }
-        failure.shouldBeSameInstanceAs(expectedFailure)
+        failure shouldBeSameInstanceAs expectedFailure
 
         val expectedCancellation = CancellationException("cancelled")
         val cancellation = assertFailsWith<CancellationException> {
@@ -170,17 +179,20 @@ class CoordinationObservationTest {
                 throw expectedCancellation
             }
         }
-        cancellation.shouldBeSameInstanceAs(expectedCancellation)
+        cancellation shouldBeSameInstanceAs expectedCancellation
 
         val future = CompletableFuture<String>()
         observer.observeFuture(
             CoordinationObservationName.OPERATION_OUTCOME,
             CoordinationDimensions.EMPTY,
             future,
-        ).shouldBeSameInstanceAs(future)
+        ) shouldBeSameInstanceAs future
+
         future.completeExceptionally(expectedFailure)
-        val futureFailure = assertFailsWith<CompletionException> { future.join() }
-        futureFailure.cause.shouldBeSameInstanceAs(expectedFailure)
+        val futureFailure = assertFailsWith<CompletionException> {
+            future.join()
+        }
+        futureFailure.cause shouldBeSameInstanceAs expectedFailure
 
         val cancelled = CompletableFuture<String>()
         observer.observeFuture(

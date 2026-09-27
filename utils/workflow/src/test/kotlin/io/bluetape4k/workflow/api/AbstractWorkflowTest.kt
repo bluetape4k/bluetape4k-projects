@@ -1,6 +1,7 @@
 package io.bluetape4k.workflow.api
 
 import io.bluetape4k.logging.KLogging
+import kotlinx.coroutines.delay
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration
 
@@ -51,7 +52,7 @@ abstract class AbstractWorkflowTest {
      */
     protected fun delayedSuccessSuspendWork(delay: Duration, name: String = "delayed-success"): SuspendWork =
         SuspendWork(name) { ctx ->
-            kotlinx.coroutines.delay(delay)
+            delay(delay)
             WorkReport.success(ctx)
         }
 }

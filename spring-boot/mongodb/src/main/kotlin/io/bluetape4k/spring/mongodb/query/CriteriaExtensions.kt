@@ -133,15 +133,6 @@ infix fun Criteria.regex(pattern: Regex): Criteria = regex(pattern.toPattern())
 // ====================================================
 
 /**
- * null 값과 일치하는 조건을 추가합니다.
- *
- * ```kotlin
- * val criteria = Criteria.where("deletedAt").isNull()
- * ```
- */
-val Criteria.isNull: Criteria get() = isNullValue()
-
-/**
  * 필드가 존재하는 조건을 추가합니다.
  *
  * ```kotlin

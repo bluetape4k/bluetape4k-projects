@@ -6,7 +6,10 @@ import com.mongodb.client.model.Projections
 import com.mongodb.client.model.Sorts
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.mongodb.AbstractMongoTest
 import io.bluetape4k.mongodb.aggregation.groupStage
 import io.bluetape4k.mongodb.aggregation.limitStage
@@ -77,7 +80,8 @@ class AggregationExamples: AbstractMongoTest() {
         }
 
         val results = collection.aggregate<Document>(stages).toList()
-        results.isNotEmpty()
+        results.forEach { log.debug { "document:$it" } }
+        results shouldHaveSize 3
 
         // 서울이 가장 많아야 함 (Alice, Charlie, Eve, Grace = 4명)
         val seoulGroup = results.find { it.getString("_id") == "Seoul" }
@@ -93,7 +97,8 @@ class AggregationExamples: AbstractMongoTest() {
         }
 
         val results = collection.aggregate<Document>(stages).toList()
-        results.size shouldBeEqualTo 3
+        results.forEach { log.debug { "document:$it" } }
+        results shouldHaveSize 3
         // 첫 번째가 가장 높은 점수
         results[0].getInteger("score") shouldBeGreaterThan results[1].getInteger("score")
     }
@@ -107,7 +112,8 @@ class AggregationExamples: AbstractMongoTest() {
         }
 
         val results = collection.aggregate<Document>(stages).toList()
-        results.size shouldBeEqualTo 3
+        results.forEach { log.debug { "document:$it" } }
+        results shouldHaveSize 3
     }
 
     @Test
@@ -119,11 +125,13 @@ class AggregationExamples: AbstractMongoTest() {
         }
 
         val results = collection.aggregate<Document>(stages).toList()
-        results.size shouldBeEqualTo 4
+        results.forEach { log.debug { "document:$it" } }
+        results shouldHaveSize 4
+
         // _id 를 제외한 name, score 필드만 존재해야 함
-        results.all { it.containsKey("name") && it.containsKey("score") }
+        results.all { it.containsKey("name") && it.containsKey("score") }.shouldBeTrue()
         // city, age는 포함되지 않아야 함
-        results.none { it.containsKey("age") }
+        results.none { it.containsKey("age") }.shouldBeTrue()
     }
 
     @Test
@@ -136,8 +144,10 @@ class AggregationExamples: AbstractMongoTest() {
         }
 
         val results = collection.aggregate<Document>(stages).toList()
+        results.forEach { log.debug { "document:$it" } }
         // Frank: ["admin", "user"], Grace: ["user"] -> user 2개, admin 1개
-        results.isNotEmpty()
+        results shouldHaveSize 2
+
         val userTag = results.find { it.getString("_id") == "user" }
         userTag?.getInteger("count") shouldBeEqualTo 2
     }

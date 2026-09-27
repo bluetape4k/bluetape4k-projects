@@ -17,7 +17,7 @@ import java.io.Reader
  */
 class LineLimitExceededException(
     val maxLineChars: Int,
-) : IOException("Reader line exceeded the configured character limit: maxLineChars=$maxLineChars") {
+): IOException("Reader line exceeded the configured character limit: maxLineChars=$maxLineChars") {
     init {
         maxLineChars.requireZeroOrPositiveNumber("maxLineChars")
     }
@@ -90,7 +90,7 @@ class BoundedLineReader(
         while (!completed) {
             val value = nextChar(lineLength)
             when {
-                value < 0 -> {
+                value < 0   -> {
                     result = if (lineLength == 0) null else line.toString()
                     completed = true
                 }
@@ -107,7 +107,7 @@ class BoundedLineReader(
                     completed = true
                 }
                 lineLength == maxLineChars -> throw LineLimitExceededException(maxLineChars)
-                else -> {
+                else        -> {
                     line.append(value.toChar())
                     lineLength++
                 }
@@ -120,7 +120,7 @@ class BoundedLineReader(
         val result = when {
             pendingChar != NO_PENDING_CHAR -> pendingChar.also { pendingChar = NO_PENDING_CHAR }
             bufferIndex < bufferLimit -> buffer[bufferIndex++].code
-            else -> {
+            else                      -> {
                 val requested = minOf(
                     bufferSize.toLong(),
                     maxLineChars.toLong() - lineLength.toLong() + 1L,

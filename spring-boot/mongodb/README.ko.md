@@ -11,8 +11,7 @@
 
 ## Spring Boot 4.1 설정 경계
 
-Spring Boot 4.1은 Mongo 연결 설정을 `spring.mongodb.*` namespace로
-바인딩합니다. 현재 URI 설정은 다음과 같이 작성하세요.
+Spring Boot 4.1은 Mongo 연결 설정을 `spring.mongodb.*` namespace로 바인딩합니다. 현재 URI 설정은 다음과 같이 작성하세요.
 
 ```yaml
 spring:
@@ -21,38 +20,26 @@ spring:
 ```
 
 `ReactiveMongoAutoConfiguration`은 Spring Boot의
-`DataMongoReactiveAutoConfiguration` 이후에 실행됩니다. 애플리케이션이나 Spring
-Boot가 이미 제공한 `ReactiveMongoOperations` Bean이 항상 우선하며, operations Bean이
-없고 `ReactiveMongoDatabaseFactory`와 `MongoConverter`가 모두 있을 때만 fallback
-`ReactiveMongoTemplate`을 생성합니다. operations Bean이 이미 있으면 legacy property
-검사까지 포함한 library auto-configuration 전체가 backoff합니다.
+`DataMongoReactiveAutoConfiguration` 이후에 실행됩니다. 애플리케이션이나 Spring Boot가 이미 제공한 `ReactiveMongoOperations` Bean이 항상 우선하며, operations Bean이 없고 `ReactiveMongoDatabaseFactory`와 `MongoConverter`가 모두 있을 때만 fallback
+`ReactiveMongoTemplate`을 생성합니다. operations Bean이 이미 있으면 legacy property 검사까지 포함한 library auto-configuration 전체가 backoff합니다.
 
-`ReactiveMongoAutoConfiguration`은 Spring framework가 관리하는 구현 클래스이며,
-애플리케이션이 직접 생성하는 public API가 아닙니다. framework 및 binary compatibility를
-위해 public no-arg 생성자를 유지하고, Spring lifecycle callback으로 `Environment`를
-주입합니다. URI 검사 상수는 내부 구현에 속하며 public field로 노출하지 않습니다.
+`ReactiveMongoAutoConfiguration`은 Spring framework가 관리하는 구현 클래스이며, 애플리케이션이 직접 생성하는 public API가 아닙니다. framework 및 binary compatibility를 위해 public no-arg 생성자를 유지하고, Spring lifecycle callback으로 `Environment`를 주입합니다. URI 검사 상수는 내부 구현에 속하며 public field로 노출하지 않습니다.
 
 ### `spring.data.mongodb.uri`에서 마이그레이션
 
-| 이전 설정 | 현재 설정 |
-|----------|----------|
+| 이전 설정                 | 현재 설정            |
+|---------------------------|----------------------|
 | `spring.data.mongodb.uri` | `spring.mongodb.uri` |
 
-library fallback이 참여하는 경로에서 legacy key만 남아 있으면 기본 localhost DB로
-조용히 연결하지 않고 다음 예외로 즉시 실패합니다.
+library fallback이 참여하는 경로에서 legacy key만 남아 있으면 기본 localhost DB로 조용히 연결하지 않고 다음 예외로 즉시 실패합니다.
 
 ```text
 IllegalStateException: Unsupported legacy MongoDB property 'spring.data.mongodb.uri'; use 'spring.mongodb.uri' on Spring Boot 4.1+
 ```
 
-단계적 전환 중 두 key가 함께 있으면 `spring.mongodb.uri`가 우선합니다.
-테스트에는 synthetic URI를 사용하고 credential을 로그나 진단 artifact에
-남기지 마세요. 애플리케이션이나 Spring Boot가 `ReactiveMongoOperations`를 제공하면
-활성 연결 경로도 해당 Bean이 소유하므로 이 library는 backoff 경로의 legacy key를
-검사하지 않습니다.
+단계적 전환 중 두 key가 함께 있으면 `spring.mongodb.uri`가 우선합니다. 테스트에는 synthetic URI를 사용하고 credential을 로그나 진단 artifact에 남기지 마세요. 애플리케이션이나 Spring Boot가 `ReactiveMongoOperations`를 제공하면 활성 연결 경로도 해당 Bean이 소유하므로 이 library는 backoff 경로의 legacy key를 검사하지 않습니다.
 
-즉시 마이그레이션할 수 없다면 legacy namespace를 지원하는 마지막 stable artifact와
-BOM을 고정한 뒤 전환을 완료하고 Boot 4.1+ artifact로 돌아오세요.
+즉시 마이그레이션할 수 없다면 legacy namespace를 지원하는 마지막 stable artifact와 BOM을 고정한 뒤 전환을 완료하고 Boot 4.1+ artifact로 돌아오세요.
 
 ```kotlin
 dependencies {
@@ -152,20 +139,20 @@ val update = ("name" setTo "Alice")
 
 ## 제공 확장 함수 목록
 
-| 함수                                        | 반환 타입          | 설명               |
-|-------------------------------------------|----------------|------------------|
-| `findAsFlow<T>(query)`                    | `Flow<T>`      | 조건에 맞는 문서 스트림    |
-| `findAllAsFlow<T>()`                      | `Flow<T>`      | 전체 문서 스트림        |
-| `findOneOrNullSuspending<T>(query)`       | `T?`           | 단건 조회 (없으면 null) |
-| `countSuspending<T>(query?)`              | `Long`         | 문서 수 조회          |
-| `existsSuspending<T>(query)`              | `Boolean`      | 존재 여부 확인         |
-| `insertSuspending(entity)`                | `T`            | 단건 삽입            |
-| `insertAllAsFlow(entities)`               | `Flow<T>`      | 다건 삽입            |
-| `saveSuspending(entity)`                  | `T`            | 저장 (삽입 또는 업데이트)  |
-| `updateMultiSuspending<T>(query, update)` | `UpdateResult` | 다건 업데이트          |
-| `removeSuspending<T>(query)`              | `DeleteResult` | 조건 삭제            |
-| `aggregateAsFlow<I, O>(aggregation)`      | `Flow<O>`      | Aggregation 실행   |
-| `dropCollectionSuspending<T>()`           | `Unit`         | 컬렉션 삭제           |
+| 함수                                      | 반환 타입      | 설명                      |
+|-------------------------------------------|----------------|---------------------------|
+| `findAsFlow<T>(query)`                    | `Flow<T>`      | 조건에 맞는 문서 스트림   |
+| `findAllAsFlow<T>()`                      | `Flow<T>`      | 전체 문서 스트림          |
+| `findOneOrNullSuspending<T>(query)`       | `T?`           | 단건 조회 (없으면 null)   |
+| `countSuspending<T>(query?)`              | `Long`         | 문서 수 조회              |
+| `existsSuspending<T>(query)`              | `Boolean`      | 존재 여부 확인            |
+| `insertSuspending(entity)`                | `T`            | 단건 삽입                 |
+| `insertAllAsFlow(entities)`               | `Flow<T>`      | 다건 삽입                 |
+| `saveSuspending(entity)`                  | `T`            | 저장 (삽입 또는 업데이트) |
+| `updateMultiSuspending<T>(query, update)` | `UpdateResult` | 다건 업데이트             |
+| `removeSuspending<T>(query)`              | `DeleteResult` | 조건 삭제                 |
+| `aggregateAsFlow<I, O>(aggregation)`      | `Flow<O>`      | Aggregation 실행          |
+| `dropCollectionSuspending<T>()`           | `Unit`         | 컬렉션 삭제               |
 
 ## 빌드 및 테스트
 
@@ -173,11 +160,7 @@ val update = ("name" setTo "Alice")
 ./gradlew :bluetape4k-spring-boot-mongodb:test
 ```
 
-`ReactiveMongoAutoConfigurationTest` context suite는 namespace binding,
-legacy fail-fast, dual-key 우선순위, fallback 조건, Boot 순서, 단일 인스턴스
-생성, context close를 MongoDB 네트워크 I/O 없이 검증합니다. 실제 데이터베이스
-검증이 필요한 코루틴 통합 테스트는 공유 Testcontainers MongoDB 서버를
-사용하므로 별도로 실행하세요.
+`ReactiveMongoAutoConfigurationTest` context suite는 namespace binding, legacy fail-fast, dual-key 우선순위, fallback 조건, Boot 순서, 단일 인스턴스 생성, context close를 MongoDB 네트워크 I/O 없이 검증합니다. 실제 데이터베이스 검증이 필요한 코루틴 통합 테스트는 공유 Testcontainers MongoDB 서버를 사용하므로 별도로 실행하세요.
 
 ## 참고 자료
 

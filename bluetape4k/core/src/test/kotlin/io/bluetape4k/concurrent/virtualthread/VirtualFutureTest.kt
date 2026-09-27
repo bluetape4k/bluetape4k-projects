@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
@@ -88,11 +88,13 @@ class VirtualFutureTest {
         )
 
         try {
-            started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            started.await(1.seconds).shouldBeTrue()
+
             assertFailsWith<ExecutionException> {
                 result.await()
-            }.cause shouldBeInstanceOf TimeoutException::class
-            interrupted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            }.cause.shouldBeInstanceOf<TimeoutException>()
+
+            interrupted.await(1.seconds).shouldBeTrue()
         } finally {
             release.countDown()
         }
@@ -117,7 +119,7 @@ class VirtualFutureTest {
 
         // 1초씩 대기하는 1000 개의 작업을 Virtual Thread를 이용하면, 2초내에 모든 작업이 완료됩니다.
         StructuredTaskScopeTester()
-            .rounds(1)
+            .rounds(4)
             .add {
                 Thread.sleep(100)
                 taskCount.incrementAndGet()
@@ -130,6 +132,6 @@ class VirtualFutureTest {
             }
             .run()
 
-        taskCount.get() shouldBeEqualTo 2
+        taskCount.get() shouldBeEqualTo 2 * 4
     }
 }

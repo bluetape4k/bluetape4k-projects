@@ -1,12 +1,15 @@
 package io.bluetape4k.spring.cassandra.cql
 
-import com.datastax.oss.driver.api.core.uuid.Uuids
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.cassandra.cql.toNamedMap
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.domain.ReactiveDomainTestConfiguration
 import io.bluetape4k.spring.cassandra.domain.model.User
@@ -29,9 +32,6 @@ class ReactiveCqlOperationsSupportTest(
 
     companion object: KLoggingChannel()
 
-    private fun newUser(): User =
-        User(Uuids.timeBased().toString(), faker.name().firstName(), faker.name().lastName())
-
     @BeforeEach
     fun beforeEach() {
         runBlocking {
@@ -47,7 +47,7 @@ class ReactiveCqlOperationsSupportTest(
     @Test
     fun `executeSuspending by CQL string - truncate table`() = runSuspendIO {
         insertUser(newUser())
-        reactiveCqlOps.executeSuspending("TRUNCATE users")!!.shouldBeTrue()
+        reactiveCqlOps.executeSuspending("TRUNCATE users").shouldBeTrue()
     }
 
     @Test
@@ -64,7 +64,7 @@ class ReactiveCqlOperationsSupportTest(
 
     @Test
     fun `queryForObjectSuspending - CQL with reified type`() = runSuspendIO {
-        val user = insertUser(newUser())
+        insertUser(newUser())
 
         val count = reactiveCqlOps.queryForObjectSuspending<Long>("SELECT count(*) FROM users")
         count shouldBeEqualTo 1L
@@ -76,7 +76,8 @@ class ReactiveCqlOperationsSupportTest(
         val user2 = insertUser(newUser())
 
         val firstnames = reactiveCqlOps.queryForFlow<String>("SELECT firstname FROM users").toList()
-        firstnames.size shouldBeEqualTo 2
+        firstnames shouldHaveSize 2
+        firstnames shouldContainSame listOf(user1.firstname, user2.firstname)
     }
 
     @Test
@@ -84,7 +85,7 @@ class ReactiveCqlOperationsSupportTest(
         val user = insertUser(newUser())
 
         val rows = reactiveCqlOps.queryForMapFlow("SELECT * FROM users WHERE id = '${user.id}'").toList()
-        rows.size shouldBeEqualTo 1
+        rows shouldHaveSize 1
         rows.first()["firstname"] shouldBeEqualTo user.firstname
     }
 
@@ -98,7 +99,7 @@ class ReactiveCqlOperationsSupportTest(
             user.id,
             firstname,
         )
-
+        row.shouldNotBeEmpty()
         row["id"] shouldBeEqualTo user.id
         row["firstname"] shouldBeEqualTo firstname
     }
@@ -110,6 +111,7 @@ class ReactiveCqlOperationsSupportTest(
         val rs = reactiveCqlOps.queryForResultSetSuspending("SELECT * FROM users WHERE id = '${user.id}'")
         rs.shouldNotBeNull()
         val rows = rs.rows().asFlow().toList()
+        rows.forEach { log.debug { "row=${it.toNamedMap()}" } }
         rows.shouldNotBeEmpty()
     }
 
@@ -119,6 +121,14 @@ class ReactiveCqlOperationsSupportTest(
         val user2 = insertUser(newUser())
 
         val rows = reactiveCqlOps.queryForRowsFlow("SELECT * FROM users").toList()
-        rows.size shouldBeEqualTo 2
+        rows.forEach { log.debug { "row=${it.toNamedMap()}" } }
+        rows shouldHaveSize 2
+
+        val row1 = rows[0].toNamedMap()
+        val row2 = rows[1].toNamedMap()
+
+        listOf(row1["firstname"], row2["firstname"]) shouldContainSame listOf(user1.firstname, user2.firstname)
+        listOf(row1["lastname"], row2["lastname"]) shouldContainSame listOf(user1.lastname, user2.lastname)
+
     }
 }

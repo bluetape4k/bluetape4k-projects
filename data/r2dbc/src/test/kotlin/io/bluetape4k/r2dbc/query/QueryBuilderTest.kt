@@ -2,7 +2,7 @@ package io.bluetape4k.r2dbc.query
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.logging.KLogging
 import io.r2dbc.spi.Parameter
 import org.junit.jupiter.api.Test
@@ -328,8 +328,8 @@ class QueryBuilderTest {
             where id = :id or name = :name
             """.trimIndent()
         query.parameters.keys shouldBeEqualTo setOf("id", "name")
-        (query.parameters["id"] as Parameter).value shouldBeEqualTo null
-        (query.parameters["name"] as Parameter).value shouldBeEqualTo null
+        (query.parameters["id"] as Parameter).value.shouldBeNull()
+        (query.parameters["name"] as Parameter).value.shouldBeNull()
     }
 
     @Test
@@ -343,7 +343,7 @@ class QueryBuilderTest {
         }
 
         val param = query.parameters["name"] as Parameter
-        (param.value == null).shouldBeTrue()
+        param.value.shouldBeNull()
     }
 
     @Test

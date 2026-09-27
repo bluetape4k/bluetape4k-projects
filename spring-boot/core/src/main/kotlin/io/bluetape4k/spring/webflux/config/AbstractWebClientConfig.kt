@@ -2,6 +2,7 @@ package io.bluetape4k.spring.webflux.config
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.info
+import io.bluetape4k.support.requirePositiveNumber
 import io.bluetape4k.utils.Runtimex
 import io.netty.channel.ChannelOption
 import io.netty.handler.ssl.SslContext
@@ -119,7 +120,7 @@ abstract class AbstractWebClientConfig {
      */
     @Bean
     open fun loopResources(): LoopResources {
-        require(threadCount > 0) { "threadCount는 1 이상이어야 합니다." }
+        threadCount.requirePositiveNumber("threadCount")
         log.info { "Create custom LoopResources bean." }
         return LoopResources.create("web-client-thread-", -1, threadCount, true, true)
     }
@@ -190,9 +191,8 @@ abstract class AbstractWebClientConfig {
         log.info { "Create ExchangeStrategies bean." }
         return ExchangeStrategies
             .builder()
-            .codecs { configurer ->
-                configurer.defaultCodecs().maxInMemorySize(maxInMemorySize)
-            }.build()
+            .codecs { it.defaultCodecs().maxInMemorySize(maxInMemorySize) }
+            .build()
     }
 
     /**

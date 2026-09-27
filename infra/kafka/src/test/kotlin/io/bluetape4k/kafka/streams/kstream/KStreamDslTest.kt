@@ -1,8 +1,8 @@
 package io.bluetape4k.kafka.streams.kstream
 
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.kafka.AbstractKafkaTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.assertions.shouldNotBeNull
 import io.mockk.mockk
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.streams.Topology
@@ -27,6 +27,7 @@ import java.time.Duration
  * Kafka Streams KStream DSL 관련 유틸리티 함수에 대한 테스트 클래스입니다.
  */
 class KStreamDslTest: AbstractKafkaTest() {
+
     companion object: KLoggingChannel()
 
     @Test
@@ -34,13 +35,11 @@ class KStreamDslTest: AbstractKafkaTest() {
         val keySerde = Serdes.String()
         val valueSerde = Serdes.String()
 
-        val consumed: Consumed<String, String> =
-            consumedOf(
-                keySerde = keySerde,
-                valueSerde = valueSerde,
-                resetPolicy = Topology.AutoOffsetReset.EARLIEST,
-            )
-
+        val consumed: Consumed<String, String> = consumedOf(
+            keySerde = keySerde,
+            valueSerde = valueSerde,
+            resetPolicy = Topology.AutoOffsetReset.EARLIEST,
+        )
         consumed.shouldNotBeNull()
     }
 
@@ -49,18 +48,17 @@ class KStreamDslTest: AbstractKafkaTest() {
         val keySerde = Serdes.String()
         val valueSerde = Serdes.String()
 
-        val produced: Produced<String, String> =
-            producedOf(
-                keySerde = keySerde,
-                valueSerde = valueSerde,
-            )
+        val produced: Produced<String, String> = producedOf(
+            keySerde = keySerde,
+            valueSerde = valueSerde,
+        )
 
         produced.shouldNotBeNull()
     }
 
     @Test
     fun `producedOf with processor name`() {
-        val produced: Produced<String, String> = producedOf<String, String>("output-processor")
+        val produced = producedOf<String, String>("output-processor")
 
         produced.shouldNotBeNull()
     }
@@ -71,20 +69,19 @@ class KStreamDslTest: AbstractKafkaTest() {
         val valueSerde = Serdes.String()
         val otherValueSerde = Serdes.Long()
 
-        val joined: Joined<String, String, Long> =
-            joinedOf(
-                keySerde = keySerde,
-                valueSerde = valueSerde,
-                otherValueSerde = otherValueSerde,
-                name = "stream-join",
-            )
+        val joined: Joined<String, String, Long> = joinedOf(
+            keySerde = keySerde,
+            valueSerde = valueSerde,
+            otherValueSerde = otherValueSerde,
+            name = "stream-join",
+        )
 
         joined.shouldNotBeNull()
     }
 
     @Test
     fun `joinedOf with name only`() {
-        val joined: Joined<String, String, Long> = joinedOf<String, String, Long>("join-name")
+        val joined = joinedOf<String, String, Long>("join-name")
 
         joined.shouldNotBeNull()
     }
@@ -94,19 +91,18 @@ class KStreamDslTest: AbstractKafkaTest() {
         val keySerde = Serdes.String()
         val valueSerde = Serdes.Long()
 
-        val grouped: Grouped<String, Long> =
-            groupedOf(
-                keySerde = keySerde,
-                valueSerde = valueSerde,
-                name = "group-by-key",
-            )
+        val grouped: Grouped<String, Long> = groupedOf(
+            keySerde = keySerde,
+            valueSerde = valueSerde,
+            name = "group-by-key",
+        )
 
         grouped.shouldNotBeNull()
     }
 
     @Test
     fun `groupedOf with processor name`() {
-        val grouped: Grouped<String, String> = groupedOf<String, String>("group-processor")
+        val grouped = groupedOf<String, String>("group-processor")
 
         grouped.shouldNotBeNull()
     }
@@ -132,7 +128,7 @@ class KStreamDslTest: AbstractKafkaTest() {
 
     @Test
     fun `streamJoinedOf with name`() {
-        val streamJoined: StreamJoined<String, String, Long> = streamJoinedOf<String, String, Long>("stream-join-store")
+        val streamJoined = streamJoinedOf<String, String, Long>("stream-join-store")
 
         streamJoined.shouldNotBeNull()
     }
@@ -143,19 +139,18 @@ class KStreamDslTest: AbstractKafkaTest() {
         val valueSerde = Serdes.String()
         val otherValueSerde = Serdes.Long()
 
-        val streamJoined: StreamJoined<String, String, Long> =
-            streamJoinedOf(
-                keySerde = keySerde,
-                valueSerde = valueSerde,
-                otherValueSerde = otherValueSerde,
-            )
+        val streamJoined: StreamJoined<String, String, Long> = streamJoinedOf(
+            keySerde = keySerde,
+            valueSerde = valueSerde,
+            otherValueSerde = otherValueSerde,
+        )
 
         streamJoined.shouldNotBeNull()
     }
 
     @Test
     fun `repartitionedOf with name`() {
-        val repartitioned: Repartitioned<String, String> = repartitionedOf<String, String>("repartition-step")
+        val repartitioned = repartitionedOf<String, String>("repartition-step")
 
         repartitioned.shouldNotBeNull()
     }
@@ -165,32 +160,31 @@ class KStreamDslTest: AbstractKafkaTest() {
         val keySerde = Serdes.String()
         val valueSerde = Serdes.Long()
 
-        val repartitioned: Repartitioned<String, Long> =
-            repartitionedOf(
-                keySerde = keySerde,
-                valueSerde = valueSerde,
-            )
+        val repartitioned: Repartitioned<String, Long> = repartitionedOf(
+            keySerde = keySerde,
+            valueSerde = valueSerde,
+        )
 
         repartitioned.shouldNotBeNull()
     }
 
     @Test
     fun `repartitionedOf with partition count`() {
-        val repartitioned: Repartitioned<String, String> = repartitionedOf<String, String>(6)
+        val repartitioned = repartitionedOf<String, String>(6)
 
         repartitioned.shouldNotBeNull()
     }
 
     @Test
     fun `tableJoinedOf with name`() {
-        val tableJoined: TableJoined<String, Int> = tableJoinedOf<String, Int>("table-join")
+        val tableJoined = tableJoinedOf<String, Int>("table-join")
 
         tableJoined.shouldNotBeNull()
     }
 
     @Test
     fun `branchedOf with name`() {
-        val branched: Branched<String, String> = branchedOf<String, String>("valid-branch")
+        val branched = branchedOf<String, String>("valid-branch")
 
         branched.shouldNotBeNull()
     }
@@ -201,11 +195,10 @@ class KStreamDslTest: AbstractKafkaTest() {
             stream.filter { _, value -> value.startsWith("A") }
         }
 
-        val branched: Branched<String, String> =
-            branchedOf(
-                chain = filterFunction,
-                name = "starts-with-a",
-            )
+        val branched: Branched<String, String> = branchedOf(
+            chain = filterFunction,
+            name = "starts-with-a",
+        )
 
         branched.shouldNotBeNull()
     }
@@ -222,11 +215,10 @@ class KStreamDslTest: AbstractKafkaTest() {
     fun `branchedOf with consumer`() {
         val consumerFunction: (KStream<String, String>) -> Unit = { _ -> }
 
-        val branched: Branched<String, String> =
-            branchedOf(
-                chain = consumerFunction,
-                name = "consumer-branch",
-            )
+        val branched: Branched<String, String> = branchedOf(
+            chain = consumerFunction,
+            name = "consumer-branch",
+        )
 
         branched.shouldNotBeNull()
     }
@@ -276,10 +268,16 @@ class KStreamDslTest: AbstractKafkaTest() {
     @Test
     fun `streamJoinedOf with store suppliers`() {
         val leftSupplier = Stores.inMemoryWindowStore(
-            "left-join-store", Duration.ofMinutes(5), Duration.ofMinutes(1), false
+            "left-join-store",
+            Duration.ofMinutes(5),
+            Duration.ofMinutes(1),
+            false
         )
         val rightSupplier = Stores.inMemoryWindowStore(
-            "right-join-store", Duration.ofMinutes(5), Duration.ofMinutes(1), false
+            "right-join-store",
+            Duration.ofMinutes(5),
+            Duration.ofMinutes(1),
+            false
         )
         val streamJoined: StreamJoined<String, String, Long> = streamJoinedOf(leftSupplier, rightSupplier)
 
@@ -296,8 +294,12 @@ class KStreamDslTest: AbstractKafkaTest() {
 
     @Test
     fun `tableJoinedOf with partitioners`() {
-        val leftPartitioner = StreamPartitioner<String, Void> { _, key, _, numPartitions -> key.hashCode() % numPartitions }
-        val rightPartitioner = StreamPartitioner<Int, Void> { _, key, _, numPartitions -> key % numPartitions }
+        val leftPartitioner = StreamPartitioner<String, Void> { _, key, _, numPartitions ->
+            key.hashCode() % numPartitions
+        }
+        val rightPartitioner = StreamPartitioner<Int, Void> { _, key, _, numPartitions ->
+            key % numPartitions
+        }
         val tableJoined: TableJoined<String, Int> = tableJoinedOf(leftPartitioner, rightPartitioner)
 
         tableJoined.shouldNotBeNull()

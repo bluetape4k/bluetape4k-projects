@@ -13,8 +13,11 @@ import dev.openfga.sdk.api.model.Tuple
 import dev.openfga.sdk.api.model.WriteRequest
 import dev.openfga.sdk.constants.FgaConstants
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
+import io.bluetape4k.support.checkLt
+import io.bluetape4k.support.checkNotEquals
 import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requireLe
 import io.bluetape4k.support.requirePositiveNumber
@@ -25,7 +28,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.future.await
 
-private object OpenFgaLog : KLoggingChannel()
+private object OpenFgaLog: KLoggingChannel()
 
 /**
  * 공식 OpenFGA Check API를 취소 가능한 suspend 함수로 호출합니다.
@@ -42,7 +45,11 @@ suspend fun OpenFgaApi.checkSuspending(
     request: CheckRequest,
     configurationOverride: ConfigurationOverride = ConfigurationOverride(),
 ): ApiResponse<CheckResponse> = openFgaCall("check") {
-    check(scope.storeId, request.withAuthorizationModel(scope), configurationOverride).await()
+    check(
+        scope.storeId,
+        request.withAuthorizationModel(scope),
+        configurationOverride
+    ).await()
 }
 
 /**
@@ -56,12 +63,16 @@ suspend fun OpenFgaApi.batchCheckSuspending(
     request: BatchCheckRequest,
     configurationOverride: ConfigurationOverride = ConfigurationOverride(),
 ): ApiResponse<BatchCheckResponse> = openFgaCall("batchCheck") {
-    request.getChecks().size.requireInRange(
+    request.checks.size.requireInRange(
         1,
         FgaConstants.CLIENT_MAX_BATCH_SIZE,
         "checks.size",
     )
-    batchCheck(scope.storeId, request.withAuthorizationModel(scope), configurationOverride).await()
+    batchCheck(
+        scope.storeId,
+        request.withAuthorizationModel(scope),
+        configurationOverride
+    ).await()
 }
 
 /**
@@ -74,8 +85,8 @@ suspend fun OpenFgaApi.batchCheckSuspending(
 suspend fun OpenFgaApi.readSuspending(
     scope: OpenFgaScope,
     request: ReadRequest = ReadRequest(),
-    pageSize: Int? = request.getPageSize(),
-    continuationToken: String? = request.getContinuationToken(),
+    pageSize: Int? = request.pageSize,
+    continuationToken: String? = request.continuationToken,
     configurationOverride: ConfigurationOverride = ConfigurationOverride(),
 ): ApiResponse<ReadResponse> = openFgaCall("read") {
     pageSize?.requirePageSize()
@@ -102,7 +113,7 @@ suspend fun OpenFgaApi.readSuspending(
 fun OpenFgaApi.readTuplesFlow(
     scope: OpenFgaScope,
     request: ReadRequest = ReadRequest(),
-    pageSize: Int = request.getPageSize() ?: DEFAULT_PAGE_SIZE,
+    pageSize: Int = request.pageSize ?: DEFAULT_PAGE_SIZE,
     maxPages: Int = DEFAULT_MAX_PAGES,
     configurationOverride: ConfigurationOverride = ConfigurationOverride(),
 ): Flow<Tuple> {
@@ -110,12 +121,12 @@ fun OpenFgaApi.readTuplesFlow(
     maxPages.requirePositiveNumber("maxPages")
 
     return flow {
-        var continuationToken = request.getContinuationToken()
+        var continuationToken = request.continuationToken
         var pages = 0
 
         while (true) {
             currentCoroutineContext().ensureActive()
-            check(pages < maxPages) { "OpenFGA read exceeded maxPages" }
+            pages.checkLt(maxPages) { "OpenFGA read exceeded maxPages" }
 
             val response = readSuspending(
                 scope = scope,
@@ -124,18 +135,20 @@ fun OpenFgaApi.readTuplesFlow(
                 continuationToken = continuationToken,
                 configurationOverride = configurationOverride,
             ).data
+            OpenFgaLog.log.debug { "read response=$response" }
+
             pages++
 
-            response.getTuples().orEmpty().forEach { tuple ->
+            response.tuples.forEach { tuple ->
                 currentCoroutineContext().ensureActive()
                 emit(tuple)
             }
 
-            val nextToken = response.getContinuationToken()
-            if (nextToken.isNullOrEmpty()) {
+            val nextToken = response.continuationToken
+            if (nextToken.isEmpty()) {
                 break
             }
-            check(nextToken != continuationToken) {
+            nextToken.checkNotEquals(continuationToken) {
                 "OpenFGA read continuation token did not advance"
             }
             continuationToken = nextToken
@@ -155,10 +168,16 @@ suspend fun OpenFgaApi.writeSuspending(
     scope: OpenFgaScope,
     request: WriteRequest,
     configurationOverride: ConfigurationOverride = ConfigurationOverride(),
-): ApiResponse<Any> = openFgaCall("write") {
-    request.writeTupleCount.requireLe(MAX_WRITE_TUPLES_PER_REQUEST, "write tuple count")
-    write(scope.storeId, request.withAuthorizationModel(scope), configurationOverride).await()
-}
+): ApiResponse<Any> =
+    openFgaCall("write") {
+        request.writeTupleCount.requireLe(MAX_WRITE_TUPLES_PER_REQUEST, "write tuple count")
+
+        write(
+            scope.storeId,
+            request.withAuthorizationModel(scope),
+            configurationOverride
+        ).await()
+    }
 
 // 생성된 SDK 예외 유형을 모두 수용하되 status만 로그에 남기고 원래 예외를 다시 던집니다.
 @Suppress("TooGenericExceptionCaught")
@@ -172,7 +191,7 @@ private suspend fun <T> openFgaCall(operation: String, call: suspend () -> T): T
         throw cancelled
     } catch (failure: Exception) {
         // 인증 정보, tuple, request payload, SDK 예외 원문을 로그에 포함하지 않습니다.
-        OpenFgaLog.log.warn { "OpenFGA operation=$operation status=failure" }
+        OpenFgaLog.log.warn(failure) { "OpenFGA operation=$operation status=failure" }
         throw failure
     }
 }
@@ -182,7 +201,7 @@ private fun Int.requirePageSize() {
 }
 
 private val WriteRequest.writeTupleCount: Int
-    get() = (getWrites()?.getTupleKeys()?.size ?: 0) + (getDeletes()?.getTupleKeys()?.size ?: 0)
+    get() = (writes?.tupleKeys?.size ?: 0) + (deletes?.tupleKeys?.size ?: 0)
 
 private const val DEFAULT_PAGE_SIZE = 100
 private const val DEFAULT_MAX_PAGES = 10_000

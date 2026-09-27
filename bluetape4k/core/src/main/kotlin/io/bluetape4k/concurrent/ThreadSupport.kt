@@ -1,6 +1,7 @@
 package io.bluetape4k.concurrent
 
 import io.bluetape4k.support.requireNotBlank
+import kotlin.time.toJavaDuration
 
 /**
  * 시스템 스레드 그룹을 반환합니다.
@@ -219,3 +220,6 @@ fun getAllThreadGroups(): List<ThreadGroup> = findThreadGroups { true }
  * @return 활성 스레드 목록
  */
 fun getAllThreads(): List<Thread> = findThreads { true }
+
+fun Thread.join(timeout: kotlin.time.Duration): Boolean =
+    join(timeout.toJavaDuration())

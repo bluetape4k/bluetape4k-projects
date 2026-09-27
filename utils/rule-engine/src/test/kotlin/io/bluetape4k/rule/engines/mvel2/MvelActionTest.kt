@@ -1,16 +1,15 @@
 package io.bluetape4k.rule.engines.mvel2
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.exception.RuleException
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class MvelActionTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `MvelAction 실행 - 읽기 전용 표현식 예외 없이 완료`() {
@@ -40,8 +39,7 @@ class MvelActionTest {
         val expr = "amount > 0"
         val a1 = MvelAction(expr)
         val a2 = MvelAction(expr)
-        (a1 == a2).shouldBeTrue()
-        (a1.hashCode() == a2.hashCode()).shouldBeTrue()
+        a1 shouldBeEqualTo a2
     }
 
     @Test

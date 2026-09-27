@@ -2,6 +2,7 @@ package io.bluetape4k.opentelemetry.coroutines
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
@@ -10,6 +11,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.opentelemetry.AbstractOtelTest
+import io.bluetape4k.opentelemetry.common.stringAttributeKeyOf
 import io.bluetape4k.opentelemetry.shouldNotExpose
 import io.bluetape4k.opentelemetry.trace.export
 import io.bluetape4k.opentelemetry.trace.loggingSpanExporterOf
@@ -78,7 +80,7 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
             tracer.spanBuilder("child-span")
                 .setParent(parentCtx)
                 .useSpanSuspending { childSpan ->
-                    childSpan.setAttribute(AttributeKey.stringKey("child-attribute"), "child-value")
+                    childSpan.setAttribute(stringAttributeKeyOf("child-attribute"), "child-value")
                     log.debug { "child span context: ${childSpan.spanContext}" }
                 }
         }
@@ -88,18 +90,18 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
         val finished = spanExporter.finishedSpanItems
         finished shouldHaveSize 2
 
-        val parent = finished.find { it.name == "parent-span" }
-        parent.shouldNotBeNull()
+        val parent = finished.find { it.name == "parent-span" }.shouldNotBeNull()
+        val child = finished.find { it.name == "child-span" }.shouldNotBeNull()
 
-        val child = finished.find { it.name == "child-span" }
-        child.shouldNotBeNull()
+        log.debug { "parent=$parent" }
+        log.debug { "child=$child" }
 
         // Same trace + correct parent/child relationship
         child.traceId shouldBeEqualTo parent.traceId
         child.parentSpanId shouldBeEqualTo parent.spanId
 
-        parent.attributes[AttributeKey.stringKey("parent-attribute")] shouldBeEqualTo "parent-value"
-        child.attributes[AttributeKey.stringKey("child-attribute")] shouldBeEqualTo "child-value"
+        parent.attributes[stringAttributeKeyOf("parent-attribute")] shouldBeEqualTo "parent-value"
+        child.attributes[stringAttributeKeyOf("child-attribute")] shouldBeEqualTo "child-value"
     }
 
     @Test
@@ -107,15 +109,14 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
         spanExporter.reset()
         val failure = IllegalArgumentException("boom")
 
-        val ex = kotlin.runCatching {
+        val ex = runCatching {
             tracer.spanBuilder("error-span").startSpan().useSuspending {
                 it.setAttribute(AttributeKey.stringKey("before"), "true")
                 throw failure
             }
         }.exceptionOrNull()
 
-        ex.shouldNotBeNull()
-        (ex is IllegalArgumentException).shouldBeTrue()
+        ex.shouldBeInstanceOf<IllegalArgumentException>()
         ex.message shouldBeEqualTo failure.message
 
         flush()
@@ -124,6 +125,7 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
         finished shouldHaveSize 1
 
         val span = finished[0]
+        log.debug { "span data=$span" }
         span.name shouldBeEqualTo "error-span"
         span.status.statusCode.name shouldBeEqualTo "ERROR"
         span.events.any { it.name == "exception" }.shouldBeTrue()
@@ -142,8 +144,7 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
             }
         }.exceptionOrNull()
 
-        ex.shouldNotBeNull()
-        (ex is IllegalArgumentException).shouldBeTrue()
+        ex.shouldBeInstanceOf<IllegalArgumentException>()
         ex.message shouldBeEqualTo failure.message
 
         flush()
@@ -152,6 +153,7 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
         finished shouldHaveSize 1
 
         val span = finished[0]
+        log.debug { "span data=$span" }
         span.status.statusCode.name shouldBeEqualTo "ERROR"
         span.events.any { it.name == "exception" }.shouldBeTrue()
         span.shouldNotExpose(secret)
@@ -172,14 +174,13 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
                 val secret = "authorization=Bearer coroutine-token-$id"
                 secrets.add(secret)
 
-                val ex = kotlin.runCatching {
+                val ex = runCatching {
                     tracer.spanBuilder("redacted-coroutine-stress-$id").startSpan().useSuspending {
                         throw IllegalArgumentException("request failed with $secret")
                     }
                 }.exceptionOrNull()
 
-                ex.shouldNotBeNull()
-                (ex is IllegalArgumentException).shouldBeTrue()
+                ex.shouldBeInstanceOf<IllegalArgumentException>()
             }
             .run()
 
@@ -188,6 +189,7 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
         val finished = spanExporter.finishedSpanItems
         finished shouldHaveSize 24
         finished.forEach { span ->
+            log.debug { "span data=$span" }
             span.status.statusCode.name shouldBeEqualTo "ERROR"
             span.events.any { it.name == "exception" }.shouldBeTrue()
             secrets.forEach { secret ->
@@ -206,8 +208,7 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
             }
         }.exceptionOrNull()
 
-        ex.shouldNotBeNull()
-        (ex is CancellationException).shouldBeTrue()
+        ex.shouldBeInstanceOf<CancellationException>()
 
         flush()
 
@@ -215,6 +216,7 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
         finished shouldHaveSize 1
 
         val span = finished[0]
+        log.debug { "span data=$span" }
         span.name shouldBeEqualTo "cancelled-span"
         span.status.statusCode.name shouldBeEqualTo "UNSET"
         span.events.any { it.name == "exception" }.shouldBeFalse()
@@ -231,8 +233,7 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
             }
         }.exceptionOrNull()
 
-        ex.shouldNotBeNull()
-        (ex is IllegalStateException).shouldBeTrue()
+        ex.shouldBeInstanceOf<IllegalStateException>()
         ex.message shouldBeEqualTo failure.message
 
         flush()
@@ -270,7 +271,9 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
         spanExporter.reset()
 
         val result = tracer.spanBuilder("duration-span").startSpan()
-            .useSuspending(Duration.ofMillis(10)) { "done" }
+            .useSuspending(Duration.ofMillis(10)) {
+                "done"
+            }
 
         result shouldBeEqualTo "done"
         flush()
@@ -312,7 +315,7 @@ class SpanCoroutineSupportTest: AbstractOtelTest() {
 
         tracer.spanBuilder("export-parent").useSpanSuspending {
             tracer.spanBuilder("export-child").useSpanSuspending { child ->
-                child.setAttribute(AttributeKey.stringKey("k"), "v")
+                child.setAttribute(stringAttributeKeyOf("k"), "v")
             }
         }
 

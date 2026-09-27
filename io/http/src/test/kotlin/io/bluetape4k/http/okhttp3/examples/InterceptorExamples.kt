@@ -39,7 +39,7 @@ class InterceptorExamples: AbstractHttpTest() {
         val response = client.newCall(request).execute()
 
         response.body.shouldNotBeNull()
-        appender.lastMessage!! shouldStartWith "Receive response. url=$HTTPBIN_HTML_URL"
+        appender.lastMessage shouldStartWith "Receive response. url=$HTTPBIN_HTML_URL"
     }
 
     @Test
@@ -53,6 +53,6 @@ class InterceptorExamples: AbstractHttpTest() {
         val response = client.newCall(request).execute()
 
         response.body.shouldNotBeNull()
-        appender.lastMessage!! shouldStartWith "Receive response. url=$HTTPBIN_HTML_URL"
+        appender.lastMessage shouldStartWith "Receive response. url=$HTTPBIN_HTML_URL"
     }
 }

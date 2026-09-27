@@ -1,9 +1,7 @@
 package io.bluetape4k.testcontainers.graphdb
 
 import com.falkordb.FalkorDB
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.AbstractContainerTest
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
@@ -11,20 +9,22 @@ import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import io.bluetape4k.assertions.assertFailsWith
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class FalkorDBServerTest : AbstractContainerTest() {
+class FalkorDBServerTest: AbstractContainerTest() {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val GRAPH_NAME = "social"
     }
 
-    private lateinit var falkordb:FalkorDBServer
+    private lateinit var falkordb: FalkorDBServer
 
     @BeforeAll
     fun beforeAll() {
@@ -33,7 +33,7 @@ class FalkorDBServerTest : AbstractContainerTest() {
 
     @AfterAll
     fun afterAll() {
-        if(this::falkordb.isInitialized && falkordb.isRunning) {
+        if (this::falkordb.isInitialized && falkordb.isRunning) {
             falkordb.close()
         }
     }

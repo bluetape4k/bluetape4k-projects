@@ -34,12 +34,10 @@ CLOSED → 실패 누적 → OPEN → Half-Open → 복구 흐름:
 
 ## 모듈 경계
 
-이 모듈은 Resilience4j의 장애 허용 정책 조합을 담당합니다. Circuit breaker, retry, 단순 rate limiter,
-bulkhead, time limiter, cache, fallback, events, metrics, Spring 설정 호환성이 이 모듈의 범위입니다.
+이 모듈은 Resilience4j의 장애 허용 정책 조합을 담당합니다. Circuit breaker, retry, 단순 rate limiter, bulkhead, time limiter, cache, fallback, events, metrics, Spring 설정 호환성이 이 모듈의 범위입니다.
 
 토큰 버킷 quota, 분산 bucket 상태, 남은 토큰 진단, bucket probe 기반 retry-after가 필요하면
-`bluetape4k-bucket4j`를 사용하세요. Resilience4j `RateLimiter`는 정책 데코레이터이고, Bucket4j는
-토큰 버킷 엔진입니다.
+`bluetape4k-bucket4j`를 사용하세요. Resilience4j `RateLimiter`는 정책 데코레이터이고, Bucket4j는 토큰 버킷 엔진입니다.
 
 ## 코루틴 계약
 
@@ -47,11 +45,9 @@ bulkhead, time limiter, cache, fallback, events, metrics, Spring 설정 호환�
 - `Throwable`처럼 넓은 예외 타입을 fallback에 지정해도 코루틴 취소는 복구하지 않습니다.
 - Retry는 코루틴 취소를 재시도하지 않습니다.
 - Resilience4j Kotlin `TimeLimiter`는 코루틴 timeout 의미를 사용합니다. Timeout은
-  `TimeoutCancellationException`으로 발생하고 코루틴을 취소하며, suspend 함수에서는 `cancelRunningFuture`를
-  사용하지 않습니다.
+  `TimeoutCancellationException`으로 발생하고 코루틴을 취소하며, suspend 함수에서는 `cancelRunningFuture`를 사용하지 않습니다.
 - Resilience4j Kotlin `RateLimiter`와 `Retry`는 대기가 필요할 때 `delay()`로 suspend합니다.
-- Semaphore `Bulkhead`의 `maxWaitDuration`이 0보다 크면 permission 획득 중 block될 수 있습니다. 코루틴 중심
-  경로에서는 의도적인 bounded blocking이 아니라면 0 wait를 권장합니다.
+- Semaphore `Bulkhead`의 `maxWaitDuration`이 0보다 크면 permission 획득 중 block될 수 있습니다. 코루틴 중심 경로에서는 의도적인 bounded blocking이 아니라면 0 wait를 권장합니다.
 
 ## 의존성
 
@@ -224,11 +220,8 @@ val decorated = timeLimiter.decorateSuspendFunction1 { id: String ->
 
 ### 비동기 scheduler 소유권
 
-비동기 `Retry` 및 `TimeLimiter` 확장 함수(`completionStage`, `completableFuture`,
-`completableFutureFunction`, `withRetry`)는 선택적인 `ScheduledExecutorService`를 받습니다.
-스케줄러를 생략하거나 `null`로 전달하면 호출마다 전용 스케줄러를 만들고 terminal completion 후 종료합니다.
-스케줄러를 전달하면 성공·실패·timeout을 포함해 데코레이터가 종료하지 않으며 caller가 계속 소유합니다.
-따라서 데코레이트한 함수를 반복 호출할 수 있고 여러 데코레이터가 하나의 스케줄러를 공유할 수 있습니다.
+비동기 `Retry` 및 `TimeLimiter` 확장 함수 (`completionStage`, `completableFuture`,
+`completableFutureFunction`, `withRetry`)는 선택적인 `ScheduledExecutorService`를 받습니다. 스케줄러를 생략하거나 `null`로 전달하면 호출마다 전용 스케줄러를 만들고 terminal completion 후 종료합니다. 스케줄러를 전달하면 성공·실패·timeout을 포함해 데코레이터가 종료하지 않으며 caller가 계속 소유합니다. 따라서 데코레이트한 함수를 반복 호출할 수 있고 여러 데코레이터가 하나의 스케줄러를 공유할 수 있습니다.
 
 ```kotlin
 import java.util.concurrent.CompletableFuture
@@ -253,8 +246,7 @@ try {
 
 여러 Resilience4j 컴포넌트를 조합하여 사용합니다.
 
-`SuspendDecorators`는 `withXxx`를 호출할 때마다 현재 함수를 감쌉니다. 마지막 `withXxx` 호출이 가장 바깥
-데코레이터이며 먼저 실행됩니다. 서비스 호출의 일반적인 순서는 다음과 같습니다.
+`SuspendDecorators`는 `withXxx`를 호출할 때마다 현재 함수를 감쌉니다. 마지막 `withXxx` 호출이 가장 바깥 데코레이터이며 먼저 실행됩니다. 서비스 호출의 일반적인 순서는 다음과 같습니다.
 
 ```text
 withBulkhead -> withTimeLimiter -> withRateLimit -> withCircuitBreaker -> withRetry -> withFallback
@@ -316,12 +308,9 @@ JCache를 사용하여 suspend 함수 결과를 캐싱합니다.
 캐시 표면은 두 가지입니다.
 
 - `SuspendCache.of(jcache)`는 직접 JCache 접근을 소유하는 엄격한 coroutine-first 경로입니다.
-- Resilience4j `Cache<K, V>` 확장은 upstream facade 호환 경로입니다. Resilience4j 2.4.0은 public backing
-  JCache accessor를 제공하지 않으므로, 이 경로는 two-phase 호환 probe를 유지하고 blocking cache 호출 주변에서
-  코루틴 취소를 다시 확인합니다.
+- Resilience4j `Cache<K, V>` 확장은 upstream facade 호환 경로입니다. Resilience4j 2.4.0은 public backing JCache accessor를 제공하지 않으므로, 이 경로는 two-phase 호환 probe를 유지하고 blocking cache 호출 주변에서 코루틴 취소를 다시 확인합니다.
 
-`SuspendCache`는 취소가 아닌 실패만 cache error event로 발행합니다. Loader 또는 JCache 접근에서 발생한
-취소는 그대로 전파됩니다.
+`SuspendCache`는 취소가 아닌 실패만 cache error event로 발행합니다. Loader 또는 JCache 접근에서 발생한 취소는 그대로 전파됩니다.
 
 ```kotlin
 import io.bluetape4k.resilience4j.cache.*
@@ -349,9 +338,7 @@ suspend fun getUserStrictCached(id: String): User = withSuspendCache(suspendCach
 
 Resilience4j 패턴을 Kotlin Flow에 적용합니다.
 
-Flow decoration은 collection이 실행될 때 적용됩니다. 새 collection마다 정책에 다시 진입하며, operator 자체는
-emit된 element를 캐시하지 않습니다. Downstream collector 취소는 그대로 전파됩니다. TimeLimiter timeout은
-collecting coroutine을 취소합니다. Bulkhead non-zero wait의 blocking 주의점은 suspend 함수와 동일합니다.
+Flow decoration은 collection이 실행될 때 적용됩니다. 새 collection마다 정책에 다시 진입하며, operator 자체는 emit된 element를 캐시하지 않습니다. Downstream collector 취소는 그대로 전파됩니다. TimeLimiter timeout은 collecting coroutine을 취소합니다. Bulkhead non-zero wait의 blocking 주의점은 suspend 함수와 동일합니다.
 
 ```kotlin
 import io.github.resilience4j.kotlin.bulkhead.bulkhead
@@ -386,8 +373,7 @@ val resilientFlow = dataFlow
 
 ### 9. Fallback 처리
 
-Fallback handler는 일반 suspend 함수이지만 코루틴 취소를 복구하지 않습니다. 모든 내부 데코레이터의 실패를
-관찰해야 하면 fallback을 마지막에 두세요.
+Fallback handler는 일반 suspend 함수이지만 코루틴 취소를 복구하지 않습니다. 모든 내부 데코레이터의 실패를 관찰해야 하면 fallback을 마지막에 두세요.
 
 ```kotlin
 import io.bluetape4k.resilience4j.SuspendDecorators
@@ -428,8 +414,7 @@ val result3 = SuspendDecorators.ofSupplier {
 
 ### 10. Metrics 및 모니터링
 
-Upstream Resilience4j registry, event publisher, Spring Boot property, Micrometer 통합을 source of truth로
-사용하세요. bluetape4k가 추가하는 observability 표면은 coroutine cache wrapper의 `SuspendCache.metrics`와
+Upstream Resilience4j registry, event publisher, Spring Boot property, Micrometer 통합을 source of truth로 사용하세요. bluetape4k가 추가하는 observability 표면은 coroutine cache wrapper의 `SuspendCache.metrics`와
 `SuspendCache.eventPublisher`뿐입니다.
 
 ```kotlin

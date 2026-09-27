@@ -1,8 +1,5 @@
 package io.bluetape4k.redis.lettuce
 
-import io.bluetape4k.redis.lettuce.LettuceConst.DEFAULT_HOST
-import io.bluetape4k.redis.lettuce.LettuceConst.DEFAULT_PORT
-
 /**
  * Lettuce Redis 연결 및 키 네이밍에 사용하는 공통 상수 모음입니다.
  *

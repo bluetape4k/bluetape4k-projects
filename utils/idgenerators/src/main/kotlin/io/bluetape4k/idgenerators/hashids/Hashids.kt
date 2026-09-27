@@ -69,7 +69,7 @@ class Hashids(
         private fun Long.isValidNumber() = this in 0..MAX_NUMBER
     }
 
-    private val salt: String = salt.ifEmpty { DEFAULT_SALT }
+    private val salt: String = salt.trim().ifEmpty { DEFAULT_SALT }
     private val hashLength: Int = if (minHashLength > 0) minHashLength else DEFAULT_MIN_HASH_LEN
 
     private val alphabetAndSeparators: AlphabetAndSeparators by lazy { calculateAlphabetAndSeparators(customAlphabet) }

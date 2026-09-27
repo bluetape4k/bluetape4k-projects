@@ -10,12 +10,12 @@ Java 25의 Virtual Threads와 Structured Concurrency를 효과적으로 사용�
 
 ### Virtual Threads 사용 규칙
 
-| 예제 파일                                              | 규칙         | 설명                          |
-|----------------------------------------------------|------------|-----------------------------|
-| `Rule2RunBlockingSynchronousCode.kt`               | **Rule 2** | 동기 코드를 비동기 방식으로 실행          |
-| `Rule3DoNotPooledVirtualThreads.kt`                | **Rule 3** | Virtual Thread 풀링 금지        |
-| `Rule4UseSemaphoreInsteadOfFixedThreadPool.kt`     | **Rule 4** | 고정 스레드 풀 대신 Semaphore 사용    |
-| `Rule5UseThreadLocalCarefully.kt`                  | **Rule 5** | ThreadLocal 신중하게 사용         |
+| 예제 파일                                          | 규칙       | 설명                                   |
+|----------------------------------------------------|------------|----------------------------------------|
+| `Rule2RunBlockingSynchronousCode.kt`               | **Rule 2** | 동기 코드를 비동기 방식으로 실행       |
+| `Rule3DoNotPooledVirtualThreads.kt`                | **Rule 3** | Virtual Thread 풀링 금지               |
+| `Rule4UseSemaphoreInsteadOfFixedThreadPool.kt`     | **Rule 4** | 고정 스레드 풀 대신 Semaphore 사용     |
+| `Rule5UseThreadLocalCarefully.kt`                  | **Rule 5** | ThreadLocal 신중하게 사용              |
 | `Rule6UseSynchronizedBlocksAndMethodsCarefully.kt` | **Rule 6** | synchronized 블록/메서드 신중하게 사용 |
 
 ## 주요 학습 포인트
@@ -67,7 +67,7 @@ Virtual Thread는 많이 생성될 수 있으므로 ThreadLocal 메모리 사용
 
 ### Rule 6: synchronized 블록 주의
 
-synchronized 블록은 Virtual Thread를 차단(pinning)할 수 있습니다.
+synchronized 블록은 Virtual Thread를 차단 (pinning)할 수 있습니다.
 
 ## 실행 방법
 

@@ -2,7 +2,10 @@ package io.bluetape4k.jdbc.sql
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import java.sql.Statement
 
@@ -12,7 +15,9 @@ import java.sql.Statement
  * [Connection.executeUpdateWithIndedexes], [Connection.executeUpdateWithLabels],
  * [Connection.executeBatch] (vararg) 등 기존 테스트에서 누락된 공개 API를 검증합니다.
  */
-class ConnectionExtensionsTest : AbstractJdbcSqlTest() {
+class ConnectionExtensionsTest: AbstractJdbcSqlTest() {
+
+    companion object: KLogging()
 
     // ─── executeUpdateWithIndedexes ────────────────────────────────────────────
 
@@ -27,19 +32,22 @@ class ConnectionExtensionsTest : AbstractJdbcSqlTest() {
             affected shouldBeEqualTo 1
         }
 
-        val count = dataSource.runQuery(
-            "SELECT COUNT(*) FROM Actors WHERE firstname = 'IndexKey'"
-        ) { rs -> rs.next(); rs.getInt(1) }
+        val count = dataSource
+            .runQuery("SELECT COUNT(*) FROM Actors WHERE firstname = 'IndexKey'") { rs ->
+                rs.next()
+                rs.getInt(1)
+            }
         count shouldBeEqualTo 1
     }
 
     @Test
     fun `executeUpdateWithIndedexes - 다중 컬럼 인덱스`() {
         dataSource.withConnect { conn ->
-            val affected = conn.executeUpdateWithIndedexes(
-                "INSERT INTO Actors (firstname, lastname) VALUES ('MultiIndex', 'Test')",
-                1
-            )
+            val affected = conn
+                .executeUpdateWithIndedexes(
+                    "INSERT INTO Actors (firstname, lastname) VALUES ('MultiIndex', 'Test')",
+                    1
+                )
             affected shouldBeEqualTo 1
         }
     }
@@ -49,17 +57,21 @@ class ConnectionExtensionsTest : AbstractJdbcSqlTest() {
     @Test
     fun `executeUpdateWithLabels - 컬럼 레이블로 INSERT 실행`() {
         dataSource.withConnect { conn ->
-            val affected = conn.executeUpdateWithLabels(
-                "INSERT INTO Actors (firstname, lastname) VALUES ('LabelKey', 'Test')",
-                "id"
-            )
+            val affected = conn
+                .executeUpdateWithLabels(
+                    "INSERT INTO Actors (firstname, lastname) VALUES ('LabelKey', 'Test')",
+                    "id"
+                )
 
             affected shouldBeEqualTo 1
         }
 
         val count = dataSource.runQuery(
             "SELECT COUNT(*) FROM Actors WHERE firstname = 'LabelKey'"
-        ) { rs -> rs.next(); rs.getInt(1) }
+        ) { rs ->
+            rs.next()
+            rs.getInt(1)
+        }
         count shouldBeEqualTo 1
     }
 
@@ -79,7 +91,10 @@ class ConnectionExtensionsTest : AbstractJdbcSqlTest() {
 
         val count = dataSource.runQuery(
             "SELECT COUNT(*) FROM Actors WHERE lastname = 'VarargTest'"
-        ) { rs -> rs.next(); rs.getInt(1) }
+        ) { rs ->
+            rs.next()
+            rs.getInt(1)
+        }
         count shouldBeEqualTo 3
     }
 
@@ -105,14 +120,13 @@ class ConnectionExtensionsTest : AbstractJdbcSqlTest() {
                 stmt.setString(1, "GeneratedPS")
                 stmt.setString(2, "Test")
                 stmt.executeUpdate()
+
                 stmt.generatedKeys.use { rs ->
                     if (rs.next()) rs.getLong(1) else null
                 }
             }
         }
-
-        generatedId.shouldNotBeNull()
-        generatedId shouldBeGreaterThan 0L
+        generatedId.shouldNotBeNull() shouldBeGreaterThan 0L
     }
 
     // ─── preparedStatement with columnIndexes ─────────────────────────────────
@@ -132,9 +146,7 @@ class ConnectionExtensionsTest : AbstractJdbcSqlTest() {
                 }
             }
         }
-
-        generatedId.shouldNotBeNull()
-        generatedId shouldBeGreaterThan 0L
+        generatedId.shouldNotBeNull() shouldBeGreaterThan 0L
     }
 
     // ─── preparedStatement with columnNames ───────────────────────────────────
@@ -235,7 +247,8 @@ class ConnectionExtensionsTest : AbstractJdbcSqlTest() {
             "INSERT INTO Actors (firstname, lastname) VALUES ('DataSourceBatch1', 'Test')",
             "INSERT INTO Actors (firstname, lastname) VALUES ('DataSourceBatch2', 'Test')"
         )
-
-        results.size shouldBeEqualTo 2
+        log.debug { "results=${results.contentToString()}" }
+        results shouldHaveSize 2
+        results shouldBeEqualTo intArrayOf(1, 1)
     }
 }

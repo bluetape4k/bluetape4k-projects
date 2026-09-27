@@ -2,10 +2,13 @@ package io.bluetape4k.spring.http
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.javatimes.seconds
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -29,13 +32,13 @@ import java.io.IOException
 import java.io.OutputStream
 import java.net.URI
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration.Companion.seconds
 
 class RestClientCoroutinesDslTest {
-    companion object: KLogging()
+
+    companion object: KLoggingChannel()
 
     private lateinit var mockServer: MockWebServer
     private lateinit var restClient: RestClient
@@ -53,194 +56,176 @@ class RestClientCoroutinesDslTest {
     }
 
     @Test
-    fun `suspendGet returns deserialized response`() =
-        runTest {
-            mockServer.enqueue(
-                MockResponse()
-                    .setBody("hello")
-                    .addHeader("Content-Type", "text/plain")
-            )
-            val result: String = restClient.suspendGet("/test")
-            result shouldBeEqualTo "hello"
-        }
+    fun `suspendGet returns deserialized response`() = runTest {
+        mockServer.enqueue(
+            MockResponse()
+                .setBody("hello")
+                .addHeader("Content-Type", "text/plain")
+        )
+        val result = restClient.suspendGet<String>("/test")
+        result shouldBeEqualTo "hello"
+    }
 
     @Test
-    fun `suspendPost returns deserialized response`() =
-        runTest {
-            mockServer.enqueue(
-                MockResponse()
-                    .setBody("created")
-                    .addHeader("Content-Type", "text/plain")
-            )
-            val result: String = restClient.suspendPost("/test", "payload", MediaType.APPLICATION_JSON)
-            result shouldBeEqualTo "created"
-        }
+    fun `suspendPost returns deserialized response`() = runTest {
+        mockServer.enqueue(
+            MockResponse()
+                .setBody("created")
+                .addHeader("Content-Type", "text/plain")
+        )
+        val result = restClient.suspendPost<String>("/test", "payload", MediaType.APPLICATION_JSON)
+        result shouldBeEqualTo "created"
+    }
 
     @Test
-    fun `suspendPut returns deserialized response`() =
-        runTest {
-            mockServer.enqueue(
-                MockResponse()
-                    .setBody("updated")
-                    .addHeader("Content-Type", "text/plain")
-            )
-            val result: String = restClient.suspendPut("/test", "payload", MediaType.APPLICATION_JSON)
-            result shouldBeEqualTo "updated"
-        }
+    fun `suspendPut returns deserialized response`() = runTest {
+        mockServer.enqueue(
+            MockResponse()
+                .setBody("updated")
+                .addHeader("Content-Type", "text/plain")
+        )
+        val result = restClient.suspendPut<String>("/test", "payload", MediaType.APPLICATION_JSON)
+        result shouldBeEqualTo "updated"
+    }
 
     @Test
-    fun `suspendPatch returns deserialized response`() =
-        runTest {
-            mockServer.enqueue(
-                MockResponse()
-                    .setBody("patched")
-                    .addHeader("Content-Type", "text/plain")
-            )
-            val result: String = restClient.suspendPatch("/test", "payload", MediaType.APPLICATION_JSON)
-            result shouldBeEqualTo "patched"
-        }
+    fun `suspendPatch returns deserialized response`() = runTest {
+        mockServer.enqueue(
+            MockResponse()
+                .setBody("patched")
+                .addHeader("Content-Type", "text/plain")
+        )
+        val result = restClient.suspendPatch<String>("/test", "payload", MediaType.APPLICATION_JSON)
+        result shouldBeEqualTo "patched"
+    }
 
     @Test
-    fun `suspendGet rejects empty body with contextual contract error`() =
-        runTest {
-            mockServer.enqueue(MockResponse().setResponseCode(204))
+    fun `suspendGet rejects empty body with contextual contract error`() = runTest {
+        mockServer.enqueue(MockResponse().setResponseCode(204))
 
-            val error = assertFailsWith<IllegalStateException> {
-                restClient.suspendGet<String>("/empty-get")
+        val error = assertFailsWith<IllegalStateException> {
+            restClient.suspendGet<String>("/empty-get")
+        }
+
+        val errMsg = error.message.shouldNotBeEmpty()
+        errMsg shouldContain "GET /empty-get"
+        errMsg shouldContain "java.lang.String"
+    }
+
+    @Test
+    fun `suspendPost rejects empty body with contextual contract error`() = runTest {
+        mockServer.enqueue(MockResponse().setResponseCode(204))
+
+        val error = assertFailsWith<IllegalStateException> {
+            restClient.suspendPost<String>("/empty-post", "payload", MediaType.APPLICATION_JSON)
+        }
+
+        val errMsg = error.message.shouldNotBeEmpty()
+        errMsg shouldContain "POST /empty-post"
+        errMsg shouldContain "java.lang.String"
+    }
+
+    @Test
+    fun `suspendPut rejects empty body with contextual contract error`() = runTest {
+        mockServer.enqueue(MockResponse().setResponseCode(204))
+
+        val error = assertFailsWith<IllegalStateException> {
+            restClient.suspendPut<String>("/empty-put", "payload", MediaType.APPLICATION_JSON)
+        }
+
+        val errMsg = error.message.shouldNotBeEmpty()
+        errMsg shouldContain "PUT /empty-put"
+        errMsg shouldContain "java.lang.String"
+    }
+
+    @Test
+    fun `suspendPatch rejects empty body with contextual contract error`() = runTest {
+        mockServer.enqueue(MockResponse().setResponseCode(204))
+
+        val error = assertFailsWith<IllegalStateException> {
+            restClient.suspendPatch<String>("/empty-patch", "payload", MediaType.APPLICATION_JSON)
+        }
+
+        val errMsg = error.message.shouldNotBeEmpty()
+        errMsg shouldContain "PATCH /empty-patch"
+        errMsg shouldContain "java.lang.String"
+    }
+
+    @Test
+    fun `suspendDelete completes without error`() = runTest {
+        mockServer.enqueue(MockResponse().setResponseCode(204))
+        restClient.suspendDelete("/test")
+    }
+
+    @Test
+    fun `suspendGet cancels delayed blocking response promptly`() = runSuspendIO {
+        val executeStarted = CountDownLatch(1)
+        val interrupted = AtomicBoolean(false)
+        val interruptibleClient = RestClient
+            .builder()
+            .requestFactory(InterruptibleBlockingRequestFactory(executeStarted, interrupted))
+            .build()
+        val failure = AtomicReference<Throwable?>()
+
+        val job = launch {
+            runCatching {
+                interruptibleClient.suspendGet<String>("/slow")
+            }.onFailure {
+                failure.set(it)
             }
-
-            val message = error.message.shouldNotBeNull()
-            message shouldContain "GET /empty-get"
-            message shouldContain "java.lang.String"
         }
+
+        executeStarted.await(1.seconds).shouldBeTrue()
+        withTimeout(2.seconds) {
+            job.cancelAndJoin()
+        }
+        interrupted.get().shouldBeTrue()
+        failure.get()?.cause?.cause?.message shouldBeEqualTo "blocking request interrupted"
+    }
 
     @Test
-    fun `suspendPost rejects empty body with contextual contract error`() =
-        runTest {
-            mockServer.enqueue(MockResponse().setResponseCode(204))
-
-            val error = assertFailsWith<IllegalStateException> {
-                restClient.suspendPost<String>("/empty-post", "payload", MediaType.APPLICATION_JSON)
-            }
-
-            val message = error.message.shouldNotBeNull()
-            message shouldContain "POST /empty-post"
-            message shouldContain "java.lang.String"
-        }
+    fun `suspendGetOrNull은 응답 본문이 있으면 역직렬화한다`() = runTest {
+        mockServer.enqueue(
+            MockResponse()
+                .setBody("hello")
+                .addHeader("Content-Type", "text/plain")
+        )
+        val result = restClient.suspendGetOrNull<String>("/test")
+        result shouldBeEqualTo "hello"
+    }
 
     @Test
-    fun `suspendPut rejects empty body with contextual contract error`() =
-        runTest {
-            mockServer.enqueue(MockResponse().setResponseCode(204))
-
-            val error = assertFailsWith<IllegalStateException> {
-                restClient.suspendPut<String>("/empty-put", "payload", MediaType.APPLICATION_JSON)
-            }
-
-            val message = error.message.shouldNotBeNull()
-            message shouldContain "PUT /empty-put"
-            message shouldContain "java.lang.String"
-        }
+    fun `suspendPostOrNull은 응답 본문이 있으면 역직렬화한다`() = runTest {
+        mockServer.enqueue(
+            MockResponse()
+                .setBody("created")
+                .addHeader("Content-Type", "text/plain")
+        )
+        val result = restClient.suspendPostOrNull<String>("/test", "payload", MediaType.APPLICATION_JSON)
+        result shouldBeEqualTo "created"
+    }
 
     @Test
-    fun `suspendPatch rejects empty body with contextual contract error`() =
-        runTest {
-            mockServer.enqueue(MockResponse().setResponseCode(204))
-
-            val error = assertFailsWith<IllegalStateException> {
-                restClient.suspendPatch<String>("/empty-patch", "payload", MediaType.APPLICATION_JSON)
-            }
-
-            val message = error.message.shouldNotBeNull()
-            message shouldContain "PATCH /empty-patch"
-            message shouldContain "java.lang.String"
-        }
+    fun `suspendPutOrNull은 응답 본문이 있으면 역직렬화한다`() = runTest {
+        mockServer.enqueue(
+            MockResponse()
+                .setBody("updated")
+                .addHeader("Content-Type", "text/plain")
+        )
+        val result = restClient.suspendPutOrNull<String>("/test", "payload", MediaType.APPLICATION_JSON)
+        result shouldBeEqualTo "updated"
+    }
 
     @Test
-    fun `suspendDelete completes without error`() =
-        runTest {
-            mockServer.enqueue(
-                MockResponse()
-                    .setResponseCode(204)
-            )
-            restClient.suspendDelete("/test")
-        }
-
-    @Test
-    fun `suspendGet cancels delayed blocking response promptly`() =
-        runSuspendIO {
-            val executeStarted = CountDownLatch(1)
-            val interrupted = AtomicBoolean(false)
-            val interruptibleClient =
-                RestClient
-                    .builder()
-                    .requestFactory(InterruptibleBlockingRequestFactory(executeStarted, interrupted))
-                    .build()
-            val failure = AtomicReference<Throwable?>()
-
-            val job = launch {
-                runCatching {
-                    interruptibleClient.suspendGet<String>("/slow")
-                }.onFailure {
-                    failure.set(it)
-                }
-            }
-
-            executeStarted.await(1, TimeUnit.SECONDS) shouldBeEqualTo true
-            withTimeout(2.seconds) {
-                job.cancelAndJoin()
-            }
-            interrupted.get() shouldBeEqualTo true
-            failure.get()?.cause?.cause?.message shouldBeEqualTo "blocking request interrupted"
-        }
-
-    @Test
-    fun `suspendGetOrNull은 응답 본문이 있으면 역직렬화한다`() =
-        runTest {
-            mockServer.enqueue(
-                MockResponse()
-                    .setBody("hello")
-                    .addHeader("Content-Type", "text/plain")
-            )
-            val result: String? = restClient.suspendGetOrNull("/test")
-            result shouldBeEqualTo "hello"
-        }
-
-    @Test
-    fun `suspendPostOrNull은 응답 본문이 있으면 역직렬화한다`() =
-        runTest {
-            mockServer.enqueue(
-                MockResponse()
-                    .setBody("created")
-                    .addHeader("Content-Type", "text/plain")
-            )
-            val result: String? = restClient.suspendPostOrNull("/test", "payload", MediaType.APPLICATION_JSON)
-            result shouldBeEqualTo "created"
-        }
-
-    @Test
-    fun `suspendPutOrNull은 응답 본문이 있으면 역직렬화한다`() =
-        runTest {
-            mockServer.enqueue(
-                MockResponse()
-                    .setBody("updated")
-                    .addHeader("Content-Type", "text/plain")
-            )
-            val result: String? = restClient.suspendPutOrNull("/test", "payload", MediaType.APPLICATION_JSON)
-            result shouldBeEqualTo "updated"
-        }
-
-    @Test
-    fun `suspendPatchOrNull은 응답 본문이 있으면 역직렬화한다`() =
-        runTest {
-            mockServer.enqueue(
-                MockResponse()
-                    .setBody("patched")
-                    .addHeader("Content-Type", "text/plain")
-            )
-            val result: String? = restClient.suspendPatchOrNull("/test", "payload", MediaType.APPLICATION_JSON)
-            result shouldBeEqualTo "patched"
-        }
+    fun `suspendPatchOrNull은 응답 본문이 있으면 역직렬화한다`() = runTest {
+        mockServer.enqueue(
+            MockResponse()
+                .setBody("patched")
+                .addHeader("Content-Type", "text/plain")
+        )
+        val result = restClient.suspendPatchOrNull<String>("/test", "payload", MediaType.APPLICATION_JSON)
+        result shouldBeEqualTo "patched"
+    }
 
     private class InterruptibleBlockingRequestFactory(
         private val executeStarted: CountDownLatch,
@@ -262,7 +247,7 @@ class RestClientCoroutinesDslTest {
                 override fun executeInternal(headers: HttpHeaders): ClientHttpResponse {
                     executeStarted.countDown()
                     return try {
-                        Thread.sleep(TimeUnit.SECONDS.toMillis(30))
+                        Thread.sleep(30.seconds())
                         StringClientHttpResponse("too-late")
                     } catch (e: InterruptedException) {
                         interrupted.set(true)

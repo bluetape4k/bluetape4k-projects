@@ -2,13 +2,13 @@ package io.bluetape4k.workflow.coroutines
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.workflow.core.WorkNotSuccessException
 import io.bluetape4k.workflow.api.NamedSuspendWork
 import io.bluetape4k.workflow.api.ParallelPolicy
 import io.bluetape4k.workflow.api.SuspendWork
 import io.bluetape4k.workflow.api.SuspendWorkFlow
 import io.bluetape4k.workflow.api.WorkContext
 import io.bluetape4k.workflow.api.WorkReport
+import io.bluetape4k.workflow.core.WorkNotSuccessException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -81,12 +81,12 @@ class SuspendParallelFlow(
                 }.awaitAll()
             }
         } catch (e: WorkNotSuccessException) {
-            log.debug { "$flowName: fail-fast report 감지 - status=${e.report.status}" }
+            log.debug(e) { "$flowName: fail-fast report 감지 - status=${e.report.status}" }
             return e.report
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            log.debug { "$flowName: fail-fast 예외 발생 - ${e.message}" }
+            log.debug(e) { "$flowName: fail-fast 예외 발생 - ${e.message}" }
             return WorkReport.Failure(context, e)
         }
 

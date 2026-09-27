@@ -41,17 +41,17 @@ class HttpbinClientTest(
         val response = jsonPlaceClient.posts()
         log.debug { "posts response: $response" }
         response.method shouldBeEqualTo "GET"
-        response.url.shouldNotBeNull().shouldContain("/anything/posts")
+        response.url shouldContain "/anything/posts"
     }
 
     @Test
     fun `get post's comments`() {
         val comments1 = jsonPlaceClient.getPostComments(1)
         comments1.method shouldBeEqualTo "GET"
-        comments1.url.shouldNotBeNull().shouldContain("/anything/post/1/comments")
+        comments1.url shouldContain "/anything/post/1/comments"
 
         val comments2 = jsonPlaceClient.getPostComments(2)
         comments2.method shouldBeEqualTo "GET"
-        comments2.url.shouldNotBeNull().shouldContain("/anything/post/2/comments")
+        comments2.url shouldContain "/anything/post/2/comments"
     }
 }

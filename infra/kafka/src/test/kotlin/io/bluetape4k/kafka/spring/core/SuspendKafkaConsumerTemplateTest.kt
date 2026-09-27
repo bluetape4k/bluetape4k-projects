@@ -7,12 +7,13 @@ import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.kafka.AbstractKafkaTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.mq.KafkaServer
+import io.mockk.Runs
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.Runs
 import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
@@ -38,8 +39,9 @@ import java.util.regex.Pattern
  * [SuspendKafkaConsumerTemplate]에 대한 테스트 클래스입니다.
  */
 class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
+
     companion object: KLoggingChannel() {
-        private val CONSUMER_GROUP = "$TEST_TOPIC_NAME-consumer-template-group"
+        private const val CONSUMER_GROUP = "$TEST_TOPIC_NAME-consumer-template-group"
     }
 
     private val receiver = mockk<KafkaReceiver<String, String>>()
@@ -56,17 +58,17 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
 
     @Test
     fun `ConsumerTemplate 생성`() {
-        val receiverOptions =
-            ReceiverOptions
-                .create<String, String>(
-                    mapOf(
-                        "bootstrap.servers" to KafkaServer.Launcher.kafka.bootstrapServers,
-                        "group.id" to CONSUMER_GROUP,
-                        "key.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
-                        "value.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
-                        "auto.offset.reset" to "earliest",
-                    ),
-                ).subscription(listOf(TEST_TOPIC_NAME))
+        val receiverOptions = ReceiverOptions
+            .create<String, String>(
+                mapOf(
+                    "bootstrap.servers" to KafkaServer.Launcher.kafka.bootstrapServers,
+                    "group.id" to CONSUMER_GROUP,
+                    "key.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
+                    "value.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
+                    "auto.offset.reset" to "earliest",
+                ),
+            )
+            .subscription(listOf(TEST_TOPIC_NAME))
 
         val template = SuspendKafkaConsumerTemplate(receiverOptions)
         template.shouldNotBeNull()
@@ -82,6 +84,7 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
         }
         every { consumer.subscription() } answers { subscription.toSet() }
         every { consumer.unsubscribe() } answers { subscription.clear() }
+
         stubDoOnConsumer(receiver, consumer)
 
         val template = SuspendKafkaConsumerTemplate(receiver)
@@ -134,6 +137,7 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
         every { consumer.position(partition0) } returns 11L
         every { consumer.position(partition1) } returns 29L
         every { consumer.commitSync(capture(commitSlot)) } just Runs
+
         stubDoOnConsumer(receiver, consumer)
 
         val template = SuspendKafkaConsumerTemplate(receiver)
@@ -141,6 +145,9 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
         template.assign(partition0, partition1)
         val committed = template.commitCurrentOffsets()
 
+        committed.forEach { partition, metadata ->
+            log.debug { "partition:$partition, metadata:$metadata" }
+        }
         committed[partition0]?.offset() shouldBeEqualTo 11L
         committed[partition1]?.offset() shouldBeEqualTo 29L
         commitSlot.captured[partition0]?.offset() shouldBeEqualTo 11L
@@ -152,9 +159,11 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
         val partition = TopicPartition(TEST_TOPIC_NAME, 0)
         val timestamp = 1_700_000_000_000L
 
-        every { consumer.offsetsForTimes(mapOf(partition to timestamp)) } returns
-                mapOf(partition to OffsetAndTimestamp(42L, timestamp, Optional.empty()))
+        every {
+            consumer.offsetsForTimes(mapOf(partition to timestamp))
+        } returns mapOf(partition to OffsetAndTimestamp(42L, timestamp, Optional.empty()))
         every { consumer.seek(partition, 42L) } just Runs
+
         stubDoOnConsumer(receiver, consumer)
 
         val template = SuspendKafkaConsumerTemplate(receiver)
@@ -178,7 +187,7 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
             template.commitCurrentOffsets(unassigned)
         }
 
-        error.message.shouldNotBeNull() shouldContain "unassigned partitions"
+        error.message shouldContain "unassigned partitions"
     }
 
     @Test
@@ -194,19 +203,20 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
         template.close()
         launchedJob.cancelAndJoin()
 
-        (template.coroutineContext[Job]?.isCancelled ?: false).shouldBeTrue()
+        template.coroutineContext[Job]?.isCancelled.shouldBeTrue()
         verify(exactly = 1) { (closableReceiver as AutoCloseable).close() }
     }
 
     @Test
     fun `템플릿 종료 시 receiver close 실패를 전파하지 않는다`() = runTest {
         val closeFailure = IllegalStateException("receiver close failed")
-        every { (closableReceiver as AutoCloseable).close() } throws closeFailure
+        every { (closableReceiver as? AutoCloseable)?.close() } throws closeFailure
+
         val template = SuspendKafkaConsumerTemplate(closableReceiver)
 
         template.close()
 
-        (template.coroutineContext[Job]?.isCancelled ?: false).shouldBeTrue()
+        template.coroutineContext[Job]?.isCancelled.shouldBeTrue()
         verify(exactly = 1) { (closableReceiver as AutoCloseable).close() }
     }
 
@@ -221,7 +231,7 @@ class SuspendKafkaConsumerTemplateTest: AbstractKafkaTest() {
         template.close()
         launchedJob.cancelAndJoin()
 
-        (template.coroutineContext[Job]?.isCancelled ?: false).shouldBeTrue()
+        template.coroutineContext[Job]?.isCancelled.shouldBeTrue()
     }
 
     private fun stubDoOnConsumer(

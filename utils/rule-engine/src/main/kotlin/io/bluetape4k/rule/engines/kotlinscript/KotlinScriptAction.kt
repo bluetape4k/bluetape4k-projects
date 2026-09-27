@@ -34,9 +34,8 @@ class KotlinScriptAction private constructor(val script: String): Action {
         try {
             KotlinScriptEngine.evaluate(script, facts.asMap())
         } catch (e: Exception) {
-            log.error {
-                "Unable to execute Kotlin script. ${script.toRuleSourceLogContext()}, " +
-                        "exceptionType=${e.javaClass.name}, factCount=${facts.size}"
+            log.error(e) {
+                "Unable to execute Kotlin script. ${script.toRuleSourceLogContext()}, factCount=${facts.size}"
             }
             throw RuleException("Fail to execute Kotlin script", e)
         }

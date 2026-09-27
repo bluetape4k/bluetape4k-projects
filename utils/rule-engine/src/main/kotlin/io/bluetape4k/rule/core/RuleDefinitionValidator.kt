@@ -164,7 +164,9 @@ internal fun Class<*>.findRuleAnnotation(): RuleAnnotation? {
 
     return this.annotations
         .firstOrNull { it.annotationClass.java.isAnnotationPresent(RuleAnnotation::class.java) }
-        ?.annotationClass?.java?.getAnnotation(RuleAnnotation::class.java)
+        ?.annotationClass
+        ?.java
+        ?.getAnnotation(RuleAnnotation::class.java)
 }
 
 /**

@@ -1,11 +1,13 @@
 package io.bluetape4k.json
 
 import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.expectThat
+import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldContentEqual
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.awaitTermination
 import org.junit.jupiter.api.Test
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
@@ -16,8 +18,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 class JsonSerializerByteBufferContractTest {
 
@@ -318,7 +320,7 @@ private fun verifyJsonBufferConcurrency(
             unfinished += worker
             executor.submit {
                 try {
-                    startBarrier.await(JSON_START_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                    startBarrier.await(JSON_START_TIMEOUT_SECONDS.seconds)
                     repeat(JSON_REPETITIONS) { repetition -> operation(worker, repetition) }
                 } catch (failure: Throwable) {
                     failures += "worker=$worker ${failure::class.java.simpleName}: ${failure.message}"
@@ -329,8 +331,8 @@ private fun verifyJsonBufferConcurrency(
             }
         }
 
-        startBarrier.await(JSON_START_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        if (!completion.await(JSON_COMPLETION_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        startBarrier.await(JSON_START_TIMEOUT_SECONDS.seconds)
+        if (!completion.await(JSON_COMPLETION_TIMEOUT_SECONDS.seconds)) {
             fail("JSON buffer workers timed out; unfinished=${unfinished.sorted().take(JSON_MAX_DIAGNOSTICS)}")
         }
         if (failures.isNotEmpty()) {
@@ -338,7 +340,7 @@ private fun verifyJsonBufferConcurrency(
         }
     } finally {
         executor.shutdownNow()
-        if (!executor.awaitTermination(JSON_SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+        if (!executor.awaitTermination(JSON_SHUTDOWN_TIMEOUT_SECONDS.seconds)) {
             val threads =
                 Thread.getAllStackTraces().keys.asSequence()
                     .filter { it.name.startsWith("json-buffer-") }
@@ -347,7 +349,7 @@ private fun verifyJsonBufferConcurrency(
                     .toList()
             fail(
                 "JSON buffer executor did not terminate; " +
-                    "unfinished=${unfinished.sorted().take(JSON_MAX_DIAGNOSTICS)}, threads=$threads",
+                        "unfinished=${unfinished.sorted().take(JSON_MAX_DIAGNOSTICS)}, threads=$threads",
             )
         }
     }

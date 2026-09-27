@@ -18,7 +18,7 @@ import org.openjdk.jmh.annotations.State
 import org.openjdk.jmh.annotations.TearDown
 import org.openjdk.jmh.annotations.Threads
 import org.openjdk.jmh.infra.ThreadParams
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 /** 단일 thread path benchmark의 bulk cache 상태를 구분합니다. */
@@ -101,7 +101,7 @@ open class NearJCacheBulkPathBenchmark {
                     BulkScenario.BACK_MISS_BOUNDED,
                     BulkScenario.BACK_HIT_BOUNDED,
                     BulkScenario.BACK_HIT_OVERSIZED,
-                    -> BulkFrontPopulationPolicy.PopulateIfAtMost(batchSize)
+                        -> BulkFrontPopulationPolicy.PopulateIfAtMost(batchSize)
 
                     else -> BulkFrontPopulationPolicy.BypassFront
                 },
@@ -111,7 +111,7 @@ open class NearJCacheBulkPathBenchmark {
         val expectedSize = when (scenario) {
             BulkScenario.BACK_MISS_BYPASS,
             BulkScenario.BACK_MISS_BOUNDED,
-            -> 0
+                -> 0
 
             else -> entries.size
         }

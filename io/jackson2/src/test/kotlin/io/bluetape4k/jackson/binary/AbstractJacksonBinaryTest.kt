@@ -1,13 +1,13 @@
 package io.bluetape4k.jackson.binary
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.jackson.JacksonSerializer
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -19,6 +19,7 @@ import java.util.*
  */
 @RandomizedTest
 abstract class AbstractJacksonBinaryTest {
+
     companion object: KLogging() {
         @JvmStatic
         val faker = Fakers.faker

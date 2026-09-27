@@ -1,17 +1,16 @@
 package io.bluetape4k.junit5.random
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNullOrEmpty
+import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.junit5.model.DomainObject
 import io.bluetape4k.junit5.model.getDefaultSizeOfRandom
 import io.bluetape4k.junit5.model.shouldFullyPopulated
 import io.bluetape4k.junit5.model.shouldPartiallyPopulated
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.trace
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.assertions.shouldNotBeNullOrEmpty
-import io.bluetape4k.assertions.shouldNotContain
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -33,7 +32,7 @@ class RandomExtensionFieldTest {
 
     @Test
     fun `inject random string`() {
-        log.trace { "anyString=$anyString" }
+        log.debug { "anyString=$anyString" }
         anyString.shouldNotBeEmpty()
     }
 

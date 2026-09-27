@@ -93,7 +93,7 @@ class LettuceCacheManager(
         val ttlSeconds = lettuceCfg?.ttlSeconds
         val keyCodec = lettuceCfg?.keyCodec ?: { k: K -> k.toString() }
         val keyDecoder = lettuceCfg?.keyDecoder
-        val codec: LettuceBinaryCodec<*> = lettuceCfg?.codec ?: LettuceBinaryCodecs.lz4Fory<Any>()
+        val codec: LettuceBinaryCodec<*> = lettuceCfg?.codec ?: LettuceBinaryCodecs.default<Any>()
 
         log.debug { "RedisClient 연결 생성. cacheName=$cacheName" }
         val connection = redisClient.connect(STRING_BYTES_CODEC)
@@ -168,6 +168,7 @@ class LettuceCacheManager(
         checkNotClosed()
         val validCacheName = cacheName.requireNotBlank("cacheName")
         log.debug { "Destroy LettuceCache. cacheName=$validCacheName" }
+
         caches[validCacheName]?.let { cache ->
             log.info { "Destroy LettuceCache [$validCacheName]" }
             try {
@@ -187,11 +188,7 @@ class LettuceCacheManager(
     }
 
     private fun destructionException(cacheName: String, operation: String, cause: Exception): CacheException =
-        if (cause is CacheException) {
-            cause
-        } else {
-            CacheException("LettuceCache [$cacheName] $operation 중 오류가 발생했습니다.", cause)
-        }
+        cause as? CacheException ?: CacheException("LettuceCache [$cacheName] $operation 중 오류가 발생했습니다.", cause)
 
     /**
      * 캐시 이름을 기준으로 내부 맵에서 제거합니다. [LettuceJCache.close] 내부에서 호출됩니다.
@@ -210,6 +207,7 @@ class LettuceCacheManager(
 
     override fun close() {
         if (closed.value) return
+
         lock.withLock {
             if (!closed.value) {
                 // 재귀 진입 방지를 위해 closed를 먼저 true로 설정

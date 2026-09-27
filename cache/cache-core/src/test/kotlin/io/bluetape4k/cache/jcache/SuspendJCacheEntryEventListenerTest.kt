@@ -35,6 +35,7 @@ class SuspendJCacheEntryEventListenerTest {
 
     companion object: KLoggingChannel()
 
+
     private fun mockEvent(key: String, value: String, eventType: EventType): CacheEntryEvent<String, String> {
         val event = mockk<CacheEntryEvent<String, String>>()
         every { event.key } returns key
@@ -93,6 +94,7 @@ class SuspendJCacheEntryEventListenerTest {
         val targetCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         every { targetCache.isClosed() } returns false
         coEvery { targetCache.putAll(any()) } returns Unit
+
         val listenerScope = CoroutineScope(coroutineContext + SupervisorJob())
         val listener = SuspendJCacheEntryEventListener.forTest(targetCache, listenerScope)
         val first = mockEvent("k1", "v1", EventType.CREATED)

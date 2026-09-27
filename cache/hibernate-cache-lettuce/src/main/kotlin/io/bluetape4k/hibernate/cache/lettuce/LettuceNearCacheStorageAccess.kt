@@ -13,7 +13,7 @@ import java.io.IOException
 import java.io.ObjectOutputStream
 import java.io.Serializable
 import java.security.MessageDigest
-import java.util.Base64
+import java.util.*
 
 /**
  * [DomainDataStorageAccess] 구현체.
@@ -182,7 +182,9 @@ class LettuceNearCacheStorageAccess(
      */
     override fun getFromCache(key: Any, session: SharedSessionContractImplementor): Any? =
         runCatching { nearCache.get(cacheKey(key)) }
-            .onFailure { e -> log.warn(e) { "캐시 조회 실패 (region=$regionName, key=$key) → null 반환" } }
+            .onFailure { e ->
+                log.warn(e) { "캐시 조회 실패 (region=$regionName, key=$key) → null 반환" }
+            }
             .getOrNull()
 
     /**
@@ -193,7 +195,9 @@ class LettuceNearCacheStorageAccess(
      */
     override fun putIntoCache(key: Any, value: Any, session: SharedSessionContractImplementor) {
         runCatching { nearCache.put(cacheKey(key), value) }
-            .onFailure { e -> log.warn(e) { "캐시 저장 실패 (region=$regionName, key=$key) → 무시" } }
+            .onFailure { e ->
+                log.warn(e) { "캐시 저장 실패 (region=$regionName, key=$key) → 무시" }
+            }
     }
 
     /**
@@ -205,7 +209,9 @@ class LettuceNearCacheStorageAccess(
      */
     override fun contains(key: Any): Boolean =
         runCatching { nearCache.containsKey(cacheKey(key)) }
-            .onFailure { e -> log.warn(e) { "캐시 containsKey 실패 (region=$regionName, key=$key) → false 반환" } }
+            .onFailure { e ->
+                log.warn(e) { "캐시 containsKey 실패 (region=$regionName, key=$key) → false 반환" }
+            }
             .getOrDefault(false)
 
     /**

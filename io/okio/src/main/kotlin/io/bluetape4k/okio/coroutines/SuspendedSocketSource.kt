@@ -7,6 +7,7 @@ import io.bluetape4k.okio.coroutines.internal.await
 import io.bluetape4k.support.requireZeroOrPositiveNumber
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runInterruptible
+import kotlinx.coroutines.withContext
 import okio.Buffer
 import java.net.Socket
 import java.nio.ByteBuffer
@@ -69,7 +70,9 @@ class SuspendedSocketSource(socket: Socket): SuspendedSource {
             byteBuffer.clear()
             byteBuffer.limit(minOf(SEGMENT_SIZE, byteCount).toInt())
 
-            val read = channel.read(byteBuffer)
+            val read = withContext(Dispatchers.IO) {
+                channel.read(byteBuffer)
+            }
             if (read < 0) {
                 return -1L
             }

@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/jsonplaceholder/comments")
 class CommentsController(private val service: JsonplaceholderService) {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 댓글 목록을 반환한다. `postId`가 지정되면 해당 게시글의 댓글만 반환한다.

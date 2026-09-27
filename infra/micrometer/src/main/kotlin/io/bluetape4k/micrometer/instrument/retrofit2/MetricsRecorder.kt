@@ -18,8 +18,5 @@ fun interface MetricsRecorder {
      * @param tags 메트릭 태그 (method, uri, status_code 등)
      * @param duration 실행 시간
      */
-    fun recordTiming(
-        tags: Iterable<Tag>,
-        duration: Duration,
-    )
+    fun recordTiming(tags: Iterable<Tag>, duration: Duration)
 }

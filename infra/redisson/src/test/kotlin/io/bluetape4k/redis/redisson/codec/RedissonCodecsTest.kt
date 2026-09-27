@@ -3,10 +3,11 @@ package io.bluetape4k.redis.redisson.codec
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.redisson.AbstractRedissonTest
-import io.bluetape4k.redis.redisson.RedissonTestUtils.faker
 import io.netty.buffer.Unpooled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -112,6 +113,19 @@ class RedissonCodecsTest: AbstractRedissonTest() {
     }
 
     @Test
+    fun `default codec preserves the compatible Fory wire format`() {
+        RedissonCodecs.Default shouldBeSameInstanceAs RedissonCodecs.Fory
+
+        val origin = newCustomData()
+        val encoded = RedissonCodecs.Fory.valueEncoder.encode(origin)
+        try {
+            RedissonCodecs.Default.valueDecoder.decode(encoded, State()) shouldBeEqualTo origin
+        } finally {
+            encoded.release()
+        }
+    }
+
+    @Test
     fun `allow-listed JSON factories reject fallback binary payloads`() {
         val origin = newCustomData()
         val fallbackBuf = RedissonCodecs.Fory.valueEncoder.encode(origin)
@@ -128,13 +142,10 @@ class RedissonCodecsTest: AbstractRedissonTest() {
             RedissonCodecs.fastjson2(setOf("io.bluetape4k.")),
         ).forEach { codec ->
             val buf = Unpooled.wrappedBuffer(fallbackBytes)
-            try {
-                assertFailsWith<SecurityException> {
-                    codec.valueDecoder.decode(buf, State())
-                }
-            } finally {
-                buf.release()
+            assertFailsWith<SecurityException> {
+                codec.valueDecoder.decode(buf, State())
             }
+            buf.release()
         }
     }
 
@@ -142,6 +153,7 @@ class RedissonCodecsTest: AbstractRedissonTest() {
     private fun <T> Codec.verifyCodec(origin: T) {
         val buf = valueEncoder.encode(origin)
         val actual = valueDecoder.decode(buf, State()) as? T
+        log.debug { "origin=$origin, actual=$actual" }
         actual shouldBeEqualTo origin
     }
 

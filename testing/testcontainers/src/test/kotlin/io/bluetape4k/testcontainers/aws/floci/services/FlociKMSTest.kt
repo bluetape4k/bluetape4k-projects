@@ -1,16 +1,17 @@
 package io.bluetape4k.testcontainers.aws.floci.services
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.info
 import io.bluetape4k.testcontainers.aws.floci.AbstractFlociServiceTest
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.utils.ShutdownQueue
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
@@ -39,9 +40,9 @@ import software.amazon.awssdk.services.kms.model.KeyUsageType
  * > 해당 테스트는 `@Disabled`로 표시합니다.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FlociKMSTest : AbstractFlociServiceTest() {
+class FlociKMSTest: AbstractFlociServiceTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val kmsClient: KmsClient by lazy {
         KmsClient.builder()
@@ -61,7 +62,7 @@ class FlociKMSTest : AbstractFlociServiceTest() {
     private val granteePrincipal = "arn:aws:iam::000000000000:user/test-grantee"
     private lateinit var grantId: String
 
-    private val aliasName = "alias/ExampleName-${System.currentTimeMillis()}"
+    private val aliasName = "alias/ExampleName-${Base58.randomString(8)}"
 
     @Test
     @Order(1)

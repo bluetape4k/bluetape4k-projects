@@ -1,6 +1,7 @@
 package io.bluetape4k.jdbc.sql
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.StringReader
@@ -9,7 +10,6 @@ import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import java.math.BigDecimal
 import java.net.URI
-import java.sql.Array
 import java.sql.Blob
 import java.sql.Clob
 import java.sql.Date
@@ -24,11 +24,12 @@ import java.sql.SQLXML
 import java.sql.Time
 import java.sql.Timestamp
 import java.sql.Types
-import java.util.Calendar
-import java.util.GregorianCalendar
+import java.util.*
 
 /** Thin delegation surfaces are exercised explicitly so overloads cannot silently become dead code. */
 class JdbcDelegationCoverageTest: AbstractJdbcSqlTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `PreparedStatementArgumentSetter forwards exact delegated arguments`() {
@@ -39,17 +40,17 @@ class JdbcDelegationCoverageTest: AbstractJdbcSqlTest() {
         setter.string[1] = "value"
         setter.int[2] = 42
         setter.`object`.set(3, Types.VARCHAR, 2, "scaled")
-        setter.date.set(4, calendar, Date(0))
-        setter.`object`.set(5, Types.VARCHAR, "typed")
+        setter.date[4, calendar] = Date(0)
+        setter.`object`[5, Types.VARCHAR] = "typed"
 
         recording.calls.single { it.method == "setString" }.args shouldBeEqualTo listOf(1, "value")
         recording.calls.single { it.method == "setInt" }.args shouldBeEqualTo listOf(2, 42)
-        recording.calls.single { it.method == "setObject" && it.args.size == 4 }.args shouldBeEqualTo
-            listOf(3, "scaled", Types.VARCHAR, 2)
-        recording.calls.single { it.method == "setDate" }.args shouldBeEqualTo
-            listOf(4, Date(0), calendar)
-        recording.calls.single { it.method == "setObject" && it.args.size == 3 }.args shouldBeEqualTo
-            listOf(5, "typed", Types.VARCHAR)
+        recording.calls.single { it.method == "setObject" && it.args.size == 4 }
+            .args shouldBeEqualTo listOf(3, "scaled", Types.VARCHAR, 2)
+        recording.calls.single { it.method == "setDate" }
+            .args shouldBeEqualTo listOf(4, Date(0), calendar)
+        recording.calls.single { it.method == "setObject" && it.args.size == 3 }
+            .args shouldBeEqualTo listOf(5, "typed", Types.VARCHAR)
     }
 
     @Test
@@ -63,7 +64,7 @@ class JdbcDelegationCoverageTest: AbstractJdbcSqlTest() {
         tokens.stringOrNull["name"] shouldBeEqualTo "result"
 
         recording.calls.map { it.method } shouldBeEqualTo
-            listOf("getInt", "getString", "getInt", "wasNull", "getString", "wasNull")
+                listOf("getInt", "getString", "getInt", "wasNull", "getString", "wasNull")
         recording.calls[0].args shouldBeEqualTo listOf(1)
         recording.calls[1].args shouldBeEqualTo listOf("name")
     }
@@ -183,10 +184,18 @@ class JdbcDelegationCoverageTest: AbstractJdbcSqlTest() {
         exposedTokens.size shouldBeEqualTo 50
         tokens.int[1]
         tokens.string["value"]
-        allowKnownUnsupported("updateObject") { tokens.updateObject(1, "value", JDBCType.VARCHAR) }
-        allowKnownUnsupported("updateObject") { tokens.updateObject(2, "value", JDBCType.VARCHAR, 2) }
-        allowKnownUnsupported("updateObject") { tokens.updateObject("value", "value", JDBCType.VARCHAR) }
-        allowKnownUnsupported("updateObject") { tokens.updateObject("value", "value", JDBCType.VARCHAR, 2) }
+        allowKnownUnsupported("updateObject") {
+            tokens.updateObject(1, "value", JDBCType.VARCHAR)
+        }
+        allowKnownUnsupported("updateObject") {
+            tokens.updateObject(2, "value", JDBCType.VARCHAR, 2)
+        }
+        allowKnownUnsupported("updateObject") {
+            tokens.updateObject("value", "value", JDBCType.VARCHAR)
+        }
+        allowKnownUnsupported("updateObject") {
+            tokens.updateObject("value", "value", JDBCType.VARCHAR, 2)
+        }
     }
 
     private fun allowKnownUnsupported(methodName: String, action: () -> Unit) {
@@ -243,13 +252,13 @@ private class RecordingJdbcInvocationHandler: InvocationHandler {
         calls += JdbcInvocation(method.name, arguments)
 
         return when (method.name) {
-            "getInt" -> 42
+            "getInt"   -> 42
             "getString" -> "result"
-            "wasNull" -> false
+            "wasNull"  -> false
             "toString" -> "RecordingJdbcInvocationHandler"
             "hashCode" -> System.identityHashCode(proxy)
-            "equals" -> proxy === arguments.firstOrNull()
-            else -> {
+            "equals"   -> proxy === arguments.firstOrNull()
+            else       -> {
                 check(method.returnType == Void.TYPE) {
                     "Unexpected delegated method ${method.name}"
                 }

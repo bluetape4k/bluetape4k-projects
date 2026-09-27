@@ -2,6 +2,8 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.codec.StringCodec
 import org.junit.jupiter.api.Test
@@ -10,6 +12,8 @@ import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executors
 
 internal class LockProductionObservationTest {
+
+    companion object: KLogging()
 
     @Test
     fun `every lock family publishes runtime and Redis latency observations through its public sink`() {
@@ -30,8 +34,14 @@ internal class LockProductionObservationTest {
                     sink,
                 ).use { lock ->
                     connection.sync().scriptFlush()
-                    val handle = lock.acquire(owner, LockRequestId.from("distributed-request"), waitTime, lease)
-                        .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
+                    val handle = lock.acquire(
+                        owner,
+                        LockRequestId.from("distributed-request"),
+                        waitTime,
+                        lease
+                    ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
+                    log.debug { "handle=$handle" }
+
                     lock.acquire(
                         LockOwnerId.from("contending-owner"),
                         LockRequestId.from("contending-request"),
@@ -48,8 +58,14 @@ internal class LockProductionObservationTest {
                     sink,
                 ).use { lock ->
                     connection.sync().scriptFlush()
-                    val handle = lock.acquire(owner, LockRequestId.from("fair-request"), waitTime, lease)
-                        .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
+                    val handle = lock.acquire(
+                        owner,
+                        LockRequestId.from("fair-request"),
+                        waitTime,
+                        lease
+                    ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
+                    log.debug { "handle=$handle" }
+
                     lock.release(handle) shouldBeEqualTo LockMutationResult.Released(0)
                 }
                 LettuceFencedLock.create(
@@ -61,8 +77,14 @@ internal class LockProductionObservationTest {
                 ).use { lock ->
                     connection.sync().scriptFlush()
                     lock.bootstrapFencing() shouldBeEqualTo FencedBootstrapResult.Initialized
-                    val handle = lock.acquire(owner, LockRequestId.from("fenced-request"), waitTime, lease)
-                        .shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
+                    val handle = lock.acquire(
+                        owner,
+                        LockRequestId.from("fenced-request"),
+                        waitTime,
+                        lease
+                    ).shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
+                    log.debug { "handle=$handle" }
+
                     lock.release(handle) shouldBeEqualTo LockMutationResult.Released(0)
                 }
                 LettuceReadWriteLock.create(
@@ -73,12 +95,24 @@ internal class LockProductionObservationTest {
                     sink,
                 ).use { lock ->
                     connection.sync().scriptFlush()
-                    val read = lock.readLock().acquire(owner, LockRequestId.from("read-request"), waitTime, lease)
-                        .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>().handle
+                    val read = lock.readLock().acquire(
+                        owner,
+                        LockRequestId.from("read-request"),
+                        waitTime,
+                        lease
+                    ).shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>().handle
+                    log.debug { "read=$read" }
                     lock.readLock().release(read) shouldBeEqualTo LockMutationResult.Released(0)
+
                     connection.sync().scriptFlush()
-                    val write = lock.writeLock().acquire(owner, LockRequestId.from("write-request"), waitTime, lease)
-                        .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>().handle
+
+                    val write = lock.writeLock().acquire(
+                        owner,
+                        LockRequestId.from("write-request"),
+                        waitTime,
+                        lease
+                    ).shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>().handle
+                    log.debug { "write=$write" }
                     lock.writeLock().release(write) shouldBeEqualTo LockMutationResult.Released(0)
                 }
                 LettuceSpinLock.create(
@@ -101,8 +135,14 @@ internal class LockProductionObservationTest {
                     sink,
                 ).use { lock ->
                     connection.sync().scriptFlush()
-                    val handle = lock.acquire(owner, LockRequestId.from("multi-request"), waitTime, lease)
-                        .shouldBeInstanceOf<LockAcquireResult.Acquired<MultiLockHandle>>().handle
+                    val handle = lock.acquire(
+                        owner,
+                        LockRequestId.from("multi-request"),
+                        waitTime,
+                        lease
+                    ).shouldBeInstanceOf<LockAcquireResult.Acquired<MultiLockHandle>>().handle
+                    log.debug { "handle=$handle" }
+
                     lock.release(handle) shouldBeEqualTo LockMutationResult.Released(0)
                 }
 
@@ -123,23 +163,29 @@ internal class LockProductionObservationTest {
                 histogramKinds(LockHistogramName.RETRY_COUNT) shouldBeEqualTo LockKind.entries.toSet()
                 gaugeKinds(LockGaugeName.COORDINATION_OBJECTS) shouldBeEqualTo LockKind.entries.toSet()
                 gaugeKinds(LockGaugeName.ACTIVE_REQUEST_HOLDS) shouldBeEqualTo LockKind.entries.toSet()
+
                 observations.filterIsInstance<LockObservation.Counter>()
                     .filter { it.name == LockCounterName.NOSCRIPT_FALLBACK_TOTAL }
                     .map { it.dimensions.objectKind }
                     .toSet() shouldBeEqualTo LockKind.entries.toSet()
 
                 observations.filterIsInstance<LockObservation.Gauge>()
+                    .apply {
+                        log.debug { "gauge=$this" }
+                    }
                     .filter {
-                        it.name == LockGaugeName.QUEUED_WAITERS &&
-                            it.dimensions.objectKind == LockKind.DISTRIBUTED
+                        it.name == LockGaugeName.QUEUED_WAITERS && it.dimensions.objectKind == LockKind.DISTRIBUTED
                     }
                     .map { it.value }
                     .toSet() shouldBeEqualTo setOf(0L, 1L)
 
                 observations.filterIsInstance<LockObservation.Gauge>()
+                    .apply {
+                        log.debug { "gauge=$this" }
+                    }
                     .filter {
                         it.name == LockGaugeName.COORDINATION_OBJECTS &&
-                            it.dimensions.objectKind == LockKind.SPIN
+                                it.dimensions.objectKind == LockKind.SPIN
                     }
                     .maxOf { it.value } shouldBeEqualTo 1L
             }

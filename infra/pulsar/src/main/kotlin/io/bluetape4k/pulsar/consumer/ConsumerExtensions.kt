@@ -1,10 +1,10 @@
 package io.bluetape4k.pulsar.consumer
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.isActive
 import org.apache.pulsar.client.api.Consumer
 import org.apache.pulsar.client.api.Message
@@ -21,7 +21,7 @@ import org.apache.pulsar.client.api.Message
  * @throws org.apache.pulsar.client.api.PulsarClientException 브로커 오류 시
  */
 suspend fun <T> Consumer<T>.receiveSuspend(): Message<T> =
-    receiveAsync().awaitSuspending()
+    receiveAsync().await()
 
 /**
  * 메시지를 무한 소비하는 [Flow]를 반환합니다.
@@ -43,7 +43,7 @@ fun <T> Consumer<T>.receiveAsFlow(): Flow<Message<T>> = flow {
     while (currentCoroutineContext().isActive) {
         val future = receiveAsync()
         try {
-            emit(future.awaitSuspending())
+            emit(future.await())
         } catch (ce: CancellationException) {
             future.cancel(true)
             throw ce
@@ -62,7 +62,7 @@ fun <T> Consumer<T>.receiveAsFlow(): Flow<Message<T>> = flow {
  * @throws org.apache.pulsar.client.api.PulsarClientException ack 전송 실패 시
  */
 suspend fun <T> Consumer<T>.acknowledgeSuspend(message: Message<T>) {
-    acknowledgeAsync(message).awaitSuspending()
+    acknowledgeAsync(message).await()
 }
 
 /**
@@ -81,5 +81,5 @@ suspend fun <T> Consumer<T>.acknowledgeSuspend(message: Message<T>) {
  * @throws org.apache.pulsar.client.api.PulsarClientException Shared 구독에서 호출 시, 또는 ack 전송 실패 시
  */
 suspend fun <T> Consumer<T>.acknowledgeCumulativeSuspend(message: Message<T>) {
-    acknowledgeCumulativeAsync(message).awaitSuspending()
+    acknowledgeCumulativeAsync(message).await()
 }

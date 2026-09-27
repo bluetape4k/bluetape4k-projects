@@ -19,7 +19,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
 
-internal class FairLockScriptTest : AbstractLettuceTest() {
+internal class FairLockScriptTest: AbstractLettuceTest() {
 
     private lateinit var connection: StatefulRedisConnection<String, String>
     private lateinit var commands: RedisCommands<String, String>
@@ -32,7 +32,7 @@ internal class FairLockScriptTest : AbstractLettuceTest() {
     fun setUp() {
         connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
         commands = connection.sync()
-        name = "fair-script-${randomName().substringAfter(':')}"
+        name = "fair-script-${randomName().substringAfterLast(':')}"
         lock = FairLockClient.create(connection, name, FairLockConfig())
         deleteKeys()
     }
@@ -58,6 +58,7 @@ internal class FairLockScriptTest : AbstractLettuceTest() {
 
         lock.tryAcquire(owner("third"), request("third-request"), lease)
             .shouldBeInstanceOf<LockAcquireResult.Contended>()
+
         lock.tryAcquire(owner("second"), request("second-request"), lease)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
     }
@@ -71,6 +72,7 @@ internal class FairLockScriptTest : AbstractLettuceTest() {
 
         lock.tryAcquire(owner("holder"), request("holder-reentry"), lease)
             .shouldBeInstanceOf<LockAcquireResult.Reentered<LockHandle>>()
+
         commands.zcard(keys.queue) shouldBeEqualTo queuedBefore
 
         lock.release(holder)
@@ -86,8 +88,10 @@ internal class FairLockScriptTest : AbstractLettuceTest() {
         commands.zcard(keys.queue) shouldBeEqualTo 2L
 
         lock.release(holder) shouldBeEqualTo LockMutationResult.Released(0)
+
         lock.tryAcquire(sharedOwner, request("first-request"), lease)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
+
         lock.tryAcquire(sharedOwner, request("second-request"), lease)
             .shouldBeInstanceOf<LockAcquireResult.Reentered<LockHandle>>()
 
@@ -104,9 +108,11 @@ internal class FairLockScriptTest : AbstractLettuceTest() {
 
         second.enqueueSequence shouldBeGreaterThan first.enqueueSequence
         commands.zcard(keys.queue) shouldBeEqualTo 2L
+
         lock.reconcile(owner("first"), shared)
             .shouldBeInstanceOf<LockReconcileResult.Queued>()
             .waiter.enqueueSequence shouldBeEqualTo first.enqueueSequence
+
         lock.reconcile(owner("second"), shared)
             .shouldBeInstanceOf<LockReconcileResult.Queued>()
             .waiter.enqueueSequence shouldBeEqualTo second.enqueueSequence
@@ -200,11 +206,14 @@ internal class FairLockScriptTest : AbstractLettuceTest() {
         commands.hset(keys.waiters, member, "${first.enqueueSequence}|$newerGeneration|${stored[2]}")
 
         lock.removeWaiter(owner, request, firstIdentity) shouldBeEqualTo
-            LockReconcileResult.StaleGeneration
+                LockReconcileResult.StaleGeneration
+
         lock.reconcile(owner, request)
             .shouldBeInstanceOf<LockReconcileResult.Queued>()
             .waiter.enqueueSequence shouldBeEqualTo first.enqueueSequence
+
         commands.hget(keys.waiters, member).split('|')[1].toLong() shouldBeEqualTo newerGeneration
+
         lock.release(holder)
     }
 
@@ -217,8 +226,12 @@ internal class FairLockScriptTest : AbstractLettuceTest() {
         commands.hset(keys.waiters, "malformed", "not-a-waiter")
         commands.set(keys.sequence, "2")
 
-        lock.tryAcquire(owner("candidate"), request("candidate-request"), lease)
-            .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
+        lock.tryAcquire(
+            owner("candidate"),
+            request("candidate-request"),
+            lease
+        ).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
+
         commands.zcard(keys.queue) shouldBeEqualTo 2L
         commands.hlen(keys.waiters) shouldBeEqualTo 2L
     }
@@ -229,8 +242,12 @@ internal class FairLockScriptTest : AbstractLettuceTest() {
         commands.hset(keys.terminal, mapOf("owner" to "owner", "generation" to "bad", "request" to "request"))
         commands.pexpire(keys.terminal, Duration.ofMinutes(1).toMillis())
 
-        lock.tryAcquire(owner("candidate"), request("candidate-request"), lease)
-            .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
+        lock.tryAcquire(
+            owner("candidate"),
+            request("candidate-request"),
+            lease
+        ).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
+
         commands.exists(keys.state, keys.holds).shouldBeZero()
         commands.hget(keys.terminal, "generation") shouldBeEqualTo "bad"
     }
@@ -249,27 +266,42 @@ internal class FairLockScriptTest : AbstractLettuceTest() {
         commands.zadd(keys.queue, *queue.toTypedArray())
         commands.set(keys.sequence, staleCount.toString())
 
-        lock.tryAcquire(owner("candidate"), request("candidate-request"), lease) shouldBeEqualTo
-            LockAcquireResult.CleanupPending
+        lock.tryAcquire(
+            owner("candidate"),
+            request("candidate-request"),
+            lease
+        ) shouldBeEqualTo LockAcquireResult.CleanupPending
+
         commands.exists(keys.state).shouldBeZero()
         commands.zcard(keys.queue) shouldBeEqualTo 1L
 
-        lock.tryAcquire(owner("candidate"), request("candidate-request"), lease)
-            .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
+        lock.tryAcquire(
+            owner("candidate"),
+            request("candidate-request"),
+            lease
+        ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
+
         commands.zcard(keys.queue).shouldBeZero()
     }
 
     private fun acquire(owner: String, request: String): LockHandle =
-        lock.tryAcquire(owner(owner), request(request), lease)
-            .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
-            .handle
+        lock.tryAcquire(
+            owner(owner),
+            request(request),
+            lease
+        ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
 
     private fun enqueue(owner: String, request: String): FairWaiterState =
         enqueue(owner(owner), request(request))
 
     private fun enqueue(owner: LockOwnerId, request: LockRequestId): FairWaiterState {
-        lock.enqueueOnce(owner, request, Duration.ofSeconds(2), lease)
-            .shouldBeInstanceOf<LockAcquireResult.Contended>()
+        lock.enqueueOnce(
+            owner,
+            request,
+            Duration.ofSeconds(2),
+            lease
+        ).shouldBeInstanceOf<LockAcquireResult.Contended>()
+
         return eventuallyQueued(owner, request)
     }
 

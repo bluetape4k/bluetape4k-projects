@@ -27,24 +27,23 @@ fun echoRequestHeadersInterceptor(vararg keys: Metadata.Key<*>): ServerIntercept
             call: ServerCall<ReqT, RespT>,
             requestHeaders: Metadata,
             next: ServerCallHandler<ReqT, RespT>,
-        ): ServerCall.Listener<ReqT> =
-            next.startCall(
-                object: ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
-                    override fun sendHeaders(responseHeaders: Metadata) {
-                        responseHeaders.merge(requestHeaders, keySet)
-                        super.sendHeaders(responseHeaders)
-                    }
+        ): ServerCall.Listener<ReqT> = next.startCall(
+            object: ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
+                override fun sendHeaders(responseHeaders: Metadata) {
+                    responseHeaders.merge(requestHeaders, keySet)
+                    super.sendHeaders(responseHeaders)
+                }
 
-                    override fun close(
-                        status: Status,
-                        trailers: Metadata,
-                    ) {
-                        trailers.merge(requestHeaders, keySet)
-                        super.close(status, trailers)
-                    }
-                },
-                requestHeaders
-            )
+                override fun close(
+                    status: Status,
+                    trailers: Metadata,
+                ) {
+                    trailers.merge(requestHeaders, keySet)
+                    super.close(status, trailers)
+                }
+            },
+            requestHeaders
+        )
     }
 }
 
@@ -67,16 +66,15 @@ fun echoRequestMetadataInHeaders(vararg keys: Metadata.Key<*>): ServerIntercepto
             call: ServerCall<ReqT, RespT>,
             requestHeaders: Metadata,
             next: ServerCallHandler<ReqT, RespT>,
-        ): ServerCall.Listener<ReqT> =
-            next.startCall(
-                object: ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
-                    override fun sendHeaders(responseHeaders: Metadata) {
-                        responseHeaders.merge(requestHeaders, keySet)
-                        super.sendHeaders(responseHeaders)
-                    }
-                },
-                requestHeaders
-            )
+        ): ServerCall.Listener<ReqT> = next.startCall(
+            object: ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
+                override fun sendHeaders(responseHeaders: Metadata) {
+                    responseHeaders.merge(requestHeaders, keySet)
+                    super.sendHeaders(responseHeaders)
+                }
+            },
+            requestHeaders
+        )
     }
 }
 
@@ -99,18 +97,17 @@ fun echoRequestMetadataInTrailers(vararg keys: Metadata.Key<*>): ServerIntercept
             call: ServerCall<ReqT, RespT>,
             requestHeaders: Metadata,
             next: ServerCallHandler<ReqT, RespT>,
-        ): ServerCall.Listener<ReqT> =
-            next.startCall(
-                object: ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
-                    override fun close(
-                        status: Status,
-                        trailers: Metadata,
-                    ) {
-                        trailers.merge(requestHeaders, keySet)
-                        super.close(status, trailers)
-                    }
-                },
-                requestHeaders
-            )
+        ): ServerCall.Listener<ReqT> = next.startCall(
+            object: ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
+                override fun close(
+                    status: Status,
+                    trailers: Metadata,
+                ) {
+                    trailers.merge(requestHeaders, keySet)
+                    super.close(status, trailers)
+                }
+            },
+            requestHeaders
+        )
     }
 }

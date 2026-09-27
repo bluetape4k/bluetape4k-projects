@@ -1,11 +1,15 @@
 package io.bluetape4k.nats.service
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.nats.AbstractNatsTest
 import io.mockk.mockk
 import io.nats.service.ServiceMessageHandler
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
-class ServiceEndpointExtensionsTest {
+class ServiceEndpointExtensionsTest: AbstractNatsTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `serviceEndpointOf supports builder-only endpoint definition`() {

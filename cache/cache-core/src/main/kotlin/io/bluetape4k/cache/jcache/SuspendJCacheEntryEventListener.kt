@@ -3,10 +3,10 @@ package io.bluetape4k.cache.jcache
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
-import io.bluetape4k.logging.trace
+import io.bluetape4k.support.requirePositiveNumber
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -107,7 +107,7 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
     }
 
     init {
-        require(maxInFlightCallbacks > 0) { "maxInFlightCallbacks must be positive" }
+        maxInFlightCallbacks.requirePositiveNumber("maxInFlightCallbacks")
     }
 
     private val closed = AtomicBoolean(false)
@@ -135,7 +135,7 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
     override fun onCreated(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
         submit("put all created cache entries") {
             val eventCopies = events.map { EventCopy(it.key, it.value) }
-            log.trace { "BackCache cache entry created. cache=$cacheIdentifier count=${eventCopies.size}" }
+            log.debug { "BackCache cache entry created. cache=$cacheIdentifier count=${eventCopies.size}" }
             suspend {
                 targetCache.putAll(eventCopies.associate { it.key to it.value })
             }
@@ -151,7 +151,7 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
     override fun onUpdated(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
         submit("put all updated cache entries") {
             val eventCopies = events.map { EventCopy(it.key, it.value) }
-            log.trace { "BackCache cache entry updated. cache=$cacheIdentifier count=${eventCopies.size}" }
+            log.debug { "BackCache cache entry updated. cache=$cacheIdentifier count=${eventCopies.size}" }
             suspend {
                 targetCache.putAll(eventCopies.associate { it.key to it.value })
             }
@@ -168,7 +168,7 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
     override fun onRemoved(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
         submit("remove all removed cache entries") {
             val eventKeys = events.map { it.key }
-            log.trace { "BackCache cache entry removed. cache=$cacheIdentifier count=${eventKeys.size}" }
+            log.debug { "BackCache cache entry removed. cache=$cacheIdentifier count=${eventKeys.size}" }
             suspend {
                 targetCache.removeAll(eventKeys.toCollection(LinkedHashSet()))
             }
@@ -185,7 +185,7 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
     override fun onExpired(events: MutableIterable<CacheEntryEvent<out K, out V>>) {
         submit("remove all expired cache entries") {
             val eventKeys = events.map { it.key }
-            log.trace { "BackCache cache entry expired. cache=$cacheIdentifier count=${eventKeys.size}" }
+            log.debug { "BackCache cache entry expired. cache=$cacheIdentifier count=${eventKeys.size}" }
             suspend {
                 targetCache.removeAll(eventKeys.toCollection(LinkedHashSet()))
             }
@@ -219,6 +219,7 @@ class SuspendJCacheEntryEventListener<K: Any, V: Any> private constructor(
                 observation.recordRelease()
             }
         }
+
         val terminalRecorded = AtomicBoolean(false)
         val recordTerminal: (() -> Unit) -> Unit = { record ->
             if (terminalRecorded.compareAndSet(false, true)) {

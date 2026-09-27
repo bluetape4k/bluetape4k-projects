@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.period.ranges
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.javatimes.HoursPerDay
 import io.bluetape4k.javatimes.MinNegativeDuration
 import io.bluetape4k.javatimes.MinutesPerHour
@@ -11,7 +12,6 @@ import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.startOfHour
 import io.bluetape4k.javatimes.todayZonedDateTime
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class HourRangeTest: AbstractPeriodTest() {

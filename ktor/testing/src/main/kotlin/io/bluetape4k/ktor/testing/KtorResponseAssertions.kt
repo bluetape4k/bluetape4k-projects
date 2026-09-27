@@ -8,15 +8,13 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 /**
  * HTTP status를 검증하고 chaining할 수 있도록 같은 response를 반환합니다.
  */
-infix fun HttpResponse.shouldHaveStatus(expected: HttpStatusCode): HttpResponse {
+infix fun HttpResponse.shouldHaveStatus(expected: HttpStatusCode): HttpResponse = apply {
     status shouldBeEqualTo expected
-    return this
 }
 
 /**
@@ -62,9 +60,11 @@ suspend fun HttpResponse.shouldHaveApiError(
     shouldHaveStatus(expected.status)
 
     val actual = decodeJsonBody<ApiErrorResponse>(jsonFormat)
+
     actual.status shouldBeEqualTo expected.status.value
     actual.error shouldBeEqualTo expected.error
     expected.message?.let { actual.message shouldBeEqualTo it }
     expected.path?.let { actual.path shouldBeEqualTo it }
+
     return actual
 }

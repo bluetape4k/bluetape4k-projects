@@ -4,6 +4,7 @@ import io.bluetape4k.csv.CsvSettings
 import io.bluetape4k.csv.Record
 import io.bluetape4k.csv.internal.CsvLexer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
@@ -61,6 +62,6 @@ class SuspendCsvRecordReader(
     }.flowOn(Dispatchers.IO)
 
     override fun close() {
-        // Nothing to do.
+        log.debug { "SuspendedCsvRecordReader is closed." }
     }
 }

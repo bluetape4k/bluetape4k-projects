@@ -1,15 +1,15 @@
 package io.bluetape4k.rule.engines.groovy
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.rule.api.Facts
 import org.junit.jupiter.api.Test
 
 class GroovyConditionTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `숫자 비교 Groovy 표현식 평가`() {
@@ -65,8 +65,8 @@ class GroovyConditionTest {
         val expr = "amount > 1000"
         val c1 = GroovyCondition(expr)
         val c2 = GroovyCondition(expr)
-        (c1 == c2).shouldBeTrue()
-        (c1.hashCode() == c2.hashCode()).shouldBeTrue()
+        c1 shouldBeEqualTo c2
+        c1.hashCode() shouldBeEqualTo c2.hashCode()
     }
 
     @Test

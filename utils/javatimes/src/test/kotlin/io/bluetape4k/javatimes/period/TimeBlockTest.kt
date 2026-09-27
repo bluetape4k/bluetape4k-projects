@@ -1,5 +1,11 @@
 package io.bluetape4k.javatimes.period
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.javatimes.EmptyDuration
 import io.bluetape4k.javatimes.MaxPeriodTime
 import io.bluetape4k.javatimes.MinDuration
@@ -14,14 +20,8 @@ import io.bluetape4k.javatimes.period.samples.TimeBlockPeriodRelationTestData
 import io.bluetape4k.javatimes.seconds
 import io.bluetape4k.javatimes.zonedDateTimeOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
 
 class TimeBlockTest: AbstractPeriodTest() {
 
@@ -487,27 +487,21 @@ class TimeBlockTest: AbstractPeriodTest() {
         // before
         block.intersectBlock(TimeBlock(start - 2.nanos(), start - 1.nanos())).shouldBeNull()
         block.intersectBlock(TimeBlock(start - 1.nanos(), start)) shouldBeEqualTo TimeBlock(start)
-        block.intersectBlock(TimeBlock(start - 2.nanos(), start + 1.nanos())) shouldBeEqualTo TimeBlock(
-            start,
-            start + 1.nanos()
-        )
+        block.intersectBlock(TimeBlock(start - 2.nanos(), start + 1.nanos())) shouldBeEqualTo
+                TimeBlock(start, start + 1.nanos())
 
         // after
         block.intersectBlock(TimeBlock(end + 1.nanos(), end + 2.nanos())).shouldBeNull()
         block.intersectBlock(TimeBlock(end, end + 1.nanos())) shouldBeEqualTo TimeBlock(end)
-        block.intersectBlock(TimeBlock(end - 1.nanos(), end + 1.nanos())) shouldBeEqualTo TimeBlock(
-            end - 1.nanos(),
-            end
-        )
+        block.intersectBlock(TimeBlock(end - 1.nanos(), end + 1.nanos())) shouldBeEqualTo
+                TimeBlock(end - 1.nanos(), end)
 
 
         // intersect
         block.intersectBlock(block) shouldBeEqualTo block
         block.intersectBlock(TimeBlock(start - 1.nanos(), end + 1.nanos())) shouldBeEqualTo block
-        block.intersectBlock(TimeBlock(start + 1.nanos(), end - 1.nanos())) shouldBeEqualTo TimeBlock(
-            start + 1.nanos(),
-            end - 1.nanos()
-        )
+        block.intersectBlock(TimeBlock(start + 1.nanos(), end - 1.nanos())) shouldBeEqualTo
+                TimeBlock(start + 1.nanos(), end - 1.nanos())
     }
 
     @Test
@@ -516,20 +510,16 @@ class TimeBlockTest: AbstractPeriodTest() {
 
         block.unionBlock(block) shouldBeEqualTo block
         block.unionBlock(TimeBlock(start - 1.nanos(), start)) shouldBeEqualTo TimeBlock(start - 1.nanos(), end)
-        block.unionBlock(TimeBlock(start - 2.nanos(), start + 1.nanos())) shouldBeEqualTo TimeBlock(
-            start - 2.nanos(),
-            end
-        )
+        block.unionBlock(TimeBlock(start - 2.nanos(), start + 1.nanos())) shouldBeEqualTo
+                TimeBlock(start - 2.nanos(), end)
 
         block.unionBlock(TimeBlock(end + 1.nanos(), end + 2.nanos())) shouldBeEqualTo TimeBlock(start, end + 2.nanos())
         block.unionBlock(TimeBlock(end, end + 1.nanos())) shouldBeEqualTo TimeBlock(start, end + 1.nanos())
         block.unionBlock(TimeBlock(end - 1.nanos(), end + 1.nanos())) shouldBeEqualTo TimeBlock(start, end + 1.nanos())
 
         block.unionBlock(block) shouldBeEqualTo block
-        block.unionBlock(TimeBlock(start - 1.nanos(), end + 1.nanos())) shouldBeEqualTo TimeBlock(
-            start - 1.nanos(),
-            end + 1.nanos()
-        )
+        block.unionBlock(TimeBlock(start - 1.nanos(), end + 1.nanos())) shouldBeEqualTo
+                TimeBlock(start - 1.nanos(), end + 1.nanos())
         block.unionBlock(TimeBlock(start + 1.nanos(), end - 1.nanos())) shouldBeEqualTo block
     }
 

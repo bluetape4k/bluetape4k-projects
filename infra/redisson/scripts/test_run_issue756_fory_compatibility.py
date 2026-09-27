@@ -10,7 +10,6 @@ import zipfile
 from pathlib import Path
 from unittest import mock
 
-
 SCRIPT = Path(__file__).with_name("run-issue756-fory-compatibility.py")
 ROLLBACK_SCRIPT = Path(__file__).with_name("run-issue756-fory-rollback-smoke.py")
 
@@ -55,11 +54,11 @@ class Issue756ForyCompatibilityRunnerTest(unittest.TestCase):
             output = root / "output"
             for artifact in ("bluetape4k-io", "bluetape4k-lettuce", "bluetape4k-redisson"):
                 jar = (
-                    repository
-                    / "io/github/bluetape4k"
-                    / artifact
-                    / "1.11.0"
-                    / f"{artifact}-1.11.0.jar"
+                        repository
+                        / "io/github/bluetape4k"
+                        / artifact
+                        / "1.11.0"
+                        / f"{artifact}-1.11.0.jar"
                 )
                 jar.parent.mkdir(parents=True, exist_ok=True)
                 with zipfile.ZipFile(jar, "w") as archive:
@@ -125,9 +124,9 @@ class Issue756ForyCompatibilityRunnerTest(unittest.TestCase):
         runner = load_runner()
 
         with mock.patch.object(
-            runner,
-            "run_checked",
-            side_effect=["commit", "tree", " M infra/redisson/src/main/kotlin/Codec.kt"],
+                runner,
+                "run_checked",
+                side_effect=["commit", "tree", " M infra/redisson/src/main/kotlin/Codec.kt"],
         ):
             with self.assertRaisesRegex(RuntimeError, "DIRTY_INPUT_TREE"):
                 runner.git_input_state()
@@ -137,14 +136,14 @@ class Issue756ForyCompatibilityRunnerTest(unittest.TestCase):
         generated = runner.RELEASE_OUTPUT_RELATIVE
 
         with mock.patch.object(
-            runner,
-            "run_checked",
-            side_effect=[
-                "commit",
-                "tree",
-                f" M {generated}/compatibility-results.json\n"
-                f"?? {generated}/fixtures/new.bin",
-            ],
+                runner,
+                "run_checked",
+                side_effect=[
+                    "commit",
+                    "tree",
+                    f" M {generated}/compatibility-results.json\n"
+                    f"?? {generated}/fixtures/new.bin",
+                ],
         ):
             self.assertEqual(
                 {

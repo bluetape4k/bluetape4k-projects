@@ -2,9 +2,7 @@ package io.bluetape4k.cache.jcache
 
 import com.hazelcast.cache.HazelcastCachingProvider
 import io.bluetape4k.cache.HazelcastServers
-import io.bluetape4k.codec.encodeBase62
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import java.util.*
 import javax.cache.configuration.MutableConfiguration
 
 class HazelcastSuspendJCacheTest: AbstractSuspendJCacheTest() {
@@ -16,7 +14,7 @@ class HazelcastSuspendJCacheTest: AbstractSuspendJCacheTest() {
         val properties = HazelcastCachingProvider.propertiesByInstanceItself(HazelcastServers.hazelcastClient)
         val manager = provider.getCacheManager(provider.defaultURI, provider.defaultClassLoader, properties)
 
-        val cacheName = "hazelcast-cocache-" + UUID.randomUUID().encodeBase62()
+        val cacheName = getKey()
         val config = MutableConfiguration<String, Any>().apply {
             setTypes(String::class.java, Any::class.java)
         }

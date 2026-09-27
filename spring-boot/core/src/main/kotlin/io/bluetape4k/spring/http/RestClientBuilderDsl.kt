@@ -2,6 +2,9 @@ package io.bluetape4k.spring.http
 
 import org.springframework.web.client.RestClient
 
+fun restClient(configure: RestClient.Builder.() -> Unit): RestClient =
+    RestClient.builder().apply(configure).build()
+
 /**
  * DSL 방식으로 [RestClient]를 생성합니다.
  *

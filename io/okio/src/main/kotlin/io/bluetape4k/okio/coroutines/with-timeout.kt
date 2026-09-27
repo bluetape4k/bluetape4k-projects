@@ -1,5 +1,6 @@
 package io.bluetape4k.okio.coroutines
 
+import kotlinx.coroutines.withTimeoutOrNull
 import okio.Timeout
 import java.util.concurrent.TimeUnit
 
@@ -36,14 +37,13 @@ suspend inline fun <T: Any> withTimeoutOrNull(
 
     val now = System.nanoTime()
     val waitNanos = when {
-        timeout.timeoutNanos() != 0L && timeout.hasDeadline() -> minOf(
-            timeout.timeoutNanos(),
-            timeout.deadlineNanoTime() - now
-        )
+        timeout.timeoutNanos() != 0L &&
+                timeout.hasDeadline() ->
+            minOf(timeout.timeoutNanos(), timeout.deadlineNanoTime() - now)
 
-        timeout.timeoutNanos() != 0L -> timeout.timeoutNanos()
-        timeout.hasDeadline()        -> timeout.deadlineNanoTime() - now
-        else                         -> throw AssertionError("Unexpected Timeout state")
+        timeout.timeoutNanos() != 0L  -> timeout.timeoutNanos()
+        timeout.hasDeadline()         -> timeout.deadlineNanoTime() - now
+        else                          -> throw AssertionError("Unexpected Timeout state")
     }
 
     if (waitNanos <= 0L) {
@@ -54,7 +54,7 @@ suspend inline fun <T: Any> withTimeoutOrNull(
         if (millis <= 0L) 1L else millis
     }
 
-    return kotlinx.coroutines.withTimeoutOrNull(waitMillis) {
+    return withTimeoutOrNull(timeMillis = waitMillis) {
         block()
     }
 }

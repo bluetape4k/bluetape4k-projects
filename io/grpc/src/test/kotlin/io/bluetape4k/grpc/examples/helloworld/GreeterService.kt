@@ -1,9 +1,14 @@
 package io.bluetape4k.grpc.examples.helloworld
 
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
+
 /**
  * GreeterService
  */
 class GreeterService: GreeterGrpcKt.GreeterCoroutineImplBase() {
+
+    companion object: KLoggingChannel()
 
     /**
      * Returns the response to an RPC for io.grpc.examples.helloworld.Greeter.SayHello.
@@ -20,5 +25,8 @@ class GreeterService: GreeterGrpcKt.GreeterCoroutineImplBase() {
         return HelloReply.newBuilder()
             .setMessage("Hello ${request.name}")
             .build()
+            .apply {
+                log.debug { "Got `$this`" }
+            }
     }
 }

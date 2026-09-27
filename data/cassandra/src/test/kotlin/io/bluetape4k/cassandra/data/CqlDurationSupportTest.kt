@@ -3,7 +3,7 @@ package io.bluetape4k.cassandra.data
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.javatimes.nanosLong
-import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.nanosOfMillis
 import org.junit.jupiter.api.Test
@@ -14,7 +14,7 @@ import kotlin.time.Duration.Companion.days
 
 class CqlDurationSupportTest {
 
-    companion object: KLoggingChannel()
+    companion object: KLogging()
 
     @Test
     fun `should convert java Duration to CqlDuration`() {
@@ -77,18 +77,21 @@ class CqlDurationSupportTest {
     fun `should build CqlDuration`() {
 
         with(cqlDurationOf(3, 23, 42L)) {
+            log.debug { "cqlDuration = $this" }
             months shouldBeEqualTo 3
             days shouldBeEqualTo 23
             nanoseconds shouldBeEqualTo 42
         }
 
         with(cqlDurationOf(13, 42, 5)) {
+            log.debug { "cqlDuration = $this" }
             months shouldBeEqualTo 13
             days shouldBeEqualTo 42
             nanoseconds shouldBeEqualTo 5
         }
 
         with(cqlDurationOf(-13, -42, -5)) {
+            log.debug { "cqlDuration = $this" }
             months shouldBeEqualTo -13
             days shouldBeEqualTo -42
             nanoseconds shouldBeEqualTo -5

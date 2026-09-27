@@ -63,11 +63,11 @@ fun Application.module() {
 
 ## Error Mapping
 
-| Failure | HTTP status | Error code |
-|---|---:|---|
-| Open circuit | 503 | `circuit_breaker_open` |
-| Rate limiter rejection | 429 | `rate_limited` |
-| Time limiter timeout | 504 | `timeout` |
+| Failure                | HTTP status | Error code             |
+|------------------------|------------:|------------------------|
+| Open circuit           |         503 | `circuit_breaker_open` |
+| Rate limiter rejection |         429 | `rate_limited`         |
+| Time limiter timeout   |         504 | `timeout`              |
 
 Messages are generic and safe for clients. Policy names remain in the caller-owned Resilience4j objects, so metrics and registry ownership stay with the application.
 

@@ -1,15 +1,16 @@
 package io.bluetape4k.javatimes.range
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 
 class TemporalOpenedRangeSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `until operator creates opened range with correct start and end`() {
@@ -68,7 +69,7 @@ class TemporalOpenedRangeSupportTest {
         val start = LocalDateTime.of(2024, 1, 1, 0, 0)
         val end = LocalDateTime.of(2024, 1, 10, 0, 0)
         val range = start until end
-        range.isEmpty().shouldBeFalse()
+        range.shouldNotBeEmpty()
     }
 
     @Test
@@ -95,6 +96,6 @@ class TemporalOpenedRangeSupportTest {
         val end = LocalDateTime.of(2024, 1, 10, 0, 0)
         val range = start until end
         val str = range.toString()
-        str.isNotEmpty().shouldBeTrue()
+        str.shouldNotBeEmpty()
     }
 }

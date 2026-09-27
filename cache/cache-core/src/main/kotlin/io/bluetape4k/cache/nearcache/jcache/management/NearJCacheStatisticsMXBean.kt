@@ -11,9 +11,9 @@ open class NearJCacheStatisticsMXBean private constructor(
     private val recorder: NearJCacheStatisticsRecorder,
 ): NearJCacheTierStatisticsMXBean {
 
-    constructor() : this(ActiveNearJCacheStatisticsRecorder())
+    constructor(): this(ActiveNearJCacheStatisticsRecorder())
 
-    protected constructor(noOp: Unit) : this(noOp.let { NoOpNearJCacheStatisticsRecorder })
+    protected constructor(noOp: Unit): this(noOp.let { NoOpNearJCacheStatisticsRecorder })
 
     companion object {
         private const val STATISTICS_SCOPE = "NEAR_JCACHE_WRAPPER_V1"

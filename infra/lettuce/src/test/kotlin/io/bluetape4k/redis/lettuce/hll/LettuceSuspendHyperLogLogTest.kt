@@ -1,20 +1,22 @@
 package io.bluetape4k.redis.lettuce.hll
 
+import io.bluetape4k.assertions.shouldBeInRange
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeInRange
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class LettuceSuspendHyperLogLogTest: AbstractLettuceTest() {
 
     companion object: KLoggingChannel() {
-        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+        private val connection by lazy {
+            LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8)
+        }
     }
 
     private lateinit var hyperLogLog: LettuceSuspendHyperLogLog<String>

@@ -3,12 +3,15 @@ package io.bluetape4k.collections.permutations
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 /**
  * flatMap 테스트
  */
 class FlatMapTest: AbstractPermutationTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `빈 순열의 flatMap은 빈 순열`() {

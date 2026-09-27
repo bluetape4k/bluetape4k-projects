@@ -4,6 +4,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.script.RedisScript
 import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
+import io.bluetape4k.support.toUtf8Bytes
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.sync.RedisCommands
@@ -32,18 +33,20 @@ class LettuceBloomFilter(
         // 개선: 상수 String → RedisScript 로 승격해 SHA1 을 1 회만 계산하고 EVALSHA 호출을 재사용합니다.
         private val ADD_SCRIPT = RedisScript(
             """
-for i = 1, #ARGV do
-    redis.call('setbit', KEYS[1], ARGV[i], 1)
-end
-return 1"""
+                for i = 1, #ARGV do
+                    redis.call('setbit', KEYS[1], ARGV[i], 1)
+                end
+                return 1
+                """.trimIndent()
         )
 
         private val CONTAINS_SCRIPT = RedisScript(
             """
-for i = 1, #ARGV do
-    if redis.call('getbit', KEYS[1], ARGV[i]) == 0 then return 0 end
-end
-return 1"""
+                for i = 1, #ARGV do
+                    if redis.call('getbit', KEYS[1], ARGV[i]) == 0 then return 0 end
+                end
+                return 1
+                """.trimIndent()
         )
     }
 
@@ -88,9 +91,7 @@ return 1"""
         val storedM = commands.hget(configKey, "m")?.toLongOrNull()
         val storedK = commands.hget(configKey, "k")?.toIntOrNull()
         if (storedM != null && storedK != null && (storedM != m || storedK != k)) {
-            throw IllegalStateException(
-                "BloomFilter '$filterName' 이미 다른 파라미터로 초기화됨: 저장된 m=$storedM/k=$storedK, 현재 m=$m/k=$k"
-            )
+            error("BloomFilter '$filterName' 이미 다른 파라미터로 초기화됨: 저장된 m=$storedM/k=$storedK, 현재 m=$m/k=$k")
         }
         return false
     }
@@ -107,7 +108,13 @@ return 1"""
      */
     fun add(element: String) {
         val positions = hashPositions(element)
-        RedisScriptRunner.run<Long>(commands, ADD_SCRIPT, ScriptOutputType.INTEGER, arrayOf(filterName), *positions)
+        RedisScriptRunner.run<Long>(
+            commands,
+            ADD_SCRIPT,
+            ScriptOutputType.INTEGER,
+            arrayOf(filterName),
+            *positions
+        )
         log.debug { "BloomFilter add: name=$filterName, element=$element" }
     }
 
@@ -138,7 +145,7 @@ return 1"""
     override fun close() = connection.close()
 
     private fun hashPositions(element: String): Array<String> {
-        val bytes = element.toByteArray(Charsets.UTF_8)
+        val bytes = element.toUtf8Bytes()
         val (h1, h2) = Murmur3.hash128x64(bytes)
         return Array(k) { index -> Math.floorMod(h1 + index.toLong() * h2, m).toString() }
     }

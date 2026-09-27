@@ -5,6 +5,7 @@ import io.bluetape4k.logging.trace
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -80,7 +81,7 @@ internal fun <T: Any> concatArrayEagerInternal(sources: List<Flow<T>>): Flow<T> 
 
         var index = 0
         while (index < size) {
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
             val rail = rails[index]
             val done = rail.done.value
 

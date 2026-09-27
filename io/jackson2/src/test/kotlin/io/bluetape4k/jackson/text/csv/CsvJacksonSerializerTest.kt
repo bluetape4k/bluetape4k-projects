@@ -1,7 +1,9 @@
 package io.bluetape4k.jackson.text.csv
 
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.jackson.text.AbstractJacksonTextTest
@@ -16,6 +18,7 @@ import org.junit.jupiter.api.Test
  * [io.bluetape4k.jackson.text.CsvJacksonSerializer] 및 [JacksonText.Csv] 통합 테스트.
  */
 class CsvJacksonSerializerTest: AbstractJacksonTextTest() {
+
     companion object: KLogging()
 
     private val csvMapper = JacksonText.Csv.defaultMapper
@@ -26,22 +29,22 @@ class CsvJacksonSerializerTest: AbstractJacksonTextTest() {
     inner class SingletonBehavior {
         @Test
         fun `defaultMapper는 동일 인스턴스를 반환한다`() {
-            (JacksonText.Csv.defaultMapper === JacksonText.Csv.defaultMapper).shouldBeTrue()
+            JacksonText.Csv.defaultMapper shouldBe JacksonText.Csv.defaultMapper
         }
 
         @Test
         fun `defaultSerializer는 동일 인스턴스를 반환한다`() {
-            (JacksonText.Csv.defaultSerializer === JacksonText.Csv.defaultSerializer).shouldBeTrue()
+            JacksonText.Csv.defaultSerializer shouldBe JacksonText.Csv.defaultSerializer
         }
 
         @Test
         fun `defaultFactory는 동일 인스턴스를 반환한다`() {
-            (JacksonText.Csv.defaultFactory === JacksonText.Csv.defaultFactory).shouldBeTrue()
+            JacksonText.Csv.defaultFactory shouldBe JacksonText.Csv.defaultFactory
         }
 
         @Test
         fun `defaultJsonMapper는 Jackson defaultJsonMapper와 동일 인스턴스이다`() {
-            (JacksonText.Csv.defaultJsonMapper === io.bluetape4k.jackson.Jackson.defaultJsonMapper).shouldBeTrue()
+            JacksonText.Csv.defaultJsonMapper shouldBe io.bluetape4k.jackson.Jackson.defaultJsonMapper
         }
     }
 
@@ -55,8 +58,8 @@ class CsvJacksonSerializerTest: AbstractJacksonTextTest() {
 
             output.shouldNotBeNull()
             output.shouldNotBeEmpty()
-            output.contains("1").shouldBeTrue()
-            output.contains("2").shouldBeTrue()
+            output shouldContain "1"
+            output shouldContain "2"
         }
 
         @Test
@@ -69,12 +72,11 @@ class CsvJacksonSerializerTest: AbstractJacksonTextTest() {
             output.shouldNotBeNull()
             output.shouldNotBeEmpty()
 
-            val parsed: List<Point> =
-                csvMapper
-                    .readerFor(Point::class.java)
-                    .with(schema)
-                    .readValues<Point>(output)
-                    .readAll()
+            val parsed: List<Point> = csvMapper
+                .readerFor(Point::class.java)
+                .with(schema)
+                .readValues<Point>(output)
+                .readAll()
 
             parsed shouldBeEqualTo points
         }
@@ -91,12 +93,11 @@ class CsvJacksonSerializerTest: AbstractJacksonTextTest() {
             output.contains("x").shouldBeTrue()
             output.contains("y").shouldBeTrue()
 
-            val parsed: List<Point> =
-                csvMapper
-                    .readerFor(Point::class.java)
-                    .with(schema)
-                    .readValues<Point>(output)
-                    .readAll()
+            val parsed: List<Point> = csvMapper
+                .readerFor(Point::class.java)
+                .with(schema)
+                .readValues<Point>(output)
+                .readAll()
 
             parsed shouldBeEqualTo points
         }

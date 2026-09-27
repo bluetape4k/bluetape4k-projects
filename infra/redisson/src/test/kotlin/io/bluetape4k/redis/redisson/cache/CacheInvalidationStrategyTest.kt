@@ -1,16 +1,16 @@
 package io.bluetape4k.redis.redisson.cache
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
-import io.bluetape4k.redis.redisson.RedissonTestUtils.redissonClient
-import org.redisson.api.RMap
-import org.redisson.client.codec.StringCodec
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
+import io.bluetape4k.redis.redisson.RedissonTestUtils.redissonClient
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
+import org.redisson.api.RMap
+import org.redisson.client.codec.StringCodec
 
 @DisplayName("RedisCacheInvalidationStrategy")
 class CacheInvalidationStrategyTest {

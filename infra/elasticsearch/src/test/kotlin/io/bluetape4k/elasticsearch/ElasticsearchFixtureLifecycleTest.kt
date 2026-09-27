@@ -2,11 +2,14 @@ package io.bluetape4k.elasticsearch
 
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 /** 공유 서버 준비가 coroutine 테스트 본문보다 먼저 완료되는지 검증합니다. */
 class ElasticsearchFixtureLifecycleTest: AbstractElasticsearchTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `기반 fixture가 BeforeAll 초기화를 등록한다`() {

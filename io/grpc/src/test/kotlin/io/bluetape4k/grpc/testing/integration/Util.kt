@@ -1,11 +1,11 @@
 package io.bluetape4k.grpc.testing.integration
 
 import com.google.protobuf.MessageLite
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.grpc.Metadata
 import io.grpc.Metadata.Key
 import io.grpc.protobuf.ProtoUtils
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeEqualTo
 import java.net.URI
 import java.net.URISyntaxException
 

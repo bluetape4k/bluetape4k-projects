@@ -3,6 +3,7 @@ package io.bluetape4k.io.serializer.compat.issue756.java;
 import io.bluetape4k.io.serializer.JdkBinarySerializer;
 import io.bluetape4k.io.serializer.KryoBinarySerializer;
 import io.bluetape4k.jackson.JacksonSerializer;
+
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -41,7 +42,7 @@ public final class ConcreteDirectSerializerStreamCaller {
         byte[] actual = target.toByteArray();
         require(written == actual.length, "stream count does not match the target size");
         require(Arrays.equals(expected, actual),
-            "stream payload does not match the existing serializer wire: " + new String(actual, StandardCharsets.UTF_8));
+                "stream payload does not match the existing serializer wire: " + new String(actual, StandardCharsets.UTF_8));
     }
 
     private static void require(boolean condition, String message) {

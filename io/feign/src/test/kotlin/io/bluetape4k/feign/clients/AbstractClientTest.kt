@@ -27,7 +27,7 @@ import io.bluetape4k.http.okhttp3.mock.enqueueBody
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.io.toUtf8String
 import io.bluetape4k.jackson3.Jackson
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.closeSafe
 import io.bluetape4k.support.toUtf8Bytes
@@ -48,7 +48,7 @@ import javax.ws.rs.QueryParam
 
 abstract class AbstractClientTest: AbstractFeignTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         @JvmStatic
         protected val mapper: JsonMapper by lazy { Jackson.defaultJsonMapper }
     }
@@ -123,8 +123,7 @@ abstract class AbstractClientTest: AbstractFeignTest() {
 
         assertFailsWith<FeignException> {
             api.get()
-        }
-            .message shouldBeEqualTo
+        }.message shouldBeEqualTo
                 "[500 Server Error] during [GET] to [${server.url("/")}] [TestInterface#get()]: [ARGHH]"
     }
 
@@ -147,7 +146,6 @@ abstract class AbstractClientTest: AbstractFeignTest() {
             api.postForString("HELLO")
         }.contentUTF8() shouldBeEqualTo expectedResponseBody
     }
-
 
     /**
      * This shows that is a no-op or otherwise doesn't cause an NPE when there's no content.

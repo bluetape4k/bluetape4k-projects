@@ -1,9 +1,8 @@
 package io.bluetape4k.science.coords
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class VectorTest {
@@ -21,21 +20,22 @@ class VectorTest {
     fun `동일한 속성의 Vector는 동등하다`() {
         val v1 = Vector(degree = 45.0, distance = 500.0)
         val v2 = Vector(degree = 45.0, distance = 500.0)
-        (v1 == v2).shouldBeTrue()
-        (v1.hashCode() == v2.hashCode()).shouldBeTrue()
+        v1 shouldBeEqualTo v2
+        v1.hashCode() shouldBeEqualTo v2.hashCode()
     }
 
     @Test
     fun `다른 속성의 Vector는 동등하지 않다`() {
         val v1 = Vector(degree = 45.0, distance = 500.0)
         val v2 = Vector(degree = 90.0, distance = 500.0)
-        (v1 == v2).shouldBeFalse()
+        v1 shouldNotBeEqualTo v2
     }
 
     @Test
     fun `Vector copy가 정상 동작한다`() {
         val original = Vector(degree = 0.0, distance = 100.0)
         val copied = original.copy(degree = 180.0)
+
         copied.degree shouldBeEqualTo 180.0
         copied.distance shouldBeEqualTo 100.0
         original.degree shouldBeEqualTo 0.0

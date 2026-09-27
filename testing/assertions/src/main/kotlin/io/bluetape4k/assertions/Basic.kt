@@ -4,7 +4,6 @@ import io.bluetape4k.assertions.internal.Failures
 import io.bluetape4k.assertions.internal.Messages
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
-import org.opentest4j.AssertionFailedError
 
 /**
  * 구조적 동등성(==)으로 [expected]와 같은지 검증한다.
@@ -93,7 +92,7 @@ infix fun <T> T.shouldNotBe(expected: T?): T {
  * @receiver 검증할 값
  * @return receiver (체이닝 지원)
  */
-fun <T : Any> T?.shouldBeNull(): T? {
+fun <T: Any> T?.shouldBeNull(): T? {
     if (this != null) {
         Failures.failComparison(
             Messages.expectedToBe("be", null, this),
@@ -114,7 +113,7 @@ fun <T : Any> T?.shouldBeNull(): T? {
  * @return non-null receiver (체이닝 지원)
  */
 @OptIn(ExperimentalContracts::class)
-fun <T : Any> T?.shouldNotBeNull(): T {
+fun <T: Any> T?.shouldNotBeNull(): T {
     contract {
         returns() implies (this@shouldNotBeNull != null)
     }

@@ -1,12 +1,14 @@
 package io.bluetape4k.redis.lettuce
 
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
 class RedisCommandSupportsTest: AbstractLettuceTest() {
+
+    companion object: KLogging()
 
     @AfterEach
     fun teardown() {
@@ -20,7 +22,9 @@ class RedisCommandSupportsTest: AbstractLettuceTest() {
 
     @Test
     fun `supports - 알 수 없는 명령어도 예외 없이 완료`() {
-        val result = runCatching { RedisCommandSupports.supports(client, "NONEXISTENTCMD12345") }
+        val result = runCatching {
+            RedisCommandSupports.supports(client, "NONEXISTENTCMD12345")
+        }
         result.isSuccess.shouldBeTrue()
     }
 

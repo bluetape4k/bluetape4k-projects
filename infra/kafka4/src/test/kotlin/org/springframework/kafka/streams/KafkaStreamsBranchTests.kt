@@ -1,12 +1,12 @@
 package org.springframework.kafka.streams
 
+import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.kafka.spring.test.utils.consumerProps
 import io.bluetape4k.kafka.spring.test.utils.getRecords
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.asBoolean
 import io.bluetape4k.support.uninitialized
-import io.bluetape4k.assertions.shouldContainSame
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.Serdes

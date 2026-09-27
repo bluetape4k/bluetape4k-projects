@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
@@ -17,10 +18,13 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class ConcatMapEagerBoundedTest: AbstractFlowTest() {
 
+    companion object: KLoggingChannel()
+
     @Test
     fun `bounded eager mapping preserves order and limits active inners`() = runTest {
         val active = AtomicInteger(0)
         val peak = AtomicInteger(0)
+
         val result = flowRangeOf(1, 8)
             .concatMapEager(maxConcurrency = 2, bufferCapacity = 1) { value ->
                 flow {
@@ -44,6 +48,7 @@ class ConcatMapEagerBoundedTest: AbstractFlowTest() {
     @Test
     fun `bounded eager cancellation stops all inners`() = runTest {
         val cancelled = AtomicInteger(0)
+
         flowRangeOf(1, 20)
             .concatMapEager(maxConcurrency = 2, bufferCapacity = 1) {
                 flow {
@@ -62,28 +67,37 @@ class ConcatMapEagerBoundedTest: AbstractFlowTest() {
     @Test
     fun `bounded arguments fail before collection`() = runTest {
         assertFailsWith<IllegalArgumentException> {
-            flowOf(1).concatMapEager(maxConcurrency = 0) { flowOf(it) }.toList()
+            flowOf(1)
+                .concatMapEager(maxConcurrency = 0) { flowOf(it) }
+                .toList()
         }
+
         assertFailsWith<IllegalArgumentException> {
-            flowOf(1).concatMapEager(maxConcurrency = 1, bufferCapacity = -1) { flowOf(it) }.toList()
+            flowOf(1)
+                .concatMapEager(maxConcurrency = 1, bufferCapacity = -1) { flowOf(it) }
+                .toList()
         }
     }
 
     @Test
     fun `transform failure remains unchanged`() = runTest {
         assertFailsWith<IllegalStateException> {
-            flowOf(1).concatMapEager<Int, Int>(maxConcurrency = 2) {
-                throw IllegalStateException("transform")
-            }.toList()
+            flowOf(1)
+                .concatMapEager<Int, Int>(maxConcurrency = 2) {
+                    throw IllegalStateException("transform")
+                }
+                .toList()
         }
     }
 
     @Test
     fun `inner failure remains unchanged`() = runTest {
         assertFailsWith<IllegalStateException> {
-            flowOf(1).concatMapEager(maxConcurrency = 2) {
-                flow { throw IllegalStateException("inner") }
-            }.toList()
+            flowOf(1)
+                .concatMapEager(maxConcurrency = 2) {
+                    flow { throw IllegalStateException("inner") }
+                }
+                .toList()
         }
     }
 }

@@ -5,6 +5,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
@@ -258,11 +259,11 @@ class BehaviorSubject<T> private constructor(
             try {
                 var curr = current
                 if (curr.value != NONE) {
-                    tryEmit(coroutineContext.isActive, curr.value)
+                    tryEmit(currentCoroutineContext().isActive, curr.value)
                 }
 
                 while (true) {
-                    coroutineContext.ensureActive()
+                    currentCoroutineContext().ensureActive()
                     inner.consumeReady.resume()
                     inner.await()
 
@@ -274,7 +275,7 @@ class BehaviorSubject<T> private constructor(
                         return@coroutineScope
                     }
 
-                    tryEmit(coroutineContext.isActive, next.value)
+                    tryEmit(currentCoroutineContext().isActive, next.value)
 
                     curr = next
                 }

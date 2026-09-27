@@ -1,5 +1,8 @@
 package io.bluetape4k.redis.lettuce
 
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -8,8 +11,6 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils.commands
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
@@ -40,7 +41,7 @@ class LettuceClientsTest: AbstractLettuceTest() {
         val codec = LettuceBinaryCodecs.default<Any>()
         val typedConn1 = LettuceClients.connect(client, codec)
         val typedConn2 = LettuceClients.connect(client, codec)
-        (typedConn1 === typedConn2).shouldBeTrue()
+        typedConn1 shouldBe typedConn2
     }
 
     @Test

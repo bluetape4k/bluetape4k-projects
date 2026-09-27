@@ -1,21 +1,22 @@
 package io.bluetape4k.temporal
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
 import io.temporal.api.common.v1.WorkflowExecution
 import io.temporal.client.WorkflowStub
 import io.temporal.client.getResultAsync
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.withContext
 import java.util.concurrent.CompletableFuture
-import kotlin.coroutines.coroutineContext
 import kotlin.reflect.javaType
 import kotlin.reflect.typeOf
 
-private object TemporalLog : KLoggingChannel()
+private object TemporalLog: KLoggingChannel()
 
 /**
  * [WorkflowStub]의 동기 start 호출을 IO dispatcher에서 실행합니다.
@@ -37,7 +38,9 @@ suspend fun WorkflowStub.startSuspending(vararg args: Any?): WorkflowExecution =
  */
 suspend fun WorkflowStub.signalSuspending(signalName: String, vararg args: Any?) {
     val validSignalName = signalName.requireNotBlank("signalName")
-    temporalBlocking("workflow.signal") { signal(validSignalName, *args) }
+    temporalBlocking("workflow.signal") {
+        signal(validSignalName, *args)
+    }
 }
 
 /**
@@ -68,7 +71,7 @@ suspend inline fun <reified T> WorkflowStub.querySuspending(
  * @return workflow 결과
  */
 suspend inline fun <reified T> WorkflowStub.awaitResult(): T {
-    coroutineContext.ensureActive()
+    currentCoroutineContext().ensureActive()
     return awaitTemporalResult(getResultAsync<T>())
 }
 
@@ -92,7 +95,9 @@ suspend fun WorkflowStub.cancelSuspending(reason: String? = null) {
  * @param details 종료 상세 정보
  */
 suspend fun WorkflowStub.terminateSuspending(reason: String? = null, vararg details: Any?) {
-    temporalBlocking("workflow.terminate") { terminate(reason, *details) }
+    temporalBlocking("workflow.terminate") {
+        terminate(reason, *details)
+    }
 }
 
 // SDK 예외 원문은 로그에 남기지 않고 호출자에게 그대로 전달합니다.
@@ -124,5 +129,5 @@ internal suspend fun <T> awaitTemporalResult(future: CompletableFuture<T>): T =
     }
 
 private fun logTemporalStatus(operation: String, status: String) {
-    TemporalLog.log.debug("Temporal operation={} status={}", operation, status)
+    TemporalLog.log.debug { "Temporal operation=$operation, status=$status" }
 }

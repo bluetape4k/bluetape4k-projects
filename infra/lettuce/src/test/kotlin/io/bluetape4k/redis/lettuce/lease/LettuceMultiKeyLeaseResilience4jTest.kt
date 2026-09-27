@@ -7,6 +7,7 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldBeZero
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.resilience4j.SuspendDecorators
@@ -26,6 +27,10 @@ import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 
 internal class LettuceMultiKeyLeaseResilience4jTest {
+
+    private companion object: KLogging() {
+        val TEN_SECONDS: Duration = Duration.ofSeconds(10)
+    }
 
     @Test
     fun `ambiguous acquire response retries with the same token and recovers replay`() = runSuspendIO {
@@ -193,6 +198,7 @@ internal class LettuceMultiKeyLeaseResilience4jTest {
         }
 
         attempts.get() shouldBeEqualTo 1
+
         with(policy.retry.metrics) {
             numberOfSuccessfulCallsWithoutRetryAttempt.shouldBeZero()
             numberOfSuccessfulCallsWithRetryAttempt.shouldBeZero()
@@ -250,7 +256,4 @@ internal class LettuceMultiKeyLeaseResilience4jTest {
         val bulkhead: Bulkhead,
     )
 
-    private companion object {
-        val TEN_SECONDS: Duration = Duration.ofSeconds(10)
-    }
 }

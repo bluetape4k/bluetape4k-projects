@@ -49,8 +49,8 @@ internal suspend fun runConformanceScenarios(
 
     val watchdog = newWatchdog()
     var runnerFailure: Throwable? = null
-    var finalCleanupFailure: Throwable? = null
-    var shutdownFailure: Throwable? = null
+    var finalCleanupFailure: Throwable?
+    var shutdownFailure: Throwable?
     try {
         try {
             scenarios.forEach { scenario -> runOneScenario(watchdog, adapter, config, scenario) }

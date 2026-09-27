@@ -7,6 +7,7 @@ import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.asDeferred
@@ -96,8 +97,10 @@ class HazelcastSuspendJCache<K: Any, V: Any>(private val cache: JCache<K, V>): S
         runCatching { cache.unwrap(ICache::class.java) as? ICache<K, V> }.getOrNull()
 
     override fun entries(): Flow<SuspendJCacheEntry<K, V>> = flow {
-        cache.asSequence().forEach { emit(SuspendJCacheEntry(it.key, it.value)) }
-    }
+        cache.asSequence().forEach {
+            emit(SuspendJCacheEntry(it.key, it.value))
+        }
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun clear() {
         withContext(Dispatchers.IO) { cache.clear() }
@@ -113,16 +116,14 @@ class HazelcastSuspendJCache<K: Any, V: Any>(private val cache: JCache<K, V>): S
         withContext(Dispatchers.IO) { cache.containsKey(key) }
 
     override suspend fun get(key: K): V? =
-        asyncCache?.getAsync(key)?.await()
-            ?: withContext(Dispatchers.IO) { cache.get(key) }
+        asyncCache?.getAsync(key)?.await() ?: withContext(Dispatchers.IO) { cache.get(key) }
 
     override fun getAll(): Flow<SuspendJCacheEntry<K, V>> = entries()
 
     override fun getAll(keys: Set<K>): Flow<SuspendJCacheEntry<K, V>> = flow {
-        val entries =
-            withContext(Dispatchers.IO) { cache.getAll(keys) }
-        entries.forEach { (k, v) -> emit(SuspendJCacheEntry(k, v)) }
-    }
+        withContext(Dispatchers.IO) { cache.getAll(keys) }
+            .forEach { (k, v) -> emit(SuspendJCacheEntry(k, v)) }
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun getAndPut(key: K, value: V): V? =
         get(key).also { put(key, value) }
@@ -136,8 +137,7 @@ class HazelcastSuspendJCache<K: Any, V: Any>(private val cache: JCache<K, V>): S
             ?: withContext(Dispatchers.IO) { cache.getAndReplace(key, value) }
 
     override suspend fun put(key: K, value: V) {
-        asyncCache?.putAsync(key, value)?.await()
-            ?: withContext(Dispatchers.IO) { cache.put(key, value) }
+        asyncCache?.putAsync(key, value)?.await() ?: withContext(Dispatchers.IO) { cache.put(key, value) }
     }
 
     override suspend fun putAll(map: Map<K, V>) {

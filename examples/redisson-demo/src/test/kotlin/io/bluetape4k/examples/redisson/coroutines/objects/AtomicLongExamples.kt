@@ -1,15 +1,15 @@
 package io.bluetape4k.examples.redisson.coroutines.objects
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.coroutines.support.awaitUntil
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
@@ -25,21 +25,21 @@ class AtomicLongExamples: AbstractRedissonCoroutineTest() {
     fun `AtomicLog operatiions`() = runSuspendIO {
         val counter = redisson.getAtomicLong(randomName())
 
-        counter.setAsync(0).await()
-        counter.addAndGetAsync(10L).await() shouldBeEqualTo 10L
+        counter.setAsync(0).awaitUntil()
+        counter.addAndGetAsync(10L).awaitUntil() shouldBeEqualTo 10L
 
-        counter.compareAndSetAsync(-1L, 42L).await().shouldBeFalse()
-        counter.compareAndSetAsync(10L, 42L).await().shouldBeTrue()
+        counter.compareAndSetAsync(-1L, 42L).awaitUntil().shouldBeFalse()
+        counter.compareAndSetAsync(10L, 42L).awaitUntil().shouldBeTrue()
 
-        counter.decrementAndGetAsync().await() shouldBeEqualTo 41L
-        counter.incrementAndGetAsync().await() shouldBeEqualTo 42L
+        counter.decrementAndGetAsync().awaitUntil() shouldBeEqualTo 41L
+        counter.incrementAndGetAsync().awaitUntil() shouldBeEqualTo 42L
 
-        counter.getAndAddAsync(3L).await() shouldBeEqualTo 42L
+        counter.getAndAddAsync(3L).awaitUntil() shouldBeEqualTo 42L
 
-        counter.getAndDecrementAsync().await() shouldBeEqualTo 45L
-        counter.getAndIncrementAsync().await() shouldBeEqualTo 44L
+        counter.getAndDecrementAsync().awaitUntil() shouldBeEqualTo 45L
+        counter.getAndIncrementAsync().awaitUntil() shouldBeEqualTo 44L
 
-        counter.deleteAsync().await().shouldBeTrue()
+        counter.deleteAsync().awaitUntil().shouldBeTrue()
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -50,12 +50,12 @@ class AtomicLongExamples: AbstractRedissonCoroutineTest() {
             .workers(4)
             .rounds(32 * 8)
             .add {
-                counter.incrementAndGetAsync().await()
+                counter.incrementAndGetAsync().awaitUntil()
             }
             .run()
 
-        counter.async.await() shouldBeEqualTo 32 * 8L
-        counter.deleteAsync().await().shouldBeTrue()
+        counter.async.awaitUntil() shouldBeEqualTo 32 * 8L
+        counter.deleteAsync().awaitUntil().shouldBeTrue()
     }
 
     @RepeatedTest(REPEAT_SIZE)

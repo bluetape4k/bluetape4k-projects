@@ -10,12 +10,24 @@ class ProgressionFlowTest {
 
     @Test
     fun `progression flow는 step이 양수여야 한다`() = runTest {
-        assertFailsWith<IllegalArgumentException> { intFlowOf(1, 3, 0).toList() }
-        assertFailsWith<IllegalArgumentException> { longFlowOf(1L, 3L, 0L).toList() }
-        assertFailsWith<IllegalArgumentException> { floatFlowOf(1f, 3f, 0f).toList() }
-        assertFailsWith<IllegalArgumentException> { doubleFlowOf(1.0, 3.0, -1.0).toList() }
-        assertFailsWith<IllegalArgumentException> { charFlowOf('a', 'c', -1).toList() }
-        assertFailsWith<IllegalArgumentException> { byteFlowOf(1.toByte(), 3.toByte(), 0.toByte()).toList() }
+        assertFailsWith<IllegalArgumentException> {
+            intFlowOf(1, 3, 0).toList()
+        }
+        assertFailsWith<IllegalArgumentException> {
+            longFlowOf(1L, 3L, 0L).toList()
+        }
+        assertFailsWith<IllegalArgumentException> {
+            floatFlowOf(1f, 3f, 0f).toList()
+        }
+        assertFailsWith<IllegalArgumentException> {
+            doubleFlowOf(1.0, 3.0, -1.0).toList()
+        }
+        assertFailsWith<IllegalArgumentException> {
+            charFlowOf('a', 'c', -1).toList()
+        }
+        assertFailsWith<IllegalArgumentException> {
+            byteFlowOf(1.toByte(), 3.toByte(), 0.toByte()).toList()
+        }
     }
 
     @Test

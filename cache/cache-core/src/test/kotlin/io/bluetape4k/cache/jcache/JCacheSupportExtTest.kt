@@ -2,6 +2,8 @@ package io.bluetape4k.cache.jcache
 
 import com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
@@ -28,7 +30,7 @@ class JCacheSupportExtTest {
         )
 
         config.shouldNotBeNull()
-        config.isReadThrough shouldBeEqualTo true
+        config.isReadThrough.shouldBeTrue()
 
         backCache.close()
     }
@@ -43,7 +45,7 @@ class JCacheSupportExtTest {
         )
 
         config.shouldNotBeNull()
-        config.isWriteThrough shouldBeEqualTo true
+        config.isWriteThrough.shouldBeTrue()
 
         backCache.close()
     }
@@ -83,6 +85,7 @@ class JCacheSupportExtTest {
 
         writer.delete("write-key")
         val result = cache.get("write-key")
+
         // delete 후 null 이어야 한다
         result shouldBeEqualTo null
 
@@ -99,12 +102,12 @@ class JCacheSupportExtTest {
             object: Cache.Entry<String, Any> {
                 override fun getKey(): String = "wk1"
                 override fun getValue(): Any = "wv1"
-                override fun <T: Any?> unwrap(clazz: Class<T>?): T = clazz!!.cast(this)
+                override fun <T> unwrap(clazz: Class<T>): T = clazz.cast(this)
             },
             object: Cache.Entry<String, Any> {
                 override fun getKey(): String = "wk2"
                 override fun getValue(): Any = "wv2"
-                override fun <T: Any?> unwrap(clazz: Class<T>?): T = clazz!!.cast(this)
+                override fun <T> unwrap(clazz: Class<T>): T = clazz.cast(this)
             }
         )
 
@@ -114,8 +117,8 @@ class JCacheSupportExtTest {
         cache.get("wk2") shouldBeEqualTo "wv2"
 
         writer.deleteAll(mutableListOf("wk1", "wk2"))
-        cache.get("wk1") shouldBeEqualTo null
-        cache.get("wk2") shouldBeEqualTo null
+        cache.get("wk1").shouldBeNull()
+        cache.get("wk2").shouldBeNull()
 
         cache.close()
     }

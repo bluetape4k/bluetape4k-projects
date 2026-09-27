@@ -1,5 +1,10 @@
 package io.bluetape4k.avro.impl
 
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.avro.AbstractAvroTest
 import io.bluetape4k.avro.AvroSpecificRecordSerializer
 import io.bluetape4k.avro.TestMessageProvider
@@ -10,12 +15,7 @@ import io.bluetape4k.avro.message.examples.Employee
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.debug
 import org.apache.avro.file.CodecFactory
 import org.apache.avro.file.XZCodec.DEFAULT_COMPRESSION
 import org.apache.avro.specific.SpecificRecord
@@ -34,6 +34,7 @@ import io.bluetape4k.avro.message.examples.v2.VersionedItem as ItemV2
  */
 @RandomizedTest
 class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
+
     companion object: KLogging()
 
     private fun serializers(): List<Arguments> =
@@ -75,10 +76,9 @@ class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
         name: String,
         serializer: AvroSpecificRecordSerializer,
     ) {
-        val productRoot =
-            TestMessageProvider.createProductRoot().apply {
-                productProperties = List(20) { TestMessageProvider.createProductProperty() }
-            }
+        val productRoot = TestMessageProvider.createProductRoot().apply {
+            productProperties = List(20) { TestMessageProvider.createProductProperty() }
+        }
         serializer.verifySerialization(productRoot)
     }
 
@@ -109,9 +109,10 @@ class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
         serializer: AvroSpecificRecordSerializer,
         @RandomValue item: ItemV1,
     ) {
-        val bytes = serializer.serialize(item)!!
-
+        val bytes = serializer.serialize(item).shouldNotBeNull()
         val convertedAsV2 = serializer.deserialize<ItemV2>(bytes)
+
+        log.debug { "convertedAsV2: $convertedAsV2" }
         convertedAsV2.shouldNotBeNull()
         convertedAsV2.id shouldBeEqualTo item.id
         convertedAsV2.key shouldBeEqualTo item.key
@@ -126,9 +127,10 @@ class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
         serializer: AvroSpecificRecordSerializer,
         @RandomValue item: ItemV2,
     ) {
-        val bytes = serializer.serialize(item)
-
+        val bytes = serializer.serialize(item).shouldNotBeNull()
         val convertedAsV1 = serializer.deserialize<ItemV1>(bytes)
+
+        log.debug { "convertedAsV1: $convertedAsV1" }
         convertedAsV1.shouldNotBeNull()
         convertedAsV1.id shouldBeEqualTo item.id
         convertedAsV1.key shouldBeEqualTo item.key
@@ -153,7 +155,8 @@ class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
         val text = serializer.serializeAsString(employee)
         text.shouldNotBeNull()
         text.shouldNotBeEmpty()
-        log.trace { "Base64 text length=${text.length}" }
+
+        log.debug { "Base64 text length=${text.length}" }
 
         val deserialized = serializer.deserializeFromString<Employee>(text)
         deserialized.shouldNotBeNull()
@@ -171,7 +174,7 @@ class DefaultAvroSpecificRecordSerializerTest: AbstractAvroTest() {
         val bytes = serializer.serializeList(employees)
         bytes.shouldNotBeNull()
         bytes.shouldNotBeEmpty()
-        log.trace { "serialized list size=${bytes.size} bytes" }
+        log.debug { "serialized list size=${bytes.size} bytes" }
 
         val deserialized = serializer.deserializeList<Employee>(bytes)
         deserialized.shouldNotBeEmpty()

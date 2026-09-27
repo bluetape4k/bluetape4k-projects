@@ -54,17 +54,10 @@ try {
 
 #### ByteBuffer contract
 
-For writable array-backed heap buffers and slices, `deserializeFrom` is optimized to pass the backing array,
-offset, and remaining length directly to JSONB. Direct and read-only input use a bounded-copy compatibility
-fallback. All input paths preserve position, limit, mark, and byte order. Feature-free readers are used and
-AutoType is not enabled.
-Set a bounded limit before passing untrusted input; the serializer cannot read outside the remaining range.
+For writable array-backed heap buffers and slices, `deserializeFrom` is optimized to pass the backing array, offset, and remaining length directly to JSONB. Direct and read-only input use a bounded-copy compatibility fallback. All input paths preserve position, limit, mark, and byte order. Feature-free readers are used and AutoType is not enabled. Set a bounded limit before passing untrusted input; the serializer cannot read outside the remaining range.
 
 `serializeTo` is an allocating compatibility fallback: Fastjson2 2.0.62 exposes output through
-`JSONB.toBytes`, so the result is copied into the caller target. Output position is committed only on success;
-read-only and overflow failures remain raw buffer exceptions. The output allocation remains, and this API makes
-no lower-copy output claim.
-Fatal `Error` instances retain their identity instead of being wrapped.
+`JSONB.toBytes`, so the result is copied into the caller target. Output position is committed only on success; read-only and overflow failures remain raw buffer exceptions. The output allocation remains, and this API makes no lower-copy output claim. Fatal `Error` instances retain their identity instead of being wrapped.
 
 ```kotlin
 import io.bluetape4k.fastjson2.FastjsonSerializer
@@ -212,11 +205,11 @@ io.bluetape4k.fastjson2
 
 The [issue #1039 report](../../docs/benchmarks/2026-07-18-bytebuffer-serializer-allocation.md) found the writable array-backed `deserializeFrom` comparison inconclusive. Direct/read-only input and all output-buffer cells are fallback or compatibility controls and are ergonomic-only.
 
-| Path | Status |
-|---|---|
-| writable array-backed input | optimized dispatch; inconclusive |
-| direct/read-only input | fallback; ergonomic-only |
-| output buffer | `JSONB.toBytes` fallback; ergonomic-only |
+| Path                        | Status                                   |
+|-----------------------------|------------------------------------------|
+| writable array-backed input | optimized dispatch; inconclusive         |
+| direct/read-only input      | fallback; ergonomic-only                 |
+| output buffer               | `JSONB.toBytes` fallback; ergonomic-only |
 
 Kotlin and Java call `serializeTo`/`deserializeFrom` with the same public contract. A writable target needs enough remaining capacity; output success advances `position` without widening `limit`, while overflow/read-only failure rolls back. Input preserves caller `position`/`limit`. The measured result does not generalize beyond JSONB, the default configuration, and the named buffer kinds.
 

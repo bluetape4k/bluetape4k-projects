@@ -38,6 +38,7 @@ class LogbackIntegrationTest: AbstractKafkaIntegrationTest() {
 
         val loggerContext = LoggerFactory.getILoggerFactory() as ch.qos.logback.classic.LoggerContext
         val logbackLogger = loggerContext.getLogger("LogbackIntegrationTest") as ch.qos.logback.classic.Logger
+
         @Suppress("UNCHECKED_CAST")
         val kafkaAppender = logbackLogger.getAppender("Kafka") as? KafkaAppender<ILoggingEvent>
         if (kafkaAppender != null) {
@@ -50,7 +51,6 @@ class LogbackIntegrationTest: AbstractKafkaIntegrationTest() {
 
     @Test
     fun `export log to kafka and consume`() = runSuspendIO {
-
         val logSize = 100
         val job = launch {
             repeat(logSize) {

@@ -32,6 +32,7 @@ dependencies {
     testImplementation(libs.jackson3.module.blackbird)
 
     // Spring Data MongoDB Reactive
+    api(project(":bluetape4k-mongodb"))
     api("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 
     compileOnly("org.springframework.boot:spring-boot-autoconfigure")

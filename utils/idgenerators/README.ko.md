@@ -2,24 +2,24 @@
 
 [English](./README.md) | 한국어
 
-분산 환경에서 Unique ID를 다양한 알고리즘으로 생성합니다. UUID(V1~V7), ULID, KSUID, Snowflake, Flake, Hashids를 통일된
+분산 환경에서 Unique ID를 다양한 알고리즘으로 생성합니다. UUID (V1~V7), ULID, KSUID, Snowflake, Flake, Hashids를 통일된
 `IdGenerator<T>` 인터페이스로 제공합니다.
 
 ## 알고리즘 선택 가이드
 
 요구사항에 맞는 알고리즘을 선택하세요:
 
-| 요구사항              | 추천 알고리즘                                |
-|-------------------|----------------------------------------|
-| 분산 환경, 기계별 구분     | Snowflake (`Snowflakers.Default`)      |
-| 중앙집중식 ID 서비스      | GlobalSnowflake (`Snowflakers.Global`) |
-| DB 기본키, 정렬 필요     | UUID v7 (`Uuid.V7`)                    |
+| 요구사항                | 추천 알고리즘                          |
+|-------------------------|----------------------------------------|
+| 분산 환경, 기계별 구분  | Snowflake (`Snowflakers.Default`)      |
+| 중앙집중식 ID 서비스    | GlobalSnowflake (`Snowflakers.Global`) |
+| DB 기본키, 정렬 필요    | UUID v7 (`Uuid.V7`)                    |
 | 완전 랜덤, 보안         | UUID v4 (`Uuid.V4`)                    |
-| 단조 증가, 문자열 ID     | ULID (`UlidGenerator`)                 |
-| URL Safe, 초 정밀도   | KSUID Seconds (`Ksuid.Seconds`)        |
+| 단조 증가, 문자열 ID    | ULID (`UlidGenerator`)                 |
+| URL Safe, 초 정밀도     | KSUID Seconds (`Ksuid.Seconds`)        |
 | URL Safe, 밀리초 정밀도 | KSUID Millis (`Ksuid.Millis`)          |
-| 128bit, 높은 유일성    | Flake                                  |
-| Short URL, 난독화    | Hashids                                |
+| 128bit, 높은 유일성     | Flake                                  |
+| Short URL, 난독화       | Hashids                                |
 
 ## 아키텍처
 
@@ -41,19 +41,19 @@
 
 ### 알고리즘 비교
 
-| 알고리즘                | 타입        | 길이     | 정렬 가능 | 특징                        |
-|---------------------|-----------|--------|-------|---------------------------|
-| **Snowflake**       | Long      | 19자리   | O     | Twitter 스타일, 분산 환경        |
-| **GlobalSnowflake** | Long      | 19자리   | O     | 중앙집중식, 높은 처리량             |
-| **UUID v7**         | UUID      | 36자리   | O     | Unix epoch + random (권장)  |
-| **UUID v6**         | UUID      | 36자리   | O     | 재정렬 timestamp, DB PK 최적화  |
-| **UUID v1**         | UUID      | 36자리   | O     | MAC + Gregorian timestamp |
-| **UUID v4**         | UUID      | 36자리   | X     | 완전 랜덤 (SecureRandom)      |
-| **ULID**            | String    | 26자리   | O     | Crockford Base32, 단조 증가   |
-| **KSUID Seconds**   | String    | 27자리   | O     | 초 기반, Base62              |
-| **KSUID Millis**    | String    | 27자리   | O     | 밀리초 기반, Base62            |
-| **Flake**           | ByteArray | 128bit | O     | Boundary 스타일              |
-| **Hashids**         | String    | 가변     | X     | Long/UUID → 짧은 문자열        |
+| 알고리즘            | 타입      | 길이   | 정렬 가능 | 특징                           |
+|---------------------|-----------|--------|-----------|--------------------------------|
+| **Snowflake**       | Long      | 19자리 | O         | Twitter 스타일, 분산 환경      |
+| **GlobalSnowflake** | Long      | 19자리 | O         | 중앙집중식, 높은 처리량        |
+| **UUID v7**         | UUID      | 36자리 | O         | Unix epoch + random (권장)     |
+| **UUID v6**         | UUID      | 36자리 | O         | 재정렬 timestamp, DB PK 최적화 |
+| **UUID v1**         | UUID      | 36자리 | O         | MAC + Gregorian timestamp      |
+| **UUID v4**         | UUID      | 36자리 | X         | 완전 랜덤 (SecureRandom)       |
+| **ULID**            | String    | 26자리 | O         | Crockford Base32, 단조 증가    |
+| **KSUID Seconds**   | String    | 27자리 | O         | 초 기반, Base62                |
+| **KSUID Millis**    | String    | 27자리 | O         | 밀리초 기반, Base62            |
+| **Flake**           | ByteArray | 128bit | O         | Boundary 스타일                |
+| **Hashids**         | String    | 가변   | X         | Long/UUID → 짧은 문자열        |
 
 ## 사용 예시
 
@@ -212,4 +212,4 @@ dependencies {
 
 ## 실패와 생명주기 계약
 
-Uuid.random()과 이전 RandomUuidGenerator의 기본 난수원은 SecureRandom입니다. 명시적으로 전달한 Random의 동일 시드에 따른 결정론적 동작은 유지합니다.
+Uuid.random ()과 이전 RandomUuidGenerator의 기본 난수원은 SecureRandom입니다. 명시적으로 전달한 Random의 동일 시드에 따른 결정론적 동작은 유지합니다.

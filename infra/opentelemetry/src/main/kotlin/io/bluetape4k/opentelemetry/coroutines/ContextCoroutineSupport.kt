@@ -27,9 +27,10 @@ suspend inline fun <T> withOtelContext(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
     otelContext: Context = currentOtelContext(),
     crossinline block: suspend CoroutineScope.() -> T,
-): T = withContext(coroutineContext.getOrCurrent() + otelContext.asContextElement()) {
-    block()
-}
+): T =
+    withContext(coroutineContext.getOrCurrent() + otelContext.asContextElement()) {
+        block()
+    }
 
 /**
  * Current Coroutine Context와 Current Opentelemetry [Context] 하에서 [block]을 실행합니다.
@@ -48,6 +49,7 @@ suspend inline fun <T> withOtelContext(
  */
 suspend inline fun <T> Context.withOtelContext(
     crossinline block: suspend CoroutineScope.() -> T,
-): T = withContext(this@withOtelContext.asContextElement()) {
-    block()
-}
+): T =
+    withContext(this@withOtelContext.asContextElement()) {
+        block()
+    }

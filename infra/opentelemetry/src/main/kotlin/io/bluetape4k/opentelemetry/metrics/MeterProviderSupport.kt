@@ -33,6 +33,5 @@ val NoopMeterProvider: MeterProvider = MeterProvider.noop()
  */
 inline fun sdkMeterProvider(
     builder: SdkMeterProviderBuilder.() -> Unit,
-): SdkMeterProvider {
-    return SdkMeterProvider.builder().apply(builder).build()
-}
+): SdkMeterProvider =
+    SdkMeterProvider.builder().apply(builder).build()

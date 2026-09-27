@@ -1,13 +1,15 @@
 package io.bluetape4k.concurrent.virtualthread.api
 
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
-import java.util.ServiceConfigurationError
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
@@ -39,7 +41,7 @@ class VirtualThreadsTest {
         val factory = VirtualThreads.threadFactory("custom-vt-")
         val thread = factory.newThread {}
         thread.shouldNotBeNull()
-        thread.name.contains("custom-vt-").shouldBeTrue()
+        thread.name shouldContain "custom-vt-"
     }
 
     @Test
@@ -94,7 +96,7 @@ class VirtualThreadsTest {
     fun `provider discovery stops cleanly when hasNext fails`() {
         val providers = VirtualThreads.discoverVirtualThreadRuntimes(FailingHasNextRuntimeIterator())
 
-        providers shouldBeEqualTo emptyList<VirtualThreadRuntime>()
+        providers.shouldBeEmpty()
     }
 
     private class FailingNextThenRuntimeIterator(

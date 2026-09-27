@@ -8,6 +8,7 @@ import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.vertx.AbstractVertxTest
+import io.bluetape4k.vertx.tests.awaitCompletion
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpMethod
@@ -19,7 +20,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class VertxJunit5Examples: AbstractVertxTest() {
 
@@ -35,7 +36,7 @@ class VertxJunit5Examples: AbstractVertxTest() {
             .listen(16969)
             .onComplete(testContext.succeedingThenComplete())  // 성공하면 바로 종료하도록 합니다.
 
-        testContext.awaitCompletion(5, TimeUnit.SECONDS).shouldBeTrue()  // 5초 안에 종료하면 true 반환
+        testContext.awaitCompletion(5.seconds).shouldBeTrue()  // 5초 안에 종료하면 true 반환
         testContext.causeOfFailure().shouldBeNull()
     }
 

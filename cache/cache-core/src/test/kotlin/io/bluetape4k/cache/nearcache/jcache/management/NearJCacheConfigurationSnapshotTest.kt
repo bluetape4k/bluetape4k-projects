@@ -1,14 +1,16 @@
 package io.bluetape4k.cache.nearcache.jcache.management
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.nearcache.jcache.BulkFrontPopulationPolicy
+import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 import javax.cache.CacheException
 import javax.cache.configuration.CompleteConfiguration
 import javax.cache.configuration.Configuration
@@ -16,6 +18,8 @@ import javax.cache.configuration.MutableConfiguration
 import javax.cache.Cache as JCache
 
 class NearJCacheConfigurationSnapshotTest {
+
+    companion object: KLogging()
 
     @Test
     fun `actual front의 concrete pair를 exact type으로 사용한다`() {
@@ -144,7 +148,7 @@ class NearJCacheConfigurationSnapshotTest {
                 )
             }
 
-            (error === failure).shouldBeTrue()
+            error shouldBe failure
         }
     }
 

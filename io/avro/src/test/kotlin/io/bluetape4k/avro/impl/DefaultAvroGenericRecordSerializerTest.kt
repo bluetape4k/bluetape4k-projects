@@ -1,5 +1,9 @@
 package io.bluetape4k.avro.impl
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.avro.AbstractAvroTest
 import io.bluetape4k.avro.AvroGenericRecordSerializer
 import io.bluetape4k.avro.TestMessageProvider
@@ -7,11 +11,7 @@ import io.bluetape4k.avro.message.examples.Employee
 import io.bluetape4k.avro.message.examples.EmployeeList
 import io.bluetape4k.avro.message.examples.ProductRoot
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.debug
 import org.apache.avro.file.CodecFactory
 import org.apache.avro.file.XZCodec.DEFAULT_COMPRESSION
 import org.apache.avro.generic.GenericData
@@ -28,6 +28,7 @@ import org.junit.jupiter.params.provider.MethodSource
  * 모든 코덱에서 정상 동작하는지 확인합니다.
  */
 class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
+
     companion object: KLogging()
 
     private fun serializers(): List<Arguments> =
@@ -57,7 +58,7 @@ class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
         bytes.shouldNotBeEmpty()
 
         val record: GenericData.Record = serializer.deserialize(schema, bytes)!!
-        log.trace { "record=$record" }
+        log.debug { "record=$record" }
         record.toString() shouldBeEqualTo emp.toString()
     }
 
@@ -75,7 +76,7 @@ class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
         bytes.shouldNotBeEmpty()
 
         val record: GenericData.Record = serializer.deserialize(schema, bytes)!!
-        log.trace { "record=$record" }
+        log.debug { "record=$record" }
 
         // generic record 는 이렇게 비교할 수 밖에 없다 (수형이 없고, map 형식이므로)
         record.toString() shouldBeEqualTo empList.toString()
@@ -96,7 +97,7 @@ class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
 
         val record: GenericData.Record = serializer.deserialize(schema, bytes)!!
         record.shouldNotBeNull()
-        log.trace { "record=$record" }
+        log.debug { "record=$record" }
     }
 
     @Test
@@ -120,7 +121,7 @@ class DefaultAvroGenericRecordSerializerTest: AbstractAvroTest() {
         val text = serializer.serializeAsString(schema, emp)
         text.shouldNotBeNull()
         text.shouldNotBeEmpty()
-        log.trace { "Base64 text length=${text.length}" }
+        log.debug { "Base64 text length=${text.length}" }
 
         val record = serializer.deserializeFromString(schema, text)
         record.shouldNotBeNull()

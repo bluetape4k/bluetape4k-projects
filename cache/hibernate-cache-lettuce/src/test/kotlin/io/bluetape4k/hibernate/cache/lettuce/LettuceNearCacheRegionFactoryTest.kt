@@ -6,6 +6,9 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cache.nearcache.LettuceNearCache
+import io.bluetape4k.hibernate.getServiceOrNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.storage.RedisServer
 import io.lettuce.core.RedisClient
 import io.lettuce.core.codec.StringCodec
@@ -13,12 +16,11 @@ import org.hibernate.boot.MetadataSources
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder
 import org.hibernate.cache.spi.RegionFactory
 import org.hibernate.cache.spi.access.AccessType
-import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.junit.jupiter.api.Test
 
 class LettuceNearCacheRegionFactoryTest {
 
-    companion object {
+    companion object: KLogging() {
         val redis: RedisServer by lazy { RedisServer.Launcher.redis }
     }
 
@@ -38,6 +40,7 @@ class LettuceNearCacheRegionFactoryTest {
             )
             .applySetting("hibernate.cache.lettuce.redis_uri", redisUri)
             .build()
+        log.debug { "registry: $registry" }
 
         val sessionFactory = MetadataSources(registry)
             .buildMetadata()
@@ -84,6 +87,7 @@ class LettuceNearCacheRegionFactoryTest {
 
         val config = props.buildNearCacheConfig(RegionFactory.DEFAULT_UPDATE_TIMESTAMPS_REGION_UNQUALIFIED_NAME)
 
+        log.debug { "config: $config" }
         config.redisTtl shouldBeEqualTo null
     }
 
@@ -131,14 +135,16 @@ class LettuceNearCacheRegionFactoryTest {
             .applySetting("hibernate.cache.lettuce.redis_uri", redisUri)
             .build()
 
+        log.debug { "registry: $registry" }
+
         val sessionFactory = MetadataSources(registry)
             .buildMetadata()
             .buildSessionFactory()
 
-        val regionFactory = (sessionFactory as SessionFactoryImplementor).serviceRegistry
-            .getService(RegionFactory::class.java) as LettuceNearCacheRegionFactory
+        val regionFactory = sessionFactory.getServiceOrNull<RegionFactory>() as LettuceNearCacheRegionFactory
 
         val caches = regionFactory.getCaches()
+
         // getCaches() 반환값이 수정 불가능한지 확인
         assertFailsWith<UnsupportedOperationException> {
             @Suppress("UNCHECKED_CAST")
@@ -164,6 +170,8 @@ class LettuceNearCacheRegionFactoryTest {
             )
             .applySetting("hibernate.cache.lettuce.redis_uri", redisUri)
             .build()
+
+        log.debug { "registry: $registry" }
 
         val sessionFactory = MetadataSources(registry)
             .buildMetadata()

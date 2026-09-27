@@ -17,9 +17,8 @@ import io.opentelemetry.sdk.testing.exporter.InMemoryMetricExporter
  */
 fun inMemoryMetricExporterOf(
     aggregationTemporality: AggregationTemporality = AggregationTemporality.CUMULATIVE,
-): InMemoryMetricExporter {
-    return InMemoryMetricExporter.create(aggregationTemporality)
-}
+): InMemoryMetricExporter =
+    InMemoryMetricExporter.create(aggregationTemporality)
 
 /**
  * Logger에 metrics 측정 값을 내보내는 [LoggingMetricExporter] 를 생성한다.
@@ -34,6 +33,5 @@ fun inMemoryMetricExporterOf(
  */
 fun loggingMetricExporterOf(
     aggregationTemporality: AggregationTemporality = AggregationTemporality.CUMULATIVE,
-): LoggingMetricExporter {
-    return LoggingMetricExporter.create(aggregationTemporality)
-}
+): LoggingMetricExporter =
+    LoggingMetricExporter.create(aggregationTemporality)

@@ -8,6 +8,7 @@ import io.bluetape4k.assertions.shouldNotBeNullOrBlank
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
+import tools.jackson.core.TreeNode
 import tools.jackson.databind.node.JsonNodeFactory
 import java.io.ByteArrayInputStream
 import java.io.StringReader
@@ -221,6 +222,20 @@ class JsonMapperSupportTest {
         result.shouldNotBeNull()
         result.name shouldBeEqualTo "node"
         result.value shouldBeEqualTo 42
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun `legacy TreeNode overload는 JsonNode 변환으로 위임한다`() {
+        val treeNode: TreeNode = JsonNodeFactory.instance.objectNode().apply {
+            put("name", "legacy")
+            put("value", 7)
+        }
+
+        val result = mapper.treeToValueOrNull<Sample>(treeNode)
+        result.shouldNotBeNull()
+        result.name shouldBeEqualTo "legacy"
+        result.value shouldBeEqualTo 7
     }
 
     @Test

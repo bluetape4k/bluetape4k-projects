@@ -1,12 +1,13 @@
 package io.bluetape4k.kafka.spring
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.kafka.AbstractKafkaTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.mq.KafkaServer
 import io.bluetape4k.testcontainers.mq.Spring
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -18,7 +19,7 @@ import org.springframework.kafka.core.ProducerFactory
 import org.springframework.messaging.support.MessageBuilder
 
 /**
- * [KafkaOperationsExtensions]의 suspendSend 오버로드들에 대한 통합 테스트입니다.
+ * KafkaOperationsExtensions 의 suspendSend 오버로드들에 대한 통합 테스트입니다.
  *
  * Spring KafkaTemplate 을 실제 Kafka(testcontainer)와 함께 사용하여
  * suspend 확장 함수들이 올바르게 동작하는지 검증합니다.
@@ -50,35 +51,35 @@ class KafkaOperationsExtensionsTest: AbstractKafkaTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `suspendSend ProducerRecord 로 메시지 발송`() = runSuspendIO {
-        val record = ProducerRecord<String, String>(TOPIC, "key-1", "value-${System.currentTimeMillis()}")
+        val record = ProducerRecord(TOPIC, "key-1", "value-${Base58.randomString(8)}")
 
         // suspendSend(ProducerRecord) 오버로드 검증
         val result = kafkaTemplate.suspendSend(record)
 
-        result.shouldNotBeNull()
+        log.debug { "send result: $result" }
         result.recordMetadata.topic() shouldBeEqualTo TOPIC
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `suspendSend topic-value 로 메시지 발송`() = runSuspendIO {
-        val value = "value-${System.currentTimeMillis()}"
+        val value = "value-${Base58.randomString(8)}"
 
         // suspendSend(topic, value) 오버로드 검증
         val result = kafkaTemplate.suspendSend(TOPIC, value)
 
-        result.shouldNotBeNull()
+        log.debug { "send result: $result" }
         result.recordMetadata.topic() shouldBeEqualTo TOPIC
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `suspendSend topic-key-value 로 메시지 발송`() = runSuspendIO {
         val key = "key-kv"
-        val value = "value-${System.currentTimeMillis()}"
+        val value = "value-${Base58.randomString(8)}"
 
         // suspendSend(topic, key, value) 오버로드 검증
         val result = kafkaTemplate.suspendSend(TOPIC, key, value)
 
-        result.shouldNotBeNull()
+        log.debug { "send result: $result" }
         result.recordMetadata.topic() shouldBeEqualTo TOPIC
     }
 
@@ -86,12 +87,12 @@ class KafkaOperationsExtensionsTest: AbstractKafkaTest() {
     fun `suspendSend topic-partition-key-value 로 파티션 지정 발송`() = runSuspendIO {
         val partition = 0
         val key = "key-partition"
-        val value = "value-${System.currentTimeMillis()}"
+        val value = "value-${Base58.randomString(8)}"
 
         // suspendSend(topic, partition, key, value) 오버로드 검증
         val result = kafkaTemplate.suspendSend(TOPIC, partition, key, value)
 
-        result.shouldNotBeNull()
+        log.debug { "send result: $result" }
         result.recordMetadata.topic() shouldBeEqualTo TOPIC
         result.recordMetadata.partition() shouldBeEqualTo partition
     }
@@ -106,44 +107,44 @@ class KafkaOperationsExtensionsTest: AbstractKafkaTest() {
         // suspendSend(topic, partition, timestamp, key, value) 오버로드 검증
         val result = kafkaTemplate.suspendSend(TOPIC, partition, timestamp, key, value)
 
-        result.shouldNotBeNull()
+        log.debug { "send result: $result" }
         result.recordMetadata.topic() shouldBeEqualTo TOPIC
         result.recordMetadata.partition() shouldBeEqualTo partition
     }
 
     @Test
     fun `suspendSend Spring Message 로 메시지 발송`() = runSuspendIO {
-        val payload = "message-payload-${System.currentTimeMillis()}"
+        val payload = "message-payload-${Base58.randomString(8)}"
         // Spring Message 는 KafkaTemplate.defaultTopic 으로 라우팅된다.
         val message = MessageBuilder.withPayload(payload).build()
 
         // suspendSend(Message) 오버로드 검증
         val result = kafkaTemplate.suspendSend(message)
 
-        result.shouldNotBeNull()
+        log.debug { "send result: $result" }
         result.recordMetadata.topic() shouldBeEqualTo TOPIC
     }
 
     @Test
     fun `suspendSendDefault 기본 토픽으로 value 발송`() = runSuspendIO {
-        val value = "default-value-${System.currentTimeMillis()}"
+        val value = "default-value-${Base58.randomString(8)}"
 
         // suspendSendDefault(value) 오버로드 검증 — KafkaTemplate.defaultTopic 사용
         val result = kafkaTemplate.suspendSendDefault(value)
 
-        result.shouldNotBeNull()
+        log.debug { "send result: $result" }
         result.recordMetadata.topic() shouldBeEqualTo TOPIC
     }
 
     @Test
     fun `suspendSendDefault 기본 토픽으로 key-value 발송`() = runSuspendIO {
         val key = "default-key"
-        val value = "default-value-${System.currentTimeMillis()}"
+        val value = "default-value-${Base58.randomString(8)}"
 
         // suspendSendDefault(key, value) 오버로드 검증 — KafkaTemplate.defaultTopic 사용
         val result = kafkaTemplate.suspendSendDefault(key, value)
 
-        result.shouldNotBeNull()
+        log.debug { "send result: $result" }
         result.recordMetadata.topic() shouldBeEqualTo TOPIC
     }
 }

@@ -43,7 +43,7 @@ class FlakeTest {
         ids.toSet() shouldHaveSize 3
 
         ids.forEach {
-            log.debug { "id=$it, ${Flake.asComponentString(it)}" }
+            log.debug { "id=${it.contentToString()}, ${Flake.asComponentString(it)}" }
         }
         ids.forEach {
             log.debug { "id as Hex=${it.encodeHexString()}" }
@@ -97,6 +97,7 @@ class FlakeTest {
         val customFlake = Flake({ 123456789L }, clock)
 
         val first = customFlake.nextId()
+
         clock.advanceBy(Duration.ofMillis(1))
         val second = customFlake.nextId()
 

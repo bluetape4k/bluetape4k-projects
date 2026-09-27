@@ -1,16 +1,17 @@
 package io.bluetape4k.http.okhttp3
 
+import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.assertions.fail
 import io.bluetape4k.concurrent.allAsList
 import io.bluetape4k.concurrent.onFailure
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.coroutines.support.awaitSuspending
 import io.bluetape4k.http.AbstractHttpTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +29,7 @@ import java.util.concurrent.Executors
 
 class OkHttp3SupportTest: AbstractHttpTest() {
 
-    companion object: KLogging() {
+    companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 3
         private const val TEST_SIZE = 10
     }
@@ -127,8 +128,8 @@ class OkHttp3SupportTest: AbstractHttpTest() {
 
         private fun okhttp3.Response.verifyResponse() {
             use {
-                val bodyStr = it.bodyAsString().shouldNotBeNull().shouldNotBeBlank()
-                log.trace { "Response body=$bodyStr" }
+                val bodyStr = it.bodyAsString().shouldNotBeBlank()
+                log.debug { "Response body=$bodyStr" }
             }
         }
     }

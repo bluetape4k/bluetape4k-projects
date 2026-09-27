@@ -1,15 +1,15 @@
 package io.bluetape4k.http.hc5.http
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.core5.http.Method
 import org.junit.jupiter.api.Test
 import java.net.URI
 
 class ClassicRequestBuilderTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `classicRequest(String) - GET 메서드 이름 검증`() {
@@ -19,6 +19,7 @@ class ClassicRequestBuilderTest {
 
         request.shouldNotBeNull()
         request.method shouldBeEqualTo "GET"
+        request.uri shouldBeEqualTo URI.create("https://example.com/api")
     }
 
     @Test
@@ -29,6 +30,7 @@ class ClassicRequestBuilderTest {
 
         request.shouldNotBeNull()
         request.method shouldBeEqualTo "POST"
+        request.uri shouldBeEqualTo URI.create("https://example.com/api/users")
     }
 
     @Test
@@ -39,6 +41,7 @@ class ClassicRequestBuilderTest {
 
         request.shouldNotBeNull()
         request.method shouldBeEqualTo "PUT"
+        request.uri shouldBeEqualTo URI.create("https://example.com/api/users/1")
     }
 
     @Test
@@ -49,6 +52,7 @@ class ClassicRequestBuilderTest {
 
         request.shouldNotBeNull()
         request.method shouldBeEqualTo "DELETE"
+        request.uri shouldBeEqualTo URI.create("https://example.com/api/users/42")
     }
 
     @Test
@@ -59,6 +63,7 @@ class ClassicRequestBuilderTest {
 
         request.shouldNotBeNull()
         request.method shouldBeEqualTo "GET"
+        request.uri shouldBeEqualTo URI.create("https://example.com/health")
     }
 
     @Test
@@ -69,6 +74,7 @@ class ClassicRequestBuilderTest {
 
         request.shouldNotBeNull()
         request.method shouldBeEqualTo "PATCH"
+        request.uri shouldBeEqualTo URI.create("https://example.com/api/items/5")
     }
 
     @Test
@@ -93,6 +99,7 @@ class ClassicRequestBuilderTest {
 
         request.shouldNotBeNull()
         request.method shouldBeEqualTo "POST"
+        request.uri shouldBeEqualTo URI.create("https://example.com/submit")
         request.getFirstHeader("Authorization")?.value shouldBeEqualTo "Bearer my-token"
         request.getFirstHeader("Content-Type")?.value shouldBeEqualTo "application/json"
     }

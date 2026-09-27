@@ -9,7 +9,9 @@ import kotlin.random.Random
 
 class PrecisionTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val DEFAULT_EPSILON = 1e-11
+    }
 
     @Test
     fun `epsilon of double type`() {
@@ -19,7 +21,7 @@ class PrecisionTest {
         val one11 = 1.00000001
         val one11Epsilon = one11.epsilon()
         log.trace { "one11.epsiolon=$one11Epsilon" }
-        one11.epsilon().approximateEqual(one11 - one11.toLong(), 1e-11).shouldBeTrue()
+        one11.epsilon().approximateEqual(one11 - one11.toLong(), DEFAULT_EPSILON).shouldBeTrue()
     }
 
     @Test
@@ -29,7 +31,7 @@ class PrecisionTest {
             val epsilon = double.epsilon()
             log.trace { "double=$double, epsilon=$epsilon" }
 
-            epsilon.approximateEqual(double - double.toLong(), 1e-11).shouldBeTrue()
+            epsilon.approximateEqual(double - double.toLong(), DEFAULT_EPSILON).shouldBeTrue()
         }
     }
 
@@ -40,7 +42,7 @@ class PrecisionTest {
             val epsilon = double.epsilon()
             log.trace { "double=$double, epsilon=$epsilon" }
 
-            epsilon.approximateEqual(1.0 - double, 1e-11).shouldBeTrue()
+            epsilon.approximateEqual(1.0 - double, DEFAULT_EPSILON).shouldBeTrue()
         }
     }
 
@@ -51,7 +53,7 @@ class PrecisionTest {
             val epsilon = double.epsilon()
             log.trace { "double=$double, epsilon=$epsilon" }
 
-            epsilon.approximateEqual((double - 1.0).toLong() - double, 1e-11).shouldBeTrue()
+            epsilon.approximateEqual((double - 1.0).toLong() - double, DEFAULT_EPSILON).shouldBeTrue()
         }
     }
 
@@ -62,7 +64,7 @@ class PrecisionTest {
             val epsilon = double.epsilon()
             log.trace { "double=$double, epsilon=$epsilon" }
 
-            epsilon.approximateEqual(double.abs() + 1.0, 1e-11).shouldBeTrue()
+            epsilon.approximateEqual(double.abs() + 1.0, DEFAULT_EPSILON).shouldBeTrue()
         }
     }
 }

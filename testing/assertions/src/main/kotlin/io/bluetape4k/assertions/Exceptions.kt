@@ -1,11 +1,11 @@
 package io.bluetape4k.assertions
 
 import io.bluetape4k.assertions.internal.Failures
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.reflect.KClass
 import kotlin.time.Duration
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.withTimeout
 
 /**
  * 동기 블록을 감싸 예외 검증용 DSL을 제공한다.
@@ -25,7 +25,7 @@ class InvokingBlock(val block: () -> Any?) {
      * @throws org.opentest4j.AssertionFailedError 예외가 발생하지 않거나 타입이 일치하지 않을 때
      */
     @Suppress("UNCHECKED_CAST")
-    infix fun <T : Throwable> shouldThrow(expectedType: KClass<T>): T {
+    infix fun <T: Throwable> shouldThrow(expectedType: KClass<T>): T {
         try {
             block()
         } catch (e: Throwable) {
@@ -194,7 +194,7 @@ class CoInvokingBlock(val block: suspend () -> Any?) {
      * @return catch한 예외
      */
     @Suppress("UNCHECKED_CAST")
-    suspend infix fun <T : Throwable> shouldThrow(expectedType: KClass<T>): T {
+    suspend infix fun <T: Throwable> shouldThrow(expectedType: KClass<T>): T {
         try {
             block()
         } catch (e: Throwable) {
@@ -343,7 +343,7 @@ fun coInvoking(block: suspend () -> Any?): CoInvokingBlock = CoInvokingBlock(blo
  * @param block 검증할 코드 블록
  * @return 발생한 예외 (타입 [T])
  */
-inline fun <reified T : Throwable> assertFailsWith(
+inline fun <reified T: Throwable> assertFailsWith(
     message: String? = null,
     block: () -> Unit,
 ): T {
@@ -389,7 +389,7 @@ inline fun assertFails(block: () -> Unit): Throwable =
  *
  * @param block 검증할 코드 블록
  */
-inline fun <reified T : Throwable> assertNotFailsWith(block: () -> Unit) {
+inline fun <reified T: Throwable> assertNotFailsWith(block: () -> Unit) {
     try {
         block()
     } catch (e: CancellationException) {

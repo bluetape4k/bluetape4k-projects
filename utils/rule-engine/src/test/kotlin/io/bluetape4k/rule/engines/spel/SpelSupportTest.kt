@@ -1,15 +1,16 @@
 package io.bluetape4k.rule.engines.spel
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.RuleDefinition
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class SpelSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `spelConditionOf 팩토리 함수로 SpelCondition 생성`() {
@@ -53,6 +54,6 @@ class SpelSupportTest {
         )
         val rule = definition.toSpelRule()
         val facts = Facts.of("value" to 50)
-        rule.evaluate(facts) shouldBeEqualTo false
+        rule.evaluate(facts).shouldBeFalse()
     }
 }

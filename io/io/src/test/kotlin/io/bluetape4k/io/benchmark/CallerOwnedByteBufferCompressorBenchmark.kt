@@ -18,20 +18,20 @@ internal object CallerOwnedCompressionDispatch {
     fun source(storagePath: String, bytes: ByteArray): ByteBuffer = when (storagePath) {
         "direct", "directToHeap" -> ByteBuffer.allocateDirect(bytes.size).put(bytes).flip()
         "heap", "heapToDirect" -> ByteBuffer.wrap(bytes)
-        else -> error("Unknown storagePath=$storagePath")
+        else                   -> error("Unknown storagePath=$storagePath")
     }
 
     fun target(storagePath: String, capacity: Int): ByteBuffer = when (storagePath) {
         "direct", "heapToDirect" -> ByteBuffer.allocateDirect(capacity)
         "heap", "directToHeap" -> ByteBuffer.allocate(capacity)
-        else -> error("Unknown storagePath=$storagePath")
+        else                   -> error("Unknown storagePath=$storagePath")
     }
 
     fun eligible(codec: String, operation: String, storagePath: String): Boolean = when (codec) {
         "lz4", "deflate" -> storagePath in setOf("heap", "direct", "heapToDirect", "directToHeap")
         "snappy" -> operation == "compress" && storagePath == "direct"
-        "zstd" -> storagePath in setOf("heap", "direct")
-        else -> false
+        "zstd"   -> storagePath in setOf("heap", "direct")
+        else     -> false
     }
 }
 

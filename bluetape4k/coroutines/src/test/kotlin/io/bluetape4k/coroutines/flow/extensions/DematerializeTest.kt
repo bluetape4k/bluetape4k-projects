@@ -39,23 +39,28 @@ class DematerializeTest: AbstractFlowTest() {
             FlowEvent.Value(4),
             FlowEvent.Value(5),
             FlowEvent.Value(6),
-        ).log("s")
+        )
+            .log("s")
             .dematerialize().log("d")
             .assertResult(1, 2, 3)
     }
 
     @Test
     fun `dematerialize Event Complete`() = runTest {
-        flowOf(FlowEvent.Complete).dematerialize().test {
-            awaitComplete()
-        }
+        flowOf(FlowEvent.Complete)
+            .dematerialize()
+            .test {
+                awaitComplete()
+            }
     }
 
     @Test
     fun `dematerialize Event of Nothing`() = runTest {
-        emptyFlow<FlowEvent<Nothing>>().dematerialize().test {
-            awaitComplete()
-        }
+        emptyFlow<FlowEvent<Nothing>>()
+            .dematerialize()
+            .test {
+                awaitComplete()
+            }
     }
 
     @Test
@@ -88,7 +93,6 @@ class DematerializeTest: AbstractFlowTest() {
         flowOf(FlowEvent.Error(ex))
             .dematerialize()
             .assertError<FlowOperationException>()
-
 
         flowOf(FlowEvent.Error(ex), FlowEvent.Value(1))
             .dematerialize()

@@ -1,5 +1,7 @@
 package io.bluetape4k.examples.coroutines.flow
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -15,8 +17,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
@@ -60,11 +60,10 @@ class ChannelFlowExamples {
         val api = FakeUserApi()
         val users = allUsersByFlow(api).log("flow")
 
-        val user = users
-            .firstOrNull {
-                delay(100.milliseconds)
-                it.name == "User3"
-            }
+        val user = users.firstOrNull {
+            delay(100.milliseconds)
+            it.name == "User3"
+        }
 
         user.shouldNotBeNull()
         user.name shouldBeEqualTo "User3"
@@ -93,11 +92,10 @@ class ChannelFlowExamples {
         val api = FakeUserApi()
         val users = allUsersByChannelFlow(api).log("C")
 
-        val user = users
-            .firstOrNull {
-                delay(100.milliseconds)
-                it.name == "User3"
-            }
+        val user = users.firstOrNull {
+            delay(100.milliseconds)
+            it.name == "User3"
+        }
 
         user.shouldNotBeNull()
         user.name shouldBeEqualTo "User3"

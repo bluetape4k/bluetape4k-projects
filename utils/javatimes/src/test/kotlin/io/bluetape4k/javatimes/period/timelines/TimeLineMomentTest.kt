@@ -1,11 +1,12 @@
 package io.bluetape4k.javatimes.period.timelines
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
 import io.bluetape4k.javatimes.period.TimeRange
 import io.bluetape4k.javatimes.zonedDateTimeOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class TimeLineMomentTest: AbstractPeriodTest() {
@@ -57,14 +58,15 @@ class TimeLineMomentTest: AbstractPeriodTest() {
         val earlier = TimeLineMoment(testMoment.minusHours(1))
         val later = TimeLineMoment(testMoment.plusHours(1))
 
-        (earlier < later).shouldBeTrue()
-        (later > earlier).shouldBeTrue()
+        earlier shouldBeLessThan later
+        later shouldBeGreaterThan earlier
     }
 
     @Test
     fun `equals is true for same moment`() {
         val m1 = TimeLineMoment(testMoment)
         val m2 = TimeLineMoment(testMoment)
+
         m1 shouldBeEqualTo m2
     }
 
@@ -72,6 +74,7 @@ class TimeLineMomentTest: AbstractPeriodTest() {
     fun `hashCode is same for equal moments`() {
         val m1 = TimeLineMoment(testMoment)
         val m2 = TimeLineMoment(testMoment)
+
         m1.hashCode() shouldBeEqualTo m2.hashCode()
     }
 

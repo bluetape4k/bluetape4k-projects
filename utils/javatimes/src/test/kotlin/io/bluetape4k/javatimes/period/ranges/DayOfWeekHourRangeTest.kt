@@ -1,17 +1,16 @@
 package io.bluetape4k.javatimes.period.ranges
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
 import java.time.LocalTime
 
 class DayOfWeekHourRangeTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `default hours for Monday`() {
@@ -69,7 +68,7 @@ class DayOfWeekHourRangeTest {
     fun `dayOfWeek property differs between instances`() {
         val a = DayOfWeekHourRange(DayOfWeek.MONDAY, 9, 17)
         val b = DayOfWeekHourRange(DayOfWeek.TUESDAY, 9, 17)
-        // equals is inherited from HourRangeInDay which only compares start/end time
+        // equals is inherited from `HourRangeInDay` which only compares start/end time
         // dayOfWeek must be compared explicitly
         (a.dayOfWeek != b.dayOfWeek).shouldBeTrue()
     }

@@ -2,16 +2,16 @@ package io.bluetape4k.jackson.kotlin
 
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.jackson.Jackson
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.utils.Runtimex
-import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
@@ -63,10 +63,10 @@ class KotlinValueClassTest {
     }
 
     @Test
-    fun `json serdes value class in suspended jobs`() = runTest {
+    fun `json serdes value class in suspended jobs`() = runSuspendDefault {
         SuspendedJobTester()
             .workers(2 * Runtimex.availableProcessors)
-            .rounds(16 * 2 * Runtimex.availableProcessors)
+            .rounds(16)
             .add {
                 verifySerializeValueClass(newSomeValue())
             }

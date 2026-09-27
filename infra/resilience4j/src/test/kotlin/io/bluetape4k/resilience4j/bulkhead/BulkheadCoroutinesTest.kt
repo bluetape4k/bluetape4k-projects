@@ -68,6 +68,7 @@ class BulkheadCoroutinesTest {
                 .maxWaitDuration(Duration.ZERO)
                 .build()
         }.registerEventListener()
+
         val results = mutableListOf<Int>()
 
         val sync = Channel<Int>(Channel.RENDEZVOUS)
@@ -106,7 +107,7 @@ class BulkheadCoroutinesTest {
         permittedEvents shouldBeEqualTo 1
         rejectedEvents shouldBeEqualTo 1
         finishedEvents shouldBeEqualTo 1
-        results shouldContainSame listOf(1, 2)
+        results shouldBeEqualTo listOf(1, 2)
 
         helloWorldService.invocationCount shouldBeEqualTo 0
     }

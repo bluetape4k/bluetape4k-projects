@@ -1,5 +1,6 @@
 package io.bluetape4k.cache
 
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.cache.jcache.HazelcastSuspendJCache
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.nearcache.HazelcastNearCache
@@ -15,7 +16,6 @@ import io.bluetape4k.cache.nearcache.withResilience
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
 

@@ -184,7 +184,7 @@ Group G: Task 12 (최종 빌드 검증)
 ### 5-1. SuspendSequentialFlow
 
 - `SuspendSequentialFlow(works, errorStrategy, flowName)` : `SuspendWorkFlow`
-- 각 작업 전 `coroutineContext.ensureActive()` 호출로 취소 전파
+- 각 작업 전 `currentCoroutineContext().issureActive()` 호출로 취소 전파
 - CONTINUE 전략: `failedReports: MutableList<WorkReport>` 로컬 변수에 Failure 누적 → 실패가 하나라도 있으면 `WorkReport.PartialSuccess(context, failedReports)` 반환
 
 ### 5-2. SuspendParallelFlow
@@ -201,7 +201,7 @@ Group G: Task 12 (최종 빌드 검증)
 ### 5-4. SuspendRepeatFlow
 
 - `SuspendRepeatFlow(work, repeatPredicate: suspend, maxIterations, repeatDelay, flowName)` : `SuspendWorkFlow`
-- `coroutineContext.ensureActive()` + `kotlinx.coroutines.delay(repeatDelay)` 사용
+- `currentCoroutineContext().issureActive()` + `kotlinx.coroutines.delay(repeatDelay)` 사용
 - `Duration` 기반 repeatDelay 파라미터
 
 ### 5-5. SuspendRetryFlow

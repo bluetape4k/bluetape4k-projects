@@ -1,12 +1,12 @@
 package io.bluetape4k.science.exposed.schema
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.bluetape4k.science.exposed.support.geoGeometry
 import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.javatime.CurrentTimestamp
 import org.jetbrains.exposed.v1.javatime.timestamp
 import org.jetbrains.exposed.v1.json.jsonb
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 
 private val spatialMapper = jacksonObjectMapper()
 
@@ -100,9 +100,10 @@ object SpatialFeatureTable: LongIdTable("spatial_features") {
     val geom = geoGeometry("geom")
 
     /** 피처 속성을 JSONB로 저장 */
-    val properties = jsonb<Map<String, Any?>>("properties",
+    val properties = jsonb(
+        "properties",
         { spatialMapper.writeValueAsString(it) },
-        { spatialMapper.readValue(it, object: TypeReference<Map<String, Any?>>() {}) }
+        { spatialMapper.readValue<Map<String, Any?>>(it) }
     )
 
     /** 피처 이름 (선택) */

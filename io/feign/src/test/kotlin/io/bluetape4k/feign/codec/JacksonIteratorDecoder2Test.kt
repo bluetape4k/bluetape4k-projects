@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test
  * [JacksonIteratorDecoder2]의 JSON 배열 스트리밍 디코딩 동작을 검증합니다.
  */
 class JacksonIteratorDecoder2Test: AbstractFeignTest() {
+
     companion object: KLogging()
 
     private val decoder = JacksonIteratorDecoder2.INSTANCE
@@ -29,26 +30,23 @@ class JacksonIteratorDecoder2Test: AbstractFeignTest() {
     fun `decode json array as iterator`() {
         val json = """[{"name":"alice"},{"name":"bob"}]"""
 
-        val response =
-            feignResponse {
-                status(200)
-                reason("OK")
-                request(dummyRequest)
-                headers(mapOf("content-type" to listOf("application/json")))
-                body(json, Charsets.UTF_8)
-            }
+        val response = feignResponse {
+            status(200)
+            reason("OK")
+            request(dummyRequest)
+            headers(mapOf("content-type" to listOf("application/json")))
+            body(json, Charsets.UTF_8)
+        }
 
-        val iteratorType =
-            object: java.lang.reflect.ParameterizedType {
-                override fun getActualTypeArguments() = arrayOf<java.lang.reflect.Type>(Map::class.java)
-
-                override fun getRawType() = Iterator::class.java
-
-                override fun getOwnerType() = null
-            }
+        val iteratorType = object: java.lang.reflect.ParameterizedType {
+            override fun getActualTypeArguments() = arrayOf<java.lang.reflect.Type>(Map::class.java)
+            override fun getRawType() = Iterator::class.java
+            override fun getOwnerType() = null
+        }
 
         val result = decoder.decode(response, iteratorType)
         result.shouldNotBeNull()
+
         val iterator = result as Iterator<*>
         iterator.hasNext().shouldBeTrue()
         val first = iterator.next()
@@ -57,22 +55,18 @@ class JacksonIteratorDecoder2Test: AbstractFeignTest() {
 
     @Test
     fun `decode 204 returns empty value`() {
-        val response =
-            feignResponse {
-                status(204)
-                reason("No Content")
-                request(dummyRequest)
-                headers(mapOf("content-type" to listOf("application/json")))
-            }
+        val response = feignResponse {
+            status(204)
+            reason("No Content")
+            request(dummyRequest)
+            headers(mapOf("content-type" to listOf("application/json")))
+        }
 
-        val iteratorType =
-            object: java.lang.reflect.ParameterizedType {
-                override fun getActualTypeArguments() = arrayOf<java.lang.reflect.Type>(Map::class.java)
-
-                override fun getRawType() = Iterator::class.java
-
-                override fun getOwnerType() = null
-            }
+        val iteratorType = object: java.lang.reflect.ParameterizedType {
+            override fun getActualTypeArguments() = arrayOf<java.lang.reflect.Type>(Map::class.java)
+            override fun getRawType() = Iterator::class.java
+            override fun getOwnerType() = null
+        }
 
         // 204 응답은 Util.emptyValueOf 반환
         val result = decoder.decode(response, iteratorType)
@@ -81,23 +75,19 @@ class JacksonIteratorDecoder2Test: AbstractFeignTest() {
 
     @Test
     fun `decode empty body returns null`() {
-        val response =
-            feignResponse {
-                status(200)
-                reason("OK")
-                request(dummyRequest)
-                headers(mapOf("content-type" to listOf("application/json")))
-                body("", Charsets.UTF_8)
-            }
+        val response = feignResponse {
+            status(200)
+            reason("OK")
+            request(dummyRequest)
+            headers(mapOf("content-type" to listOf("application/json")))
+            body("", Charsets.UTF_8)
+        }
 
-        val iteratorType =
-            object: java.lang.reflect.ParameterizedType {
-                override fun getActualTypeArguments() = arrayOf<java.lang.reflect.Type>(Map::class.java)
-
-                override fun getRawType() = Iterator::class.java
-
-                override fun getOwnerType() = null
-            }
+        val iteratorType = object: java.lang.reflect.ParameterizedType {
+            override fun getActualTypeArguments() = arrayOf<java.lang.reflect.Type>(Map::class.java)
+            override fun getRawType() = Iterator::class.java
+            override fun getOwnerType() = null
+        }
 
         val result = decoder.decode(response, iteratorType)
         result.shouldBeNull()
@@ -105,14 +95,13 @@ class JacksonIteratorDecoder2Test: AbstractFeignTest() {
 
     @Test
     fun `decode non-json falls back to default decoder`() {
-        val response =
-            feignResponse {
-                status(200)
-                reason("OK")
-                request(dummyRequest)
-                headers(mapOf("content-type" to listOf("text/plain")))
-                body("plain text", Charsets.UTF_8)
-            }
+        val response = feignResponse {
+            status(200)
+            reason("OK")
+            request(dummyRequest)
+            headers(mapOf("content-type" to listOf("text/plain")))
+            body("plain text", Charsets.UTF_8)
+        }
 
         val result = decoder.decode(response, String::class.java)
         result shouldBeEqualTo "plain text"

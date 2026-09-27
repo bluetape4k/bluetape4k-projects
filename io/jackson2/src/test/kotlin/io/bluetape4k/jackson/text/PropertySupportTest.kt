@@ -29,7 +29,7 @@ class PropertySupportTest {
     fun `getNode - 단일 키로 중간 노드를 반환한다`() {
         val node = root.getNode("a")
         node.shouldNotBeNull()
-        node["b"].shouldNotBeNull()
+        node["b"] shouldBeEqualTo mapOf("c" to 42)
     }
 
     @Test

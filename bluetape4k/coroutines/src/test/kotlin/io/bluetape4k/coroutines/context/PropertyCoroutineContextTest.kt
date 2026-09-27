@@ -1,8 +1,9 @@
 package io.bluetape4k.coroutines.context
 
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainKey
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotContainKey
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +22,7 @@ class PropertyCoroutineContextTest {
         val props = mapOf("key1" to 1, "key2" to "two")
         val ctx = PropertyCoroutineContext(props)
 
-        val propCtx: PropertyCoroutineContext = ctx[PropertyCoroutineContext]!!
+        val propCtx: PropertyCoroutineContext = ctx[PropertyCoroutineContext].shouldNotBeNull()
         propCtx["key1"] shouldBeEqualTo 1
         propCtx["key2"] shouldBeEqualTo "two"
 
@@ -29,9 +30,9 @@ class PropertyCoroutineContextTest {
         propCtx["key3"] shouldBeEqualTo 42L
 
         val snapshot = propCtx.properties
-        snapshot.containsKey("key3").shouldBeTrue()
+        snapshot.shouldContainKey("key3")
         propCtx["key4"] = 99
-        snapshot.containsKey("key4").shouldBeFalse()
+        snapshot.shouldNotContainKey("key4")
     }
 
     @Test

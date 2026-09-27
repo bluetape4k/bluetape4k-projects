@@ -9,7 +9,6 @@ class JacksonCodec2Test: AbstractFeignCodecTest() {
     companion object: KLogging()
 
     override val encoder: Encoder = JacksonEncoder2.INSTANCE
-
     override val decoder: Decoder = JacksonDecoder2.INSTANCE
 
 }

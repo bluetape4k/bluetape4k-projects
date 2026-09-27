@@ -18,39 +18,35 @@ class CassandraAdminTest: AbstractCassandraTest() {
     @Test
     fun `createKeyspace 는 keyspace 를 생성하고 wasApplied 를 반환한다`() {
         // 사전 정리
-        CassandraAdmin.dropKeyspace(session, TEST_KEYSPACE)
-
-        val applied = CassandraAdmin.createKeyspace(session, TEST_KEYSPACE)
-        applied.shouldBeTrue()
+        CassandraAdmin.dropKeyspace(session, TEST_KEYSPACE).shouldBeTrue()
+        CassandraAdmin.createKeyspace(session, TEST_KEYSPACE).shouldBeTrue()
     }
 
     @Test
     fun `createKeyspace 는 이미 존재하는 keyspace 에 대해 예외 없이 완료된다`() {
-        CassandraAdmin.createKeyspace(session, TEST_KEYSPACE)
+        CassandraAdmin.createKeyspace(session, TEST_KEYSPACE).shouldBeTrue()
         // IF NOT EXISTS 이므로 두 번째 호출도 예외 없이 완료됨 (Cassandra wasApplied 반환값은 구현에 따라 다를 수 있음)
-        CassandraAdmin.createKeyspace(session, TEST_KEYSPACE)
+        CassandraAdmin.createKeyspace(session, TEST_KEYSPACE).shouldBeTrue()
         // 예외가 발생하지 않으면 성공
     }
 
     @Test
     fun `dropKeyspace 는 존재하는 keyspace 를 삭제한다`() {
         CassandraAdmin.createKeyspace(session, TEST_KEYSPACE)
-        val applied = CassandraAdmin.dropKeyspace(session, TEST_KEYSPACE)
-        applied.shouldBeTrue()
+        CassandraAdmin.dropKeyspace(session, TEST_KEYSPACE).shouldBeTrue()
     }
 
     @Test
     fun `dropKeyspace 는 존재하지 않는 keyspace 에 대해 예외 없이 완료된다`() {
-        CassandraAdmin.dropKeyspace(session, TEST_KEYSPACE)
+        CassandraAdmin.dropKeyspace(session, TEST_KEYSPACE).shouldBeTrue()
         // IF EXISTS 이므로 두 번째 호출(이미 없는 상태)도 예외 없이 완료됨
-        CassandraAdmin.dropKeyspace(session, TEST_KEYSPACE)
+        CassandraAdmin.dropKeyspace(session, TEST_KEYSPACE).shouldBeTrue()
         // 예외가 발생하지 않으면 성공
     }
 
     @Test
     fun `getReleaseVersion 은 null 이 아닌 버전을 반환한다`() {
-        val version = CassandraAdmin.getReleaseVersion(session)
-        version.shouldNotBeNull()
+        CassandraAdmin.getReleaseVersion(session).shouldNotBeNull()
     }
 
     @Test

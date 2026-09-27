@@ -9,12 +9,14 @@ import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
 
+@Disabled("문서 포맷을 자주 바꾸므로 굳이 테스트 할 필요없다.")
 class AtomicFileReadmeKotlinContractTest {
 
     @TempDir

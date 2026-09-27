@@ -154,9 +154,6 @@ dependencies {
     compileOnly(libs.ktor.serialization.kotlinx.json)
     compileOnly(bt4k.kotlinx.serialization.json)
     testImplementation(libs.ktor.client.mock)
-    testImplementation(libs.ktor.client.content.negotiation)
-    testImplementation(libs.ktor.serialization.kotlinx.json)
-    testImplementation(bt4k.kotlinx.serialization.json)
 
     // Vertx
     compileOnly(project(":bluetape4k-vertx"))

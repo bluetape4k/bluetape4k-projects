@@ -65,7 +65,7 @@ class MicrometerRetrofitMetricsRecorder(
 
     private fun timerFor(tags: Iterable<Tag>): Timer {
         // Iterable이 이미 List인 경우 불필요한 복사본 생성을 방지하기 위해 타입 검사 후 캐스팅
-        val tagList = if (tags is List<Tag>) tags else tags.toList()
+        val tagList = tags as? List<Tag> ?: tags.toList()
         return timerCache.computeIfAbsent(cacheKey(tagList)) {
             Timer
                 .builder(METRICS_KEY)

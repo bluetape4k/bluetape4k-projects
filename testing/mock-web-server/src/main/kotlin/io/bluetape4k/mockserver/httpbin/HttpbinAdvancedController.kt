@@ -25,7 +25,7 @@ import java.util.*
 @RestController
 @RequestMapping("/httpbin")
 class HttpbinAdvancedController {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 지정된 시간만큼 응답을 지연한다. 소수점을 사용하면 밀리초 단위 지연이 가능하다.

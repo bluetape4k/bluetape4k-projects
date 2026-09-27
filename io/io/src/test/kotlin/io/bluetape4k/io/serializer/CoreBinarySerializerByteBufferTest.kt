@@ -8,16 +8,20 @@ import com.esotericsoftware.kryo.io.Input
 import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryo.util.Pool
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeLessThan
-import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBe
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.apache.fory.ThreadSafeFory
 import org.junit.jupiter.api.Test
 import untrusted.payload.UntrustedPayload
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.io.InvalidClassException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.OutputStream
@@ -33,6 +37,8 @@ import java.util.concurrent.CancellationException
 import java.util.concurrent.atomic.AtomicInteger
 
 class JdkBinarySerializerByteBufferTest {
+
+    companion object: KLogging()
 
     @Test
     fun `serializeTo preserves JDK wire bytes in the bounded target range`() {
@@ -114,7 +120,7 @@ class JdkBinarySerializerByteBufferTest {
             filtered.deserializeFrom<UntrustedPayload>(source)
         }
 
-        (failure.cause is java.io.InvalidClassException).shouldBeTrue()
+        failure.cause.shouldBeInstanceOf<InvalidClassException>()
         source.position() shouldBeEqualTo start
         source.order() shouldBeEqualTo ByteOrder.LITTLE_ENDIAN
     }
@@ -125,7 +131,7 @@ class JdkBinarySerializerByteBufferTest {
             JdkBinarySerializer().serializeTo(ThrowingToStringPayload(), configuredTarget(4 * 1024))
         }
 
-        (failure.cause is IllegalStateException).shouldBeTrue()
+        failure.cause.shouldBeInstanceOf<IllegalStateException>()
     }
 }
 
@@ -225,18 +231,18 @@ class KryoBinarySerializerByteBufferTest {
         lateinit var input: ByteBufferInput
         KryoProvider.useByteBufferInput(inputBuffer) { adapter ->
             input = adapter
-            (adapter.byteBuffer === inputBuffer).shouldBeTrue()
+            adapter.byteBuffer shouldBe inputBuffer
         }
-        (input.byteBuffer !== inputBuffer).shouldBeTrue()
+        input.byteBuffer shouldNotBe inputBuffer
         input.byteBuffer.capacity() shouldBeEqualTo 0
 
         val outputBuffer = ByteBuffer.allocateDirect(16)
         lateinit var output: ByteBufferOutput
         KryoProvider.useByteBufferOutput(outputBuffer) { adapter ->
             output = adapter
-            (adapter.byteBuffer === outputBuffer).shouldBeTrue()
+            adapter.byteBuffer shouldBe outputBuffer
         }
-        (output.byteBuffer !== outputBuffer).shouldBeTrue()
+        output.byteBuffer shouldNotBe outputBuffer
         output.byteBuffer.capacity() shouldBeEqualTo 0
     }
 
@@ -291,7 +297,7 @@ class KryoBinarySerializerByteBufferTest {
 
         actual.shouldNotBeNull()
         actual shouldBeEqualTo expected
-        (actual[0] === actual[1]).shouldBeTrue()
+        actual[0] shouldBe actual[1]
     }
 
     @Test
@@ -394,7 +400,7 @@ class CoreBinarySerializerByteBufferTest {
         cancellationTarget.flushCount shouldBeEqualTo 0
         cancellationTarget.closeCount shouldBeEqualTo 0
 
-        listOf<Throwable>(
+        listOf(
             IOException("target I/O failure"),
             IllegalStateException("target runtime failure"),
             AssertionError("target error failure"),
@@ -452,7 +458,7 @@ class CoreBinarySerializerByteBufferTest {
         }
 
         actual.message shouldBeEqualTo "Serialized output exceeds Int.MAX_VALUE bytes."
-        (actual.cause is ArithmeticException).shouldBeTrue()
+        actual.cause.shouldBeInstanceOf<ArithmeticException>()
         target.toByteArray() shouldBeEqualTo byteArrayOf()
         target.flushCount shouldBeEqualTo 0
         target.closeCount shouldBeEqualTo 0
@@ -471,7 +477,7 @@ class CoreBinarySerializerByteBufferTest {
         handler.byteArrayDeserializeCalls shouldBeEqualTo 0
         handler.receivedBuffer?.position() shouldBeEqualTo start
         handler.receivedBuffer?.limit() shouldBeEqualTo source.limit()
-        (handler.receivedBuffer !== source).shouldBeTrue()
+        handler.receivedBuffer shouldNotBe source
         source.position() shouldBeEqualTo start
         source.order() shouldBeEqualTo ByteOrder.LITTLE_ENDIAN
     }
@@ -613,7 +619,7 @@ private class RecordingForyHandler(
                 "toString" -> "RecordingThreadSafeFory"
                 "hashCode" -> System.identityHashCode(proxy)
                 "equals" -> proxy === args?.firstOrNull()
-                else -> null
+                else     -> null
             }
         }
 
@@ -624,11 +630,11 @@ private class RecordingForyHandler(
                 receivedBuffer = argument
                 decoded
             }
-            method.name == "deserialize" && argument is ByteArray -> {
+            method.name == "deserialize" && argument is ByteArray  -> {
                 byteArrayDeserializeCalls++
                 decoded
             }
-            method.name == "serialize" && args?.size == 1 -> {
+            method.name == "serialize" && args?.size == 1          -> {
                 if (rejectByteArraySerialize) {
                     error("Unexpected ThreadSafeFory call: serialize(Object)")
                 }
@@ -644,7 +650,8 @@ private class RecordingForyHandler(
                 streamWrite(output)
                 null
             }
-            else -> error("Unexpected ThreadSafeFory call: ${method.name}")
+            else                                                   ->
+                error("Unexpected ThreadSafeFory call: ${method.name}")
         }
     }
 }
@@ -700,7 +707,7 @@ private fun OutputStream.setWrittenCount(value: Int): Unit = withForyWrittenFiel
 private inline fun <T> OutputStream.withForyWrittenField(access: (java.lang.reflect.Field) -> T): T {
     check(javaClass.name == FORY_CALLER_OWNED_COUNTING_OUTPUT_STREAM_CLASS) {
         "Count-overflow test requires runtime class $FORY_CALLER_OWNED_COUNTING_OUTPUT_STREAM_CLASS, " +
-            "but received ${javaClass.name}."
+                "but received ${javaClass.name}."
     }
     val field = try {
         javaClass.getDeclaredField("written").apply { isAccessible = true }

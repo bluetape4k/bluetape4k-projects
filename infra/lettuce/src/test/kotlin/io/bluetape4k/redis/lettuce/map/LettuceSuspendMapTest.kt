@@ -1,5 +1,11 @@
 package io.bluetape4k.redis.lettuce.map
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainAll
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
@@ -8,22 +14,18 @@ import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContainAll
-import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 class LettuceSuspendMapTest: AbstractLettuceTest() {
 
     companion object: KLoggingChannel() {
-        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+        private val connection by lazy {
+            LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8)
+        }
     }
 
     private lateinit var map: LettuceSuspendMap<String>
@@ -99,7 +101,7 @@ class LettuceSuspendMapTest: AbstractLettuceTest() {
         map.values() shouldContainAll listOf("v1", "v2", "v3")
 
         val entries = map.entries()
-        entries.shouldHaveSize(3)
+        entries shouldHaveSize 3
         entries["f1"] shouldBeEqualTo "v1"
         entries["f2"] shouldBeEqualTo "v2"
         entries["f3"] shouldBeEqualTo "v3"
@@ -122,7 +124,7 @@ class LettuceSuspendMapTest: AbstractLettuceTest() {
         map.put("f2", "v2")
 
         val result = map.getAll(listOf("f1", "f2", "nonexistent"))
-        result.shouldHaveSize(3)
+        result shouldHaveSize 3
         result["f1"] shouldBeEqualTo "v1"
         result["f2"] shouldBeEqualTo "v2"
         result["nonexistent"].shouldBeNull()

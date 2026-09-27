@@ -5,18 +5,39 @@ import io.bluetape4k.assertions.should
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldContentEqual
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.nio.ReadOnlyBufferException
 import java.util.concurrent.CancellationException
 import java.util.stream.Stream
 
 class CompressorByteBufferContractTest {
+
+    companion object: KLogging() {
+        @JvmStatic
+        fun allCompressors(): Stream<Arguments> = Stream.of(
+            Arguments.of("apache-deflate", Compressors.ApacheDeflate),
+            Arguments.of("deflate", Compressors.Deflate),
+            Arguments.of("apache-gzip", Compressors.ApacheGZip),
+            Arguments.of("gzip", Compressors.GZip),
+            Arguments.of("lz4", Compressors.LZ4),
+            Arguments.of("block-lz4", Compressors.BlockLZ4),
+            Arguments.of("framed-lz4", Compressors.FramedLZ4),
+            Arguments.of("snappy", Compressors.Snappy),
+            Arguments.of("framed-snappy", Compressors.FramedSnappy),
+            Arguments.of("apache-zstd", Compressors.ApacheZstd),
+            Arguments.of("zstd", Compressors.Zstd),
+            Arguments.of("bzip2", Compressors.BZip2),
+            Arguments.of("zip", Compressors.Zip),
+            Arguments.of("test-fallback", ReversingFallbackCompressor()),
+        )
+    }
+
     private val fallback = ReversingFallbackCompressor()
 
     @ParameterizedTest(name = "{0} caller-owned buffer matrix")
@@ -46,8 +67,12 @@ class CompressorByteBufferContractTest {
     fun `read-only target rejection wins before alias and empty checks`() {
         val readOnly = ByteBuffer.allocate(0).asReadOnlyBuffer()
 
-        assertFailsWith<ReadOnlyBufferException> { fallback.compress(readOnly, readOnly) }
-        assertFailsWith<ReadOnlyBufferException> { fallback.decompress(readOnly, readOnly) }
+        assertFailsWith<ReadOnlyBufferException> {
+            fallback.compress(readOnly, readOnly)
+        }
+        assertFailsWith<ReadOnlyBufferException> {
+            fallback.decompress(readOnly, readOnly)
+        }
         fallback.compressInvocations.get() shouldBeEqualTo 0
         fallback.decompressInvocations.get() shouldBeEqualTo 0
     }
@@ -56,8 +81,12 @@ class CompressorByteBufferContractTest {
     fun `same writable object is rejected even when empty`() {
         val buffer = ByteBuffer.allocate(0)
 
-        assertFailsWith<IllegalArgumentException> { fallback.compress(buffer, buffer) }
-        assertFailsWith<IllegalArgumentException> { fallback.decompress(buffer, buffer) }
+        assertFailsWith<IllegalArgumentException> {
+            fallback.compress(buffer, buffer)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            fallback.decompress(buffer, buffer)
+        }
     }
 
     @Test
@@ -67,8 +96,12 @@ class CompressorByteBufferContractTest {
         val partialTarget = ByteBuffer.wrap(backing).apply { position(32); limit(56) }
         val fullTarget = ByteBuffer.wrap(backing).apply { position(8); limit(40) }
 
-        assertFailsWith<IllegalArgumentException> { fallback.compress(source, partialTarget) }
-        assertFailsWith<IllegalArgumentException> { fallback.decompress(source, fullTarget) }
+        assertFailsWith<IllegalArgumentException> {
+            fallback.compress(source, partialTarget)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            fallback.decompress(source, fullTarget)
+        }
         fallback.compressInvocations.get() shouldBeEqualTo 0
         fallback.decompressInvocations.get() shouldBeEqualTo 0
     }
@@ -85,6 +118,7 @@ class CompressorByteBufferContractTest {
 
         source.position() shouldBeEqualTo 2
         target.position() shouldBeEqualTo targetStart
+
         CompressorByteBufferTestSupport.allBytes(target) shouldContentEqual before
         fallback.compressInvocations.get() shouldBeEqualTo 0
         fallback.decompressInvocations.get() shouldBeEqualTo 0
@@ -144,7 +178,11 @@ class CompressorByteBufferContractTest {
         val wire = CompressorByteBufferTestSupport.heap(payload)
         val reused = CompressorByteBufferTestSupport.writableTarget(payload.size, direct = true)
         val reusedStart = reused.position()
-        assertFailsWith<IllegalArgumentException> { retrying.decompress(wire, reused) }
+
+        assertFailsWith<IllegalArgumentException> {
+            retrying.decompress(wire, reused)
+        }
+
         reused.position() shouldBeEqualTo reusedStart
         corrupt = false
         retrying.decompress(wire, reused) shouldBeEqualTo payload.size
@@ -156,7 +194,9 @@ class CompressorByteBufferContractTest {
         val source = CompressorByteBufferTestSupport.heap(payload)
         val tiny = CompressorByteBufferTestSupport.writableTarget(1, direct = false)
 
-        assertFailsWith<BufferOverflowException> { fallback.decompress(source, tiny) }
+        assertFailsWith<BufferOverflowException> {
+            fallback.decompress(source, tiny)
+        }
 
         fallback.decompressInvocations.get() shouldBeEqualTo 1
         source.position() shouldBeEqualTo 7
@@ -166,16 +206,24 @@ class CompressorByteBufferContractTest {
     @Test
     fun `legacy allocating and caller-owned APIs exchange wire formats both ways`() {
         val payload = CompressorByteBufferTestSupport.payload
+
         allCompressors().forEach { arguments ->
             val compressor = arguments.get()[1] as Compressor
 
             val legacyWire = compressor.compress(payload)
             val newTarget = CompressorByteBufferTestSupport.writableTarget(payload.size, direct = true)
-            compressor.decompress(CompressorByteBufferTestSupport.direct(legacyWire), newTarget) shouldBeEqualTo payload.size
+            compressor.decompress(
+                CompressorByteBufferTestSupport.direct(legacyWire),
+                newTarget
+            ) shouldBeEqualTo payload.size
             CompressorByteBufferTestSupport.bytes(newTarget, 5, payload.size) shouldContentEqual payload
 
             val wireTarget = CompressorByteBufferTestSupport.writableTarget(legacyWire.size, direct = true)
-            compressor.compress(CompressorByteBufferTestSupport.heap(payload), wireTarget) shouldBeEqualTo legacyWire.size
+            compressor.compress(
+                CompressorByteBufferTestSupport.heap(payload),
+                wireTarget
+            ) shouldBeEqualTo legacyWire.size
+
             val newWire = CompressorByteBufferTestSupport.bytes(wireTarget, 5, legacyWire.size)
             compressor.decompress(newWire) shouldContentEqual payload
         }
@@ -207,11 +255,15 @@ class CompressorByteBufferContractTest {
                 target.position() shouldBeEqualTo targetStart + expected.size
                 target.limit() shouldBeEqualTo targetLimit
                 target.order() shouldBeEqualTo targetOrder
+
                 CompressorByteBufferTestSupport.assertMark(target, targetStart)
+
                 CompressorByteBufferTestSupport.bytes(target, targetStart, expected.size)
                     .shouldContentEqual(expected, case)
+
                 CompressorByteBufferTestSupport.allBytes(target).copyOfRange(0, targetStart)
                     .shouldContentEqual(before.copyOfRange(0, targetStart), "$case prefix")
+
                 CompressorByteBufferTestSupport.allBytes(target).copyOfRange(targetLimit, target.capacity())
                     .shouldContentEqual(before.copyOfRange(targetLimit, target.capacity()), "$case suffix")
             }
@@ -241,8 +293,10 @@ class CompressorByteBufferContractTest {
                 CompressorByteBufferTestSupport.assertMark(source, sourceStart)
                 CompressorByteBufferTestSupport.assertMark(target, targetStart)
                 val after = CompressorByteBufferTestSupport.allBytes(target)
+
                 after.copyOfRange(0, targetStart)
                     .shouldContentEqual(before.copyOfRange(0, targetStart), "$case prefix")
+
                 after.copyOfRange(targetLimit, target.capacity())
                     .shouldContentEqual(before.copyOfRange(targetLimit, target.capacity()), "$case suffix")
             }
@@ -256,25 +310,5 @@ class CompressorByteBufferContractTest {
     private fun throwingCompressor(failure: Throwable): Compressor = object: Compressor {
         override fun compress(plain: ByteArray?): ByteArray = throw failure
         override fun decompress(compressed: ByteArray?): ByteArray = throw failure
-    }
-
-    companion object {
-        @JvmStatic
-        fun allCompressors(): Stream<Arguments> = Stream.of(
-            Arguments.of("apache-deflate", Compressors.ApacheDeflate),
-            Arguments.of("deflate", Compressors.Deflate),
-            Arguments.of("apache-gzip", Compressors.ApacheGZip),
-            Arguments.of("gzip", Compressors.GZip),
-            Arguments.of("lz4", Compressors.LZ4),
-            Arguments.of("block-lz4", Compressors.BlockLZ4),
-            Arguments.of("framed-lz4", Compressors.FramedLZ4),
-            Arguments.of("snappy", Compressors.Snappy),
-            Arguments.of("framed-snappy", Compressors.FramedSnappy),
-            Arguments.of("apache-zstd", Compressors.ApacheZstd),
-            Arguments.of("zstd", Compressors.Zstd),
-            Arguments.of("bzip2", Compressors.BZip2),
-            Arguments.of("zip", Compressors.Zip),
-            Arguments.of("test-fallback", ReversingFallbackCompressor()),
-        )
     }
 }

@@ -20,7 +20,6 @@ class JwtReaderTest: AbstractJwtTest() {
 
     private val jwtProvider = JwtProviderFactory.default()
 
-
     @RepeatedTest(REPEAT_SIZE)
     fun `read jwt`(@RandomValue claim1: String, @RandomValue claim2: String, @RandomValue claim3: Long) {
 

@@ -8,18 +8,19 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
-import io.lettuce.core.ExperimentalLettuceCoroutinesApi
+import io.bluetape4k.utils.Runtimex
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-@OptIn(ExperimentalLettuceCoroutinesApi::class)
 class LettuceSuspendAtomicLongTest: AbstractLettuceTest() {
 
     companion object: KLoggingChannel() {
-        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+        private val connection by lazy {
+            LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8)
+        }
     }
 
     private lateinit var atomicLong: LettuceAtomicLong
@@ -44,28 +45,28 @@ class LettuceSuspendAtomicLongTest: AbstractLettuceTest() {
     }
 
     @Test
-    fun `incrementAndGetSuspending`() = runSuspendIO {
+    fun `incrementAndGetSuspending - increment and get`() = runSuspendIO {
         val counter = suspendAtomicLong()
         counter.incrementAndGet() shouldBeEqualTo 1L
         counter.incrementAndGet() shouldBeEqualTo 2L
     }
 
     @Test
-    fun `decrementAndGetSuspending`() = runSuspendIO {
+    fun `decrementAndGetSuspending - decrement and get`() = runSuspendIO {
         val counter = suspendAtomicLong()
         counter.set(5L)
         counter.decrementAndGet() shouldBeEqualTo 4L
     }
 
     @Test
-    fun `addAndGetSuspending`() = runSuspendIO {
+    fun `addAndGetSuspending - add and get`() = runSuspendIO {
         val counter = suspendAtomicLong()
         counter.addAndGet(10L) shouldBeEqualTo 10L
         counter.addAndGet(5L) shouldBeEqualTo 15L
     }
 
     @Test
-    fun `getAndSetSuspending`() = runSuspendIO {
+    fun `getAndSetSuspending - and and get`() = runSuspendIO {
         val counter = suspendAtomicLong()
         counter.set(10L)
         counter.getAndSet(20L) shouldBeEqualTo 10L
@@ -101,8 +102,8 @@ class LettuceSuspendAtomicLongTest: AbstractLettuceTest() {
 
     @Test
     fun `SuspendedJobTester - 코루틴 동시 incrementAndGet 원자성 검증`() = runSuspendIO {
-        val workers = 8
-        val rounds = 50
+        val workers = 2 * Runtimex.availableProcessors
+        val rounds = 100
 
         SuspendedJobTester()
             .workers(workers)
@@ -119,8 +120,8 @@ class LettuceSuspendAtomicLongTest: AbstractLettuceTest() {
 
     @Test
     fun `SuspendedJobTester - 코루틴 동시 addAndGet 원자성 검증`() = runSuspendIO {
-        val workers = 5
-        val rounds = 20
+        val workers = 2 * Runtimex.availableProcessors
+        val rounds = 100
         val delta = 3L
 
         SuspendedJobTester()

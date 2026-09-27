@@ -2,6 +2,7 @@ package io.bluetape4k.redis.lettuce.lease
 
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.support.requirePositiveNumber
+import io.bluetape4k.support.toUtf8Bytes
 import java.io.InvalidObjectException
 import java.io.Serializable
 import java.nio.charset.StandardCharsets
@@ -53,7 +54,7 @@ class FencingOwnerId private constructor(
     internal val value: String,
 ): Serializable {
     init {
-        val byteCount = value.toByteArray(StandardCharsets.UTF_8).size
+        val byteCount = value.toUtf8Bytes().size
         require(value.isNotBlank() && byteCount in 1..MAX_UTF8_BYTES) {
             "Fencing owner ID must be non-blank and contain 1..256 UTF-8 bytes."
         }

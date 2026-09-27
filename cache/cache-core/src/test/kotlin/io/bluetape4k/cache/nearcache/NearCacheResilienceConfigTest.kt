@@ -1,9 +1,10 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
 
 class NearCacheResilienceConfigTest {
 
@@ -18,7 +19,7 @@ class NearCacheResilienceConfigTest {
 
         config.retryMaxAttempts shouldBeEqualTo 5
         config.retryWaitDuration shouldBeEqualTo Duration.ofSeconds(1)
-        config.retryExponentialBackoff shouldBeEqualTo false
+        config.retryExponentialBackoff.shouldBeFalse()
     }
 
     @Test

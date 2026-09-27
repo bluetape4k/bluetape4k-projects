@@ -1,12 +1,13 @@
 package io.bluetape4k.cache.memoizer
 
-import io.bluetape4k.cache.memoizer.verifySuspendMemoizerClear
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.RedisServers.randomName
 import io.bluetape4k.cache.RedisServers.redisson
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
@@ -24,6 +25,8 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
+
+    companion object: KLoggingChannel()
 
     private val heavyMap = redisson
         .getMap<Int, Int>("suspend:memoizer:heavy", IntegerCodec())
@@ -50,6 +53,7 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
     fun `clear 이전 계산은 캐시를 다시 채우거나 새 값을 덮어쓰지 않는다`() = runSuspendIO {
         listOf(false, true).forEach { newFirst ->
             val local = redisson.getMap<Int, Int>(randomName(), IntegerCodec())
+
             try {
                 verifySuspendMemoizerClear(
                     newFirst,
@@ -65,13 +69,13 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
     @Test
     fun `run heavy function`() = runSuspendIO {
         measureTimeMillis {
-            heavyFunc(10) shouldBeEqualTo 100
+            heavyFunc(10) shouldBeEqualTo 10 * 10
         }
 
         val result = withTimeoutOrNull(1.seconds) {
             heavyFunc(10)
         }
-        result shouldBeEqualTo 100
+        result shouldBeEqualTo 10 * 10
     }
 
     @Test
@@ -98,6 +102,7 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
     fun `suspend memoizer should evaluate once for same key in concurrent calls`() = runSuspendIO {
         val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
         val evaluateCount = AtomicInteger(0)
+
         val memoizer = map.suspendMemoizer { key ->
             evaluateCount.incrementAndGet()
             delay(100.milliseconds)
@@ -106,7 +111,7 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
 
         try {
             val results = List(16) { async { memoizer(7) } }.awaitAll()
-            results.forEach { it shouldBeEqualTo 49 }
+            results.all { it == 7 * 7 }.shouldBeTrue()
             evaluateCount.get() shouldBeEqualTo 1
         } finally {
             map.delete()
@@ -120,18 +125,19 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
     @Test
     fun `SuspendedJobTester - 여러 코루틴에서 동시에 suspendMemoizer 호출 시 일관된 결과 반환`() = runSuspendIO {
         val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
+
         val memoizer = map.suspendMemoizer { key ->
             delay(10.milliseconds)
             key * key
         }
+
         try {
             SuspendedJobTester()
-                .workers(16)
-                .rounds(4)
+                .rounds(16 * 4)
                 .add {
-                    memoizer(5) shouldBeEqualTo 25
-                    memoizer(7) shouldBeEqualTo 49
-                    memoizer(9) shouldBeEqualTo 81
+                    memoizer(5) shouldBeEqualTo 5 * 5
+                    memoizer(7) shouldBeEqualTo 7 * 7
+                    memoizer(9) shouldBeEqualTo 9 * 9
                 }
                 .run()
         } finally {
@@ -143,6 +149,7 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
     fun `evaluator 실패 후 같은 key를 다시 호출하면 새 계산으로 복구된다`() = runSuspendIO {
         val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
         val evaluateCount = AtomicInteger(0)
+
         val memoizer = map.suspendMemoizer { key ->
             if (evaluateCount.incrementAndGet() == 1) {
                 error("transient failure")
@@ -156,8 +163,8 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
             }
 
             // 실패한 in-flight Deferred가 제거되어야 같은 key가 이전 실패에 고착되지 않는다.
-            memoizer(7) shouldBeEqualTo 49
-            memoizer(7) shouldBeEqualTo 49
+            memoizer(7) shouldBeEqualTo 7 * 7
+            memoizer(7) shouldBeEqualTo 7 * 7
             evaluateCount.get() shouldBeEqualTo 2
         } finally {
             map.delete()
@@ -168,6 +175,7 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
     fun `evaluator 취소 후 같은 key를 다시 호출하면 새 계산으로 복구된다`() = runSuspendIO {
         val map = redisson.getMap<Int, Int>(randomName(), IntegerCodec()).apply { clear() }
         val evaluateCount = AtomicInteger(0)
+
         val memoizer = map.suspendMemoizer { key ->
             if (evaluateCount.incrementAndGet() == 1) {
                 throw CancellationException("test cancellation")
@@ -181,7 +189,8 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
             }
 
             // CancellationException도 성공 값처럼 저장하거나 in-flight에 남기지 않는다.
-            memoizer(9) shouldBeEqualTo 81
+            memoizer(9) shouldBeEqualTo 9 * 9
+            memoizer(9) shouldBeEqualTo 9 * 9
             evaluateCount.get() shouldBeEqualTo 2
         } finally {
             map.delete()
@@ -196,7 +205,7 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
         val memoizer = map.suspendMemoizer { key ->
             if (evaluateCount.incrementAndGet() == 1) {
                 started.complete(Unit)
-                delay(Long.MAX_VALUE)
+                delay(timeMillis = Long.MAX_VALUE)
             }
             key * key
         }
@@ -207,7 +216,8 @@ class RedissonSuspendMemoizerTest: AbstractSuspendMemoizerTest() {
             job.cancelAndJoin()
 
             // 실제 Job 취소 경로에서도 in-flight 항목이 정리되어 다음 호출이 새 계산으로 복구된다.
-            memoizer(11) shouldBeEqualTo 121
+            memoizer(11) shouldBeEqualTo 11 * 11
+            memoizer(11) shouldBeEqualTo 11 * 11
             evaluateCount.get() shouldBeEqualTo 2
         } finally {
             map.delete()

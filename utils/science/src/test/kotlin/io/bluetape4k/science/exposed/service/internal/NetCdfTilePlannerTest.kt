@@ -2,9 +2,12 @@ package io.bluetape4k.science.exposed.service.internal
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class NetCdfTilePlannerTest {
+
+    companion object: KLogging()
 
     @Test
     fun `planner is deterministic and never exceeds tile cell cap`() {
@@ -12,8 +15,7 @@ class NetCdfTilePlannerTest {
         val second = NetCdfTilePlanner.plan(rows = 1_024, columns = 1_024)
 
         first shouldBeEqualTo second
-        first.all { it.rowCount.toLong() * it.columnCount.toLong() <= MAX_TILE_CELLS }
-            .shouldBeTrue()
+        first.all { it.rowCount.toLong() * it.columnCount.toLong() <= MAX_TILE_CELLS }.shouldBeTrue()
         first.sumOf { it.rowCount.toLong() * it.columnCount.toLong() } shouldBeEqualTo 1_048_576L
     }
 

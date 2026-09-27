@@ -212,7 +212,7 @@ val reader = csvReader {
 }
 reader.read(inputStream, skipHeaders = true).collect { row ->
     val name = row.getString("name")
-    val age  = row.getInt("age")
+    val age = row.getInt("age")
 }
 
 // TSV (delimiter is always forced to '\t')
@@ -249,7 +249,7 @@ import io.bluetape4k.csv.v2.toCsvRow
 // V1 Record → V2 CsvRow (public)
 val csvRow: CsvRow = record.toCsvRow()
 val name = csvRow.getString("name")
-val age  = csvRow.getInt("age", default = 0)
+val age = csvRow.getInt("age", default = 0)
 ```
 
 ## Module Structure

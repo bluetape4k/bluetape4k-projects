@@ -1,17 +1,15 @@
 package io.bluetape4k.rule.support
 
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.core.rule
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class CompositeRuleTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `UnitRuleGroup에 Rule 추가 후 실행`() {
@@ -35,8 +33,8 @@ class CompositeRuleTest {
         composite.evaluate(facts).shouldBeTrue()
         composite.execute(facts)
 
-        facts.get<Boolean>("r1").shouldNotBeNull().shouldBeTrue()
-        facts.get<Boolean>("r2").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("r1").shouldBeTrue()
+        facts.get<Boolean>("r2").shouldBeTrue()
     }
 
     @Test
@@ -62,7 +60,7 @@ class CompositeRuleTest {
         composite.evaluate(facts).shouldBeTrue()
         composite.execute(facts)
 
-        facts.get<Boolean>("r1").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("r1").shouldBeTrue()
         facts.containsKey("r2").shouldBeFalse()
     }
 
@@ -112,7 +110,6 @@ class CompositeRuleTest {
         composite.evaluate(facts).shouldBeTrue()
         composite.execute(facts)
 
-        facts.get<Boolean>("gate").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("gate").shouldBeTrue()
     }
-
 }

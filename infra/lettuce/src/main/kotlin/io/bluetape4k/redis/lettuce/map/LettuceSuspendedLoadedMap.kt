@@ -19,8 +19,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.future.await
@@ -33,6 +33,7 @@ import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.Closeable
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Lettuce(Redis) 기반 코루틴 네이티브 Read-through / Write-through / Write-behind Map.
@@ -168,10 +169,7 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
      * @param key 저장할 키
      * @param value 저장할 값
      */
-    suspend fun set(
-        key: K,
-        value: V,
-    ) {
+    suspend fun set(key: K, value: V) {
         when (config.writeMode) {
             WriteMode.NONE          -> {
                 asyncCommands.set(redisKey(key), value, SetArgs().ex(ttlSeconds)).await()
@@ -184,9 +182,7 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
                 val channel = writeBehindChannel ?: return
                 val result = channel.trySend(Triple(key, value, 0))
                 if (result.isFailure) {
-                    throw IllegalStateException(
-                        "Write-behind 채널 포화 (capacity=${config.writeBehindQueueCapacity})"
-                    )
+                    error("Write-behind 채널 포화 (capacity=${config.writeBehindQueueCapacity})")
                 }
                 asyncCommands.set(redisKey(key), value, SetArgs().ex(ttlSeconds)).await()
             }
@@ -404,7 +400,7 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
     private suspend fun awaitWriteBehindDrain(shutdownMethod: String, timeoutMillis: Long) {
         writeBehindChannel?.close()
         val drained = writeBehindJob?.let { job ->
-            withTimeoutOrNull(timeoutMillis) {
+            withTimeoutOrNull(timeoutMillis.milliseconds) {
                 job.join()
                 true
             }
@@ -466,7 +462,7 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
         attempt: CompletableDeferred<Result<Unit>>,
         timeoutMillis: Long,
     ) {
-        withTimeout(timeoutMillis) {
+        withTimeout(timeoutMillis.milliseconds) {
             attempt.await().getOrThrow()
         }
     }
@@ -501,7 +497,9 @@ class LettuceSuspendedLoadedMap<K: Any, V: Any>(
                 }
             }
             Thread.currentThread().interrupt()
-            log.warn(e) { "Write-behind job drain interrupted during close(); cleanup completed and interrupt status restored" }
+            log.warn(e) {
+                "Write-behind job drain interrupted during close(); cleanup completed and interrupt status restored"
+            }
             cleanupResult.getOrThrow()
         }
     }

@@ -1,7 +1,10 @@
 package io.bluetape4k.pulsar.codec
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.jackson.Jackson
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.pulsar.toStringBuilder
 import org.apache.pulsar.client.api.Schema
 import org.apache.pulsar.common.schema.SchemaInfo
 import org.apache.pulsar.common.schema.SchemaType
@@ -22,10 +25,11 @@ import org.apache.pulsar.common.schema.SchemaType
  * @param mapper Jackson2 [ObjectMapper] (기본값: [Jackson.defaultJsonMapper])
  * @return Pulsar [Schema] 구현체
  */
-fun <T> jacksonSchema(
+fun <T> jacksonSchemaOf(
     type: Class<T>,
     mapper: ObjectMapper = Jackson.defaultJsonMapper,
-): Schema<T> = JacksonSchemaImpl(type, mapper)
+): Schema<T> =
+    JacksonSchemaImpl(type, mapper)
 
 /**
  * reified 타입 파라미터를 활용한 [jacksonSchema] 편의 함수.
@@ -34,15 +38,16 @@ fun <T> jacksonSchema(
  * val schema = jacksonSchema<Order>()
  * ```
  */
-inline fun <reified T> jacksonSchema(
-    mapper: ObjectMapper = Jackson.defaultJsonMapper,
-): Schema<T> = jacksonSchema(T::class.java, mapper)
+inline fun <reified T> jacksonSchema(mapper: ObjectMapper = Jackson.defaultJsonMapper): Schema<T> =
+    jacksonSchemaOf(T::class.java, mapper)
 
 private class JacksonSchemaImpl<T>(
     private val type: Class<T>,
     private val mapper: ObjectMapper,
     cachedInfo: SchemaInfo? = null,
-) : Schema<T> {
+): Schema<T> {
+
+    companion object: KLogging()
 
     // Schema.JSON(type)에서 브로커 호환성 검증용 schema bytes를 가져오고, name은 type에서 직접 설정.
     // clone() 시 재계산을 피하기 위해 생성된 SchemaInfo를 재사용한다.
@@ -63,4 +68,11 @@ private class JacksonSchemaImpl<T>(
     override fun getSchemaInfo(): SchemaInfo = info
 
     override fun clone(): Schema<T> = JacksonSchemaImpl(type, mapper, info)
+
+    override fun toString(): String {
+        return ToStringBuilder(this)
+            .add("type", type)
+            .add("info", info.toStringBuilder().toString())
+            .toString()
+    }
 }

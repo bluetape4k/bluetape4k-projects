@@ -1,5 +1,5 @@
-import importlib.util
 import hashlib
+import importlib.util
 import json
 import subprocess
 import sys
@@ -9,8 +9,8 @@ from pathlib import Path
 
 SCRIPT = Path(__file__).with_name("validate-lettuce-binary-codec-abi.py")
 HELPER = (
-    Path(__file__).parents[3]
-    / "benchmark/protobuf-codec-benchmark/scripts/issue757_detached_roots.py"
+        Path(__file__).parents[3]
+        / "benchmark/protobuf-codec-benchmark/scripts/issue757_detached_roots.py"
 )
 CLASS_NAME = "io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec"
 CONSTRUCTOR_DESCRIPTOR = "(Lio/bluetape4k/io/serializer/BinarySerializer;)V"
@@ -108,9 +108,9 @@ def retained_members():
         member_name = declaration.split("(", 1)[0].split()[-1]
         if "(" in declaration and "LettuceBinaryCodec(" not in declaration:
             if (
-                (member_name, descriptor) != ("encodeValue", TARGET_DESCRIPTOR)
-                and (member_name, descriptor) not in BRIDGE_MEMBERS
-                and " final " not in declaration
+                    (member_name, descriptor) != ("encodeValue", TARGET_DESCRIPTOR)
+                    and (member_name, descriptor) not in BRIDGE_MEMBERS
+                    and " final " not in declaration
             ):
                 declaration = declaration.replace("public ", "public final ", 1)
         result.append((declaration, descriptor))
@@ -118,17 +118,17 @@ def retained_members():
 
 
 def replace_member(
-    members,
-    descriptor,
-    *,
-    member_name=None,
-    declaration=None,
-    new_descriptor=None,
+        members,
+        descriptor,
+        *,
+        member_name=None,
+        declaration=None,
+        new_descriptor=None,
 ):
     result = []
     for current_declaration, current_descriptor in members:
         if current_descriptor == descriptor and (
-            member_name is None or member_name in current_declaration
+                member_name is None or member_name in current_declaration
         ):
             current_declaration = declaration or current_declaration
             current_descriptor = new_descriptor or current_descriptor
@@ -377,8 +377,8 @@ class AbiValidatorTest(unittest.TestCase):
             member
             for member in retained_members()
             if not (
-                "encodeValue" in member[0]
-                and member[1] == TARGET_DESCRIPTOR
+                    "encodeValue" in member[0]
+                    and member[1] == TARGET_DESCRIPTOR
             )
         ]
 

@@ -26,6 +26,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Resilient SuspendCache 기반 Near Cache (2-tier: Caffeine front + SuspendCache back) - Coroutine(Suspend) 구현.
@@ -154,7 +155,7 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
     }
 
     private fun completeCommand(queued: QueuedCommand<K, V>, failed: Boolean, failure: Throwable? = null) {
-        if (!queued.completed.compareAndSet(false, true)) return
+        if (!queued.completed.compareAndSet(expect = false, update = true)) return
         when (val command = queued.command) {
             is BackJCacheCommand.Put       -> completePut(queued, setOf(command.key), failed)
             is BackJCacheCommand.PutAll    -> completePut(queued, command.entries.keys, failed)
@@ -233,15 +234,16 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      * 여러 키에 대한 값을 한 번에 조회한다.
      */
     suspend fun getAll(keys: Set<K>): Map<K, V> {
-        val (result, missedKeys, observedVersion) = writeStateMutex.withLock {
-            if (clearPending.value) return emptyMap()
-            val frontResult = frontCache.getAll(keys).toMutableMap()
-            Triple(
-                frontResult,
-                (keys - frontResult.keys).filter { !tombstones.contains(it) },
-                stateVersion.value,
-            )
-        }
+        val (result, missedKeys, observedVersion) =
+            writeStateMutex.withLock {
+                if (clearPending.value) return emptyMap()
+                val frontResult = frontCache.getAll(keys).toMutableMap()
+                Triple(
+                    frontResult,
+                    (keys - frontResult.keys).filter { !tombstones.contains(it) },
+                    stateVersion.value,
+                )
+            }
 
         missedKeys.forEach { key ->
             getBackOrNull(key, "Back cache GET failed for key=$key during getAll")
@@ -301,6 +303,7 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      */
     suspend fun putIfAbsent(key: K, value: V): V? {
         key.requireNotNull("key")
+
         return writeStateMutex.withLock {
             frontCache.get(key)?.let { return it }
             val pendingMutation = pendingMutationTokens[key]
@@ -356,8 +359,7 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      */
     suspend fun replace(key: K, oldValue: V, newValue: V): Boolean {
         val current = get(key) ?: return false
-        if (current != oldValue) return false
-        return replace(key, newValue)
+        return current == oldValue && replace(key, newValue)
     }
 
     /**
@@ -477,11 +479,11 @@ class ResilientSuspendNearJCache<K: Any, V: Any>(
      * 모든 리소스를 정리한다.
      */
     override fun close() {
-        if (closed.compareAndSet(false, true)) {
+        if (closed.compareAndSet(expect = false, update = true)) {
             runCatching { writeChannel.close() }
             runCatching {
                 runBlocking {
-                    val drained = withTimeoutOrNull(closeDrainTimeoutMillis) {
+                    val drained = withTimeoutOrNull(closeDrainTimeoutMillis.milliseconds) {
                         writeConsumerJob.join()
                         true
                     } ?: false

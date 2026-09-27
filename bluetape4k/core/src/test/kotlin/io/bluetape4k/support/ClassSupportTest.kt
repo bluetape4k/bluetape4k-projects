@@ -45,8 +45,8 @@ class ClassSupportTest {
 
     @Test
     fun `존재하지 않는 클래스를 생성하고자하면 null을 반환한다`() {
-        classIsPresent("com.google.gson.Gson").shouldBeFalse()
-        newInstanceOrNull<Any>("com.google.gson.Gson").shouldBeNull()
+        classIsPresent("com.example.NotExist").shouldBeFalse()
+        newInstanceOrNull<Any>("com.example.NotExist").shouldBeNull()
     }
 
     @Test

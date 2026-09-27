@@ -6,11 +6,11 @@ import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.redis.lettuce.map.LettuceMap
 import java.time.Duration
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.cache.Cache
-import javax.cache.CacheManager
 import javax.cache.CacheException
+import javax.cache.CacheManager
 import javax.cache.configuration.CacheEntryListenerConfiguration
 import javax.cache.configuration.Configuration
 import javax.cache.event.CacheEntryCreatedListener
@@ -44,7 +44,7 @@ class LettuceJCache<K: Any, V: Any>(
     private val map: LettuceMap<ByteArray>,
     private val keyCodec: (K) -> String = { it.toString() },
     private val keyDecoder: ((String) -> K)? = null,
-    private val codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
+    private val codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.default<Any>(),
     private val ttlSeconds: Long? = null,
     private val cacheManager: LettuceCacheManager,
     internal val configuration: Configuration<K, V>,

@@ -14,9 +14,9 @@ object KtorCorrelationId {
 
     private val allowedChars: Set<Char> =
         ('a'..'z').toSet() +
-            ('A'..'Z').toSet() +
-            ('0'..'9').toSet() +
-            setOf('-', '_', '.')
+                ('A'..'Z').toSet() +
+                ('0'..'9').toSet() +
+                setOf('-', '_', '.')
 
     /**
      * 호출자가 전달한 correlation ID를 정제합니다.

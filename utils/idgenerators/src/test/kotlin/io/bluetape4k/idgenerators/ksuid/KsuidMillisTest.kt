@@ -2,6 +2,7 @@ package io.bluetape4k.idgenerators.ksuid
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.codec.encodeHexString
 import io.bluetape4k.idgenerators.snowflake.MAX_SEQUENCE
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.ConcurrentHashMap
 
 class KsuidMillisTest {
+
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private const val TEST_COUNT = MAX_SEQUENCE * 4
@@ -48,9 +50,11 @@ class KsuidMillisTest {
     @RepeatedTest(REPEAT_SIZE)
     fun `generate multiple ksuids`() {
         val count = 100
-        val ids = List(count) { Ksuid.Millis.generate() }
+        val ids = List(count) {
+            Ksuid.Millis.generate()
+        }
 
-        ids.distinct().size shouldBeEqualTo count
+        ids.distinct() shouldHaveSize count
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -80,17 +84,16 @@ class KsuidMillisTest {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `generate ksuid in coroutines`() =
-        runSuspendDefault {
-            val idMap = ConcurrentHashMap<String, Int>()
+    fun `generate ksuid in coroutines`() = runSuspendDefault {
+        val idMap = ConcurrentHashMap<String, Int>()
 
-            SuspendedJobTester()
-                .rounds(TEST_COUNT)
-                .add {
-                    val ksuid = Ksuid.Millis.generate()
-                    idMap.putIfAbsent(ksuid, 1).shouldBeNull()
-                }.run()
-        }
+        SuspendedJobTester()
+            .rounds(TEST_COUNT)
+            .add {
+                val ksuid = Ksuid.Millis.generate()
+                idMap.putIfAbsent(ksuid, 1).shouldBeNull()
+            }.run()
+    }
 
     @Test
     fun `prettyString에서 payload가 12바이트(24 hex chars)여야 한다`() {
@@ -104,6 +107,7 @@ class KsuidMillisTest {
         val payloadHex = payloadLine.substringAfter("= ").trim()
 
         // Millis payload는 12바이트 = 24 hex chars
+        log.debug { "payloadLine=$payloadLine, payloadHex: $payloadHex" }
         payloadHex.length shouldBeEqualTo Ksuid.Millis.PAYLOAD_LEN * 2
     }
 }

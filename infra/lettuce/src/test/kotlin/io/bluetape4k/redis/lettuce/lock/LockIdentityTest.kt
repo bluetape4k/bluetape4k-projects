@@ -7,31 +7,43 @@ import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.codec.Base58
+import io.bluetape4k.io.lookup
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InvalidObjectException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import java.io.ObjectStreamClass
 import java.io.Serializable
 import java.time.Duration
 
 class LockIdentityTest {
+
+    companion object: KLogging()
 
     @Test
     fun `owner and request ids validate UTF-8 bytes and redact diagnostics`() {
         val owner = LockOwnerId.from("owner-secret")
         val request = LockRequestId.from("request-secret")
 
+        log.debug { "owner=$owner" }
+        log.debug { "request=$request" }
+
         LockOwnerId.from("한".repeat(85)).toString() shouldBeEqualTo "LockOwnerId(<redacted>)"
         LockRequestId.from("한".repeat(85)).toString() shouldBeEqualTo "LockRequestId(<redacted>)"
+
         owner.toString() shouldNotContain "owner-secret"
         request.toString() shouldNotContain "request-secret"
 
         listOf("", " ".repeat(3), "a".repeat(257), "한".repeat(86)).forEach { invalid ->
-            assertFailsWith<IllegalArgumentException> { LockOwnerId.from(invalid) }
-            assertFailsWith<IllegalArgumentException> { LockRequestId.from(invalid) }
+            assertFailsWith<IllegalArgumentException> {
+                LockOwnerId.from(invalid)
+            }
+            assertFailsWith<IllegalArgumentException> {
+                LockRequestId.from(invalid)
+            }
         }
     }
 
@@ -70,7 +82,10 @@ class LockIdentityTest {
 
         LockGeneration(1).compareTo(LockGeneration(2)) shouldBeLessThan 0
         LockGeneration(2).toString() shouldBeEqualTo "LockGeneration(<redacted>)"
-        assertFailsWith<IllegalArgumentException> { LockGeneration(0) }
+
+        assertFailsWith<IllegalArgumentException> {
+            LockGeneration(0)
+        }
     }
 
     @Test
@@ -86,6 +101,10 @@ class LockIdentityTest {
         val fenced = FencedLockHandle(lock.copy(kind = LockKind.FENCED), epoch = 1, fencingToken = 9)
         val waiter = FairWaiterState(FairWaiterStatus.QUEUED, enqueueSequence = 3, remainingWaitMillis = 10)
 
+        log.debug { "lock handle=$lock " }
+        log.debug { "fended lock handle=$fenced" }
+        log.debug { "fenced waiter state=$waiter" }
+
         lock.toString() shouldNotContain "object-secret"
         lock.toString() shouldNotContain "owner-secret"
         lock.toString() shouldNotContain "request-secret"
@@ -94,9 +113,15 @@ class LockIdentityTest {
         waiter.toString() shouldNotContain "3"
         waiter.toString() shouldNotContain "10"
 
-        assertFailsWith<IllegalArgumentException> { FencedLockHandle(lock.copy(kind = LockKind.FENCED), 0, 1) }
-        assertFailsWith<IllegalArgumentException> { FencedLockHandle(lock.copy(kind = LockKind.FENCED), 1, 0) }
-        assertFailsWith<IllegalArgumentException> { MultiLockHandle(lock.copy(kind = LockKind.MULTI), 0) }
+        assertFailsWith<IllegalArgumentException> {
+            FencedLockHandle(lock.copy(kind = LockKind.FENCED), 0, 1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            FencedLockHandle(lock.copy(kind = LockKind.FENCED), 1, 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            MultiLockHandle(lock.copy(kind = LockKind.MULTI), 0)
+        }
         assertFailsWith<IllegalArgumentException> {
             FairWaiterState(FairWaiterStatus.QUEUED, 0, 1)
         }
@@ -115,7 +140,9 @@ class LockIdentityTest {
             leasePolicy = LeasePolicy.Watchdog(),
             kind = LockKind.FENCED,
         )
-        val samples = listOf<Serializable>(
+        log.debug { "lock handle=$lock " }
+
+        val samples = listOf(
             LockOwnerId.from("owner"),
             LockRequestId.from("request"),
             LockGeneration(2),
@@ -131,20 +158,28 @@ class LockIdentityTest {
 
         samples.forEach { original ->
             javaRoundTrip(original) shouldBeEqualTo original
-            ObjectStreamClass.lookup(original.javaClass).serialVersionUID shouldBeEqualTo 1L
+            original::class.lookup().serialVersionUID shouldBeEqualTo 1L
         }
 
         val invalid = lock.withField("objectFingerprint", "")
-        val error = assertFailsWith<InvalidObjectException> { javaRoundTrip(invalid) }
+        log.debug { "invalid lock handle=$invalid" }
+
+        val error = assertFailsWith<InvalidObjectException> {
+            javaRoundTrip(invalid)
+        }
+        log.debug { "error message=${error.message}" }
         error.message shouldBeEqualTo "Invalid serialized LockHandle."
         error.message shouldNotContain "owner"
 
         val invalidOwner = LockOwnerId.from("owner").withField("value", "owner|request")
-        assertFailsWith<InvalidObjectException> { javaRoundTrip(invalidOwner) }
-            .message shouldBeEqualTo "Invalid serialized LockOwnerId."
+        assertFailsWith<InvalidObjectException> {
+            javaRoundTrip(invalidOwner)
+        }.message shouldBeEqualTo "Invalid serialized LockOwnerId."
+
         val invalidRequest = LockRequestId.from("request").withField("value", "request\u0000owner")
-        assertFailsWith<InvalidObjectException> { javaRoundTrip(invalidRequest) }
-            .message shouldBeEqualTo "Invalid serialized LockRequestId."
+        assertFailsWith<InvalidObjectException> {
+            javaRoundTrip(invalidRequest)
+        }.message shouldBeEqualTo "Invalid serialized LockRequestId."
     }
 
     private fun <T: Serializable> T.withField(name: String, value: Any?): T = apply {

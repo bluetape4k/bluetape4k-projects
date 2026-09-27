@@ -178,14 +178,7 @@ withLoggingContext("userId" to userId) {
 
 #### MDC Snapshots for Reusable Worker Tasks
 
-Use `captureMdcContext` when a task is submitted and `withMdcContext` at the
-worker boundary. The snapshot is copied at capture time, an empty snapshot
-clears the worker MDC while the task runs, and the worker's complete previous
-map is restored after normal or exceptional completion.
-The API copies values without validation or redaction. Put only sanitized,
-non-secret identifiers in MDC; never put raw tokens, headers, or payloads there.
-Copying is proportional to the number of MDC entries, and queued tasks retain
-their copy until execution. Keep MDC to a small, low-cardinality identifier set.
+Use `captureMdcContext` when a task is submitted and `withMdcContext` at the worker boundary. The snapshot is copied at capture time, an empty snapshot clears the worker MDC while the task runs, and the worker's complete previous map is restored after normal or exceptional completion. The API copies values without validation or redaction. Put only sanitized, non-secret identifiers in MDC; never put raw tokens, headers, or payloads there. Copying is proportional to the number of MDC entries, and queued tasks retain their copy until execution. Keep MDC to a small, low-cardinality identifier set.
 
 ```kotlin
 import io.bluetape4k.logging.captureMdcContext
@@ -203,10 +196,7 @@ executor.execute {
 }
 ```
 
-`withMdcContext` replaces the complete MDC for its scope and restores the
-worker's previous map in `finally`; task-local keys therefore do not leak into
-the next task. This is intentionally different from `withLoggingContext`,
-which keeps its existing key-by-key merge and empty-map no-op semantics.
+`withMdcContext` replaces the complete MDC for its scope and restores the worker's previous map in `finally`; task-local keys therefore do not leak into the next task. This is intentionally different from `withLoggingContext`, which keeps its existing key-by-key merge and empty-map no-op semantics.
 
 ### 5. MDC in Coroutines
 

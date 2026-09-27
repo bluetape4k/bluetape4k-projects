@@ -1,5 +1,6 @@
 package io.bluetape4k.nats.client.examples
 
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
@@ -10,8 +11,8 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import kotlin.time.Duration.Companion.seconds
 
 class RequestReplyExample: AbstractNatsTest() {
 
@@ -43,7 +44,7 @@ class RequestReplyExample: AbstractNatsTest() {
 
             try {
                 val future = nc.request("greet.pam", null)
-                val m1 = future.get(1, TimeUnit.SECONDS)
+                val m1 = future.get(1.seconds)
                 log.debug { "Response received: ${m1.data.toUtf8String()}" } // hello pam
             } catch (e: ExecutionException) {
                 log.error(e) { "Somthing went wrong with the execution of the request." }
@@ -65,7 +66,7 @@ class RequestReplyExample: AbstractNatsTest() {
             // we get a cancellation exception.
             try {
                 val future = nc.request("greet.sue", null)
-                val m3 = future.get(1, TimeUnit.SECONDS)
+                val m3 = future.get(1.seconds)
                 log.debug { "Response received: ${m3.data.toUtf8String()}" } // hello pam
             } catch (e: ExecutionException) {
                 log.error(e) { "Somthing went wrong with the execution of the request." }

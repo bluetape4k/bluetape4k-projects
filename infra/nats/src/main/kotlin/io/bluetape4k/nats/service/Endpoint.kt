@@ -16,7 +16,8 @@ inline fun endpoint(
 /**
  * 기존 [Endpoint]를 기반으로 복사본을 생성합니다.
  */
-inline fun endpointOf(endpoint: Endpoint): Endpoint = endpoint { endpoint(endpoint) }
+inline fun endpointOf(endpoint: Endpoint): Endpoint =
+    endpoint { endpoint(endpoint) }
 
 /**
  * 이름과 subject 중심의 기본 설정으로 [Endpoint]를 생성합니다.

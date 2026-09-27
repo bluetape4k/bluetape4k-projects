@@ -46,7 +46,7 @@ class NeverFlowTest: AbstractFlowTest() {
         runCurrent()
 
         repeat(itemSize) {
-            advanceTimeBy(itemSize / 10L)
+            advanceTimeBy((itemSize / 10L).milliseconds)
             runCurrent()
             list.shouldBeEmpty()
         }

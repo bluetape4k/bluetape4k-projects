@@ -2,7 +2,6 @@ package io.bluetape4k.pulsar
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent

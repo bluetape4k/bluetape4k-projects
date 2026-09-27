@@ -17,6 +17,5 @@ inline fun objectMetaOptions(
 inline fun objectMetaOptions(
     om: ObjectMetaOptions,
     builder: ObjectMetaOptions.Builder.() -> Unit,
-): ObjectMetaOptions {
-    return ObjectMetaOptions.Builder(om).apply(builder).build()
-}
+): ObjectMetaOptions =
+    ObjectMetaOptions.Builder(om).apply(builder).build()

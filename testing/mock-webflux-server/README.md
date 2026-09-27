@@ -3,8 +3,8 @@
 [한국어](./README.ko.md) | English
 
 A standalone Spring Boot 4 + WebFlux mock server for integration testing. It provides HTTP endpoints compatible with
-[httpbin.org](https://httpbin.org) and [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com), implemented with Kotlin Coroutines
-(`suspend fun`, `Flow`). It runs on port **80** (HTTP) / **8443** (HTTPS) inside Docker.
+[httpbin.org](https://httpbin.org) and [jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com), implemented with Kotlin Coroutines (`suspend fun`, `Flow`). It runs on port
+**80** (HTTP) / **8443** (HTTPS) inside Docker.
 
 ## Architecture
 
@@ -119,25 +119,25 @@ dependencies {
 
 #### `/httpbin/**`
 
-| Method   | Path                        | Description                                             |
-|----------|-----------------------------|---------------------------------------------------------|
-| `GET`    | `/httpbin/get`              | Echoes GET request info                                 |
-| `POST`   | `/httpbin/post`             | Echoes POST request + body                              |
-| `PUT`    | `/httpbin/put`              | Echoes PUT request + body                               |
-| `PATCH`  | `/httpbin/patch`            | Echoes PATCH request + body                             |
-| `DELETE` | `/httpbin/delete`           | Echoes DELETE request info                              |
-| `GET`    | `/httpbin/headers`          | Returns all request headers                             |
-| `GET`    | `/httpbin/ip`               | Returns client IP                                       |
-| `GET`    | `/httpbin/user-agent`       | Returns User-Agent header                               |
-| `GET`    | `/httpbin/uuid`             | Returns a random UUID                                   |
-| `ANY`    | `/httpbin/anything/**`      | Echoes any request                                      |
-| `ANY`    | `/httpbin/status/{code}`    | Returns the given HTTP status code                      |
-| `GET`    | `/httpbin/bytes/{n}`        | Returns `n` random bytes                                |
-| `GET`    | `/httpbin/delay/{seconds}`  | Responds after a delay (`0.5` = 500 ms, range 0.0–10.0) |
-| `GET`    | `/httpbin/stream/{n}`       | Streams `n` JSON lines via `Flow`                       |
-| `GET`    | `/httpbin/image/{format}`   | Returns a sample image (png/jpeg/svg/webp)              |
-| `GET`    | `/httpbin/gzip`             | Returns gzip-encoded response                           |
-| `GET`    | `/httpbin/deflate`          | Returns deflate-encoded response                        |
+| Method   | Path                       | Description                                             |
+|----------|----------------------------|---------------------------------------------------------|
+| `GET`    | `/httpbin/get`             | Echoes GET request info                                 |
+| `POST`   | `/httpbin/post`            | Echoes POST request + body                              |
+| `PUT`    | `/httpbin/put`             | Echoes PUT request + body                               |
+| `PATCH`  | `/httpbin/patch`           | Echoes PATCH request + body                             |
+| `DELETE` | `/httpbin/delete`          | Echoes DELETE request info                              |
+| `GET`    | `/httpbin/headers`         | Returns all request headers                             |
+| `GET`    | `/httpbin/ip`              | Returns client IP                                       |
+| `GET`    | `/httpbin/user-agent`      | Returns User-Agent header                               |
+| `GET`    | `/httpbin/uuid`            | Returns a random UUID                                   |
+| `ANY`    | `/httpbin/anything/**`     | Echoes any request                                      |
+| `ANY`    | `/httpbin/status/{code}`   | Returns the given HTTP status code                      |
+| `GET`    | `/httpbin/bytes/{n}`       | Returns `n` random bytes                                |
+| `GET`    | `/httpbin/delay/{seconds}` | Responds after a delay (`0.5` = 500 ms, range 0.0–10.0) |
+| `GET`    | `/httpbin/stream/{n}`      | Streams `n` JSON lines via `Flow`                       |
+| `GET`    | `/httpbin/image/{format}`  | Returns a sample image (png/jpeg/svg/webp)              |
+| `GET`    | `/httpbin/gzip`            | Returns gzip-encoded response                           |
+| `GET`    | `/httpbin/deflate`         | Returns deflate-encoded response                        |
 
 #### `/jsonplaceholder/**`
 

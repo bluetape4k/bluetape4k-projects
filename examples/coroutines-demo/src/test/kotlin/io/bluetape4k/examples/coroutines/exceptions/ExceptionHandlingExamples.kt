@@ -1,11 +1,17 @@
 package io.bluetape4k.examples.coroutines.exceptions
 
+import io.bluetape4k.assertions.fail
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.support.suspendLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.error
 import io.bluetape4k.logging.info
 import io.bluetape4k.logging.warn
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -18,12 +24,6 @@ import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.fail
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -44,16 +44,18 @@ class ExceptionHandlingExamples {
 
     companion object: KLoggingChannel()
 
-    private var hasException = false
+    private val hasException = atomic(false)
+    private val job2Executed = atomic(false)
 
     private val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-        hasException = true
-        log.error(exception) { "예외가 발생했습니다." }
+        hasException.value = true
+        log.error { "Exception Handler 에서 예외를 받아서 처리합니다. exception=${exception.message}" }
     }
 
     @BeforeEach
     fun beforeEach() {
-        hasException = false
+        hasException.value = false
+        job2Executed.value = false
     }
 
     @Disabled("예외가 발생하는 launch 구역은 try/catch를 추가해야 합니다.")
@@ -89,7 +91,7 @@ class ExceptionHandlingExamples {
             launch {
                 advanceTimeBy(100L.milliseconds)
                 throw RuntimeException("Boom!")
-            }
+            }.log("Exception Job")
         } catch (e: Throwable) {
             log.warn(e) { "예외를 catch하지 못했습니다" }
         }
@@ -121,7 +123,7 @@ class ExceptionHandlingExamples {
             }.log("#2")
         }
 
-        capturedException.shouldNotBeNull() shouldBeInstanceOf RuntimeException::class
+        capturedException.shouldBeInstanceOf<RuntimeException>()
     }
 
     /**
@@ -129,7 +131,7 @@ class ExceptionHandlingExamples {
      */
     @Test
     fun `SupervisorJob을 활용하여 예외처리하기`() = runTest {
-        val job = SupervisorJob()
+        val job = SupervisorJob().log("supervisor")
         val scope = CoroutineScope(job)
         val run2 = AtomicBoolean(false)
 
@@ -137,13 +139,15 @@ class ExceptionHandlingExamples {
             advanceTimeBy(100L.milliseconds)
             suspendLogging { "예외가 발생합니다 ..." }
             throw RuntimeException("Boom!")
-        }.log("#1")
+        }.log("Job #1")
+
+        yield()
 
         scope.launch(exceptionHandler) {
             advanceTimeBy(200L.milliseconds)
             run2.set(true)
-            suspendLogging { "이 코드는 실행되어야 합니다" }
-        }.log("#2")
+            suspendLogging { "이 코드는 실행되었습니다. run2=${run2.get()}" }
+        }.log("Job #2")
 
         yield()
 
@@ -263,7 +267,7 @@ class ExceptionHandlingExamples {
 
     @Test
     fun `자식이 취소된다고 부모가 취소되지는 않습니다`() = runTest {
-        val job2Executed = AtomicBoolean(false)
+
 
         // 자식 1
         launch {
@@ -280,24 +284,18 @@ class ExceptionHandlingExamples {
         // 자식 2 - 자식 1과 상관없이 실행된다.
         launch {
             advanceTimeBy(200.milliseconds)
-            job2Executed.set(true)
+            job2Executed.value = true
             log.info { "Child2 는 Child1 과 상관없이 실행됩니다." }
         }.log("#2").join()
 
-        job2Executed.get().shouldBeTrue()
+        job2Executed.value.shouldBeTrue()
     }
 
     @Test
     fun `Coroutine exception handler를 사용하여 작업하기`() = runTest {
-        val hasException = AtomicBoolean(false)
-        val job2Executed = AtomicBoolean(false)
-        val handler = CoroutineExceptionHandler { _, exception ->
-            hasException.set(true)
-            log.error(exception) { "예외가 발생했습니다." }
-        }
 
-        val job = SupervisorJob()
-        val scope = CoroutineScope(job + handler)
+        val job = SupervisorJob().log("superJob")
+        val scope = CoroutineScope(job + exceptionHandler)
 
         // 예외 발생 시 exception handler 가 처리합니다.
         scope.launch {
@@ -307,14 +305,14 @@ class ExceptionHandlingExamples {
 
         scope.launch {
             advanceTimeBy(200.milliseconds)
-            job2Executed.set(true)
+            job2Executed.value = true
             suspendLogging { "이 코드는 출력되어야 합니다." }
         }.log("#2")
 
         job.complete()
         job.join()
 
-        hasException.get().shouldBeTrue()
-        job2Executed.get().shouldBeTrue()
+        hasException.value.shouldBeTrue()
+        job2Executed.value.shouldBeTrue()
     }
 }

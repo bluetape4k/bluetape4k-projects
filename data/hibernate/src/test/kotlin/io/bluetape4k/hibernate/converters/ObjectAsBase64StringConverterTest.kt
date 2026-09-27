@@ -8,18 +8,24 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.io.serializer.BinarySerializationException
 import io.bluetape4k.io.serializer.JdkBinarySerializer
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.Serializable
 
 class ObjectAsBase64StringConverterTest {
 
-    data class SampleData(val name: String, val value: Int) : Serializable {
+    companion object: KLogging()
+
+    data class SampleData(
+        val name: String,
+        val value: Int
+    ): Serializable {
         companion object {
             private const val serialVersionUID = 1L
         }
     }
 
-    data class UnexpectedData(val payload: String) : Serializable {
+    data class UnexpectedData(val payload: String): Serializable {
         companion object {
             private const val serialVersionUID = 1L
         }
@@ -42,80 +48,64 @@ class ObjectAsBase64StringConverterTest {
     @Test
     fun `JdkObjectAsBase64StringConverter는 객체를 Base64로 직렬화하고 역직렬화한다`() {
         val converter = JdkObjectAsBase64StringConverter()
-        val encoded = converter.convertToDatabaseColumn(sample)
-        encoded.shouldNotBeNull()
-
-        val decoded = converter.convertToEntityAttribute(encoded)
+        val encoded = converter.convertToDatabaseColumn(sample).shouldNotBeNull()
+        val decoded = converter.convertToEntityAttribute(encoded).shouldNotBeNull()
         decoded shouldBeEqualTo sample
     }
 
     @Test
     fun `LZ4JdkObjectAsBase64StringConverter는 객체를 압축 직렬화하고 역직렬화한다`() {
         val converter = LZ4JdkObjectAsBase64StringConverter()
-        val encoded = converter.convertToDatabaseColumn(sample)
-        encoded.shouldNotBeNull()
-
-        val decoded = converter.convertToEntityAttribute(encoded)
+        val encoded = converter.convertToDatabaseColumn(sample).shouldNotBeNull()
+        val decoded = converter.convertToEntityAttribute(encoded).shouldNotBeNull()
         decoded shouldBeEqualTo sample
     }
 
     @Test
     fun `SnappyJdkObjectAsBase64StringConverter는 객체를 압축 직렬화하고 역직렬화한다`() {
         val converter = SnappyJdkObjectAsBase64StringConverter()
-        val encoded = converter.convertToDatabaseColumn(sample)
-        encoded.shouldNotBeNull()
-
-        val decoded = converter.convertToEntityAttribute(encoded)
+        val encoded = converter.convertToDatabaseColumn(sample).shouldNotBeNull()
+        val decoded = converter.convertToEntityAttribute(encoded).shouldNotBeNull()
         decoded shouldBeEqualTo sample
     }
 
     @Test
     fun `ZstdJdkObjectAsBase64StringConverter는 객체를 압축 직렬화하고 역직렬화한다`() {
         val converter = ZstdJdkObjectAsBase64StringConverter()
-        val encoded = converter.convertToDatabaseColumn(sample)
-        encoded.shouldNotBeNull()
-
-        val decoded = converter.convertToEntityAttribute(encoded)
+        val encoded = converter.convertToDatabaseColumn(sample).shouldNotBeNull()
+        val decoded = converter.convertToEntityAttribute(encoded).shouldNotBeNull()
         decoded shouldBeEqualTo sample
     }
 
     @Test
     fun `KryoObjectAsBase64StringConverter는 객체를 Kryo 직렬화하고 역직렬화한다`() {
         val converter = KryoObjectAsBase64StringConverter()
-        val encoded = converter.convertToDatabaseColumn(sample)
-        encoded.shouldNotBeNull()
-
-        val decoded = converter.convertToEntityAttribute(encoded)
+        val encoded = converter.convertToDatabaseColumn(sample).shouldNotBeNull()
+        val decoded = converter.convertToEntityAttribute(encoded).shouldNotBeNull()
         decoded shouldBeEqualTo sample
     }
 
     @Test
     fun `LZ4KryoObjectAsBase64StringConverter는 객체를 압축 직렬화하고 역직렬화한다`() {
         val converter = LZ4KryoObjectAsBase64StringConverter()
-        val encoded = converter.convertToDatabaseColumn(sample)
-        encoded.shouldNotBeNull()
-
-        val decoded = converter.convertToEntityAttribute(encoded)
+        val encoded = converter.convertToDatabaseColumn(sample).shouldNotBeNull()
+        val decoded = converter.convertToEntityAttribute(encoded).shouldNotBeNull()
         decoded shouldBeEqualTo sample
     }
 
     @Test
     fun `SnappyKryoObjectAsBase64StringConverter는 객체를 압축 직렬화하고 역직렬화한다`() {
         val converter = SnappyKryoObjectAsBase64StringConverter()
-        val encoded = converter.convertToDatabaseColumn(sample)
-        encoded.shouldNotBeNull()
-
-        val decoded = converter.convertToEntityAttribute(encoded)
+        val encoded = converter.convertToDatabaseColumn(sample).shouldNotBeNull()
+        val decoded = converter.convertToEntityAttribute(encoded).shouldNotBeNull()
         decoded shouldBeEqualTo sample
     }
 
     @Test
     fun `ZstdKryoObjectAsBase64StringConverter는 객체를 압축 직렬화하고 역직렬화한다`() {
         val converter = ZstdKryoObjectAsBase64StringConverter()
-        val encoded = converter.convertToDatabaseColumn(sample)
-        encoded.shouldNotBeNull()
-
-        val decoded = converter.convertToEntityAttribute(encoded)
+        val encoded = converter.convertToDatabaseColumn(sample).shouldNotBeNull()
+        val decoded = converter.convertToEntityAttribute(encoded).shouldNotBeNull()
         decoded shouldBeEqualTo sample
     }
 
@@ -124,19 +114,16 @@ class ObjectAsBase64StringConverterTest {
         val converter = JdkObjectAsBase64StringConverter()
 
         // String
-        val strEncoded = converter.convertToDatabaseColumn("test string")
-        strEncoded.shouldNotBeNull()
+        val strEncoded = converter.convertToDatabaseColumn("test string").shouldNotBeNull()
         converter.convertToEntityAttribute(strEncoded) shouldBeEqualTo "test string"
 
         // Integer
-        val intEncoded = converter.convertToDatabaseColumn(12345)
-        intEncoded.shouldNotBeNull()
+        val intEncoded = converter.convertToDatabaseColumn(12345).shouldNotBeNull()
         converter.convertToEntityAttribute(intEncoded) shouldBeEqualTo 12345
 
         // List
         val listData = listOf("a", "b", "c")
-        val listEncoded = converter.convertToDatabaseColumn(listData)
-        listEncoded.shouldNotBeNull()
+        val listEncoded = converter.convertToDatabaseColumn(listData).shouldNotBeNull()
         converter.convertToEntityAttribute(listEncoded) shouldBeEqualTo listData
     }
 
@@ -160,7 +147,10 @@ class ObjectAsBase64StringConverterTest {
     fun `typed Base64 string converter rejects unexpected deserialized type`() {
         val unsafeConverter = JdkObjectAsBase64StringConverter()
         val typedConverter = TypedSampleAsBase64StringConverter()
-        val payload = unsafeConverter.convertToDatabaseColumn(UnexpectedData("unexpected"))
+
+        val payload = unsafeConverter
+            .convertToDatabaseColumn(UnexpectedData("unexpected"))
+            .shouldNotBeNull()
 
         assertFailsWith<BinarySerializationException> {
             typedConverter.convertToEntityAttribute(payload)

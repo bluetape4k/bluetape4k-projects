@@ -22,5 +22,6 @@ fun objectLinkOf(bucket: String): ObjectLink {
 fun objectLinkOf(bucket: String, objectName: String): ObjectLink {
     bucket.requireNotBlank("bucket")
     objectName.requireNotBlank("objectName")
+
     return ObjectLink.`object`(bucket, objectName)
 }

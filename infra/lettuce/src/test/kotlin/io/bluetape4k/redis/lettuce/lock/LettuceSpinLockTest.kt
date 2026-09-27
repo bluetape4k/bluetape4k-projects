@@ -3,7 +3,12 @@ package io.bluetape4k.redis.lettuce.lock
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationScheduledHandle
@@ -18,11 +23,19 @@ import kotlinx.coroutines.future.await
 import kotlinx.coroutines.yield
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.time.Duration as KotlinDuration
 
 internal class LettuceSpinLockTest {
+
+    private companion object: KLogging() {
+        val OWNER_1 = LockOwnerId.from("spin-owner-1")
+        val OWNER_2 = LockOwnerId.from("spin-owner-2")
+        val REQUEST_1 = LockRequestId.from("spin-request-1")
+        val REQUEST_2 = LockRequestId.from("spin-request-2")
+        val REQUEST_3 = LockRequestId.from("spin-request-3")
+        val LEASE = LeasePolicy.Fixed(Duration.ofSeconds(3))
+    }
 
     @Test
     fun `backoff grows from ten milliseconds to one second and clips to deadline`() {
@@ -83,12 +96,12 @@ internal class LettuceSpinLockTest {
 
         val pending = support.acquireAsync(Duration.ofSeconds(1)) {
             attempts++
-            CompletableFuture.completedFuture(LockAcquireResult.Contended(1_000))
+            completableFutureOf(LockAcquireResult.Contended(1_000))
         }
         scheduler.runNext()
         attempts shouldBeEqualTo 1
 
-        pending.cancel(false) shouldBeEqualTo true
+        pending.cancel(false).shouldBeTrue()
         scheduler.runNext()
         attempts shouldBeEqualTo 1
         support.close()
@@ -130,7 +143,7 @@ internal class LettuceSpinLockTest {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
             val lock = LettuceSpinLock.create(
                 connection,
-                "spin-contract-${System.nanoTime()}",
+                "spin-contract-${Base58.randomString(8)}",
                 SpinLockConfig(jitterRatio = 0.0),
             )
             try {
@@ -140,6 +153,8 @@ internal class LettuceSpinLockTest {
                 val second = lock.tryAcquire(OWNER_1, REQUEST_2, LEASE)
                     .shouldBeInstanceOf<LockAcquireResult.Reentered<LockHandle>>()
                     .handle
+
+                log.debug { "first:$first second:$second" }
 
                 lock.acquire(
                     OWNER_2,
@@ -188,15 +203,6 @@ internal class LettuceSpinLockTest {
         val task: () -> Unit,
         @Volatile var cancelled: Boolean = false,
     )
-
-    private companion object {
-        val OWNER_1 = LockOwnerId.from("spin-owner-1")
-        val OWNER_2 = LockOwnerId.from("spin-owner-2")
-        val REQUEST_1 = LockRequestId.from("spin-request-1")
-        val REQUEST_2 = LockRequestId.from("spin-request-2")
-        val REQUEST_3 = LockRequestId.from("spin-request-3")
-        val LEASE = LeasePolicy.Fixed(Duration.ofSeconds(3))
-    }
 }
 
 internal class BlockingLettuceSpinLockContractTest: LockContract() {

@@ -20,7 +20,7 @@ abstract class AbstractInterpolationTest {
     companion object: KLogging()
 
     protected abstract val interpolator: Interpolator
-    protected open val TOLERANCE: Double = 1e-5
+    protected open val tolerance: Double = 1e-5
 
     @Test
     open fun `empty data for interpolator`() {
@@ -89,8 +89,8 @@ abstract class AbstractInterpolationTest {
 
         val sinfunc = interpolator.interpolate(xs, ys)
 
-        sinfunc(0.0).approximateEqual(0.0, TOLERANCE).shouldBeTrue()
-        sinfunc(0.5).approximateEqual(1.0, TOLERANCE).shouldBeTrue()
-        sinfunc(1.0).approximateEqual(0.0, TOLERANCE).shouldBeTrue()
+        sinfunc(0.0).approximateEqual(0.0, tolerance).shouldBeTrue()
+        sinfunc(0.5).approximateEqual(1.0, tolerance).shouldBeTrue()
+        sinfunc(1.0).approximateEqual(0.0, tolerance).shouldBeTrue()
     }
 }

@@ -1,8 +1,8 @@
 package io.bluetape4k.idgenerators.uuid.base62
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.codec.decodeBase62AsUuid
 import io.bluetape4k.codec.encodeBase62
@@ -17,9 +17,10 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toLongArray
 import io.bluetape4k.support.toUUID
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.seconds
 
@@ -42,30 +43,24 @@ abstract class AbstractTimebasedUuidBase62Test {
         val u2 = uuidGenerator.nextIdAsString()
         val u3 = uuidGenerator.nextIdAsString()
 
-        listOf(u1, u2, u3).forEach {
-            log.debug { "uuid=$it" }
-        }
+        log.debug { "u1=$u1, u2=$u2, u3=$u3" }
 
-        (u2 > u1).shouldBeTrue()
-        (u3 > u2).shouldBeTrue()
+        u2 shouldBeGreaterThan u1
+        u3 shouldBeGreaterThan u2
 
         // u1.version() shouldBeEqualTo 6   // Time based
     }
 
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `generate timebased uuid with size`() {
 
         val uuids = uuidGenerator.nextIdsAsString(STRESS_OPERATIONS).toList()
         val sorted = uuids.sorted()
 
-        sorted.forEachIndexed { index, uuid ->
-            uuid shouldBeEqualTo sorted[index]
-        }
-
-        uuids.distinct().size shouldBeEqualTo uuids.size
+        sorted shouldBeEqualTo uuids
     }
 
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `generate timebased uuids as parallel`() {
         val uuids = TEST_LIST.parallelStream()
             .map { uuidGenerator.nextIdAsString() }
@@ -73,10 +68,10 @@ abstract class AbstractTimebasedUuidBase62Test {
             .sorted()
 
         // 중복 발행은 없어야 한다
-        uuids.distinct().size shouldBeEqualTo uuids.size
+        uuids.distinct() shouldBeEqualTo uuids
     }
 
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `generate timebased uuids in multi threads`() {
         val idMap = ConcurrentHashMap<String, Int>()
 
@@ -93,12 +88,11 @@ abstract class AbstractTimebasedUuidBase62Test {
     }
 
     @EnabledForJreRange(min = JRE.JAVA_21)
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `generate timebased uuids in virtual threads`() {
         val idMap = ConcurrentHashMap<String, Int>()
 
         StructuredTaskScopeTester()
-            .workers(STRESS_WORKERS)
             .rounds(STRESS_OPERATIONS)
             .withTimeout(STRESS_TIMEOUT)
             .add {
@@ -110,12 +104,11 @@ abstract class AbstractTimebasedUuidBase62Test {
         idMap.size shouldBeEqualTo STRESS_OPERATIONS
     }
 
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `generate timebased uuids in suspend jobs`() = runSuspendDefault(timeout = STRESS_TIMEOUT) {
         val idMap = ConcurrentHashMap<String, Int>()
 
         SuspendedJobTester()
-            .workers(STRESS_WORKERS)
             .rounds(STRESS_OPERATIONS)
             .add {
                 val id = uuidGenerator.nextIdAsString()

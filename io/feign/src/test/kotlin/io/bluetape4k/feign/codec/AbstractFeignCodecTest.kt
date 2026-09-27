@@ -13,6 +13,7 @@ import io.bluetape4k.support.toUtf8String
 import org.junit.jupiter.api.Test
 
 abstract class AbstractFeignCodecTest: AbstractFeignTest() {
+
     companion object: KLogging()
 
     abstract val encoder: feign.codec.Encoder
@@ -52,14 +53,13 @@ abstract class AbstractFeignCodecTest: AbstractFeignTest() {
     fun `decode basic type`() {
         val expected = "HELLO"
 
-        val response =
-            feignResponse {
-                status(200)
-                reason("OK")
-                request(dummyRequest)
-                headers(mapOf("content-type" to listOf("text/plain")))
-                body(expected, Charsets.UTF_8)
-            }
+        val response = feignResponse {
+            status(200)
+            reason("OK")
+            request(dummyRequest)
+            headers(mapOf("content-type" to listOf("text/plain")))
+            body(expected, Charsets.UTF_8)
+        }
 
         decoder.decode(response, String::class.java) shouldBeEqualTo expected
     }
@@ -68,14 +68,13 @@ abstract class AbstractFeignCodecTest: AbstractFeignTest() {
     fun `decode json object`() {
         val json = """{"foo":42}"""
 
-        val response =
-            feignResponse {
-                status(200)
-                reason("OK")
-                request(dummyRequest)
-                headers(mapOf("content-type" to listOf("application/json")))
-                body(json, Charsets.UTF_8)
-            }
+        val response = feignResponse {
+            status(200)
+            reason("OK")
+            request(dummyRequest)
+            headers(mapOf("content-type" to listOf("application/json")))
+            body(json, Charsets.UTF_8)
+        }
 
         @Suppress("UNCHECKED_CAST")
         val result = decoder.decode(response, Map::class.java) as? Map<String, Any>
@@ -85,14 +84,13 @@ abstract class AbstractFeignCodecTest: AbstractFeignTest() {
 
     @Test
     fun `decode returns null on empty body`() {
-        val response =
-            feignResponse {
-                status(200)
-                reason("OK")
-                request(dummyRequest)
-                headers(mapOf("content-type" to listOf("application/json")))
-                body("", Charsets.UTF_8)
-            }
+        val response = feignResponse {
+            status(200)
+            reason("OK")
+            request(dummyRequest)
+            headers(mapOf("content-type" to listOf("application/json")))
+            body("", Charsets.UTF_8)
+        }
 
         // 빈 본문이면 null 반환
         val result = decoder.decode(response, Map::class.java)
@@ -101,13 +99,12 @@ abstract class AbstractFeignCodecTest: AbstractFeignTest() {
 
     @Test
     fun `decode 204 No Content returns empty value`() {
-        val response =
-            feignResponse {
-                status(204)
-                reason("No Content")
-                request(dummyRequest)
-                headers(mapOf("content-type" to listOf("application/json")))
-            }
+        val response = feignResponse {
+            status(204)
+            reason("No Content")
+            request(dummyRequest)
+            headers(mapOf("content-type" to listOf("application/json")))
+        }
 
         // 204 응답은 emptyValueOf(type) 반환 — List → emptyList, String → null
         val result = decoder.decode(response, List::class.java)
@@ -117,13 +114,12 @@ abstract class AbstractFeignCodecTest: AbstractFeignTest() {
 
     @Test
     fun `decode 404 response returns empty value`() {
-        val response =
-            feignResponse {
-                status(404)
-                reason("Not Found")
-                request(dummyRequest)
-                headers(mapOf("content-type" to listOf("application/json")))
-            }
+        val response = feignResponse {
+            status(404)
+            reason("Not Found")
+            request(dummyRequest)
+            headers(mapOf("content-type" to listOf("application/json")))
+        }
 
         val result = decoder.decode(response, List::class.java)
         result.shouldNotBeNull()

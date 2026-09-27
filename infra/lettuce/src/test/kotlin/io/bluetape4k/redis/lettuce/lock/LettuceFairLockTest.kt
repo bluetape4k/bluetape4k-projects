@@ -2,7 +2,10 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.lock.internal.deriveFairLockKeys
 import io.bluetape4k.testcontainers.storage.RedisClusterServer
@@ -18,7 +21,11 @@ import org.junit.jupiter.api.Timeout
 import java.time.Duration
 import java.util.concurrent.Executors
 
-internal class LettuceFairLockTest : LockContract() {
+internal class LettuceFairLockTest: LockContract() {
+
+    private companion object: KLogging() {
+        val FIXED_LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(3))
+    }
 
     override fun createAdapter(
         connection: StatefulRedisConnection<String, String>,
@@ -30,7 +37,7 @@ internal class LettuceFairLockTest : LockContract() {
     @Test
     fun `blocking and future APIs recover by polling Redis authority`() = runSuspendIO {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val name = "fair-poll-${System.nanoTime()}"
+            val name = "fair-poll-${Base58.randomString(8)}"
             val lock = LettuceFairLock.create(connection, name)
             try {
                 val holder = lock.tryAcquire(
@@ -38,13 +45,18 @@ internal class LettuceFairLockTest : LockContract() {
                     LockRequestId.from("holder-request"),
                     FIXED_LEASE,
                 ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
+
                 val pending = lock.acquireAsync(
                     LockOwnerId.from("waiter"),
                     LockRequestId.from("waiter-request"),
                     Duration.ofSeconds(2),
                     FIXED_LEASE,
                 )
-                eventuallyQueued(lock, LockOwnerId.from("waiter"), LockRequestId.from("waiter-request"))
+                eventuallyQueued(
+                    lock,
+                    LockOwnerId.from("waiter"),
+                    LockRequestId.from("waiter-request")
+                )
 
                 lock.release(holder) shouldBeEqualTo LockMutationResult.Released(0)
                 pending.await().shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
@@ -58,17 +70,19 @@ internal class LettuceFairLockTest : LockContract() {
     @Test
     fun `suspend cancellation removes the exact queued waiter`() = runSuspendIO {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val name = "fair-cancel-${System.nanoTime()}"
+            val name = "fair-cancel-${Base58.randomString(8)}"
             val blocking = LettuceFairLock.create(connection, name)
             val suspending = LettuceSuspendFairLock.create(connection, name)
             val waiterOwner = LockOwnerId.from("cancelled")
             val waiterRequest = LockRequestId.from("cancelled-request")
+
             try {
                 val holder = blocking.tryAcquire(
                     LockOwnerId.from("holder"),
                     LockRequestId.from("holder-request"),
                     FIXED_LEASE,
                 ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
+
                 val pending = async {
                     suspending.acquire(
                         waiterOwner,
@@ -81,6 +95,7 @@ internal class LettuceFairLockTest : LockContract() {
 
                 pending.cancelAndJoin()
                 eventuallyNotQueued(blocking, waiterOwner, waiterRequest)
+
                 blocking.release(holder) shouldBeEqualTo LockMutationResult.Released(0)
             } finally {
                 blocking.close()
@@ -93,16 +108,18 @@ internal class LettuceFairLockTest : LockContract() {
     @Test
     fun `future cancellation removes the exact queued waiter`() = runSuspendIO {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val name = "fair-future-cancel-${System.nanoTime()}"
+            val name = "fair-future-cancel-${Base58.randomString(8)}"
             val lock = LettuceFairLock.create(connection, name)
             val waiterOwner = LockOwnerId.from("future-cancelled")
             val waiterRequest = LockRequestId.from("future-cancelled-request")
+
             try {
                 val holder = lock.tryAcquire(
                     LockOwnerId.from("holder"),
                     LockRequestId.from("holder-request"),
                     FIXED_LEASE,
                 ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
+
                 val pending = lock.acquireAsync(
                     waiterOwner,
                     waiterRequest,
@@ -111,8 +128,9 @@ internal class LettuceFairLockTest : LockContract() {
                 )
                 eventuallyQueued(lock, waiterOwner, waiterRequest)
 
-                pending.cancel(false) shouldBeEqualTo true
+                pending.cancel(false).shouldBeTrue()
                 eventuallyNotQueued(lock, waiterOwner, waiterRequest)
+
                 lock.release(holder) shouldBeEqualTo LockMutationResult.Released(0)
             } finally {
                 lock.close()
@@ -144,13 +162,9 @@ internal class LettuceFairLockTest : LockContract() {
         }
         error("waiter was not removed")
     }
-
-    private companion object {
-        val FIXED_LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(3))
-    }
 }
 
-internal class FutureLettuceFairLockTest : LockContract() {
+internal class FutureLettuceFairLockTest: LockContract() {
     override fun createAdapter(
         connection: StatefulRedisConnection<String, String>,
         name: String,
@@ -159,7 +173,7 @@ internal class FutureLettuceFairLockTest : LockContract() {
         fairFutureAdapter(LettuceFairLock.create(connection, name, FairLockConfig(config)))
 }
 
-internal class SuspendLettuceFairLockTest : LockContract() {
+internal class SuspendLettuceFairLockTest: LockContract() {
     override fun createAdapter(
         connection: StatefulRedisConnection<String, String>,
         name: String,
@@ -169,6 +183,10 @@ internal class SuspendLettuceFairLockTest : LockContract() {
 }
 
 internal class ClusterLettuceFairLockTest {
+
+    private companion object: KLogging() {
+        val FIXED_CLUSTER_LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(3))
+    }
 
     @Test
     @Timeout(30)
@@ -184,15 +202,18 @@ internal class ClusterLettuceFairLockTest {
                             LockRequestId.from("cluster-request"),
                             FIXED_CLUSTER_LEASE,
                         ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
+
                         handle.kind shouldBeEqualTo LockKind.FAIR
                         blocking.release(handle) shouldBeEqualTo LockMutationResult.Released(0)
                     }
+
                     LettuceSuspendFairLock.create(connection, names[1]).use { suspending ->
                         val handle = suspending.tryAcquire(
                             LockOwnerId.from("cluster-suspend-owner"),
                             LockRequestId.from("cluster-suspend-request"),
                             FIXED_CLUSTER_LEASE,
                         ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
+
                         handle.kind shouldBeEqualTo LockKind.FAIR
                         suspending.release(handle) shouldBeEqualTo LockMutationResult.Released(0)
                     }
@@ -203,10 +224,6 @@ internal class ClusterLettuceFairLockTest {
                 }
             }
         }
-    }
-
-    private companion object {
-        val FIXED_CLUSTER_LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(3))
     }
 }
 

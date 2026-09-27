@@ -28,17 +28,17 @@ object TestUtil: KLogging() {
     }
 
     /**
-     * Returns a new buffer containing the contents of `segments`, attempting to isolate each
+     * Returns a new buffer containing the contents of [strs], attempting to isolate each
      * string to its own segment in the returned buffer. This clones buffers so that segments are
      * shared, preventing compaction from occurring.
      */
-    fun bufferWithSegments(vararg segments: String): Buffer {
+    fun bufferWithSegments(vararg strs: String): Buffer {
         val result = Buffer()
-        for (segment in segments) {
-            val offsetInSegment = if (segment.length < SEGMENT_SIZE) (SEGMENT_SIZE - segment.length) / 2 else 0
+        for (str in strs) {
+            val offsetInSegment = if (str.length < SEGMENT_SIZE) (SEGMENT_SIZE - str.length) / 2 else 0
             val buffer = Buffer().apply {
                 writeUtf8("_".repeat(offsetInSegment))
-                writeUtf8(segment)
+                writeUtf8(str)
                 skip(offsetInSegment.toLong())
             }
             log.debug { "Buffer with segments. buffer=$buffer, buffer.size=${buffer.size}" }
@@ -59,18 +59,16 @@ object TestUtil: KLogging() {
             if (byteCount > data.size - pos) byteCount = data.size - pos
             val offset = Random.nextInt(SEGMENT_SIZE - byteCount)
 
-            val segment = Buffer().apply {
+            val buffer = Buffer().apply {
                 write(ByteArray(offset))
                 write(data, pos, byteCount)
                 skip(offset.toLong())
             }
 
-            log.debug { "Buffer with random segment layout. segment=$segment" }
-            result.write(segment, byteCount.toLong())
+            log.debug { "Buffer with random segment layout. buffer=$buffer" }
+            result.write(buffer, byteCount.toLong())
             pos += byteCount
         }
         return result
     }
-
-
 }

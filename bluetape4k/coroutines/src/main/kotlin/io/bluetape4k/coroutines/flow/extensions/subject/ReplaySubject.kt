@@ -5,6 +5,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
@@ -357,7 +358,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
             log.debug { "Replay emit ..." }
 
             while (true) {
-                coroutineContext.ensureActive()
+                currentCoroutineContext().ensureActive()
                 val d = done.value
                 val empty = consumer.index == size.value
                 if (d && empty) {
@@ -417,7 +418,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
         @Suppress("UNCHECKED_CAST")
         override suspend fun replay(consumer: InnerCollector<T>) = coroutineScope {
             while (true) {
-                coroutineContext.ensureActive()
+                currentCoroutineContext().ensureActive()
                 val d = done.value
                 var index = consumer.node as? Node<T>
                 if (index == null) {
@@ -533,7 +534,7 @@ class ReplaySubject<T>: AbstractFlow<T>, SubjectApi<T> {
         @Suppress("UNCHECKED_CAST")
         override suspend fun replay(consumer: InnerCollector<T>) = coroutineScope {
             while (true) {
-                coroutineContext.ensureActive()
+                currentCoroutineContext().ensureActive()
                 val d = done.value
                 var index = consumer.node as? Node<T>
                 if (index == null) {

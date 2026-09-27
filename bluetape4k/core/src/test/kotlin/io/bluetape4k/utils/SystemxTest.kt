@@ -1,12 +1,10 @@
 package io.bluetape4k.utils
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 
 class SystemxTest {
@@ -18,7 +16,8 @@ class SystemxTest {
         log.debug { "Java implementation version=${Systemx.javaImplementationVersion}" }
         log.debug { "JavaVersion=${Systemx.javaVersion}" }
         log.debug { "JavaHome=${Systemx.javaHome}" }
-        Systemx.javaHome.shouldNotBeNull().shouldNotBeEmpty()
+
+        Systemx.javaHome.shouldNotBeEmpty()
     }
 
     @Test
@@ -42,7 +41,7 @@ class SystemxTest {
     fun `System Env 값 얻기`() {
         val envs = Systemx.getenv()
         log.debug { "PATH=${envs["PATH"]}" }
-        envs["PATH"].shouldNotBeNull().shouldNotBeEmpty()
+        envs["PATH"].shouldNotBeEmpty()
 
         Systemx.getenv("PATH") shouldBeEqualTo envs["PATH"]
     }
@@ -63,23 +62,22 @@ class SystemxTest {
     fun `Java feature 버전 플래그는 런타임과 일관된다`() {
         val feature = Runtime.version().feature()
 
-        (Systemx.isJava11 == (feature == 11)).shouldBeTrue()
-        (Systemx.isJava17 == (feature == 17)).shouldBeTrue()
-        (Systemx.isJava19 == (feature == 19)).shouldBeTrue()
-        (Systemx.isJava21 == (feature == 21)).shouldBeTrue()
-        (Systemx.isJava22 == (feature == 22)).shouldBeTrue()
-        (Systemx.isJava23 == (feature == 23)).shouldBeTrue()
-        (Systemx.isJava24 == (feature == 24)).shouldBeTrue()
-        (Systemx.isJava25 == (feature == 25)).shouldBeTrue()
+        Systemx.isJava17 shouldBeEqualTo (feature == 17)
+        Systemx.isJava19 shouldBeEqualTo (feature == 19)
+        Systemx.isJava21 shouldBeEqualTo (feature == 21)
+        Systemx.isJava22 shouldBeEqualTo (feature == 22)
+        Systemx.isJava23 shouldBeEqualTo (feature == 23)
+        Systemx.isJava24 shouldBeEqualTo (feature == 24)
+        Systemx.isJava25 shouldBeEqualTo (feature == 25)
     }
 
     @Test
     fun `OS 플래그는 소문자 정규화 판별과 일관된다`() {
         val os = (Systemx.osName.orEmpty()).lowercase()
 
-        (Systemx.isWindows == os.contains("win")).shouldBeTrue()
-        (Systemx.isMac == os.contains("mac")).shouldBeTrue()
-        (Systemx.isSolaris == os.contains("sunos")).shouldBeTrue()
-        (Systemx.isUnix == (os.contains("nix") || os.contains("nux") || os.contains("aix"))).shouldBeTrue()
+        Systemx.isWindows shouldBeEqualTo (os.contains("win"))
+        Systemx.isMac shouldBeEqualTo (os.contains("mac"))
+        Systemx.isSolaris shouldBeEqualTo (os.contains("sunos"))
+        Systemx.isUnix shouldBeEqualTo (os.contains("nix") || os.contains("nux") || os.contains("aix"))
     }
 }

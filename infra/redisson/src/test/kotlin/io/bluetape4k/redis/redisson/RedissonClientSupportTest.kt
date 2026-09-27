@@ -1,5 +1,8 @@
 package io.bluetape4k.redis.redisson
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
@@ -8,9 +11,6 @@ import io.bluetape4k.logging.warn
 import io.bluetape4k.redis.redisson.RedissonTestUtils.randomName
 import io.bluetape4k.redis.redisson.RedissonTestUtils.redisson
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.redisson.api.TransactionOptions
 import org.redisson.client.codec.IntegerCodec
@@ -121,6 +121,7 @@ class RedissonClientSupportTest: AbstractRedissonTest() {
         val lock = redisson.getFairLock(lockname)
 
         lock.tryLock(1, 3, TimeUnit.SECONDS).shouldBeTrue()
+
         // 같은 Thread 에서 tryLock 을 중복 호출하면 이미 Lock이 획득한 경우에는 True 를 반환한다
         lock.tryLock(1, 3, TimeUnit.SECONDS).shouldBeTrue()
 

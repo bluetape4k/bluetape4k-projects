@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions.subject
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
@@ -85,6 +86,6 @@ class SpscArrayQueueTest {
         q.offer(null).shouldBeTrue()
         q.poll(a).shouldBeTrue()
         q.isEmpty.shouldBeTrue()
-        a[0] shouldBeEqualTo null
+        a[0].shouldBeNull()
     }
 }

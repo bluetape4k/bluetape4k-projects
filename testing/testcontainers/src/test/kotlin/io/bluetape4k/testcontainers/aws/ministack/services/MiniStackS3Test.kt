@@ -1,5 +1,9 @@
 package io.bluetape4k.testcontainers.aws.ministack.services
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8Bytes
@@ -7,9 +11,6 @@ import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.testcontainers.aws.ministack.AbstractMiniStackServiceTest
 import io.bluetape4k.utils.ShutdownQueue
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -32,7 +33,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 class MiniStackS3Test: AbstractMiniStackServiceTest() {
 
     companion object: KLogging() {
-        private val BUCKET_NAME = "ministack-test-bucket-${System.currentTimeMillis()}"
+        private val BUCKET_NAME = "ministack-test-bucket-${Base58.randomString(8).lowercase()}"
         private const val KEY_NAME = "test-object"
         private const val CONTENT = "hello-ministack-s3"
     }

@@ -1,22 +1,22 @@
 package io.bluetape4k.examples.redisson.coroutines.objects
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.coroutines.support.awaitUntil
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.redisson.api.RateType
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
-import kotlin.time.Duration.Companion.milliseconds
 
 
 class RateLimiterExamples: AbstractRedissonCoroutineTest() {
@@ -30,32 +30,32 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
         val limiter = redisson.getRateLimiter(randomName())
 
         // 2초 동안 5개의 request 만 허용
-        limiter.trySetRateAsync(RateType.OVERALL, 5, defaultDuration).await()
+        limiter.trySetRateAsync(RateType.OVERALL, 5, defaultDuration).awaitUntil()
 
         // 3개
-        limiter.tryAcquireAsync(1).await().shouldBeTrue()
-        limiter.tryAcquireAsync(1).await().shouldBeTrue()
-        limiter.tryAcquireAsync(1).await().shouldBeTrue()
+        limiter.tryAcquireAsync(1).awaitUntil().shouldBeTrue()
+        limiter.tryAcquireAsync(1).awaitUntil().shouldBeTrue()
+        limiter.tryAcquireAsync(1).awaitUntil().shouldBeTrue()
 
         val job = scope.launch {
             // 2개
-            limiter.tryAcquireAsync(1).await().shouldBeTrue()
-            limiter.tryAcquireAsync(1).await().shouldBeTrue()
+            limiter.tryAcquireAsync(1).awaitUntil().shouldBeTrue()
+            limiter.tryAcquireAsync(1).awaitUntil().shouldBeTrue()
             yield()
 
             // 5개 모두 소진됨
-            limiter.availablePermitsAsync().await() shouldBeEqualTo 0L
-            limiter.tryAcquireAsync(1).await().shouldBeFalse()
+            limiter.availablePermitsAsync().awaitUntil() shouldBeEqualTo 0L
+            limiter.tryAcquireAsync(1).awaitUntil().shouldBeFalse()
         }
         yield()
         job.join()
         yield()
 
         // 5개 모두 소진됨
-        limiter.availablePermitsAsync().await() shouldBeEqualTo 0L
-        limiter.tryAcquireAsync(1).await().shouldBeFalse()
+        limiter.availablePermitsAsync().awaitUntil() shouldBeEqualTo 0L
+        limiter.tryAcquireAsync(1).awaitUntil().shouldBeFalse()
 
-        limiter.deleteAsync().await().shouldBeTrue()
+        limiter.deleteAsync().awaitUntil().shouldBeTrue()
     }
 
     @Test
@@ -116,14 +116,14 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
 
         val limiter1 = redisson.getRateLimiter(limiterName)
         // 2초 동안 각 client 별로 3개의 request 만 허용
-        limiter1.trySetRateAsync(RateType.PER_CLIENT, 3, defaultDuration).await()
+        limiter1.trySetRateAsync(RateType.PER_CLIENT, 3, defaultDuration).awaitUntil()
         // Redisson이 Initialize 할 시간이 필요함
-        limiter1.acquireAsync().await()
-        limiter1.acquireAsync().await()
-        limiter1.acquireAsync().await()
+        limiter1.acquireAsync().awaitUntil()
+        limiter1.acquireAsync().awaitUntil()
+        limiter1.acquireAsync().awaitUntil()
         delay(10.milliseconds)
-        limiter1.availablePermitsAsync().await() shouldBeEqualTo 0L
-        limiter1.tryAcquireAsync(1).await().shouldBeFalse()
+        limiter1.availablePermitsAsync().awaitUntil() shouldBeEqualTo 0L
+        limiter1.tryAcquireAsync(1).awaitUntil().shouldBeFalse()
 
         SuspendedJobTester()
             .workers(2)
@@ -136,17 +136,17 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
                     // https://github.com/redisson/redisson/issues/2451
                     val limiter2 = newRedisson.getRateLimiter(limiterName)
                     limiter2.trySetRateAsync(RateType.PER_CLIENT, 3, defaultDuration)
-                        .await().shouldBeFalse()  // 이미 limiter1 에서 initialize 했으므로, false 를 반환한다
+                        .awaitUntil().shouldBeFalse()  // 이미 limiter1 에서 initialize 했으므로, false 를 반환한다
                     delay(1.milliseconds)
 
                     // limiter2는 3개 모두 소진
                     repeat(3) {
-                        limiter2.tryAcquireAsync(1).await().shouldBeTrue()
+                        limiter2.tryAcquireAsync(1).awaitUntil().shouldBeTrue()
                     }
                     delay(1.milliseconds)
                     // limiter2는 모두 소진됨
-                    limiter2.availablePermitsAsync().await() shouldBeEqualTo 0L
-                    limiter2.tryAcquireAsync(1).await().shouldBeFalse()
+                    limiter2.availablePermitsAsync().awaitUntil() shouldBeEqualTo 0L
+                    limiter2.tryAcquireAsync(1).awaitUntil().shouldBeFalse()
                 } finally {
                     newRedisson.shutdown()
                 }
@@ -154,9 +154,9 @@ class RateLimiterExamples: AbstractRedissonCoroutineTest() {
             }
             .run()
 
-        limiter1.availablePermitsAsync().await() shouldBeEqualTo 0L
-        limiter1.tryAcquireAsync(1).await().shouldBeFalse()
+        limiter1.availablePermitsAsync().awaitUntil() shouldBeEqualTo 0L
+        limiter1.tryAcquireAsync(1).awaitUntil().shouldBeFalse()
 
-        limiter1.deleteAsync().await().shouldBeTrue()
+        limiter1.deleteAsync().awaitUntil().shouldBeTrue()
     }
 }

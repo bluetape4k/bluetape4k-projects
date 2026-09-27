@@ -1,13 +1,16 @@
 package io.bluetape4k.math
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNear
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class SimpleRegressionTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-10
+    }
 
     // y = 2x + 1 에 해당하는 데이터
     private val linearData = listOf(
@@ -22,8 +25,8 @@ class SimpleRegressionTest {
     fun `simpleRegression 기울기와 절편이 올바르다`() {
         val reg = linearData.simpleRegression()
 
-        reg.slope.shouldBeNear(2.0, 1e-10)
-        reg.intercept.shouldBeNear(1.0, 1e-10)
+        reg.slope.shouldBeNear(2.0, EPSILON)
+        reg.intercept.shouldBeNear(1.0, EPSILON)
     }
 
     @Test
@@ -36,22 +39,22 @@ class SimpleRegressionTest {
     fun `simpleRegression predict 가 올바른 값을 반환한다`() {
         val reg = linearData.simpleRegression()
 
-        reg.predict(6.0).shouldBeNear(13.0, 1e-10)
-        reg.predict(0.0).shouldBeNear(1.0, 1e-10)
+        reg.predict(6.0).shouldBeNear(13.0, EPSILON)
+        reg.predict(0.0).shouldBeNear(1.0, EPSILON)
     }
 
     @Test
     fun `simpleRegression R 제곱이 완전 선형 데이터에서 1이다`() {
         val reg = linearData.simpleRegression()
-        reg.rSquare.shouldBeNear(1.0, 1e-10)
+        reg.rSquare.shouldBeNear(1.0, EPSILON)
     }
 
     @Test
     fun `Sequence simpleRegression 이 동작한다`() {
         val reg = linearData.asSequence().simpleRegression()
 
-        reg.slope.shouldBeNear(2.0, 1e-10)
-        reg.intercept.shouldBeNear(1.0, 1e-10)
+        reg.slope.shouldBeNear(2.0, EPSILON)
+        reg.intercept.shouldBeNear(1.0, EPSILON)
     }
 
     @Test
@@ -64,16 +67,16 @@ class SimpleRegressionTest {
         )
 
         val reg = points.simpleRegression(xSelector = { it.x }, ySelector = { it.y })
-        reg.slope.shouldBeNear(2.0, 1e-10)
-        reg.intercept.shouldBeNear(1.0, 1e-10)
+        reg.slope.shouldBeNear(2.0, EPSILON)
+        reg.intercept.shouldBeNear(1.0, EPSILON)
     }
 
     @Test
     fun `simpleRegression 통계량 속성들이 유효한 값을 가진다`() {
         val reg = linearData.simpleRegression()
 
-        require(!reg.r.isNaN()) { "r 은 NaN 이어선 안 됩니다" }
-        require(!reg.meanSquareError.isNaN()) { "meanSquareError 는 NaN 이어선 안 됩니다" }
-        require(!reg.slopeStdErr.isNaN()) { "slopeStdErr 는 NaN 이어선 안 됩니다" }
+        reg.r.isNaN().shouldBeFalse()
+        reg.meanSquareError.isNaN().shouldBeFalse()
+        reg.slopeStdErr.isNaN().shouldBeFalse()
     }
 }

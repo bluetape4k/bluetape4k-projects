@@ -19,13 +19,14 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 class UuidGeneratorTest {
+
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private const val ID_SIZE = 100
         private const val CONCURRENCY_COUNT = 5_000
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `기본 생성자는 V7을 사용한다`() {
         val gen = UuidGenerator()
         val id = gen.nextUUID()
@@ -33,28 +34,28 @@ class UuidGeneratorTest {
         id.version() shouldBeEqualTo 7
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `커스텀 전략 주입으로 V1을 사용할 수 있다`() {
         val gen = UuidGenerator(Uuid.V1)
         val id = gen.nextUUID()
         id.version() shouldBeEqualTo 1
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `커스텀 전략 주입으로 V6을 사용할 수 있다`() {
         val gen = UuidGenerator(Uuid.V6)
         val id = gen.nextUUID()
         id.version() shouldBeEqualTo 6
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `IdGenerator 인터페이스로 사용할 수 있다`() {
         val gen: IdGenerator<UUID> = UuidGenerator()
         val id = gen.nextId()
         id.shouldNotBeNull()
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `nextIds는 요청한 크기만큼 시퀀스를 반환한다`() {
         val gen = UuidGenerator()
         val ids = gen.nextIds(ID_SIZE).toList()
@@ -62,7 +63,7 @@ class UuidGeneratorTest {
         ids.distinct() shouldHaveSize ID_SIZE
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `nextIdsAsString은 요청한 크기만큼 문자열 시퀀스를 반환한다`() {
         val gen = UuidGenerator()
         val strs = gen.nextIdsAsString(ID_SIZE).toList()
@@ -70,7 +71,7 @@ class UuidGeneratorTest {
         strs.all { it.isNotBlank() } shouldBeEqualTo true
     }
 
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `멀티스레드 환경에서 중복 없이 UUID를 생성한다`() {
         val gen = UuidGenerator()
         val idMap = ConcurrentHashMap<UUID, Int>()
@@ -81,11 +82,12 @@ class UuidGeneratorTest {
             .add {
                 val id = gen.nextUUID()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
-            }.run()
+            }
+            .run()
     }
 
     @EnabledForJreRange(min = JRE.JAVA_21)
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `Virtual Thread 환경에서 중복 없이 UUID를 생성한다`() {
         val gen = UuidGenerator()
         val idMap = ConcurrentHashMap<UUID, Int>()
@@ -95,21 +97,22 @@ class UuidGeneratorTest {
             .add {
                 val id = gen.nextUUID()
                 idMap.putIfAbsent(id, 1).shouldBeNull()
-            }.run()
+            }
+            .run()
     }
 
-    @RepeatedTest(REPEAT_SIZE)
-    fun `Coroutine 환경에서 중복 없이 UUID를 생성한다`() =
-        runSuspendDefault {
-            val gen = UuidGenerator()
-            val idMap = ConcurrentHashMap<UUID, Int>()
+    @Test
+    fun `Coroutine 환경에서 중복 없이 UUID를 생성한다`() = runSuspendDefault {
+        val gen = UuidGenerator()
+        val idMap = ConcurrentHashMap<UUID, Int>()
 
-            SuspendedJobTester()
-                .workers(Runtimex.availableProcessors)
-                .rounds(CONCURRENCY_COUNT)
-                .add {
-                    val id = gen.nextUUID()
-                    idMap.putIfAbsent(id, 1).shouldBeNull()
-                }.run()
-        }
+        SuspendedJobTester()
+            .workers(Runtimex.availableProcessors)
+            .rounds(CONCURRENCY_COUNT)
+            .add {
+                val id = gen.nextUUID()
+                idMap.putIfAbsent(id, 1).shouldBeNull()
+            }
+            .run()
+    }
 }

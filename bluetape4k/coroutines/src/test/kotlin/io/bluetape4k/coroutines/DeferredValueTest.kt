@@ -6,8 +6,10 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
@@ -30,7 +32,7 @@ class DeferredValueTest {
     fun `값 계산은 async로 시작합니다`() = runTest {
         // given
         val dv = deferredValueOf {
-            log.trace { "Calc deferred value ... " }
+            log.debug { "Calc deferred value ... " }
             delay(Random.nextLong(10, 20).milliseconds)
             System.currentTimeMillis()
         }
@@ -52,13 +54,13 @@ class DeferredValueTest {
     @RepeatedTest(REPEAT_SIZE)
     fun `map deferred value`() = runTest {
         val dv1 = deferredValueOf {
-            log.trace { "Calc deferred value ... " }
+            log.debug { "Calc deferred value ... " }
             delay(Random.nextLong(10, 20).milliseconds)
             42
         }
 
         val dv2 = dv1.map {
-            log.trace { "Map deferred value ... " }
+            log.debug { "Map deferred value ... " }
             delay(Random.nextLong(10, 20).milliseconds)
             it * 2
         }
@@ -84,7 +86,7 @@ class DeferredValueTest {
 
         val dv2: DeferredValue<Int> = dv1.flatMap { r ->
             r.map {
-                log.trace { "Map deferred value ... " }
+                log.debug { "Map deferred value ... " }
                 delay(Random.nextLong(10, 20).milliseconds)
                 it * 2
             }
@@ -109,7 +111,7 @@ class DeferredValueTest {
         }
 
         val elapsed = measureTimeMillis {
-            (dv1 == dv2).shouldBeFalse()
+            dv1 shouldNotBeEqualTo dv2
             dv1.hashCode()
             dv1.toString()
         }
@@ -127,8 +129,13 @@ class DeferredValueTest {
         val failure = IllegalStateException("boom")
         val deferred = deferredValueOf<Int> { throw failure }
 
-        assertFailsWith<IllegalStateException> { deferred.await() }.message shouldBeEqualTo failure.message
+        assertFailsWith<IllegalStateException> {
+            deferred.await()
+        }.message shouldBeEqualTo failure.message
+
         @Suppress("DEPRECATION")
-        assertFailsWith<IllegalStateException> { deferred.value }.message shouldBeEqualTo failure.message
+        assertFailsWith<IllegalStateException> {
+            deferred.value
+        }.message shouldBeEqualTo failure.message
     }
 }

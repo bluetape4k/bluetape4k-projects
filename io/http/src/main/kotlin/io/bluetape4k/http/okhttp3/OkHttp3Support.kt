@@ -1,7 +1,6 @@
 package io.bluetape4k.http.okhttp3
 
 import io.bluetape4k.concurrent.virtualthread.virtualThreadFactory
-import io.bluetape4k.utils.Runtimex
 import okhttp3.CacheControl
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient

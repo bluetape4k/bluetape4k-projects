@@ -307,6 +307,19 @@ object BinarySerializers {
     }
 
     /**
+     * FastFory 직렬화 후 Deflate 알고리즘으로 압축하는 [BinarySerializer].
+     *
+     * 예제:
+     * ```kotlin
+     * val bytes = BinarySerializers.DeflateFastFory.serialize(largeObject)
+     * val restored = BinarySerializers.DeflateFastFory.deserialize<MyClass>(bytes)
+     * ```
+     */
+    val DeflateFastFory: CompressableBinarySerializer by lazy {
+        CompressableBinarySerializer(FastFory, Compressors.Deflate)
+    }
+
+    /**
      * Fory 직렬화 후 GZip 알고리즘으로 압축하는 [BinarySerializer].
      *
      * 예제:

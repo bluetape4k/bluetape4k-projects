@@ -70,7 +70,7 @@ class OutputStreamSink(
                 cursor.seek(0)
                 val safeRemaining = remaining.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
                 val written = minOf(cursor.end - cursor.start, safeRemaining)
-                out.write(cursor.data, cursor.start, written)
+                out.write(cursor.data!!, cursor.start, written)
                 log.debug { "OutputStream의 ${cursor.start} 위치에  $written bytes 를 썼습니다." }
 
                 remaining -= written.toLong()

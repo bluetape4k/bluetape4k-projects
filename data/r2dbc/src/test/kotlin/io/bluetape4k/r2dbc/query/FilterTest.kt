@@ -1,22 +1,24 @@
 package io.bluetape4k.r2dbc.query
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 
 class FilterTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     // ─── Filter.Where ───────────────────────────────────────────────────
 
     @Test
     fun `Where - countLeaves 는 항상 1 을 반환한다`() {
         val where = Filter.Where("id = :id")
+        log.debug { "where=$where" }
         where.countLeaves() shouldBeEqualTo 1
     }
 
@@ -24,14 +26,16 @@ class FilterTest {
     fun `Where - 조건 문자열을 그대로 보관한다`() {
         val condition = "name like :name"
         val where = Filter.Where(condition)
+        log.debug { "where=$where" }
         where.where shouldBeEqualTo condition
     }
 
     @Test
     fun `Where - toString 에 where 문자열이 포함된다`() {
         val where = Filter.Where("active = true")
-        where.toString().shouldNotBeNull()
-        where.toString().contains("active = true").shouldBeTrue()
+        log.debug { "where=$where" }
+        where.toString().shouldNotBeEmpty()
+        where.toString() shouldContain "active = true"
     }
 
     @Test
@@ -39,13 +43,14 @@ class FilterTest {
         val w1 = Filter.Where("id = :id")
         val w2 = Filter.Where("id = :id")
         val w3 = Filter.Where("name = :name")
-        (w1 == w2).shouldBeTrue()
-        (w1 == w3).shouldBeFalse()
+        w2 shouldBeEqualTo w1
+        w3 shouldNotBeEqualTo w1
     }
 
     @Test
     fun `Where - Serializable 구현 확인`() {
         val where = Filter.Where("id = :id")
+        log.debug { "where: $where" }
         where.shouldBeInstanceOf<java.io.Serializable>()
     }
 
@@ -54,18 +59,21 @@ class FilterTest {
     @Test
     fun `Group - 빈 그룹의 countLeaves 는 0 을 반환한다`() {
         val group = Filter.Group()
+        log.debug { "group: $group" }
         group.countLeaves() shouldBeEqualTo 0
     }
 
     @Test
     fun `Group - 기본 operator 는 and 이다`() {
         val group = Filter.Group()
+        log.debug { "group: $group" }
         group.operator shouldBeEqualTo "and"
     }
 
     @Test
     fun `Group - operator 를 or 로 지정할 수 있다`() {
         val group = Filter.Group("or")
+        log.debug { "group: $group" }
         group.operator shouldBeEqualTo "or"
     }
 
@@ -77,6 +85,7 @@ class FilterTest {
             "and",
             mutableListOf(Filter.Where("id = :id"))
         )
+        log.debug { "group: $group" }
         group.countLeaves() shouldBeEqualTo 1
     }
 
@@ -89,6 +98,7 @@ class FilterTest {
                 Filter.Where("active = true")
             )
         )
+        log.debug { "group: $group" }
         group.countLeaves() shouldBeEqualTo 2
     }
 
@@ -110,6 +120,7 @@ class FilterTest {
                 inner
             )
         )
+        log.debug { "outer: $outer" }
         // outer: 1 (active) + inner: 2 (name, email) = 3
         outer.countLeaves() shouldBeEqualTo 3
     }
@@ -129,9 +140,11 @@ class FilterTest {
     @Test
     fun `Group - toString 에 operator 와 filters 정보가 포함된다`() {
         val group = Filter.Group("and", mutableListOf(Filter.Where("x = :x")))
+        log.debug { "group: $group" }
+
         val str = group.toString()
-        str.contains("and").shouldBeTrue()
-        str.contains("x = :x").shouldBeTrue()
+        str shouldContain "and"
+        str shouldContain "x = :x"
     }
 
     @Test

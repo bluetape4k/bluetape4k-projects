@@ -17,7 +17,7 @@ import org.junit.jupiter.api.TestInstance
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class AbstractStandaloneHibernateTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     abstract fun entityClasses(): List<Class<*>>
 
@@ -53,7 +53,7 @@ abstract class AbstractStandaloneHibernateTest {
         }
     }
 
-    protected fun <T> inTransaction(block: EntityManager.() -> T): T {
+    protected inline fun <T> inTransaction(block: EntityManager.() -> T): T {
         val em = emf.createEntityManager()
         val tx = em.transaction
         return try {
@@ -69,12 +69,9 @@ abstract class AbstractStandaloneHibernateTest {
         }
     }
 
-    protected fun <T> readOnly(block: EntityManager.() -> T): T {
-        val em = emf.createEntityManager()
-        return try {
+    protected inline fun <T> readOnly(block: EntityManager.() -> T): T {
+        return emf.createEntityManager().use { em ->
             em.block()
-        } finally {
-            em.close()
         }
     }
 

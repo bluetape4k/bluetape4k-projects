@@ -20,20 +20,21 @@ import kotlin.coroutines.resumeWithException
  * @return [CompletableResultCode] 자신을 반환합니다.
  * @throws CompletionException 작업이 실패한 경우
  */
-suspend fun CompletableResultCode.await(): CompletableResultCode = suspendCancellableCoroutine { cont ->
-    fun CancellableContinuation<CompletableResultCode>.resumeAccordingTo(result: CompletableResultCode) {
-        if (!isActive) return
-        if (result.isSuccess) resume(result)
-        else resumeWithException(CompletionException("Fail to await for $result", null))
-    }
+suspend fun CompletableResultCode.await(): CompletableResultCode =
+    suspendCancellableCoroutine { cont ->
+        fun CancellableContinuation<CompletableResultCode>.resumeAccordingTo(result: CompletableResultCode) {
+            if (!isActive) return
+            if (result.isSuccess) resume(result)
+            else resumeWithException(CompletionException("Fail to await for $result", null))
+        }
 
-    fun resumeNow() {
-        cont.resumeAccordingTo(this@await)
-    }
+        fun resumeNow() {
+            cont.resumeAccordingTo(this@await)
+        }
 
-    if (isDone) {
-        resumeNow()
-    } else {
-        whenComplete { resumeNow() }
+        if (isDone) {
+            resumeNow()
+        } else {
+            whenComplete { resumeNow() }
+        }
     }
-}

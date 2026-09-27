@@ -9,7 +9,7 @@ class LoessInterpolatorTest: AbstractInterpolationTest() {
 
     override val interpolator: Interpolator = LoessInterpolator()
 
-    override val TOLERANCE: Double = 1e-1
+    override val tolerance: Double = 1e-1
 
     @Test
     override fun `empty data for interpolator`() {

@@ -1,11 +1,12 @@
 package io.bluetape4k.jdbc.sql
 
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.jdbc.AbstractJdbcTest
 import io.bluetape4k.jdbc.model.TestBean
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.fail
@@ -22,6 +23,7 @@ import javax.sql.DataSource
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [JdbcConfiguration::class])
 abstract class AbstractJdbcSqlTest: AbstractJdbcTest() {
+
     companion object: KLogging() {
         const val SELECT_ACTORS = "SELECT * FROM Actors"
 
@@ -50,6 +52,12 @@ abstract class AbstractJdbcSqlTest: AbstractJdbcTest() {
 
     @Autowired
     protected lateinit var jdbcTemplate: JdbcTemplate
+
+    @BeforeEach
+    fun beforeEach() {
+        dataSource.executeUpdate("DELETE FROM Actors WHERE id > 5")
+        dataSource.executeUpdate("UPDATE Actors SET lastname = 'Bae' WHERE lastname = 'BAE'")
+    }
 
     @Test
     fun `context loading`() {

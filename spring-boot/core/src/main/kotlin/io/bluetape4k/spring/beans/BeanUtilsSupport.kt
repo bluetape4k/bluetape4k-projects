@@ -49,7 +49,8 @@ fun <T: Any> Constructor<T>.instantiateClass(vararg args: Any?): T =
  * // bean is BaseType
  * ```
  */
-fun <T: Any> Class<*>.instantiateClass(assignableTo: Class<T>): T = BeanUtils.instantiateClass(this, assignableTo)
+fun <T: Any> Class<*>.instantiateClass(assignableTo: Class<T>): T =
+    BeanUtils.instantiateClass(this, assignableTo)
 
 /**
  * 공개 메서드에서 이름과 시그니처가 일치하는 메서드를 찾습니다.
@@ -154,7 +155,8 @@ fun Array<out Method>.findMethodWithMinimalParameters(methodName: String): Metho
  * // method?.name == "execute"
  * ```
  */
-fun Class<*>.resolveSignature(signature: String): Method? = BeanUtils.resolveSignature(signature, this)
+fun Class<*>.resolveSignature(signature: String): Method? =
+    BeanUtils.resolveSignature(signature, this)
 
 /**
  * 수신 클래스의 모든 JavaBeans [PropertyDescriptor]를 반환합니다.
@@ -168,7 +170,8 @@ fun Class<*>.resolveSignature(signature: String): Method? = BeanUtils.resolveSig
  * // descriptors.isNotEmpty() == true
  * ```
  */
-fun Class<*>.getPropertyDescriptors(): Array<PropertyDescriptor> = BeanUtils.getPropertyDescriptors(this)
+fun Class<*>.getPropertyDescriptors(): Array<PropertyDescriptor> =
+    BeanUtils.getPropertyDescriptors(this)
 
 /**
  * 지정 이름의 JavaBeans [PropertyDescriptor]를 반환합니다.
@@ -199,7 +202,8 @@ fun Class<*>.getPropertyDescriptor(propertyName: String): PropertyDescriptor? {
  * // descriptor == null || descriptor.name.isNotEmpty()
  * ```
  */
-fun Method.findPropertyDescriptor(): PropertyDescriptor? = BeanUtils.findPropertyForMethod(this)
+fun Method.findPropertyDescriptor(): PropertyDescriptor? =
+    BeanUtils.findPropertyForMethod(this)
 
 /**
  * 메서드와 대상 클래스로 대응되는 JavaBeans [PropertyDescriptor]를 찾습니다.
@@ -213,7 +217,8 @@ fun Method.findPropertyDescriptor(): PropertyDescriptor? = BeanUtils.findPropert
  * // descriptor == null || descriptor.name.isNotEmpty()
  * ```
  */
-fun Method.findPropertyDescriptor(clazz: Class<*>): PropertyDescriptor? = BeanUtils.findPropertyForMethod(this, clazz)
+fun Method.findPropertyDescriptor(clazz: Class<*>): PropertyDescriptor? =
+    BeanUtils.findPropertyForMethod(this, clazz)
 
 /**
  * 프로퍼티 쓰기 메서드의 [MethodParameter]를 반환합니다.
@@ -227,7 +232,8 @@ fun Method.findPropertyDescriptor(clazz: Class<*>): PropertyDescriptor? = BeanUt
  * // parameter.parameterType != null
  * ```
  */
-fun PropertyDescriptor.getWriteMethodParamter(): MethodParameter = BeanUtils.getWriteMethodParameter(this)
+fun PropertyDescriptor.getWriteMethodParamter(): MethodParameter =
+    BeanUtils.getWriteMethodParameter(this)
 
 /**
  * 타입이 simple property인지 확인합니다.

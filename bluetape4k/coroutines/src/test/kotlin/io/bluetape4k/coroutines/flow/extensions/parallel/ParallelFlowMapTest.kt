@@ -52,7 +52,7 @@ class ParallelFlowMapTest {
                 .sequential().log("sequential")
                 .test {
                     awaitItem() shouldBeEqualTo 1
-                    awaitError() shouldBeInstanceOf ArithmeticException::class
+                    awaitError().shouldBeInstanceOf<ArithmeticException>()
                 }
         }
     }

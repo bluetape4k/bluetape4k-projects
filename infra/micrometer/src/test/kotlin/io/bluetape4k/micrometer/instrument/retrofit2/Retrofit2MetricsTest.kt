@@ -1,11 +1,11 @@
 package io.bluetape4k.micrometer.instrument.retrofit2
 
 import com.jakewharton.retrofit2.adapter.reactor.ReactorCallAdapterFactory
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.trace
-import io.bluetape4k.micrometer.instrument.AbstractMicrometerTest
+import io.bluetape4k.micrometer.AbstractMicrometerTest
 import io.bluetape4k.retrofit2.clients.vertx.vertxCallFactoryOf
 import io.bluetape4k.retrofit2.defaultJsonConverterFactory
 import io.bluetape4k.retrofit2.retrofit
@@ -19,7 +19,6 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Mono
@@ -33,7 +32,7 @@ import java.io.Serializable
 
 class Retrofit2MetricsTest: AbstractMicrometerTest() {
 
-    companion object: KLoggingChannel() {
+    companion object: KLogging() {
         private const val REPEAT_SIZE = 5
     }
 
@@ -61,11 +60,9 @@ class Retrofit2MetricsTest: AbstractMicrometerTest() {
         val factory = MicrometerRetrofitMetricsFactory(registry)
         val httpbinApi = createRetrofit(factory).service<TestService.HttpbinApi>()
 
-        val call = httpbinApi.getPosts()
-        call.shouldNotBeNull()
-        val posts = call.execute().body()
-        posts.shouldNotBeNull()
-        log.trace { "posts=$posts" }
+        val call = httpbinApi.getPosts().shouldNotBeNull()
+        val posts = call.execute().body().shouldNotBeNull()
+        log.debug { "posts=$posts" }
 
         repeat(REPEAT_SIZE) {
             httpbinApi.getPosts().execute()
@@ -83,11 +80,9 @@ class Retrofit2MetricsTest: AbstractMicrometerTest() {
         val factory = MicrometerRetrofitMetricsFactory(registry)
         val api = createRetrofit(factory).service<TestService.HttpbinApi>()
 
-        val call = api.getPosts()
-        call.shouldNotBeNull()
-        val posts = call.suspendExecute().body()
-        posts.shouldNotBeNull()
-        log.trace { "posts=$posts" }
+        val call = api.getPosts().shouldNotBeNull()
+        val posts = call.suspendExecute().body().shouldNotBeNull()
+        log.debug { "posts=$posts" }
 
         repeat(REPEAT_SIZE) {
             api.getPosts().suspendExecute()
@@ -105,8 +100,8 @@ class Retrofit2MetricsTest: AbstractMicrometerTest() {
         val factory = MicrometerRetrofitMetricsFactory(registry)
         val api = createRetrofit(factory).service<TestService.HttpbinCoroutineApi>()
 
-        val posts = api.getPosts()
-        log.trace { "posts=$posts" }
+        val posts = api.getPosts().shouldNotBeNull()
+        log.debug { "posts=$posts" }
 
         List(REPEAT_SIZE) {
             launch(Dispatchers.IO) {
@@ -133,10 +128,12 @@ class Retrofit2MetricsTest: AbstractMicrometerTest() {
         registry.meters.forEach { meter ->
             log.debug { "id=${meter.id}, tags=${meter.measure().joinToString()}" }
         }
-        registry[MicrometerRetrofitMetricsRecorder.METRICS_KEY].timer().shouldNotBeNull()
+
+        registry[MicrometerRetrofitMetricsRecorder.METRICS_KEY].timer().shouldNotBeNull().also {
+            log.debug { "timer=$it" }
+        }
     }
 }
-
 
 object TestService {
 

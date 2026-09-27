@@ -37,4 +37,8 @@ class RedisBinarySerializer private constructor(
     override fun deserialize(bytes: ByteArray?): Any? {
         return serializer.deserialize(bytes)
     }
+
+    inline fun <reified T: Any> deserializeAs(bytes: ByteArray?): T? {
+        return deserialize(bytes, T::class.java)
+    }
 }

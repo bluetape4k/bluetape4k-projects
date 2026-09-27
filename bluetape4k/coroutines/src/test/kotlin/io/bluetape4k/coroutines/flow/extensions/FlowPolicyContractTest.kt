@@ -3,7 +3,10 @@ package io.bluetape4k.coroutines.flow.extensions
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
@@ -23,6 +26,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class FlowPolicyContractTest: AbstractFlowTest() {
 
+    companion object: KLoggingChannel()
+
     @Test
     fun concatIsFailFastAndSkipsLaterSources() = runTest {
         val secondCollected = AtomicBoolean(false)
@@ -41,7 +46,7 @@ class FlowPolicyContractTest: AbstractFlowTest() {
             ).toList()
         }
 
-        actual::class shouldBeEqualTo failure::class
+        actual shouldBeSameInstanceAs failure
         actual.message shouldBeEqualTo failure.message
         secondCollected.get().shouldBeFalse()
     }
@@ -64,7 +69,7 @@ class FlowPolicyContractTest: AbstractFlowTest() {
             ).collect()
         }
 
-        actual::class shouldBeEqualTo failure::class
+        actual shouldBeInstanceOf failure::class
         actual.message shouldBeEqualTo failure.message
         siblingCancelled.await()
     }
@@ -89,6 +94,7 @@ class FlowPolicyContractTest: AbstractFlowTest() {
         runCurrent()
         thirdEmit.isCompleted.shouldBeFalse()
         releaseCollector.complete(Unit)
+
         job.join()
         thirdEmit.isCompleted.shouldBeTrue()
     }

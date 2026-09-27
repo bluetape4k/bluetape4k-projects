@@ -5,6 +5,7 @@ import io.bluetape4k.logging.error
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -26,7 +27,6 @@ import reactor.kafka.receiver.ReceiverOptions
 import reactor.kafka.receiver.ReceiverRecord
 import reactor.kafka.sender.TransactionManager
 import java.io.Closeable
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.regex.Pattern
 
 /**
@@ -69,7 +69,7 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
     private val receiver: KafkaReceiver<K, V>,
 ): CoroutineScope, Closeable, DisposableBean {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private val closed = AtomicBoolean(false)
+    private val closed = atomic(false)
 
     override val coroutineContext = scope.coroutineContext
 
@@ -495,7 +495,7 @@ class SuspendKafkaConsumerTemplate<K, V> private constructor(
     }
 
     private fun doClose() {
-        if (closed.compareAndSet(false, true)) {
+        if (closed.compareAndSet(expect = false, update = true)) {
             scope.cancel("SuspendKafkaConsumerTemplate closed")
             val closeable = receiver as? AutoCloseable
             if (closeable == null) {

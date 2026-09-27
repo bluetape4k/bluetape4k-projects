@@ -1,5 +1,6 @@
 package io.bluetape4k.jwt.reader
 
+import io.bluetape4k.support.hashOf
 import java.io.Serializable
 
 /**
@@ -51,10 +52,6 @@ data class JwtReaderDto(
     }
 
     override fun hashCode(): Int {
-        var result = headers.hashCode()
-        result = 31 * result + claims.hashCode()
-        result = 31 * result + (digest?.contentHashCode() ?: 0)
-        result = 31 * result + (tokenString?.hashCode() ?: 0)
-        return result
+        return hashOf(headers, claims, digest, tokenString)
     }
 }

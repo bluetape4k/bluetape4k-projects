@@ -5,15 +5,16 @@ import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.cache.nearcache.LettuceNearCache
 import io.bluetape4k.cache.nearcache.LettuceNearCacheConfig
-import io.mockk.clearMocks
-import io.mockk.mockk
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.logging.KLogging
 import io.lettuce.core.RedisClient
 import io.lettuce.core.codec.StringCodec
+import io.mockk.clearMocks
+import io.mockk.mockk
 import org.hibernate.engine.spi.SharedSessionContractImplementor
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.UUID
 
 /**
  * Hibernate L2 eviction 실패 전파를 검증한다.
@@ -23,6 +24,8 @@ import java.util.UUID
  * 성공적으로 제거된 것으로 취급하지 않아야 한다.
  */
 class HibernateEvictionFailureTest {
+
+    companion object: KLogging()
 
     private val session = mockk<SharedSessionContractImplementor>(relaxed = true)
 
@@ -34,7 +37,7 @@ class HibernateEvictionFailureTest {
     @BeforeEach
     fun setUp() {
         clearMocks(session)
-        cacheName = "issue-1273-${UUID.randomUUID()}"
+        cacheName = "issue-1273-${Base58.randomString(8)}"
         redisClient = RedisClient.create(RedisServers.redis.url)
 
         @Suppress("UNCHECKED_CAST")

@@ -1,9 +1,11 @@
 package io.bluetape4k.ktor.observability
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.observability.HttpOperationClassification
 import io.bluetape4k.junit5.observability.HttpOperationCorrelation
@@ -12,13 +14,7 @@ import io.bluetape4k.junit5.observability.HttpOperationExpectation
 import io.bluetape4k.junit5.observability.HttpOperationObservation
 import io.bluetape4k.junit5.observability.HttpOperationSensitiveValues
 import io.bluetape4k.junit5.observability.assertHttpOperationObservability
-import io.opentelemetry.api.common.AttributeKey
-import io.opentelemetry.api.trace.SpanKind
-import io.opentelemetry.api.trace.StatusCode
-import io.opentelemetry.sdk.OpenTelemetrySdk
-import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter
-import io.opentelemetry.sdk.trace.SdkTracerProvider
-import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor
+import io.bluetape4k.logging.KLogging
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -28,7 +24,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
@@ -38,10 +33,17 @@ import io.ktor.server.testing.testApplication
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import io.opentelemetry.api.common.AttributeKey
+import io.opentelemetry.api.trace.SpanKind
+import io.opentelemetry.api.trace.StatusCode
+import io.opentelemetry.sdk.OpenTelemetrySdk
+import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter
+import io.opentelemetry.sdk.trace.SdkTracerProvider
+import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.util.concurrent.TimeUnit
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.seconds
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class Bluetape4kKtorObservabilityTest {
@@ -107,7 +109,8 @@ class Bluetape4kKtorObservabilityTest {
             span.kind shouldBeEqualTo SpanKind.SERVER
             span.attributes[CORRELATION_PRESENT_KEY].shouldBeTrue()
             span.attributes[CORRELATION_ID_KEY] shouldBeEqualTo "REQ_123Injectedraw"
-            span.attributes.asMap().keys.none { it.key.equals(HttpHeaders.Authorization, ignoreCase = true) }.shouldBeTrue()
+            span.attributes.asMap().keys.none { it.key.equals(HttpHeaders.Authorization, ignoreCase = true) }
+                .shouldBeTrue()
         }
     }
 
@@ -248,7 +251,7 @@ class Bluetape4kKtorObservabilityTest {
             client.get("/ping").status shouldBeEqualTo HttpStatusCode.OK
             tracing.flush()
 
-            tracing.spanExporter.finishedSpanItems shouldHaveSize 0
+            tracing.spanExporter.finishedSpanItems.shouldBeEmpty()
         }
     }
 
@@ -340,7 +343,7 @@ class Bluetape4kKtorObservabilityTest {
 
         client.get("/ping").status shouldBeEqualTo HttpStatusCode.OK
 
-        registry.meters.isNotEmpty().shouldBeTrue()
+        registry.meters.shouldNotBeEmpty()
     }
 
     @Test
@@ -378,10 +381,10 @@ class Bluetape4kKtorObservabilityTest {
                 val timer = registry.find("ktor.http.server.requests").timers().single()
                 val metricAttributes = timer.id.tags.associate { tag ->
                     val key = when (tag.key) {
-                        "method"      -> "http.request.method"
-                        "route"       -> "http.route"
-                        "status"      -> "http.response.status_code"
-                        else          -> tag.key
+                        "method" -> "http.request.method"
+                        "route"  -> "http.route"
+                        "status" -> "http.response.status_code"
+                        else     -> tag.key
                     }
                     key to tag.value
                 } + ("correlation.present" to span.attributes[CORRELATION_PRESENT_KEY].toString())
@@ -454,7 +457,7 @@ class Bluetape4kKtorObservabilityTest {
             .build()
 
         fun flush() {
-            tracerProvider.forceFlush().join(1, TimeUnit.SECONDS)
+            tracerProvider.forceFlush().join(1.seconds)
         }
 
         override fun close() {
@@ -473,7 +476,7 @@ class Bluetape4kKtorObservabilityTest {
             else        -> HttpOperationClassification.DEPENDENCY_FAILURE
         }
 
-    companion object {
+    companion object: KLogging() {
         private val CORRELATION_PRESENT_KEY: AttributeKey<Boolean> = AttributeKey.booleanKey("correlation.present")
         private val CORRELATION_ID_KEY: AttributeKey<String> = AttributeKey.stringKey("correlation.id")
     }

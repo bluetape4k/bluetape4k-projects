@@ -10,6 +10,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
 import io.bluetape4k.spring.cassandra.domain.DomainTestConfiguration
 import io.bluetape4k.spring.cassandra.domain.model.VersionedEntity
+import io.bluetape4k.spring.cassandra.query.emptyQuery
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
@@ -19,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.data.cassandra.core.AsyncCassandraOperations
 import org.springframework.data.cassandra.core.AsyncCassandraTemplate
-import org.springframework.data.cassandra.core.query.Query
 import org.springframework.data.cassandra.core.selectOne
 import org.springframework.data.cassandra.core.truncate
 
@@ -51,8 +51,8 @@ class AsyncOptimisticLockingTest(
     fun `versioned entity 삽입 시 version이 올라간다`() = runSuspendTest {
         val entity = VersionedEntity(42L)
 
-        val saved = operations.insert(entity).await()!!
-        val loaded = operations.selectOne<VersionedEntity>(Query.empty()).await()
+        val saved = operations.insert(entity).await().shouldNotBeNull()
+        val loaded = operations.selectOne<VersionedEntity>(emptyQuery()).await()
 
         saved.version shouldBeEqualTo 1
         loaded.shouldNotBeNull()
@@ -72,9 +72,9 @@ class AsyncOptimisticLockingTest(
     fun `versioned entity를 update하면 version이 올라간다`() = runSuspendTest {
         val entity = VersionedEntity(42L)
 
-        val saved = operations.insert(entity).await()!!
-        val updated = operations.update(saved).await()!!
-        val loaded = operations.selectOne<VersionedEntity>(Query.empty()).await()
+        val saved = operations.insert(entity).await().shouldNotBeNull()
+        val updated = operations.update(saved).await().shouldNotBeNull()
+        val loaded = operations.selectOne<VersionedEntity>(emptyQuery()).await()
 
         saved.version shouldBeEqualTo 1
         updated.version shouldBeEqualTo 2
@@ -85,7 +85,7 @@ class AsyncOptimisticLockingTest(
     @Test
     fun `outdated entity를 갱신하려면 예외가 발생한다`() = runSuspendTest {
         val entity = VersionedEntity(42L)
-        operations.insert(entity).await()!!
+        operations.insert(entity).await().shouldNotBeNull()
 
         assertFailsWith<OptimisticLockingFailureException> {
             operations.update(entity.copy(version = 42, name = faker.name().name())).await()
@@ -95,23 +95,23 @@ class AsyncOptimisticLockingTest(
     @Test
     fun `versioned entity 삭제하기`() = runSuspendTest {
         val entity = VersionedEntity(42L)
-        val saved = operations.insert(entity).await()!!
+        val saved = operations.insert(entity).await().shouldNotBeNull()
 
         operations.delete(saved).await()
-        val loaded = operations.selectOne<VersionedEntity>(Query.empty()).await()
+        val loaded = operations.selectOne<VersionedEntity>(emptyQuery()).await()
         loaded.shouldBeNull()
     }
 
     @Test
     fun `outdated versioned entity를 삭제하려면 예외가 발생한다`() = runSuspendTest {
         val entity = VersionedEntity(42L)
-        val saved = operations.insert(entity).await()!!
+        val saved = operations.insert(entity).await().shouldNotBeNull()
 
         assertFailsWith<OptimisticLockingFailureException> {
             operations.delete(VersionedEntity(42L)).await()
         }
 
-        val loaded = operations.selectOne<VersionedEntity>(Query.empty()).await()
+        val loaded = operations.selectOne<VersionedEntity>(emptyQuery()).await()
         loaded.shouldNotBeNull() shouldBeEqualTo saved
     }
 }

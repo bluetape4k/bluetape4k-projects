@@ -1,13 +1,12 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
-import io.bluetape4k.collections.toList
-import io.bluetape4k.junit5.coroutines.SuspendedJobTester
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.collections.toList
+import io.bluetape4k.coroutines.support.awaitUntil
+import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -16,37 +15,37 @@ class DequeExamples: io.bluetape4k.examples.redisson.coroutines.AbstractRedisson
     companion object: KLoggingChannel()
 
     @Test
-    fun `deque 사용`() = runTest {
+    fun `deque 사용`() = runSuspendIO {
         val deque = redisson.getDeque<String>(randomName())
         deque.clear()
 
         // push 는 addFirst 와 같다
         // add 는 addLast 와 같다
-        deque.addLastAsync("1").await()
-        deque.addLastAsync("2").await()
-        deque.addLastAsync("3").await()
-        deque.addLastAsync("4").await()
+        deque.addLastAsync("1").awaitUntil()
+        deque.addLastAsync("2").awaitUntil()
+        deque.addLastAsync("3").awaitUntil()
+        deque.addLastAsync("4").awaitUntil()
 
-        deque.containsAsync("1").await().shouldBeTrue()
+        deque.containsAsync("1").awaitUntil().shouldBeTrue()
 
         // 첫번째 요소를 조회한다. (제거하지 않는다)
-        deque.peekAsync().await() shouldBeEqualTo "1"
+        deque.peekAsync().awaitUntil() shouldBeEqualTo "1"
 
         // 첫번째 요소를 가져오고, queue에서는 제거한다 (첫번째 요소가 없으면 들어올 때까지 대기힌다.)
-        deque.popAsync().await() shouldBeEqualTo "1"
+        deque.popAsync().awaitUntil() shouldBeEqualTo "1"
 
         // 첫 번째 요소를 조회한다 (제거하지 않는다) 단 queue에 요소가 없으면 예외를 일으킨다
         deque.element() shouldBeEqualTo "2"
 
-        deque.removeAllAsync(listOf("2", "3")).await().shouldBeTrue()
+        deque.removeAllAsync(listOf("2", "3")).awaitUntil().shouldBeTrue()
 
-        deque.addAllAsync(listOf("10", "11", "12")).await().shouldBeTrue()
+        deque.addAllAsync(listOf("10", "11", "12")).awaitUntil().shouldBeTrue()
 
-        deque.deleteAsync().await()
+        deque.deleteAsync().awaitUntil()
     }
 
     @Test
-    fun `deque in multi-job`() = runTest {
+    fun `deque in multi-job`() = runSuspendIO {
         val counter = AtomicInteger(0)
         val deque = redisson.getDeque<Int>(randomName())
         deque.clear()
@@ -55,15 +54,15 @@ class DequeExamples: io.bluetape4k.examples.redisson.coroutines.AbstractRedisson
             .workers(16)
             .rounds(16 * 4)
             .add {
-                deque.addLastAsync(counter.incrementAndGet()).await()
+                deque.addLastAsync(counter.incrementAndGet()).awaitUntil()
             }
             .run()
 
         counter.get() shouldBeEqualTo 16 * 4
-        deque.sizeAsync().await() shouldBeEqualTo counter.get()
+        deque.sizeAsync().awaitUntil() shouldBeEqualTo counter.get()
 
         // 순서는 틀립니다.
-        deque.iterator().toList() shouldContainSame List(16 * 4) { it + 1 }
-        deque.deleteAsync().await().shouldBeTrue()
+        deque.iterator().toList().sorted() shouldBeEqualTo List(16 * 4) { it + 1 }
+        deque.deleteAsync().awaitUntil().shouldBeTrue()
     }
 }

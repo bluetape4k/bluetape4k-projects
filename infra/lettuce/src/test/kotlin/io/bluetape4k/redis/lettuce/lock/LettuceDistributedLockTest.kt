@@ -3,8 +3,10 @@ package io.bluetape4k.redis.lettuce.lock
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.redis.lettuce.lock.internal.DistributedLockKeys
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
+import io.bluetape4k.redis.lettuce.lock.internal.DistributedLockKeys
+import io.bluetape4k.redis.lettuce.lock.internal.deriveDistributedLockKeys
 import io.bluetape4k.testcontainers.storage.RedisClusterServer
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
@@ -17,7 +19,12 @@ import java.util.concurrent.Callable
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.Executors
 
-internal class LettuceDistributedLockTest : LockContract() {
+internal class LettuceDistributedLockTest: LockContract() {
+
+    private companion object: KLogging() {
+        const val CONTENDER_COUNT = 8
+    }
+
     override fun createAdapter(
         connection: StatefulRedisConnection<String, String>,
         name: String,
@@ -30,8 +37,8 @@ internal class LettuceDistributedLockTest : LockContract() {
     @Test
     fun `barriered contenders produce exactly one winner`() {
         val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
-        val name = "winner-${randomName().substringAfter(':')}"
-        val keys = io.bluetape4k.redis.lettuce.lock.internal.deriveDistributedLockKeys(
+        val name = "winner-${randomName().substringAfterLast(':')}"
+        val keys = deriveDistributedLockKeys(
             name,
             LockConfig(),
             StringCodec.UTF8,
@@ -63,13 +70,9 @@ internal class LettuceDistributedLockTest : LockContract() {
             connection.close()
         }
     }
-
-    private companion object {
-        const val CONTENDER_COUNT = 8
-    }
 }
 
-internal class FutureLettuceDistributedLockTest : LockContract() {
+internal class FutureLettuceDistributedLockTest: LockContract() {
     override fun createAdapter(
         connection: StatefulRedisConnection<String, String>,
         name: String,
@@ -80,7 +83,7 @@ internal class FutureLettuceDistributedLockTest : LockContract() {
     }
 }
 
-internal class SuspendLettuceDistributedLockTest : LockContract() {
+internal class SuspendLettuceDistributedLockTest: LockContract() {
     override fun createAdapter(
         connection: StatefulRedisConnection<String, String>,
         name: String,

@@ -2,9 +2,7 @@
 
 English | [한국어](./README.ko.md)
 
-Runnable Ktor application that exposes bluetape4k `idgenerators` through HTTP endpoints.
-It uses the shared bluetape4k Ktor modules for JSON, standard error responses,
-health/readiness routes, correlation IDs, call logging, and test assertions.
+Runnable Ktor application that exposes bluetape4k `idgenerators` through HTTP endpoints. It uses the shared bluetape4k Ktor modules for JSON, standard error responses, health/readiness routes, correlation IDs, call logging, and test assertions.
 
 ## Architecture
 
@@ -92,11 +90,11 @@ Invalid path/query input returns the shared API error shape:
 
 ## Generator Choice
 
-| Type | Use when |
-|---|---|
-| `uuid-v4` | Random UUID compatibility is enough. |
-| `uuid-v7` | You want UUID format with time-sortable behavior. |
-| `ulid` | You want compact lexicographically sortable string IDs. |
-| `ksuid` | You want K-sortable IDs with embedded timestamp and random payload. |
-| `snowflake` | You want compact numeric IDs suitable for distributed systems. |
-| `flake` | You want Boundary-style 128-bit Base62 IDs. |
+| Type        | Use when                                                            |
+|-------------|---------------------------------------------------------------------|
+| `uuid-v4`   | Random UUID compatibility is enough.                                |
+| `uuid-v7`   | You want UUID format with time-sortable behavior.                   |
+| `ulid`      | You want compact lexicographically sortable string IDs.             |
+| `ksuid`     | You want K-sortable IDs with embedded timestamp and random payload. |
+| `snowflake` | You want compact numeric IDs suitable for distributed systems.      |
+| `flake`     | You want Boundary-style 128-bit Base62 IDs.                         |

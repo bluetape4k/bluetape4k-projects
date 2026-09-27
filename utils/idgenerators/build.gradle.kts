@@ -89,6 +89,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     testImplementation(libs.kotlinx.coroutines.test)
 
+    testImplementation(project(":bluetape4k-io"))
+    testImplementation(bt4k.fory.kotlin)
+
     // Benchmark
     add("benchmarkImplementation", bt4k.kotlinx.benchmark.runtime)
     add("benchmarkImplementation", bt4k.kotlinx.benchmark.runtime.jvm)

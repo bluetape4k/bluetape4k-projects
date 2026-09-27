@@ -1,15 +1,16 @@
 package io.bluetape4k.rule.readers
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class JsonRuleReaderTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val reader = JsonRuleReader()
 
@@ -67,7 +68,7 @@ class JsonRuleReaderTest {
         val json = """{"rules": []}"""
         val defs = reader.readAll(json.reader()).toList()
 
-        defs shouldHaveSize 0
+        defs.shouldBeEmpty()
     }
 
     @Test
@@ -83,6 +84,7 @@ class JsonRuleReaderTest {
         val ruleDef = reader.read(json.reader())
         ruleDef.actions shouldHaveSize 3
         ruleDef.actions[0] shouldBeEqualTo "a = true"
+        ruleDef.actions[1] shouldBeEqualTo "b = false"
         ruleDef.actions[2] shouldBeEqualTo "c = 42"
     }
 }

@@ -55,13 +55,13 @@ val options = writeOptions {
 
 `WriteOptions` follows these Cassandra statement contracts:
 
-| Input | Result |
-| --- | --- |
-| `ttl == null` | No TTL clause is rendered. |
+| Input                                                                | Result                                                                                                            |
+|----------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| `ttl == null`                                                        | No TTL clause is rendered.                                                                                        |
 | `ttl == Duration.ZERO` or a subsecond duration such as `1ms`/`500ms` | The whole-second value is truncated and rendered as TTL 0 (`USING TTL 0` for `INSERT`, `AND TTL 0` for `UPDATE`). |
-| Negative TTL | The Spring Data builder fails with `IllegalArgumentException("TTL must be greater than equal to zero")`. |
-| TTL seconds outside the `Int` range | `addWriteOptions` fails with `ArithmeticException` before the statement is executed. |
-| `timestamp` | Applied in Cassandra microseconds; `Delete` preserves the timestamp but never applies TTL. |
+| Negative TTL                                                         | The Spring Data builder fails with `IllegalArgumentException("TTL must be greater than equal to zero")`.          |
+| TTL seconds outside the `Int` range                                  | `addWriteOptions` fails with `ArithmeticException` before the statement is executed.                              |
+| `timestamp`                                                          | Applied in Cassandra microseconds; `Delete` preserves the timestamp but never applies TTL.                        |
 
 The historical `isPositiveTtl` extension returns `true` for any non-negative TTL, including zero, and `false` when TTL is absent.
 

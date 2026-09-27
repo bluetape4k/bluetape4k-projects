@@ -1,8 +1,10 @@
 package io.bluetape4k.nats.client
 
+import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
-import io.nats.client.ConsumerContext
+import io.bluetape4k.support.requireZeroOrPositiveNumber
 import io.nats.client.ConsumeOptions
+import io.nats.client.ConsumerContext
 import io.nats.client.IterableConsumer
 import io.nats.client.JetStream
 import io.nats.client.JetStreamSubscription
@@ -42,7 +44,7 @@ val defaultNatsFlowPushOptions: PushSubscribeOptions = PushSubscribeOptions.buil
 class NatsConsumerFlowException(
     val droppedMessages: Long,
     cause: Throwable? = null,
-) : RuntimeException(
+): RuntimeException(
     if (cause == null) {
         "NATS consumer Flow dropped $droppedMessages message(s)"
     } else {
@@ -51,9 +53,7 @@ class NatsConsumerFlowException(
     cause,
 ) {
     init {
-        require(droppedMessages >= 0) {
-            "droppedMessages must be zero or positive: $droppedMessages"
-        }
+        droppedMessages.requireZeroOrPositiveNumber("droppedMessages")
     }
 }
 
@@ -112,6 +112,7 @@ fun JetStream.consumeAsFlow(
                     break
                 }
                 if (message != null) {
+                    ClientLogger.log.debug { "send message:$message" }
                     send(message)
                 }
             }
@@ -185,6 +186,7 @@ fun ConsumerContext.consumeAsFlow(
                     break
                 }
                 if (message != null) {
+                    ClientLogger.log.debug { "send message:$message" }
                     send(message)
                 }
             }
@@ -257,8 +259,8 @@ private fun verifyPendingLimits(
             0,
             IllegalStateException(
                 "NATS pending limit read-back mismatch: " +
-                    "messages=$actualMessages/${options.pendingMessageLimit}, " +
-                    "bytes=$actualBytes/${options.pendingByteLimit}",
+                        "messages=$actualMessages/${options.pendingMessageLimit}, " +
+                        "bytes=$actualBytes/${options.pendingByteLimit}",
             ),
         )
     }
@@ -354,7 +356,7 @@ private fun finishFailure(
             dropFailure
         }
 
-        else -> cleanupFailure
+        else            -> cleanupFailure
     }
     if (terminalFailure != null) {
         throw terminalFailure

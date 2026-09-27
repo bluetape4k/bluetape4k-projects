@@ -3,6 +3,8 @@ package io.bluetape4k.tenant
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.awaitTermination
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
@@ -17,6 +19,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 @Tag("tenant-retention-stress")
 @Timeout(value = 120, unit = TimeUnit.SECONDS)
@@ -53,7 +56,7 @@ class TenantContextRetentionStressTest {
             val expected = List(TENANT_COUNT) { TenantId("platform-$it") }
             val futures = expected.mapIndexed { index, tenantId ->
                 executor.submit(Callable {
-                    check(start.await(5, TimeUnit.SECONDS)) { "Platform thread start gate timed out" }
+                    check(start.await(5.seconds)) { "Platform thread start gate timed out" }
                     if (index % EXCEPTION_SAMPLE_INTERVAL == 0) {
                         verifyExceptionalCleanup(context, tenantId)
                     }
@@ -83,7 +86,7 @@ class TenantContextRetentionStressTest {
             val expected = List(VIRTUAL_TASKS) { TenantId("virtual-$it") }
             val futures = expected.mapIndexed { index, tenantId ->
                 executor.submit(Callable {
-                    check(start.await(10, TimeUnit.SECONDS)) { "Virtual thread start gate timed out" }
+                    check(start.await(10.seconds)) { "Virtual thread start gate timed out" }
                     if (index % EXCEPTION_SAMPLE_INTERVAL == 0) {
                         verifyExceptionalCleanup(context, tenantId)
                     }
@@ -157,7 +160,7 @@ class TenantContextRetentionStressTest {
 
     private fun shutdown(executor: ExecutorService) {
         executor.shutdownNow()
-        check(executor.awaitTermination(5, TimeUnit.SECONDS)) {
+        check(executor.awaitTermination(5.seconds)) {
             "TenantContext stress executor did not terminate"
         }
     }

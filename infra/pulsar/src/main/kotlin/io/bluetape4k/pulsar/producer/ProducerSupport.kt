@@ -21,10 +21,11 @@ import org.apache.pulsar.client.api.Schema
  * @param setup [ProducerBuilder] 설정 블록
  * @return 생성된 [Producer] 인스턴스
  */
-fun <T> PulsarClient.producer(
+inline fun <T> PulsarClient.producer(
     schema: Schema<T>,
     setup: ProducerBuilder<T>.() -> Unit = {},
-): Producer<T> = newProducer(schema).apply(setup).create()
+): Producer<T> =
+    newProducer(schema).apply(setup).create()
 
 /**
  * Producer 생명주기를 블록 스코프로 자동 관리합니다.

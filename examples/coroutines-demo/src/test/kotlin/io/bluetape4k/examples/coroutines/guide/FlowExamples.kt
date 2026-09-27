@@ -2,7 +2,6 @@ package io.bluetape4k.examples.coroutines.guide
 
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.debug
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -23,15 +22,15 @@ class FlowExamples {
     inner class Flow35 {
 
         private fun events(): Flow<Int> =
-            (1..3).asFlow().onEach { delay(Random.nextLong(100).milliseconds) }
+            (1..3)
+                .asFlow()
+                .onEach { delay(Random.nextLong(50, 100).milliseconds) }
 
         @Test
         fun `collect without any code`() = runTest {
             events()
-                .log("events")
+                .log("flow35")
                 .collect()
-
-            log.debug { "Done!" }
         }
     }
 
@@ -39,15 +38,15 @@ class FlowExamples {
     inner class Flow36 {
 
         private fun events(): Flow<Int> =
-            (1..3).asFlow().onEach { delay(Random.nextLong(100).milliseconds) }
+            (1..3)
+                .asFlow()
+                .onEach { delay(Random.nextLong(100).milliseconds) }
 
         @Test
         fun `launch flow in a separate coroutine scope`() = runTest {
             events()
-                .log("event")
+                .log("flow36")
                 .launchIn(this)   // CoroutineScope 내의 다음 작업과 동시에 진행된다
-
-            log.debug { "Done!" }
         }
     }
 }

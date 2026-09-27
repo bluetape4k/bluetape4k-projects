@@ -3,9 +3,9 @@ package io.bluetape4k.elasticsearch
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient
 import co.elastic.clients.elasticsearch.indices.CreateIndexResponse
 import co.elastic.clients.elasticsearch.indices.DeleteIndexResponse
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.ElasticsearchServer
-import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -27,7 +27,7 @@ import java.util.concurrent.CompletableFuture
  * val client = ElasticsearchTestFixtures.asyncClientOf(server)
  * ```
  */
-object ElasticsearchTestFixtures : KLogging() {
+object ElasticsearchTestFixtures: KLogging() {
 
     /**
      * 테스트용 임시 인덱스 이름을 생성합니다.
@@ -38,7 +38,7 @@ object ElasticsearchTestFixtures : KLogging() {
      * @return 임시 인덱스 이름
      */
     fun randomIndexName(prefix: String = "test"): String =
-        "$prefix-${UUID.randomUUID().toString().lowercase()}"
+        "$prefix-${Base58.randomString(8).lowercase()}"
 
     /**
      * [ElasticsearchServer] 로부터 SSL + Basic Auth 가 적용된 [ElasticsearchAsyncClient] 를 생성합니다.

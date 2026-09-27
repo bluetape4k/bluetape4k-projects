@@ -1,11 +1,6 @@
 package io.bluetape4k.geohash
 
-import io.bluetape4k.collections.exists
-import io.bluetape4k.geohash.tests.RandomGeoHashes
-import io.bluetape4k.geohash.utils.boundingBoxGeoHashIteratorOf
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.trace
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
@@ -15,14 +10,20 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.collections.exists
+import io.bluetape4k.geohash.tests.RandomGeoHashes
+import io.bluetape4k.geohash.utils.boundingBoxGeoHashIteratorOf
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.trace
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.lang.reflect.Method
 import kotlin.math.pow
-import io.bluetape4k.assertions.assertFailsWith
 
 class GeoHashTest: AbstractGeoHashTest() {
+
     companion object: KLogging() {
         private const val REPEATED_SIZE = 5
     }
@@ -103,14 +104,14 @@ class GeoHashTest: AbstractGeoHashTest() {
     fun `within with other geohash`() {
         hash.bits = 0x6ff0414000000000L
         hash.significantBits = 25
+
         log.debug { "hash base32=${hash.toBase32()}" }
         hash.toBase32() shouldBeEqualTo "ezs42"
 
-        val bbox =
-            GeoHash().apply {
-                bits = 0x6ff0000000000000L
-                significantBits = 12
-            }
+        val bbox = GeoHash().apply {
+            bits = 0x6ff0000000000000L
+            significantBits = 12
+        }
 
         hash.within(bbox).shouldBeTrue()
     }
@@ -170,6 +171,7 @@ class GeoHashTest: AbstractGeoHashTest() {
     fun `not within with other geohash`() {
         hash.bits = 0x6ff0414000000000L
         hash.significantBits = 25
+
         log.debug { "hash base32=${hash.toBase32()}" }
         hash.toBase32() shouldBeEqualTo "ezs42"
 
@@ -425,8 +427,10 @@ class GeoHashTest: AbstractGeoHashTest() {
     @Test
     fun `neighbor hashes near merdian`() {
         val hash = geoHashOfString("sp2j")
+
         val west = hash.getWesternNeighbor()
         west.toBase32() shouldBeEqualTo "ezrv"
+
         val west2 = west.getWesternNeighbor()
         west2.toBase32() shouldBeEqualTo "ezrt"
     }
@@ -473,6 +477,7 @@ class GeoHashTest: AbstractGeoHashTest() {
         val lat = 37.7
         val lon = -122.52
         val hash = geoHashWithBits(lat, lon, 10)
+
         val next = hash.next()
         next shouldBeGreaterThan hash
     }
@@ -612,6 +617,7 @@ class GeoHashTest: AbstractGeoHashTest() {
     @Test
     fun `verify compareTo with base32`() {
         var prevHash: GeoHash? = null
+
         repeat(10_000) {
             val hash = RandomGeoHashes.createWith5BitsPrecision()
             prevHash?.let { prev ->

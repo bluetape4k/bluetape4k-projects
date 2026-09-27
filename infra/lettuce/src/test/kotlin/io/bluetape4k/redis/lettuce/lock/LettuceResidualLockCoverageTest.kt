@@ -2,7 +2,9 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.lock.internal.deriveFencedLockKeys
 import io.lettuce.core.codec.StringCodec
@@ -13,10 +15,20 @@ import java.time.Duration
 /** 잔여 lock client 경계를 실제 Redis 상태 전이로 고정합니다. */
 internal class LettuceResidualLockCoverageTest {
 
+    private companion object: KLogging() {
+        val OWNER_1 = LockOwnerId.from("residual-owner-1")
+        val OWNER_2 = LockOwnerId.from("residual-owner-2")
+        val OWNER_3 = LockOwnerId.from("residual-owner-3")
+        val REQUEST_1 = LockRequestId.from("residual-request-1")
+        val REQUEST_2 = LockRequestId.from("residual-request-2")
+        val REQUEST_3 = LockRequestId.from("residual-request-3")
+        val LEASE = LeasePolicy.Fixed(Duration.ofSeconds(3))
+    }
+
     @Test
     fun `blocking future read write surfaces cover mutation and downgrade`() = runSuspendIO {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val lock = LettuceReadWriteLock.create(connection, "residual-rw-${System.nanoTime()}")
+            val lock = LettuceReadWriteLock.create(connection, "residual-rw-${Base58.randomString(8)}")
             try {
                 val read = lock.readLock().tryAcquire(OWNER_1, REQUEST_1, LEASE)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
@@ -51,7 +63,7 @@ internal class LettuceResidualLockCoverageTest {
     @Test
     fun `suspending read write acquire paths preserve ownership and phase conversion`() = runSuspendIO {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val lock = LettuceSuspendReadWriteLock.create(connection, "residual-suspend-rw-${System.nanoTime()}")
+            val lock = LettuceSuspendReadWriteLock.create(connection, "residual-suspend-rw-${Base58.randomString(8)}")
             try {
                 val read = lock.readLock().acquire(OWNER_1, REQUEST_1, Duration.ofMillis(200), LEASE)
                     .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
@@ -86,7 +98,7 @@ internal class LettuceResidualLockCoverageTest {
     @Test
     fun `multi adapters retain request identity`() = runSuspendIO {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val multiConfig = MultiLockConfig(lock = LockConfig(hashTag = "residual-multi-${System.nanoTime()}"))
+            val multiConfig = MultiLockConfig(lock = LockConfig(hashTag = "residual-multi-${Base58.randomString(8)}"))
             val multi = LettuceMultiLock.create(connection, listOf("account", "inventory"), multiConfig)
             val suspendingMulti = LettuceSuspendMultiLock.create(
                 connection,
@@ -126,7 +138,7 @@ internal class LettuceResidualLockCoverageTest {
     fun `fenced adapters retain request identity`() = runSuspendIO {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
             val fencedConfig = FencedLockConfig(epoch = 61)
-            val fencedName = "residual-fenced-${System.nanoTime()}"
+            val fencedName = "residual-fenced-${Base58.randomString(8)}"
             val fenced = LettuceFencedLock.create(connection, fencedName, fencedConfig)
             val suspendingFenced = LettuceSuspendFencedLock.create(connection, fencedName, fencedConfig)
             val keys = deriveFencedLockKeys(fencedName, fencedConfig, connection.codec)
@@ -168,13 +180,4 @@ internal class LettuceResidualLockCoverageTest {
         }
     }
 
-    private companion object {
-        val OWNER_1 = LockOwnerId.from("residual-owner-1")
-        val OWNER_2 = LockOwnerId.from("residual-owner-2")
-        val OWNER_3 = LockOwnerId.from("residual-owner-3")
-        val REQUEST_1 = LockRequestId.from("residual-request-1")
-        val REQUEST_2 = LockRequestId.from("residual-request-2")
-        val REQUEST_3 = LockRequestId.from("residual-request-3")
-        val LEASE = LeasePolicy.Fixed(Duration.ofSeconds(3))
-    }
 }

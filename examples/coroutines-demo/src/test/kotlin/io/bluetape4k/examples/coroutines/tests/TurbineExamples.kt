@@ -1,6 +1,9 @@
 package io.bluetape4k.examples.coroutines.tests
 
 import app.cash.turbine.test
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.coroutines.flow.extensions.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -11,10 +14,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import kotlin.time.Duration.Companion.milliseconds
 
 class TurbineExamples {
@@ -23,8 +23,7 @@ class TurbineExamples {
 
     @Test
     fun `turbine을 이용하여 flow를 테스트`() = runTest {
-        flowOf("one", "two")
-            .log("#1")
+        flowOf("one", "two").log("#1")
             .test {
                 awaitItem() shouldBeEqualTo "one"
                 awaitItem() shouldBeEqualTo "two"

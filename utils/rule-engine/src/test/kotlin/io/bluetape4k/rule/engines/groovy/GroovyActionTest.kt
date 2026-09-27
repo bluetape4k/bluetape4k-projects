@@ -1,24 +1,24 @@
 package io.bluetape4k.rule.engines.groovy
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.rule.api.Facts
-import io.bluetape4k.rule.exception.RuleException
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.rule.api.Facts
+import io.bluetape4k.rule.exception.RuleException
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class GroovyActionTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `GroovyAction 실행 - facts에 Boolean 값 추가`() {
         val action = GroovyAction("discount = true")
         val facts = Facts.of("amount" to 1500)
         action.execute(facts)
-        facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("discount").shouldBeTrue()
     }
 
     @Test
@@ -27,8 +27,7 @@ class GroovyActionTest {
         val facts = Facts.of("amount" to 2000)
         action.execute(facts)
         val result = facts.get<Number>("result")
-        result.shouldNotBeNull()
-        result.toDouble() shouldBeEqualTo 200.0
+        result.shouldNotBeNull().toDouble() shouldBeEqualTo 200.0
     }
 
     @Test
@@ -36,7 +35,7 @@ class GroovyActionTest {
         val action = GroovyAction("upper = name.toUpperCase()")
         val facts = Facts.of("name" to "alice")
         action.execute(facts)
-        facts.get<String>("upper").shouldNotBeNull() shouldBeEqualTo "ALICE"
+        facts.get<String>("upper") shouldBeEqualTo "ALICE"
     }
 
     @Test
@@ -44,7 +43,7 @@ class GroovyActionTest {
         val action = GroovyAction("tier = amount > 5000 ? 'gold' : 'silver'")
         val facts = Facts.of("amount" to 3000)
         action.execute(facts)
-        facts.get<String>("tier").shouldNotBeNull() shouldBeEqualTo "silver"
+        facts.get<String>("tier") shouldBeEqualTo "silver"
     }
 
     @Test
@@ -65,8 +64,8 @@ class GroovyActionTest {
         val script = "discount = true"
         val a1 = GroovyAction(script)
         val a2 = GroovyAction(script)
-        (a1 == a2).shouldBeTrue()
-        (a1.hashCode() == a2.hashCode()).shouldBeTrue()
+        a1 shouldBeEqualTo a2
+        a1.hashCode() shouldBeEqualTo a2.hashCode()
     }
 
     @Test

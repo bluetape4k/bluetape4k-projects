@@ -69,7 +69,8 @@ class LettuceNearCache<V: Any>(
         operator fun invoke(
             redisClient: RedisClient,
             config: LettuceNearCacheConfig<String, String> = LettuceNearCacheConfig(),
-        ): LettuceNearCache<String> = LettuceNearCache(redisClient, LettuceBinaryCodecs.default(), config)
+        ): LettuceNearCache<String> =
+            LettuceNearCache(redisClient, LettuceBinaryCodecs.default(), config)
     }
 
     override val cacheName: String get() = config.cacheName
@@ -308,8 +309,7 @@ class LettuceNearCache<V: Any>(
      * 해당 키가 캐시에 존재하는지 확인한다 (front or Redis).
      */
     override fun containsKey(key: String): Boolean {
-        if (frontCache.containsKey(key)) return true
-        return commands.exists(config.redisKey(key)) > 0
+        return frontCache.containsKey(key) || commands.exists(config.redisKey(key)) > 0
     }
 
     /**

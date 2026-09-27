@@ -17,7 +17,8 @@ val defaultJetStreamOptions: JetStreamOptions = JetStreamOptions.DEFAULT_JS_OPTI
  */
 inline fun jetStreamOptions(
     builder: JetStreamOptions.Builder.() -> Unit,
-): JetStreamOptions = JetStreamOptions.builder().apply(builder).build()
+): JetStreamOptions =
+    JetStreamOptions.builder().apply(builder).build()
 
 /**
  * 주요 파라미터를 직접 지정하여 [JetStreamOptions]를 생성합니다.

@@ -1,9 +1,10 @@
 package io.bluetape4k.http.hc5.auth
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.client5.http.auth.AuthScope
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials
 import org.apache.hc.client5.http.protocol.HttpClientContext
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.Test
 
 class CredentialsProviderBuilderTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     // HC5 5.x has no AuthScope.ANY — use all-null/wildcard constructor instead
     private val anyScope = AuthScope(null, null, -1, null, null)
@@ -143,6 +144,7 @@ class CredentialsProviderBuilderTest {
         val scope1 = AuthScope(host1)
         val retrieved = provider.getCredentials(scope1, httpContext())
         retrieved.shouldNotBeNull()
-        (retrieved as UsernamePasswordCredentials).userName shouldBeEqualTo "user1"
+        retrieved.shouldBeInstanceOf<UsernamePasswordCredentials>()
+        retrieved.userName shouldBeEqualTo "user1"
     }
 }

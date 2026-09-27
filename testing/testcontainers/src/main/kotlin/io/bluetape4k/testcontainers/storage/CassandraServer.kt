@@ -16,7 +16,6 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.storage.CassandraServer.Launcher.cassandra4
 import io.bluetape4k.utils.Resourcex
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.cassandra.CassandraQueryWaitStrategy

@@ -1,6 +1,7 @@
 package io.bluetape4k.vertx.resilience4j
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.vertx.asCompletableFuture
 import io.bluetape4k.vertx.tests.withTestContext
 import io.github.resilience4j.bulkhead.Bulkhead
@@ -10,7 +11,7 @@ import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.junit5.VertxTestContext
 import org.junit.jupiter.api.Test
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class VertxFutureDecoratorOverloadTest: AbstractVertxFutureTest() {
 
@@ -23,13 +24,15 @@ class VertxFutureDecoratorOverloadTest: AbstractVertxFutureTest() {
         bulkhead.executeVertxFuture { Future.succeededFuture("bulk-execute") }
             .result() shouldBeEqualTo "bulk-execute"
         bulkhead.decorateVertxFuture { Future.succeededFuture("bulk-decorate") }
-            .invoke().result() shouldBeEqualTo "bulk-decorate"
+            .invoke()
+            .result() shouldBeEqualTo "bulk-decorate"
 
         val rateLimiter = RateLimiter.ofDefaults("rate-limiter-overload")
         rateLimiter.executeVertxFuture { Future.succeededFuture("rate-execute") }
             .result() shouldBeEqualTo "rate-execute"
         rateLimiter.decorateVertxFuture { Future.succeededFuture("rate-decorate") }
-            .invoke().result() shouldBeEqualTo "rate-decorate"
+            .invoke()
+            .result() shouldBeEqualTo "rate-decorate"
     }
 
     @Test
@@ -40,11 +43,14 @@ class VertxFutureDecoratorOverloadTest: AbstractVertxFutureTest() {
         val timeLimiter = TimeLimiter.ofDefaults("time-limiter-overload")
 
         val executed = timeLimiter.executeVertxFuture { Future.succeededFuture("time-execute") }
-            .asCompletableFuture().get(5, TimeUnit.SECONDS)
+            .asCompletableFuture()
+            .get(5.seconds)
         executed shouldBeEqualTo "time-execute"
 
         val decorated = timeLimiter.decorateVertxFuture { Future.succeededFuture("time-decorate") }
-            .invoke().asCompletableFuture().get(5, TimeUnit.SECONDS)
+            .invoke()
+            .asCompletableFuture()
+            .get(5.seconds)
         decorated shouldBeEqualTo "time-decorate"
     }
 }

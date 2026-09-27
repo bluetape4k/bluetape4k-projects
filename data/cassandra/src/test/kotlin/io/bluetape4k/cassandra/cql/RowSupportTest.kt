@@ -1,6 +1,7 @@
 package io.bluetape4k.cassandra.cql
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cassandra.AbstractCassandraTest
 import io.bluetape4k.cassandra.toCqlIdentifier
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -10,7 +11,9 @@ import org.junit.jupiter.api.Test
 
 class RowSupportTest: AbstractCassandraTest() {
 
-    companion object: KLoggingChannel()
+    companion object: KLoggingChannel() {
+        private const val ITEM_SIZE = 100
+    }
 
     @BeforeAll
     fun setup() {
@@ -20,7 +23,7 @@ class RowSupportTest: AbstractCassandraTest() {
             session.executeSuspending("TRUNCATE row_table")
 
             val ps = session.prepareSuspending("INSERT INTO row_table(id, name, num) VALUES(?, ?, ?)")
-            repeat(100) { num ->
+            repeat(ITEM_SIZE) { num ->
                 val id = num.toString()
                 val name = "name-$id"
                 session.executeSuspending(ps.bind(id, name, num))
@@ -30,7 +33,10 @@ class RowSupportTest: AbstractCassandraTest() {
 
     @Test
     fun `row to map`() = runSuspendIO {
-        val row = session.executeSuspending("SELECT * FROM row_table WHERE id=?", "1").one()!!
+        val row = session
+            .executeSuspending("SELECT * FROM row_table WHERE id=?", "1")
+            .one().shouldNotBeNull()
+
         row.toMap() shouldBeEqualTo mapOf(
             0 to "1",
             1 to "name-1",
@@ -40,7 +46,10 @@ class RowSupportTest: AbstractCassandraTest() {
 
     @Test
     fun `row to named map`() = runSuspendIO {
-        val row = session.executeSuspending("SELECT * FROM row_table WHERE id=?", "1").one()!!
+        val row = session
+            .executeSuspending("SELECT * FROM row_table WHERE id=?", "1")
+            .one().shouldNotBeNull()
+
         val named = row.toNamedMap()
         named["id"] shouldBeEqualTo "1"
         named["name"] shouldBeEqualTo "name-1"
@@ -49,7 +58,10 @@ class RowSupportTest: AbstractCassandraTest() {
 
     @Test
     fun `row to CqlItentifier map`() = runSuspendIO {
-        val row = session.executeSuspending("SELECT * FROM row_table WHERE id=?", "1").one()!!
+        val row = session
+            .executeSuspending("SELECT * FROM row_table WHERE id=?", "1")
+            .one().shouldNotBeNull()
+
         val byIdentifier = row.toCqlIdentifierMap()
         byIdentifier["id".toCqlIdentifier()] shouldBeEqualTo "1"
         byIdentifier["name".toCqlIdentifier()] shouldBeEqualTo "name-1"
@@ -58,13 +70,15 @@ class RowSupportTest: AbstractCassandraTest() {
 
     @Test
     fun `get columnCodecs`() = runSuspendIO {
-        val row = session.executeSuspending("SELECT * FROM row_table WHERE id=?", "1").one()!!
+        val row = session
+            .executeSuspending("SELECT * FROM row_table WHERE id=?", "1")
+            .one().shouldNotBeNull()
 
         val columnCodecs = row.columnCodecs()
 
         columnCodecs.size shouldBeEqualTo 3
-        columnCodecs["id".toCqlIdentifier()]!!.javaClass.simpleName shouldBeEqualTo "StringCodec"
-        columnCodecs["name".toCqlIdentifier()]!!.javaClass.simpleName shouldBeEqualTo "StringCodec"
-        columnCodecs["num".toCqlIdentifier()]!!.javaClass.simpleName shouldBeEqualTo "IntCodec"
+        columnCodecs["id".toCqlIdentifier()]?.javaClass?.simpleName shouldBeEqualTo "StringCodec"
+        columnCodecs["name".toCqlIdentifier()]?.javaClass?.simpleName shouldBeEqualTo "StringCodec"
+        columnCodecs["num".toCqlIdentifier()]?.javaClass?.simpleName shouldBeEqualTo "IntCodec"
     }
 }

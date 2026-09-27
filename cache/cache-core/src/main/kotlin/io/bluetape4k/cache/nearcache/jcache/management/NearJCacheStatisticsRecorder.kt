@@ -176,6 +176,7 @@ private object NoOpRecordingContext: NearJCacheRecordingContext {
         backHits: Long,
         backMisses: Long,
     ) = Unit
+
     override fun recordPut(startedAt: Long, count: Long) = Unit
     override fun recordRemove(startedAt: Long, count: Long) = Unit
     override val cacheHits: Long get() = 0L

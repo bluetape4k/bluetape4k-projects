@@ -40,15 +40,13 @@ class ConvertableEntity(
     @Convert(converter = LZ4KryoObjectAsByteArrayConverter::class)
     @Basic(fetch = FetchType.LAZY)
     @Column(length = 1024)
-    val component: Component = Component("test data")
+    var component: Component = Component("test data")
 
     override fun equalProperties(other: Any): Boolean {
         return other is ConvertableEntity && name == other.name
     }
 
-    override fun equals(other: Any?): Boolean {
-        return other != null && super.equals(other)
-    }
+    override fun equals(other: Any?): Boolean = other != null && super.equals(other)
 
     override fun hashCode(): Int = id?.hashCode() ?: name.hashCode()
 

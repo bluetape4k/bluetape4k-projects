@@ -2,11 +2,13 @@ package io.bluetape4k.redis.lettuce.filter
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.redis.lettuce.awaitSuspending
 import io.bluetape4k.redis.lettuce.script.RedisScriptRunner
+import io.bluetape4k.support.toUtf8Bytes
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
-import io.bluetape4k.redis.lettuce.awaitSuspending
+import kotlin.math.absoluteValue
 
 /**
  * 삭제를 지원하는 Redis 기반 Cuckoo Filter 코루틴 구현입니다.
@@ -70,7 +72,7 @@ class LettuceSuspendCuckooFilter(
                             storedNumBuckets != numBuckets
                     )
         ) {
-            throw IllegalStateException(
+            error(
                 "CuckooFilter '$filterName' 이미 다른 파라미터로 초기화됨: " +
                         "저장된 capacity=$storedCapacity/bucketSize=$storedBucketSize/numBuckets=$storedNumBuckets, " +
                         "현재 capacity=${options.capacity}/bucketSize=${options.bucketSize}/numBuckets=$numBuckets"
@@ -167,11 +169,11 @@ class LettuceSuspendCuckooFilter(
     private data class FingerprintData(val fp: Int, val i1: Long, val i2: Long)
 
     private fun fingerprint(element: String): FingerprintData {
-        val bytes = element.toByteArray(Charsets.UTF_8)
+        val bytes = element.toUtf8Bytes()
         val (h1, _) = Murmur3.hash128x64(bytes)
-        val fp = (kotlin.math.abs(h1.toInt()) % 255) + 1
+        val fp = (h1.toInt().absoluteValue % 255) + 1
         val i1 = Math.floorMod(h1, numBuckets) + 1
-        val fpHash = kotlin.math.abs(fp.toLong() * 2654435761L) % numBuckets
+        val fpHash = (fp.toLong() * 2654435761L).absoluteValue % numBuckets
         val i2 = Math.floorMod((i1 - 1) xor fpHash, numBuckets) + 1
         return FingerprintData(fp, i1, i2)
     }

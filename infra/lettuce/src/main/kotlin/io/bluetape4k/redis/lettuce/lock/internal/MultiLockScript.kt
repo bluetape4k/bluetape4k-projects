@@ -1,7 +1,7 @@
 package io.bluetape4k.redis.lettuce.lock.internal
 
-import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationDeadline
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationCapacityException
+import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationDeadline
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationFailureClassification
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationProtocolException
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRenewalOutcome
@@ -10,30 +10,28 @@ import io.bluetape4k.redis.lettuce.lock.LeasePolicy
 import io.bluetape4k.redis.lettuce.lock.LockAcquireResult
 import io.bluetape4k.redis.lettuce.lock.LockBackendFailure
 import io.bluetape4k.redis.lettuce.lock.LockBackendFailureKind
-import io.bluetape4k.redis.lettuce.lock.LockConfig
-import io.bluetape4k.redis.lettuce.lock.LockGeneration
+import io.bluetape4k.redis.lettuce.lock.LockCounterName
+import io.bluetape4k.redis.lettuce.lock.LockDimensions
+import io.bluetape4k.redis.lettuce.lock.LockEvent
 import io.bluetape4k.redis.lettuce.lock.LockHandle
 import io.bluetape4k.redis.lettuce.lock.LockInspectResult
 import io.bluetape4k.redis.lettuce.lock.LockIntegrityFailure
 import io.bluetape4k.redis.lettuce.lock.LockIntegrityFailureKind
 import io.bluetape4k.redis.lettuce.lock.LockKind
-import io.bluetape4k.redis.lettuce.lock.LockCounterName
-import io.bluetape4k.redis.lettuce.lock.LockDimensions
-import io.bluetape4k.redis.lettuce.lock.LockEvent
 import io.bluetape4k.redis.lettuce.lock.LockLeasePolicyKind
 import io.bluetape4k.redis.lettuce.lock.LockMutationResult
 import io.bluetape4k.redis.lettuce.lock.LockObservation
 import io.bluetape4k.redis.lettuce.lock.LockObservationSink
 import io.bluetape4k.redis.lettuce.lock.LockOperation
-import io.bluetape4k.redis.lettuce.lock.LockOwnerId
 import io.bluetape4k.redis.lettuce.lock.LockOutcome
+import io.bluetape4k.redis.lettuce.lock.LockOwnerId
 import io.bluetape4k.redis.lettuce.lock.LockReconcileResult
 import io.bluetape4k.redis.lettuce.lock.LockRecoveryAction
 import io.bluetape4k.redis.lettuce.lock.LockRequestId
 import io.bluetape4k.redis.lettuce.lock.MultiLockConfig
 import io.bluetape4k.redis.lettuce.lock.MultiLockHandle
-import io.bluetape4k.redis.lettuce.lock.toRedisMillisCeil
 import io.bluetape4k.redis.lettuce.lock.recordSafely
+import io.bluetape4k.redis.lettuce.lock.toRedisMillisCeil
 import io.bluetape4k.redis.lettuce.script.RedisScript
 import io.lettuce.core.RedisCommandTimeoutException
 import io.lettuce.core.RedisConnectionException
@@ -51,8 +49,7 @@ import kotlinx.coroutines.future.await
 import java.nio.ByteBuffer
 import java.security.MessageDigest
 import java.time.Duration
-import java.util.Collections
-import java.util.IdentityHashMap
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 import java.util.concurrent.ConcurrentHashMap
@@ -276,8 +273,7 @@ internal class MultiLockClient private constructor(
                             else if (result is LockAcquireResult.Contended) {
                                 observation.onContended()
                                 schedule()
-                            }
-                            else {
+                            } else {
                                 val registered = registerWatchdog(result)
                                 if (!target.complete(registered)) {
                                     registered.acquiredHandleOrNull()?.let(::releaseAbandoned)
@@ -296,7 +292,7 @@ internal class MultiLockClient private constructor(
                 when {
                     target.isCancelled -> LockOutcome.CANCELLED
                     error != null -> LockOutcome.BACKEND_FAILED
-                    else -> value.observationOutcome()
+                    else          -> value.observationOutcome()
                 },
             )
         }
@@ -651,7 +647,7 @@ internal class MultiLockClient private constructor(
         val handle = when (result) {
             is LockAcquireResult.Acquired -> result.handle
             is LockAcquireResult.Reentered -> result.handle
-            else -> return result
+            else                          -> return result
         }
         return if (ensureWatchdog(handle)) {
             result
@@ -747,7 +743,7 @@ internal class MultiLockClient private constructor(
             LockMutationResult.Expired,
             LockMutationResult.OwnershipLost,
             LockMutationResult.StaleGeneration,
-            -> {
+                -> {
                 recordOwnershipLoss(handle.lock.leasePolicy)
                 removeWatchdog(handle)
             }
@@ -763,11 +759,11 @@ internal class MultiLockClient private constructor(
         when (result) {
             is LockMutationResult.Released,
             LockMutationResult.AlreadyReleased,
-            -> removeWatchdog(handle)
+                -> removeWatchdog(handle)
             LockMutationResult.Expired,
             LockMutationResult.OwnershipLost,
             LockMutationResult.StaleGeneration,
-            -> {
+                -> {
                 recordOwnershipLoss(handle.lock.leasePolicy)
                 removeWatchdog(handle)
             }
@@ -897,7 +893,7 @@ private fun MultiLockOperation.toLockOperation(): LockOperation =
         MultiLockOperation.ACQUIRE -> LockOperation.ACQUIRE
         MultiLockOperation.INSPECT -> LockOperation.INSPECT
         MultiLockOperation.RECONCILE -> LockOperation.RECONCILE
-        MultiLockOperation.RENEW -> LockOperation.RENEW
+        MultiLockOperation.RENEW   -> LockOperation.RENEW
         MultiLockOperation.RELEASE -> LockOperation.RELEASE
     }
 
@@ -908,14 +904,17 @@ private fun LockAcquireResult<MultiLockHandle>?.acquiredHandleOrNull(): MultiLoc
     when (this) {
         is LockAcquireResult.Acquired -> handle
         is LockAcquireResult.Reentered -> handle
-        else -> null
+        else                          -> null
     }
 
 private fun LockAcquireResult<LockHandle>.toMulti(count: Int): LockAcquireResult<MultiLockHandle> =
     when (this) {
-        is LockAcquireResult.Acquired -> LockAcquireResult.Acquired(MultiLockHandle(handle.asMulti(), count))
-        is LockAcquireResult.Reentered -> LockAcquireResult.Reentered(MultiLockHandle(handle.asMulti(), count), holdCount)
-        else -> @Suppress("UNCHECKED_CAST") (this as LockAcquireResult<MultiLockHandle>)
+        is LockAcquireResult.Acquired  -> LockAcquireResult.Acquired(MultiLockHandle(handle.asMulti(), count))
+        is LockAcquireResult.Reentered -> LockAcquireResult.Reentered(
+            MultiLockHandle(handle.asMulti(), count),
+            holdCount
+        )
+        else                           -> @Suppress("UNCHECKED_CAST") (this as LockAcquireResult<MultiLockHandle>)
     }
 
 private fun LockInspectResult<LockHandle>.toMulti(count: Int): LockInspectResult<MultiLockHandle> =
@@ -1021,8 +1020,8 @@ private fun multiBackend(error: Throwable, action: LockRecoveryAction): LockBack
     val kind = when (cause) {
         is RedisConnectionException -> LockBackendFailureKind.CONNECTION
         is RedisCommandTimeoutException, is TimeoutException -> LockBackendFailureKind.TIMEOUT
-        is RedisException -> LockBackendFailureKind.COMMAND
-        else -> throw cause
+        is RedisException           -> LockBackendFailureKind.COMMAND
+        else                        -> throw cause
     }
     return LockBackendFailure(kind, action)
 }

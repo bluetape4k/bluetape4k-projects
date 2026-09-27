@@ -1,14 +1,14 @@
 package io.bluetape4k.examples.redisson.coroutines.objects
 
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.coroutines.support.awaitUntil
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.toUtf8Bytes
-import kotlinx.coroutines.future.await
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.io.Serializable
 
@@ -70,6 +70,6 @@ class BloomFilterExamples: AbstractRedissonCoroutineTest() {
         // 존재하지 않는 요소는 false 를 반환한다
         bloomFilter.contains(excludedMessage).shouldBeFalse()
 
-        bloomFilter.deleteAsync().await().shouldBeTrue()
+        bloomFilter.deleteAsync().awaitUntil().shouldBeTrue()
     }
 }

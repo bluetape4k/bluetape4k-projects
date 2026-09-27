@@ -2,9 +2,10 @@ package io.bluetape4k.csv.v2
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.StringWriter
@@ -12,7 +13,7 @@ import java.nio.file.Path
 
 class FlowCsvWriterTest {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     @TempDir
     lateinit var tempDir: Path
@@ -30,7 +31,7 @@ class FlowCsvWriterTest {
     // ── basic write ──────────────────────────────────────
 
     @Test
-    fun `writeRow produces CSV line`() = runTest {
+    fun `writeRow produces CSV line`() = runSuspendIO {
         val (sw, writer) = writerOf()
         writer.writeRow(listOf("Alice", "30"))
         writer.close()
@@ -39,7 +40,7 @@ class FlowCsvWriterTest {
     }
 
     @Test
-    fun `writeHeaders and writeRow`() = runTest {
+    fun `writeHeaders and writeRow`() = runSuspendIO {
         val (sw, writer) = writerOf()
         writer.writeHeaders(listOf("name", "age"))
         writer.writeRow(listOf("Alice", 30))
@@ -51,7 +52,7 @@ class FlowCsvWriterTest {
     }
 
     @Test
-    fun `null field is written as empty unquoted`() = runTest {
+    fun `null field is written as empty unquoted`() = runSuspendIO {
         val (sw, writer) = writerOf()
         writer.writeRow(listOf("a", null, "c"))
         writer.close()
@@ -60,7 +61,7 @@ class FlowCsvWriterTest {
     }
 
     @Test
-    fun `empty string field is written as quoted empty`() = runTest {
+    fun `empty string field is written as quoted empty`() = runSuspendIO {
         val (sw, writer) = writerOf()
         writer.writeRow(listOf("a", "", "c"))
         writer.close()
@@ -69,7 +70,7 @@ class FlowCsvWriterTest {
     }
 
     @Test
-    fun `field with comma is quoted`() = runTest {
+    fun `field with comma is quoted`() = runSuspendIO {
         val (sw, writer) = writerOf()
         writer.writeRow(listOf("hello, world", "42"))
         writer.close()
@@ -78,7 +79,7 @@ class FlowCsvWriterTest {
     }
 
     @Test
-    fun `field with quote char is double-quoted`() = runTest {
+    fun `field with quote char is double-quoted`() = runSuspendIO {
         val (sw, writer) = writerOf()
         writer.writeRow(listOf("say \"hi\""))
         writer.close()
@@ -90,7 +91,7 @@ class FlowCsvWriterTest {
     // ── TSV writer ───────────────────────────────────────
 
     @Test
-    fun `tsvWriter uses tab delimiter`() = runTest {
+    fun `tsvWriter uses tab delimiter`() = runSuspendIO {
         val (sw, writer) = tsvWriterOf()
         writer.writeRow(listOf("a", "b", "c"))
         writer.close()
@@ -99,7 +100,7 @@ class FlowCsvWriterTest {
     }
 
     @Test
-    fun `tsvWriter delimiter cannot be overridden to comma`() = runTest {
+    fun `tsvWriter delimiter cannot be overridden to comma`() = runSuspendIO {
         val (sw, writer) = tsvWriterOf { delimiter = ',' }
         writer.writeRow(listOf("x", "y"))
         writer.close()
@@ -110,7 +111,7 @@ class FlowCsvWriterTest {
     // ── quoteAll ─────────────────────────────────────────
 
     @Test
-    fun `quoteAll wraps all non-null fields`() = runTest {
+    fun `quoteAll wraps all non-null fields`() = runSuspendIO {
         val (sw, writer) = writerOf { quoteAll = true }
         writer.writeRow(listOf("Alice", "30", null))
         writer.close()
@@ -119,7 +120,7 @@ class FlowCsvWriterTest {
     }
 
     @Test
-    fun `quoteAll with embedded quote uses doubled-quote`() = runTest {
+    fun `quoteAll with embedded quote uses doubled-quote`() = runSuspendIO {
         val (sw, writer) = writerOf { quoteAll = true }
         writer.writeRow(listOf("say \"hi\""))
         writer.close()
@@ -131,7 +132,7 @@ class FlowCsvWriterTest {
     // ── writeAll (Flow) ──────────────────────────────────
 
     @Test
-    fun `writeAll collects flow rows`() = runTest {
+    fun `writeAll collects flow rows`() = runSuspendIO {
         val (sw, writer) = writerOf()
         writer.writeAll(
             flowOf(
@@ -149,7 +150,7 @@ class FlowCsvWriterTest {
     // ── custom delimiter ─────────────────────────────────
 
     @Test
-    fun `semicolon delimiter`() = runTest {
+    fun `semicolon delimiter`() = runSuspendIO {
         val sw = StringWriter()
         val writer = csvWriter(sw) { delimiter = ';' }
         writer.writeRow(listOf("a", "b", "c"))
@@ -161,7 +162,7 @@ class FlowCsvWriterTest {
     // ── writeFile(Path) ──────────────────────────────────
 
     @Test
-    fun `writeFile writes rows to file and returns count`() = runTest {
+    fun `writeFile writes rows to file and returns count`() = runSuspendIO {
         val file = tempDir.resolve("output.csv")
         val sw = StringWriter()
         val writer = csvWriter(sw)
@@ -174,12 +175,13 @@ class FlowCsvWriterTest {
 
         count shouldBeEqualTo 2L
         val lines = file.toFile().readLines()
+        log.debug { "lines=$lines" }
         lines[0] shouldBeEqualTo "Alice,30"
         lines[1] shouldBeEqualTo "Bob,25"
     }
 
     @Test
-    fun `writeFile writes headers when skipHeaders=false`() = runTest {
+    fun `writeFile writes headers when skipHeaders=false`() = runSuspendIO {
         val file = tempDir.resolve("with_headers.csv")
         val sw = StringWriter()
         val writer = csvWriter(sw)
@@ -193,12 +195,13 @@ class FlowCsvWriterTest {
 
         count shouldBeEqualTo 1L
         val lines = file.toFile().readLines()
+        log.debug { "lines=$lines" }
         lines[0] shouldBeEqualTo "name,age"
         lines[1] shouldBeEqualTo "Alice,30"
     }
 
     @Test
-    fun `writeFile append mode adds rows to existing file`() = runTest {
+    fun `writeFile append mode adds rows to existing file`() = runSuspendIO {
         val file = tempDir.resolve("append.csv")
         file.toFile().writeText("Alice,30\r\n")
         val sw = StringWriter()
@@ -213,12 +216,13 @@ class FlowCsvWriterTest {
 
         count shouldBeEqualTo 1L
         val content = file.toFile().readText()
+        log.debug { "content=$content" }
         content shouldContain "Alice,30"
         content shouldContain "Bob,25"
     }
 
     @Test
-    fun `writeFile UTF-8 fast path preserves CSV edge case semantics`() = runTest {
+    fun `writeFile UTF-8 fast path preserves CSV edge case semantics`() = runSuspendIO {
         val file = tempDir.resolve("edge.csv")
         val writer = csvWriter(StringWriter())
 
@@ -240,7 +244,7 @@ class FlowCsvWriterTest {
     }
 
     @Test
-    fun `writeFile UTF-8 fast path preserves quoteAll semantics`() = runTest {
+    fun `writeFile UTF-8 fast path preserves quoteAll semantics`() = runSuspendIO {
         val file = tempDir.resolve("quote-all.csv")
         val writer = csvWriter(StringWriter()) { quoteAll = true }
 
@@ -255,7 +259,7 @@ class FlowCsvWriterTest {
     }
 
     @Test
-    fun `writeFile UTF-8 fast path preserves TSV semantics`() = runTest {
+    fun `writeFile UTF-8 fast path preserves TSV semantics`() = runSuspendIO {
         val file = tempDir.resolve("edge.tsv")
         val writer = tsvWriter(StringWriter())
 
@@ -274,7 +278,7 @@ class FlowCsvWriterTest {
     }
 
     @Test
-    fun `writeFile returns zero for empty flow`() = runTest {
+    fun `writeFile returns zero for empty flow`() = runSuspendIO {
         val file = tempDir.resolve("empty.csv")
         val sw = StringWriter()
         val writer = csvWriter(sw)
@@ -290,7 +294,7 @@ class FlowCsvWriterTest {
 
     // ── close() flushes underlying writer (regression: cff1141c7) ──────
     @Test
-    fun `close flushes buffered OutputStreamWriter to file`() = runTest {
+    fun `close flushes buffered OutputStreamWriter to file`() = runSuspendIO {
         val file = tempDir.resolve("buffered.csv")
         val bufferedWriter = java.io.BufferedWriter(
             java.io.OutputStreamWriter(
@@ -305,15 +309,17 @@ class FlowCsvWriterTest {
 
         // close() must flush+close so data reaches the file even with a BufferedWriter underneath
         val content = file.toFile().readText(Charsets.UTF_8)
+        log.debug { "content=$content" }
         content shouldContain "Alice,30"
         content shouldContain "Bob,25"
     }
 
     @Test
-    fun `close is idempotent and swallows exceptions`() = runTest {
+    fun `close is idempotent and swallows exceptions`() = runSuspendIO {
         val (_, writer) = writerOf()
         writer.writeRow(listOf("x"))
         writer.close()
+
         // second close must not throw (runCatching in FlowCsvWriterImpl.close)
         writer.close()
     }

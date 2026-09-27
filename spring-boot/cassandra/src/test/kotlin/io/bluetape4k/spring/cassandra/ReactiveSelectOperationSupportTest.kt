@@ -14,11 +14,19 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.io.Serializable
 
+@Suppress("ReactiveStreamsUnusedPublisher")
 class ReactiveSelectOperationSupportTest {
 
     companion object: KLoggingChannel()
 
-    data class TestEntity(val id: String = "test-id", val name: String = "Test"): Serializable
+    data class TestEntity(
+        val id: String = "test-id",
+        val name: String = "Test"
+    ): Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
 
     private val testEntity = TestEntity()
 
@@ -69,6 +77,7 @@ class ReactiveSelectOperationSupportTest {
     fun `oneSuspending returns null for empty Mono`() = runSuspendIO {
         val emptyTerminating = mockk<ReactiveSelectOperation.TerminatingSelect<TestEntity>>()
         every { emptyTerminating.one() } returns Mono.empty()
+
         val entity = emptyTerminating.oneSuspending()
         entity.shouldBeNull()
     }

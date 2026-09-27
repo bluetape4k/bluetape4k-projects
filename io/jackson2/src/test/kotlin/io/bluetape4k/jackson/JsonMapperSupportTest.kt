@@ -16,6 +16,7 @@ import java.io.StringReader
  * [JsonMapper] 확장 함수에 대한 테스트입니다.
  */
 class JsonMapperSupportTest {
+
     companion object: KLogging()
 
     private val mapper: JsonMapper = Jackson.defaultJsonMapper

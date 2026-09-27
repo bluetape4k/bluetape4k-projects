@@ -1,13 +1,14 @@
 package io.bluetape4k.grpc.examples.routeguide
 
-import io.bluetape4k.junit5.output.OutputCapture
-import io.bluetape4k.junit5.output.OutputCapturer
-import io.bluetape4k.logging.KLogging
-import io.grpc.ManagedChannelBuilder
-import kotlinx.coroutines.asCoroutineDispatcher
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.output.OutputCapture
+import io.bluetape4k.junit5.output.OutputCapturer
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.closeSafe
+import io.grpc.ManagedChannelBuilder
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -31,8 +32,8 @@ class RouteGuideServiceTest {
 
     @AfterAll
     fun cleanup() {
-        client.close()
-        server.close()
+        client.closeSafe()
+        server.closeSafe()
     }
 
     @Test

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import java.text.NumberFormat
 
 class NumberUtilsSupportTest: AbstractSpringTest() {
+
     companion object: KLogging()
 
     @Test

@@ -1,11 +1,14 @@
 package io.bluetape4k.http.hc5.cache
 
 import io.bluetape4k.cache.jcache.JCaching
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.client5.http.cache.HttpCacheStorage
 import org.apache.hc.client5.http.cache.HttpCacheStorageEntry
 import javax.cache.Cache
 
 class JavaCacheHttpCacheStorageTest: AbstractHttpCacheStorageTest() {
+
+    companion object: KLogging()
 
     private val jcache: Cache<String, HttpCacheStorageEntry> = JCaching.Caffeine.getOrCreate("http-cache")
 

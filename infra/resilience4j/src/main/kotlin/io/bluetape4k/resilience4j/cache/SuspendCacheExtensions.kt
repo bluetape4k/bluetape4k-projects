@@ -45,8 +45,8 @@ suspend fun <K, V> withSuspendCache(
  * @param loader 캐시 미스 시 실행할 suspend supplier
  * @return 캐시가 적용된 suspend 함수
  */
-inline fun <K, V> SuspendCache<K, V>.decorateSuspendSupplier(
-    crossinline loader: suspend () -> V,
+fun <K, V> SuspendCache<K, V>.decorateSuspendSupplier(
+    loader: suspend () -> V,
 ): suspend (K) -> V = { cacheKey: K ->
     executeSuspendFunction(cacheKey, loader)
 }
@@ -68,8 +68,8 @@ inline fun <K, V> SuspendCache<K, V>.decorateSuspendSupplier(
  * @param loader 캐시 미스 시 실행할 key 기반 suspend 함수
  * @return 캐시가 적용된 suspend 함수
  */
-inline fun <K, V> SuspendCache<K, V>.decorateSuspendFunction(
-    crossinline loader: suspend (K) -> V,
+fun <K, V> SuspendCache<K, V>.decorateSuspendFunction(
+    loader: suspend (K) -> V,
 ): suspend (K) -> V = { cacheKey: K ->
     executeSuspendFunction(cacheKey) { loader(cacheKey) }
 }
@@ -92,9 +92,9 @@ inline fun <K, V> SuspendCache<K, V>.decorateSuspendFunction(
  * @param loader 캐시 미스 시 실행할 suspend supplier
  * @return 캐시된 값 또는 로드된 값
  */
-suspend inline fun <K, V> SuspendCache<K, V>.executeSuspendFunction(
+suspend fun <K, V> SuspendCache<K, V>.executeSuspendFunction(
     cacheKey: K,
-    crossinline loader: suspend () -> V,
+    loader: suspend () -> V,
 ): V {
     return computeIfAbsent(cacheKey) { loader() }
 }

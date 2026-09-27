@@ -6,19 +6,30 @@ import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.junit5.output.InMemoryLogbackAppender
+import io.bluetape4k.logging.KLogging
+import io.mockk.clearMocks
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.r2dbc.core.DatabaseClient
 
 class DatabaseClientSupportTest {
 
+    companion object: KLogging()
+
+    private val spec = mockk<DatabaseClient.GenericExecuteSpec>(relaxed = true)
+
+    @BeforeEach
+    fun beforeEach() {
+        clearMocks(spec)
+    }
+
     @Test
     fun `bindMap preserves typed null parameters`() {
-        val spec = mockk<DatabaseClient.GenericExecuteSpec>()
         val typedNull = typedNullParameter<String>()
 
         every { spec.bind("description", typedNull) } returns spec
@@ -32,8 +43,6 @@ class DatabaseClientSupportTest {
 
     @Test
     fun `bindMap rejects raw null values`() {
-        val spec = mockk<DatabaseClient.GenericExecuteSpec>()
-
         assertFailsWith<IllegalArgumentException> {
             spec.bindMap(mapOf("description" to null))
         }
@@ -43,7 +52,6 @@ class DatabaseClientSupportTest {
 
     @Test
     fun `bindIndexedMap preserves typed null parameters`() {
-        val spec = mockk<DatabaseClient.GenericExecuteSpec>()
         val typedNull = typedNullParameter<String>()
 
         every { spec.bind(0, typedNull) } returns spec
@@ -57,8 +65,6 @@ class DatabaseClientSupportTest {
 
     @Test
     fun `bindIndexedMap rejects raw null values`() {
-        val spec = mockk<DatabaseClient.GenericExecuteSpec>()
-
         assertFailsWith<IllegalArgumentException> {
             spec.bindIndexedMap(mapOf(0 to null))
         }
@@ -68,8 +74,6 @@ class DatabaseClientSupportTest {
 
     @Test
     fun `bindIndexedMap rejects negative indices`() {
-        val spec = mockk<DatabaseClient.GenericExecuteSpec>(relaxed = true)
-
         assertFailsWith<IllegalArgumentException> {
             spec.bindIndexedMap(mapOf(-1 to "john"))
         }
@@ -77,8 +81,6 @@ class DatabaseClientSupportTest {
 
     @Test
     fun `bindNullable rejects negative indexed binding`() {
-        val spec = mockk<DatabaseClient.GenericExecuteSpec>(relaxed = true)
-
         assertFailsWith<IllegalArgumentException> {
             spec.bindNullable<String>(-1, "john")
         }
@@ -86,8 +88,6 @@ class DatabaseClientSupportTest {
 
     @Test
     fun `bindNullable은 named와 indexed 값을 typed Parameter로 위임한다`() {
-        val spec = mockk<DatabaseClient.GenericExecuteSpec>(relaxed = true)
-
         spec.bindNullable<String>("username", "john") shouldBeSameInstanceAs spec
         spec.bindNullable<String>(0, null) shouldBeSameInstanceAs spec
     }
@@ -97,7 +97,6 @@ class DatabaseClientSupportTest {
         val loggerName = "io.bluetape4k.r2dbc.support.DatabaseClientSupport"
         val logger = LoggerFactory.getLogger(loggerName) as ch.qos.logback.classic.Logger
         val previousLevel = logger.level
-        val spec = mockk<DatabaseClient.GenericExecuteSpec>()
         val namedSecret = "named-binding-secret"
         val indexedSecret = "indexed-binding-secret"
 

@@ -1,5 +1,9 @@
 package io.bluetape4k.examples.redisson.coroutines.locks
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.coroutines.support.awaitUntil
+import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
@@ -7,12 +11,8 @@ import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.utils.Runtimex
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
@@ -29,15 +29,15 @@ class SemaphoreExamples: AbstractRedissonCoroutineTest() {
     companion object: KLoggingChannel()
 
     @Test
-    fun `semaphore example`() = runTest {
+    fun `semaphore example`() = runSuspendIO {
         val semaphoreName = randomName()
         val semaphore = redisson.getSemaphore(semaphoreName)
 
         // 5개 확보
-        semaphore.trySetPermitsAsync(5).await().shouldBeTrue()
+        semaphore.trySetPermitsAsync(5).awaitUntil().shouldBeTrue()
 
         // 3개 획득
-        semaphore.acquireAsync(3).await()
+        semaphore.acquireAsync(3).awaitUntil()
 
         val redisson2 = newRedisson()
 
@@ -45,34 +45,34 @@ class SemaphoreExamples: AbstractRedissonCoroutineTest() {
             val s2 = redisson2.getSemaphore(semaphoreName)
             yield()
             // 2개 반납 (4개 남음)
-            s2.releaseAsync(2).await()
+            s2.releaseAsync(2).awaitUntil()
             yield()
-        }
+        }.log("Job 1")
 
         val redisson3 = newRedisson()
         val job2 = scope.launch {
             val s3 = redisson3.getSemaphore(semaphoreName)
             yield()
             // 4개 확보
-            s3.tryAcquireAsync(4, 5.seconds.toJavaDuration()).await().shouldBeTrue()
+            s3.tryAcquireAsync(4, 5.seconds.toJavaDuration()).awaitUntil().shouldBeTrue()
             yield()
-        }
+        }.log("Job 2")
         yield()
 
         job.join()
         job2.join()
 
-        semaphore.availablePermitsAsync().await() shouldBeEqualTo 0
+        semaphore.availablePermitsAsync().awaitUntil() shouldBeEqualTo 0
 
         // 4개 반납
-        semaphore.releaseAsync(4).await()
-        semaphore.availablePermitsAsync().await() shouldBeEqualTo 4
+        semaphore.releaseAsync(4).awaitUntil()
+        semaphore.availablePermitsAsync().awaitUntil() shouldBeEqualTo 4
 
         // 여유분을 모두 획득합니다.
-        semaphore.drainPermitsAsync().await() shouldBeEqualTo 4
-        semaphore.availablePermitsAsync().await() shouldBeEqualTo 0
+        semaphore.drainPermitsAsync().awaitUntil() shouldBeEqualTo 4
+        semaphore.availablePermitsAsync().awaitUntil() shouldBeEqualTo 0
 
-        semaphore.deleteAsync().await()
+        semaphore.deleteAsync().awaitUntil()
 
         redisson2.shutdown()
         redisson3.shutdown()

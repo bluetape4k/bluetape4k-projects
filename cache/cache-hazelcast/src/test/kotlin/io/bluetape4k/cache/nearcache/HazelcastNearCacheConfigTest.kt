@@ -2,15 +2,16 @@ package io.bluetape4k.cache.nearcache
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.io.lookup
+import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.io.ObjectStreamClass
 import java.time.Duration
 
 class HazelcastNearCacheConfigTest {
+
+    companion object: KLogging()
 
     @Test
     fun `유효한 near cache 설정은 그대로 생성된다`() {
@@ -55,14 +56,13 @@ class HazelcastNearCacheConfigTest {
         )
 
         deserialize<HazelcastNearCacheConfig>(serialize(config)) shouldBeEqualTo config
-        ObjectStreamClass.lookup(HazelcastNearCacheConfig::class.java).serialVersionUID shouldBeEqualTo 1L
+        HazelcastNearCacheConfig::class.lookup().serialVersionUID shouldBeEqualTo 1L
     }
 
-    private fun serialize(value: Any): ByteArray = ByteArrayOutputStream().use { bytes ->
-        ObjectOutputStream(bytes).use { output -> output.writeObject(value) }
-        bytes.toByteArray()
-    }
+    private fun serialize(value: Any): ByteArray =
+        BinarySerializers.FastFory.serialize(value)
 
-    private inline fun <reified T> deserialize(bytes: ByteArray): T =
-        ObjectInputStream(ByteArrayInputStream(bytes)).use { input -> input.readObject() as T }
+
+    private inline fun <reified T: Any> deserialize(bytes: ByteArray): T =
+        BinarySerializers.FastFory.deserialize<T>(bytes).shouldNotBeNull()
 }

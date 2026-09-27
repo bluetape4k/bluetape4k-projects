@@ -61,7 +61,9 @@ class SuspendedSocketTest: AbstractOkioTest() {
         val serverSource = server.asSuspendedSource().buffered()
         server.close()
 
-        assertFailsWith<IOException> { serverSource.readUtf8() }
+        assertFailsWith<IOException> {
+            serverSource.readUtf8()
+        }
     }
 
     @Test
@@ -72,7 +74,6 @@ class SuspendedSocketTest: AbstractOkioTest() {
         assertFailsWith<IOException> {
             serverSink.writeUtf8(Fakers.randomString())
             serverSink.flush()
-
         }
     }
 
@@ -85,8 +86,9 @@ class SuspendedSocketTest: AbstractOkioTest() {
                 delay(500.milliseconds)
                 server.close()
             }
-
-            assertFailsWith<IOException> { serverSource.request(1L) }
+            assertFailsWith<IOException> {
+                serverSource.request(1L)
+            }
         }
     }
 

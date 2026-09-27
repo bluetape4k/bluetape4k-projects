@@ -2,11 +2,16 @@ package io.bluetape4k.kafka.codec
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.support.toUtf8String
 import org.apache.kafka.common.header.Headers
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 
 class BufferAwareKafkaCodecTest {
+    companion object: KLogging()
+
     private class RecordingCodec: BufferAwareKafkaCodec<String> {
         var serializeHeaders: Headers? = null
         var deserializeHeaders: Headers? = null
@@ -32,7 +37,7 @@ class BufferAwareKafkaCodecTest {
         override fun deserializeFrom(topic: String?, headers: Headers?, source: ByteBuffer): String {
             deserializeHeaders = headers
             return source.duplicate().let { view ->
-                ByteArray(view.remaining()).also(view::get).decodeToString()
+                ByteArray(view.remaining()).also(view::get).toUtf8String()
             }
         }
     }
@@ -51,7 +56,7 @@ class BufferAwareKafkaCodecTest {
     @Test
     fun `headerless input delegates with null headers`() {
         val codec = RecordingCodec()
-        val source = ByteBuffer.wrap("hello".encodeToByteArray())
+        val source = ByteBuffer.wrap("hello".toUtf8Bytes())
 
         codec.deserializeFrom("events", source) shouldBeEqualTo "hello"
 

@@ -2,8 +2,8 @@ package io.bluetape4k.retrofit2.client
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.assertions.shouldNotBeNullOrBlank
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import io.bluetape4k.retrofit2.AbstractRetrofitTest
@@ -20,15 +20,15 @@ abstract class AbstractJsonPlaceHolderTest: AbstractRetrofitTest() {
         protected fun Post.verify() {
             log.trace { "Post=$this" }
 
-            title.shouldNotBeNullOrBlank()
-            body.shouldNotBeNullOrBlank()
+            title.shouldNotBeBlank()
+            body.shouldNotBeBlank()
         }
 
         @JvmStatic
         protected fun HttpbinAnythingResponse.verify(method: String, path: String) {
             log.trace { "Httpbin response=$this" }
             this.method.shouldNotBeNull() shouldBeEqualTo method
-            this.url.shouldNotBeNull().shouldContain(path)
+            this.url shouldContain path
         }
 
         @JvmStatic

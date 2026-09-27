@@ -1,7 +1,5 @@
 package io.bluetape4k.measured
 
-import io.bluetape4k.measured.Angle.Companion.degrees
-import io.bluetape4k.measured.Angle.Companion.radians
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -24,6 +22,9 @@ open class Angle(
     ratio: Double = 1.0,
 ): Units(suffix, ratio) {
     companion object {
+
+        const val DEGREE_360 = 360.0
+
         /** 라디안은 기준 단위입니다. */
         @JvmField
         val radians: Angle = Angle("rad")
@@ -139,6 +140,7 @@ fun Number.degrees(): Measure<Angle> = this * Angle.degrees
  */
 fun Number.radians(): Measure<Angle> = this * Angle.radians
 
+
 /**
  * 각도를 [0°, 360°) 범위로 정규화합니다.
  *
@@ -152,7 +154,7 @@ fun Number.radians(): Measure<Angle> = this * Angle.radians
  * ```
  */
 fun Measure<Angle>.normalize(): Measure<Angle> {
-    var degree = (this `in` Angle.degrees) % 360.0
-    if (degree < 0) degree += 360.0
-    return degree * Angle.degrees
+    var degree = (this `in` Angle.degrees) % Angle.DEGREE_360
+    if (degree < 0) degree += Angle.DEGREE_360
+    return degree.degrees()
 }

@@ -2,8 +2,11 @@ package io.bluetape4k.spring.boot.autoconfigure.cache.lettuce
 
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import jakarta.persistence.EntityManagerFactory
 import org.junit.jupiter.api.Test
@@ -16,6 +19,8 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner
 import java.util.function.Supplier
 
 class LettuceNearCacheAutoConfigurationTest {
+
+    companion object: KLogging()
 
     private val contextRunner = ApplicationContextRunner()
         .withConfiguration(
@@ -32,13 +37,14 @@ class LettuceNearCacheAutoConfigurationTest {
         )
         .withBean(
             EntityManagerFactory::class.java,
-            Supplier { org.mockito.Mockito.mock(EntityManagerFactory::class.java) }
+            //{ mockk<EntityManagerFactory>() }
+            { org.mockito.Mockito.mock(EntityManagerFactory::class.java) }
         )
 
     @Test
     fun `HibernatePropertiesCustomizer가 기본 설정으로 등록된다`() {
         contextRunner.run { context ->
-            context.getBeansOfType<HibernatePropertiesCustomizer>().shouldHaveSize(1)
+            context.getBeansOfType<HibernatePropertiesCustomizer>() shouldHaveSize 1
         }
     }
 
@@ -58,7 +64,7 @@ class LettuceNearCacheAutoConfigurationTest {
                 FilteredClassLoader("org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer")
             )
             .run { context ->
-                context.getStartupFailure() shouldBeEqualTo null
+                context.startupFailure.shouldBeNull()
                 context.getBeansOfType<HibernatePropertiesCustomizer>().shouldBeEmpty()
             }
     }
@@ -72,6 +78,7 @@ class LettuceNearCacheAutoConfigurationTest {
                 val props = mutableMapOf<String, Any>()
                 customizer.customize(props)
 
+                log.debug { "props=$props" }
                 props["hibernate.cache.lettuce.redis_uri"] shouldBeEqualTo "redis://myredis:6380"
                 props["hibernate.cache.region.factory_class"] shouldBeEqualTo
                         "io.bluetape4k.hibernate.cache.lettuce.LettuceNearCacheRegionFactory"
@@ -91,6 +98,7 @@ class LettuceNearCacheAutoConfigurationTest {
                 val props = mutableMapOf<String, Any>()
                 customizer.customize(props)
 
+                log.debug { "props=$props" }
                 props["hibernate.generate_statistics"] shouldBeEqualTo "true"
                 props["hibernate.cache.lettuce.local.record_stats"] shouldBeEqualTo "true"
             }
@@ -109,6 +117,7 @@ class LettuceNearCacheAutoConfigurationTest {
                 val props = mutableMapOf<String, Any>()
                 customizer.customize(props)
 
+                log.debug { "props=$props" }
                 props["hibernate.cache.lettuce.redis_ttl.default"] shouldBeEqualTo "60s"
                 props["hibernate.cache.lettuce.redis_ttl.product"] shouldBeEqualTo "300s"
             }
@@ -118,6 +127,8 @@ class LettuceNearCacheAutoConfigurationTest {
     fun `LettuceNearCacheSpringProperties 기본값이 올바르게 설정된다`() {
         contextRunner.run { context ->
             val props = context.getBean<LettuceNearCacheSpringProperties>()
+
+            log.debug { "props=$props" }
             props.enabled.shouldBeTrue()
             props.redisUri shouldBeEqualTo "redis://localhost:6379"
             props.codec shouldBeEqualTo "lz4fory"
@@ -139,6 +150,7 @@ class LettuceNearCacheAutoConfigurationTest {
                 val props = mutableMapOf<String, Any>()
                 customizer.customize(props)
 
+                log.debug { "props=$props" }
                 props["hibernate.cache.lettuce.local.expire_after_write"] shouldBeEqualTo "500ms"
                 props["hibernate.cache.lettuce.redis_ttl.default"] shouldBeEqualTo "1500ms"
             }
@@ -147,16 +159,16 @@ class LettuceNearCacheAutoConfigurationTest {
     @Test
     fun `metrics auto configuration registers binder when registry exists`() {
         metricsContextRunner
-            .withBean(SimpleMeterRegistry::class.java, Supplier { SimpleMeterRegistry() })
+            .withBean(SimpleMeterRegistry::class.java, { SimpleMeterRegistry() })
             .run { context ->
-                context.getBeansOfType<LettuceNearCacheMetricsBinder>().shouldHaveSize(1)
+                context.getBeansOfType<LettuceNearCacheMetricsBinder>() shouldHaveSize 1
             }
     }
 
     @Test
     fun `root=false metrics=false이면 세 auto configuration이 모두 비활성화된다`() {
         metricsContextRunner
-            .withBean(SimpleMeterRegistry::class.java, Supplier { SimpleMeterRegistry() })
+            .withBean(SimpleMeterRegistry::class.java, { SimpleMeterRegistry() })
             .withPropertyValues(
                 "bluetape4k.cache.lettuce-near.enabled=false",
                 "bluetape4k.cache.lettuce-near.metrics.enabled=false",
@@ -172,7 +184,7 @@ class LettuceNearCacheAutoConfigurationTest {
     @Test
     fun `root=false metrics=true여도 exposure 설정으로 세 auto configuration을 우회할 수 없다`() {
         metricsContextRunner
-            .withBean(SimpleMeterRegistry::class.java, Supplier { SimpleMeterRegistry() })
+            .withBean(SimpleMeterRegistry::class.java, { SimpleMeterRegistry() })
             .withPropertyValues(
                 "bluetape4k.cache.lettuce-near.enabled=false",
                 "bluetape4k.cache.lettuce-near.metrics.enabled=true",
@@ -188,14 +200,14 @@ class LettuceNearCacheAutoConfigurationTest {
     @Test
     fun `root=true metrics=false이면 customizer만 등록되고 metrics와 actuator는 비활성화된다`() {
         metricsContextRunner
-            .withBean(SimpleMeterRegistry::class.java, Supplier { SimpleMeterRegistry() })
+            .withBean(SimpleMeterRegistry::class.java, { SimpleMeterRegistry() })
             .withPropertyValues(
                 "bluetape4k.cache.lettuce-near.enabled=true",
                 "bluetape4k.cache.lettuce-near.metrics.enabled=false",
                 "management.endpoints.web.exposure.include=nearcache",
             )
             .run { context ->
-                context.getBeansOfType<HibernatePropertiesCustomizer>().shouldHaveSize(1)
+                context.getBeansOfType<HibernatePropertiesCustomizer>() shouldHaveSize 1
                 context.getBeansOfType<LettuceNearCacheMetricsBinder>().shouldBeEmpty()
                 context.getBeansOfType<LettuceNearCacheActuatorEndpoint>().shouldBeEmpty()
             }
@@ -204,23 +216,23 @@ class LettuceNearCacheAutoConfigurationTest {
     @Test
     fun `root=true metrics=true이고 nearcache가 노출되면 세 auto configuration이 등록된다`() {
         metricsContextRunner
-            .withBean(SimpleMeterRegistry::class.java, Supplier { SimpleMeterRegistry() })
+            .withBean(SimpleMeterRegistry::class.java, { SimpleMeterRegistry() })
             .withPropertyValues(
                 "bluetape4k.cache.lettuce-near.enabled=true",
                 "bluetape4k.cache.lettuce-near.metrics.enabled=true",
                 "management.endpoints.web.exposure.include=nearcache",
             )
             .run { context ->
-                context.getBeansOfType<HibernatePropertiesCustomizer>().shouldHaveSize(1)
-                context.getBeansOfType<LettuceNearCacheMetricsBinder>().shouldHaveSize(1)
-                context.getBeansOfType<LettuceNearCacheActuatorEndpoint>().shouldHaveSize(1)
+                context.getBeansOfType<HibernatePropertiesCustomizer>() shouldHaveSize 1
+                context.getBeansOfType<LettuceNearCacheMetricsBinder>() shouldHaveSize 1
+                context.getBeansOfType<LettuceNearCacheActuatorEndpoint>() shouldHaveSize 1
             }
     }
 
     @Test
     fun `actuator auto configuration registers endpoint when entity manager exists`() {
         metricsContextRunner.run { context ->
-            context.getBeansOfType<LettuceNearCacheActuatorEndpoint>().shouldHaveSize(1)
+            context.getBeansOfType<LettuceNearCacheActuatorEndpoint>() shouldHaveSize 1
         }
     }
 
@@ -229,7 +241,7 @@ class LettuceNearCacheAutoConfigurationTest {
         metricsContextRunner
             .withClassLoader(FilteredClassLoader("org.springframework.boot.actuate.endpoint.annotation.Endpoint"))
             .run { context ->
-                context.getStartupFailure() shouldBeEqualTo null
+                context.startupFailure.shouldBeNull()
                 context.getBeansOfType<LettuceNearCacheActuatorEndpoint>().shouldBeEmpty()
             }
     }
@@ -249,7 +261,7 @@ class LettuceNearCacheAutoConfigurationTest {
         metricsContextRunner
             .withClassLoader(FilteredClassLoader("io.micrometer.core.instrument.MeterRegistry"))
             .run { context ->
-                context.getStartupFailure() shouldBeEqualTo null
+                context.startupFailure.shouldBeNull()
                 context.getBeansOfType<LettuceNearCacheMetricsBinder>().shouldBeEmpty()
             }
     }
@@ -263,6 +275,7 @@ class LettuceNearCacheAutoConfigurationTest {
                 val props = mutableMapOf<String, Any>()
                 customizer.customize(props)
 
+                log.debug { "props=$props" }
                 props["hibernate.cache.lettuce.use_resp3"] shouldBeEqualTo "false"
             }
     }
@@ -276,6 +289,7 @@ class LettuceNearCacheAutoConfigurationTest {
                 val props = mutableMapOf<String, Any>()
                 customizer.customize(props)
 
+                log.debug { "props=$props" }
                 props["hibernate.cache.lettuce.codec"] shouldBeEqualTo "lz4fastfory"
             }
     }
@@ -289,6 +303,7 @@ class LettuceNearCacheAutoConfigurationTest {
                 val props = mutableMapOf<String, Any>()
                 customizer.customize(props)
 
+                log.debug { "props=$props" }
                 props["hibernate.cache.lettuce.local.max_size"] shouldBeEqualTo "50000"
             }
     }

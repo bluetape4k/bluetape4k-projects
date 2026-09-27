@@ -6,12 +6,13 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.io.lookup
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import java.io.ObjectStreamClass
 import java.io.Serializable
 import kotlin.reflect.KClass
 import kotlin.reflect.KVisibility
@@ -62,8 +63,8 @@ class MultiKeyLeaseResultTest {
             val restored = javaRoundTrip(original)
 
             restored shouldBeEqualTo original
-            restored.javaClass shouldBeSameInstanceAs original.javaClass
-            ObjectStreamClass.lookup(original.javaClass).serialVersionUID shouldBeEqualTo 1L
+            restored shouldBeInstanceOf original::class
+            original::class.lookup().serialVersionUID shouldBeEqualTo 1L
         }
     }
 
@@ -73,7 +74,7 @@ class MultiKeyLeaseResultTest {
             .flatMap { type -> type.memberProperties.map { property -> property.name } }
             .filter { propertyName ->
                 propertyName.contains("key", ignoreCase = true) ||
-                    propertyName.contains("token", ignoreCase = true)
+                        propertyName.contains("token", ignoreCase = true)
             }
 
         forbiddenProperties.shouldBeEmpty()
@@ -86,7 +87,7 @@ class MultiKeyLeaseResultTest {
             .flatMap { subtype -> subtype.memberProperties.map { property -> property.name } }
             .filter { propertyName ->
                 propertyName.contains("key", ignoreCase = true) ||
-                    propertyName.contains("token", ignoreCase = true)
+                        propertyName.contains("token", ignoreCase = true)
             }
 
         forbiddenProperties.shouldBeEmpty()
@@ -97,8 +98,7 @@ class MultiKeyLeaseResultTest {
         val exception = MultiKeyLeaseCrossSlotException(distinctSlotCount = 2)
 
         exception.distinctSlotCount shouldBeEqualTo 2
-        exception.message shouldBeEqualTo
-            "Multi-key lease requires one Redis Cluster slot; distinctSlotCount=2."
+        exception.message shouldBeEqualTo "Multi-key lease requires one Redis Cluster slot; distinctSlotCount=2."
         assertSecretsAbsent(exception, secretKey, secretToken)
     }
 
@@ -108,10 +108,10 @@ class MultiKeyLeaseResultTest {
 
         val restored = javaRoundTrip(original).shouldBeInstanceOf<MultiKeyLeaseCrossSlotException>()
 
-        restored.javaClass shouldBeSameInstanceAs original.javaClass
+        restored shouldBeInstanceOf original::class
         restored.message shouldBeEqualTo original.message
         restored.distinctSlotCount shouldBeEqualTo original.distinctSlotCount
-        ObjectStreamClass.lookup(original.javaClass).serialVersionUID shouldBeEqualTo 1L
+        original::class.lookup().serialVersionUID shouldBeEqualTo 1L
         assertSecretsAbsent(restored, secretKey, secretToken)
     }
 
@@ -127,7 +127,7 @@ class MultiKeyLeaseResultTest {
         exception.requestedKeyCount shouldBeEqualTo 2
         exception.invalidLeaseKeyCount shouldBeEqualTo 1
         exception.message shouldBeEqualTo
-            "Multi-key lease integrity failure: operation=INSPECT, requestedKeyCount=2, invalidLeaseKeyCount=1."
+                "Multi-key lease integrity failure: operation=INSPECT, requestedKeyCount=2, invalidLeaseKeyCount=1."
         assertSecretsAbsent(exception, secretKey, secretToken)
     }
 
@@ -141,12 +141,12 @@ class MultiKeyLeaseResultTest {
 
         val restored = javaRoundTrip(original).shouldBeInstanceOf<MultiKeyLeaseIntegrityException>()
 
-        restored.javaClass shouldBeSameInstanceAs original.javaClass
+        restored shouldBeInstanceOf original::class
         restored.message shouldBeEqualTo original.message
         restored.operation shouldBeEqualTo original.operation
         restored.requestedKeyCount shouldBeEqualTo original.requestedKeyCount
         restored.invalidLeaseKeyCount shouldBeEqualTo original.invalidLeaseKeyCount
-        ObjectStreamClass.lookup(original.javaClass).serialVersionUID shouldBeEqualTo 1L
+        original::class.lookup().serialVersionUID shouldBeEqualTo 1L
         assertSecretsAbsent(restored, secretKey, secretToken)
     }
 
@@ -180,7 +180,7 @@ class MultiKeyLeaseResultTest {
         }
     }
 
-    private companion object {
+    private companion object: KLogging() {
         const val secretKey = "lease-key-super-secret"
         const val secretToken = "owner-token-super-secret"
 

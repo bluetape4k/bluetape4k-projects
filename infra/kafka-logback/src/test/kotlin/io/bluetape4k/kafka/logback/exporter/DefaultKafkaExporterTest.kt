@@ -28,7 +28,12 @@ class DefaultKafkaExporterTest {
     private val exporter = DefaultKafkaExporter()
 
     private val topicPartition = TopicPartition("topic", 0)
-    private val record = ProducerRecord<String, String>(topicPartition.topic(), topicPartition.partition(), null, "msg")
+    private val record = ProducerRecord<String, String>(
+        topicPartition.topic(),
+        topicPartition.partition(),
+        null,
+        "msg"
+    )
     private val recordMetadata = RecordMetadata(
         topicPartition,
         0,

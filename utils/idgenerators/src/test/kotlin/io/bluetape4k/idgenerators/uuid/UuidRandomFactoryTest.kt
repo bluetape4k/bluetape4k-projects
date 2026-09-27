@@ -1,16 +1,21 @@
 package io.bluetape4k.idgenerators.uuid
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import java.util.Random
+import java.util.*
 
 class UuidRandomFactoryTest {
+
+    companion object: KLogging()
+
     @Test
     fun `각 기본 생성기의 첫 UUID가 충돌하지 않는다`() {
         val ids = List(10_000) { Uuid.random().nextId() }
         ids.toSet() shouldHaveSize ids.size
-        ids.forEach { it.version() shouldBeEqualTo 4 }
+        ids.all { it.version() == 4 }.shouldBeTrue()
     }
 
     @Suppress("DEPRECATION")
@@ -26,6 +31,7 @@ class UuidRandomFactoryTest {
         val first = Uuid.random(Random(42L))
         val second = Uuid.random(Random(42L))
         val legacy = RandomUuidGenerator(Random(42L))
+
         repeat(10) {
             val expected = first.nextId()
             second.nextId() shouldBeEqualTo expected

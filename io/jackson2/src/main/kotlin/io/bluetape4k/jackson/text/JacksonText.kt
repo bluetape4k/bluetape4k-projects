@@ -233,6 +233,7 @@ object JacksonText {
         }
     }
 
+    @Suppress("JavaIoSerializableObjectMustHaveReadResolve")
     private object PropsNullableNumberModule: SimpleModule() {
         init {
             addDeserializer(Byte::class.javaObjectType, object: StdDeserializer<Byte>(Byte::class.javaObjectType) {

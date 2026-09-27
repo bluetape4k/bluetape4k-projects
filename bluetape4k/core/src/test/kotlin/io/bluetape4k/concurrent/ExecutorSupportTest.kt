@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 class ExecutorSupportTest {
 
@@ -52,17 +52,17 @@ class ExecutorSupportTest {
         var result: CompletableFuture<List<Int>>? = null
 
         try {
-            taskStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            taskStarted.await(1.seconds).shouldBeTrue()
             invocation.isDone.shouldBeTrue()
 
-            result = invocation.get(1, TimeUnit.SECONDS)
+            result = invocation.get(1.seconds)
             result?.isDone.shouldBeFalse()
         } finally {
             releaseTask.countDown()
             if (result == null) {
-                result = invocation.get(1, TimeUnit.SECONDS)
+                result = invocation.get(1.seconds)
             }
-            result?.get(1, TimeUnit.SECONDS)
+            result?.get(1.seconds)
         }
     }
 
@@ -89,17 +89,17 @@ class ExecutorSupportTest {
         var result: CompletableFuture<List<Int>>? = null
 
         try {
-            taskStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            taskStarted.await(1.seconds).shouldBeTrue()
             invocation.isDone.shouldBeTrue()
 
-            result = invocation.get(1, TimeUnit.SECONDS)
+            result = invocation.get(1.seconds)
             result?.cancel(true).shouldBeTrue()
-            taskInterrupted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            taskInterrupted.await(1.seconds).shouldBeTrue()
             result?.isCancelled.shouldBeTrue()
         } finally {
             releaseTask.countDown()
             if (!invocation.isDone) {
-                invocation.get(1, TimeUnit.SECONDS)
+                invocation.get(1.seconds)
             }
         }
     }

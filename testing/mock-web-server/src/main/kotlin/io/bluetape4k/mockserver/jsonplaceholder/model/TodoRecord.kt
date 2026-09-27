@@ -16,8 +16,8 @@ data class TodoRecord(
     val id: Long = 0L,
     val title: String = "",
     val completed: Boolean = false,
-) : Serializable {
-    companion object : KLogging() {
+): Serializable {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
     }
 }

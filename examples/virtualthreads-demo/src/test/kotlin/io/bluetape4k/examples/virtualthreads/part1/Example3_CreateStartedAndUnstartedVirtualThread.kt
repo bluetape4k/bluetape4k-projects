@@ -1,12 +1,13 @@
 package io.bluetape4k.examples.virtualthreads.part1
 
-import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
-import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class Example3_CreateStartedAndUnstartedVirtualThread: AbstractVirtualThreadTest() {
 
@@ -20,11 +21,11 @@ class Example3_CreateStartedAndUnstartedVirtualThread: AbstractVirtualThreadTest
 
         val thread = builder.start {
             started.countDown()
-            release.await(1, TimeUnit.SECONDS)
+            release.await(1.seconds)
             println("Virtual thread running")
         }
 
-        started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+        started.await(1.seconds).shouldBeTrue()
         thread.isVirtual.shouldBeTrue()
         thread.isAlive.shouldBeTrue()
         release.countDown()
@@ -39,13 +40,13 @@ class Example3_CreateStartedAndUnstartedVirtualThread: AbstractVirtualThreadTest
 
         val thread = builder.unstarted {
             started.countDown()
-            release.await(1, TimeUnit.SECONDS)
+            release.await(1.seconds)
             println("Virtual thread running")
         }
         thread.state shouldBeEqualTo Thread.State.NEW
         thread.start()
 
-        started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+        started.await(1.seconds).shouldBeTrue()
         thread.isVirtual.shouldBeTrue()
         thread.isAlive.shouldBeTrue()
         release.countDown()

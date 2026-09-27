@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import kotlin.math.cos
-import kotlin.math.sqrt
 import kotlin.math.sin
+import kotlin.math.sqrt
 import kotlin.random.Random
 
 @RandomizedTest
@@ -20,6 +20,7 @@ class RootMeanSquareTest {
 
     companion object: KLogging() {
         private const val REPEAT_SIZE = 5
+        private const val EPSILON = 1e-10
     }
 
     @Nested
@@ -27,9 +28,9 @@ class RootMeanSquareTest {
 
         @Test
         fun `rms uses the arithmetic mean of squares for singleton and signed values`() {
-            sequenceOf(3.0, 4.0).rms().shouldBeNear(sqrt(12.5), 1e-10)
-            sequenceOf(-3.0, -4.0).rms().shouldBeNear(sqrt(12.5), 1e-10)
-            sequenceOf(3.0).rms().shouldBeNear(3.0, 1e-10)
+            sequenceOf(3.0, 4.0).rms().shouldBeNear(sqrt(12.5), EPSILON)
+            sequenceOf(-3.0, -4.0).rms().shouldBeNear(sqrt(12.5), EPSILON)
+            sequenceOf(3.0).rms().shouldBeNear(3.0, EPSILON)
         }
 
         @Test
@@ -43,7 +44,7 @@ class RootMeanSquareTest {
             val values = List(10) { 1.0 }
             val rms = values.rms()
             log.trace { "rms=$rms" }
-            rms.shouldBeNear(1.0, 1e-10)
+            rms.shouldBeNear(1.0, EPSILON)
         }
 
         @Test
@@ -51,7 +52,7 @@ class RootMeanSquareTest {
             val values = List(10) { it }
             val rms = values.rms()
             log.trace { "rms=$rms" }
-            rms.shouldBeNear(sqrt(values.map { it.toDouble().square() }.average()), 1e-10)
+            rms.shouldBeNear(sqrt(values.map { it.toDouble().square() }.average()), EPSILON)
         }
 
         @Test
@@ -59,7 +60,7 @@ class RootMeanSquareTest {
             val values = List(10) { if (it % 2 == 0) 0.0 else 1.0 }
             val rms = values.rms()
             log.trace { "rms=$rms" }
-            rms.shouldBeNear(sqrt(0.5), 1e-10)
+            rms.shouldBeNear(sqrt(0.5), EPSILON)
         }
 
         @Test
@@ -67,7 +68,7 @@ class RootMeanSquareTest {
             val values = List(10) { sin(it.toDouble()) }
             val rms = values.rms()
             log.trace { "rms=$rms" }
-            rms.shouldBeNear(sqrt(values.map { it.square() }.average()), 1e-10)
+            rms.shouldBeNear(sqrt(values.map { it.square() }.average()), EPSILON)
         }
 
         @RepeatedTest(REPEAT_SIZE)
@@ -91,7 +92,7 @@ class RootMeanSquareTest {
             val expected = sequenceOf(2.0, 4.0).constrainOnce()
             val actual = sequenceOf(1.0, 1.0).constrainOnce()
 
-            expected.rmse(actual).shouldBeNear(sqrt(5.0), 1e-10)
+            expected.rmse(actual).shouldBeNear(sqrt(5.0), EPSILON)
         }
 
         @Test
@@ -136,7 +137,7 @@ class RootMeanSquareTest {
 
             val rmse2 = values.rmse(inverted)
             log.trace { "rmse2=$rmse2" }
-            rmse2.shouldBeNear(1.0, 1e-10)
+            rmse2.shouldBeNear(1.0, EPSILON)
         }
 
         @Test
@@ -146,7 +147,7 @@ class RootMeanSquareTest {
             val rmse = sines.rmse(cosines)
             log.trace { "rmse=$rmse" }
             val expected = sqrt(sines.zip(cosines).map { (sine, cosine) -> (sine - cosine).square() }.average())
-            rmse.shouldBeNear(expected, 1e-10)
+            rmse.shouldBeNear(expected, EPSILON)
         }
 
         @RepeatedTest(REPEAT_SIZE)
@@ -169,7 +170,7 @@ class RootMeanSquareTest {
             val expected = sequenceOf(2.0, 2.0).constrainOnce()
             val actual = sequenceOf(1.0, 3.0).constrainOnce()
 
-            expected.normalizedRmse(actual).shouldBeNear(0.5, 1e-10)
+            expected.normalizedRmse(actual).shouldBeNear(0.5, EPSILON)
         }
 
         @Test
@@ -204,7 +205,7 @@ class RootMeanSquareTest {
 
             val rmse2 = values.normalizedRmse(inverted)
             log.trace { "rmse2=$rmse2" }
-            rmse2.shouldBeNear(1.0, 1e-10)
+            rmse2.shouldBeNear(1.0, EPSILON)
         }
 
         @Test
@@ -215,7 +216,7 @@ class RootMeanSquareTest {
             log.trace { "rmse=$rmse" }
             val expectedRmse = sqrt(sines.zip(cosines).map { (sine, cosine) -> (sine - cosine).square() }.average())
             val expected = expectedRmse / (cosines.max() - cosines.min())
-            rmse.shouldBeNear(expected, 1e-10)
+            rmse.shouldBeNear(expected, EPSILON)
         }
 
         @RepeatedTest(REPEAT_SIZE)

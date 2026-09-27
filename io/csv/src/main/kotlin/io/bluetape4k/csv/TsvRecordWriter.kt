@@ -2,6 +2,7 @@ package io.bluetape4k.csv
 
 import io.bluetape4k.csv.internal.TsvLineWriter
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import java.io.Writer
 
 /**
@@ -88,5 +89,7 @@ class TsvRecordWriter(
      */
     override fun close() {
         runCatching { lineWriter.close() }
+            .onSuccess { log.debug { "TsvRecordWriter is closed." } }
+            .onFailure { log.debug(it) { "Fail to close TsvRecordWriter." } }
     }
 }

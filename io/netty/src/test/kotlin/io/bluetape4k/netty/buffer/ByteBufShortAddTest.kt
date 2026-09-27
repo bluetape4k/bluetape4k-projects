@@ -1,10 +1,11 @@
 package io.bluetape4k.netty.buffer
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.netty.AbstractNettyTest
 import io.bluetape4k.netty.util.use
 import io.netty.buffer.ByteBufAllocator
 import io.netty.buffer.Unpooled
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
@@ -15,6 +16,8 @@ import kotlin.random.Random
  * 실수로 `Byte.SIZE_BITS` (8) 을 사용하는 버그를 회귀 방지합니다.
  */
 class ByteBufShortAddTest: AbstractNettyTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `setShortAdd와 getShortAdd는 roundtrip이 일치한다`() {

@@ -1,12 +1,17 @@
 package io.bluetape4k.opentelemetry.trace
 
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.opentelemetry.AbstractOtelTest
+import io.bluetape4k.opentelemetry.common.stringAttributeKeyOf
 import io.bluetape4k.opentelemetry.shouldNotExpose
 import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.api.trace.StatusCode
@@ -27,6 +32,8 @@ import java.util.concurrent.TimeUnit
  */
 class SpanSupportTest: AbstractOtelTest() {
 
+    companion object: KLoggingChannel()
+
     private val spanExporter = InMemorySpanExporter.create()
     private val tracerProvider = sdkTracerProvider {
         addSpanProcessor(simpleSpanProcessorOf(spanExporter))
@@ -41,9 +48,8 @@ class SpanSupportTest: AbstractOtelTest() {
     fun `Span use should end span`() = runSuspendIO {
         spanExporter.reset()
 
-        val span = tracer.spanBuilder("use-span").startSpan()
-        span.use {
-            it.setAttribute(AttributeKey.stringKey("k"), "v")
+        tracer.spanBuilder("use-span").useSpan { span ->
+            span.setAttribute(stringAttributeKeyOf("k"), "v")
         }
 
         flush()
@@ -51,7 +57,7 @@ class SpanSupportTest: AbstractOtelTest() {
         val finished = spanExporter.finishedSpanItems
         finished shouldHaveSize 1
         finished[0].name shouldBeEqualTo "use-span"
-        finished[0].attributes[AttributeKey.stringKey("k")] shouldBeEqualTo "v"
+        finished[0].attributes[stringAttributeKeyOf("k")] shouldBeEqualTo "v"
     }
 
     @Test
@@ -68,14 +74,14 @@ class SpanSupportTest: AbstractOtelTest() {
             }
         }.exceptionOrNull()
 
-        ex.shouldNotBeNull()
-        (ex === failure).shouldBeTrue()
+        ex shouldBe failure
 
         flush()
 
         val finished = spanExporter.finishedSpanItems
         finished shouldHaveSize 1
         val s = finished[0]
+        log.debug { "span data=$s" }
         s.name shouldBeEqualTo "error-span"
         s.status.statusCode shouldBeEqualTo StatusCode.ERROR
         s.events.any { it.name == "exception" }.shouldBeTrue()
@@ -88,14 +94,13 @@ class SpanSupportTest: AbstractOtelTest() {
         val secret = "token=abc123&password=super-secret"
         val failure = IllegalStateException("database rejected $secret")
 
-        val ex = kotlin.runCatching {
+        val ex = runCatching {
             tracer.spanBuilder("redacted-error-span").startSpan().use {
                 throw failure
             }
         }.exceptionOrNull()
 
-        ex.shouldNotBeNull()
-        (ex === failure).shouldBeTrue()
+        ex shouldBe failure
 
         flush()
 
@@ -118,8 +123,7 @@ class SpanSupportTest: AbstractOtelTest() {
             }
         }.exceptionOrNull()
 
-        ex.shouldNotBeNull()
-        (ex is CancellationException).shouldBeTrue()
+        ex.shouldBeInstanceOf<CancellationException>()
 
         flush()
 
@@ -127,6 +131,7 @@ class SpanSupportTest: AbstractOtelTest() {
         finished shouldHaveSize 1
 
         val span = finished[0]
+        log.debug { "span data=$span" }
         span.name shouldBeEqualTo "cancel-span"
         span.status.statusCode shouldBeEqualTo StatusCode.UNSET
         span.events.any { it.name == "exception" }.shouldBeFalse()
@@ -151,11 +156,8 @@ class SpanSupportTest: AbstractOtelTest() {
         val finished = spanExporter.finishedSpanItems
         finished shouldHaveSize 2
 
-        val parentData = finished.find { it.name == "parent" }
-        parentData.shouldNotBeNull()
-
-        val childData = finished.find { it.name == "child" }
-        childData.shouldNotBeNull()
+        val parentData = finished.find { it.name == "parent" }.shouldNotBeNull()
+        val childData = finished.find { it.name == "child" }.shouldNotBeNull()
 
         childData.traceId shouldBeEqualTo parentData.traceId
         childData.parentSpanId shouldBeEqualTo parentData.spanId
@@ -198,8 +200,8 @@ class SpanSupportTest: AbstractOtelTest() {
             }
         }.exceptionOrNull()
 
-        ex.shouldNotBeNull()
-        (ex is RuntimeException).shouldBeTrue()
+        ex.shouldBeInstanceOf<RuntimeException>()
+
         flush()
 
         val finished = spanExporter.finishedSpanItems
@@ -262,7 +264,7 @@ class SpanSupportTest: AbstractOtelTest() {
             }
         }.exceptionOrNull()
 
-        ex.shouldNotBeNull()
+        ex.shouldBeInstanceOf<RuntimeException>()
 
         flush()
 
@@ -272,7 +274,7 @@ class SpanSupportTest: AbstractOtelTest() {
         val span = finished[0]
         span.status.statusCode shouldBeEqualTo StatusCode.ERROR
         span.status.description shouldBeEqualTo "unspecified error"
-        // 내부 클래스명이 누출되지 않음을 검증
+        // 내부 클래스명이 노출되지 않음을 검증
         span.status.description.contains("RuntimeException").shouldBeFalse()
     }
 }

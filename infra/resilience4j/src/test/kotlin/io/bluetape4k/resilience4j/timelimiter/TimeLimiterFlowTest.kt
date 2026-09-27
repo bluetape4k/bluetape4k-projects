@@ -3,7 +3,7 @@ package io.bluetape4k.resilience4j.timelimiter
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.resilience4j.SuspendHelloWorldService
 import io.github.resilience4j.kotlin.timelimiter.timeLimiter
@@ -20,21 +20,21 @@ class TimeLimiterFlowTest {
     companion object: KLoggingChannel()
 
     @Test
-    fun `실행이 성공하는 메소드를 flow로 수행한다`() = runSuspendTest {
+    fun `실행이 성공하는 메소드를 flow로 수행한다`() = runSuspendIO {
         val timelimiter = TimeLimiter.ofDefaults()
         val helloWorldService = SuspendHelloWorldService()
         val results = mutableListOf<String>()
 
         flow {
             repeat(3) {
-                emit(helloWorldService.returnHelloWorld() + it)
+                emit(helloWorldService.returnHelloWorld() + " $it")
             }
         }
             .timeLimiter(timelimiter)
             .toList(results)
 
         repeat(3) {
-            results[it] shouldBeEqualTo "Hello world$it"
+            results[it] shouldBeEqualTo "Hello world $it"
         }
 
         results.size shouldBeEqualTo 3
@@ -42,7 +42,7 @@ class TimeLimiterFlowTest {
     }
 
     @Test
-    fun `예외를 일으키는 메소드도 flow로 실행됩니다`() = runSuspendTest {
+    fun `예외를 일으키는 메소드도 flow로 실행됩니다`() = runSuspendIO {
         val timelimiter = TimeLimiter.ofDefaults()
         val helloWorldService = SuspendHelloWorldService()
         val results = mutableListOf<String>()
@@ -59,7 +59,7 @@ class TimeLimiterFlowTest {
     }
 
     @Test
-    fun `timeout 시에는 flow가 취소됩니다`() = runSuspendTest {
+    fun `timeout 시에는 flow가 취소됩니다`() = runSuspendIO {
         val config = TimeLimiterConfig.custom()
             .timeoutDuration(Duration.ofMillis(10))
             .build()

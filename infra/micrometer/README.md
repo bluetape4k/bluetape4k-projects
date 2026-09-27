@@ -211,9 +211,7 @@ observationRegistry.observeEventPublish(
 }
 ```
 
-Safe defaults deliberately avoid payloads, raw headers, exception messages, PII, secrets, query strings, and temporary destination names.
-Only pass bounded event types and stable destination names as low-cardinality values. Opt into high-cardinality identifiers only after sanitizing
-them and only when the backend can handle the additional series.
+Safe defaults deliberately avoid payloads, raw headers, exception messages, PII, secrets, query strings, and temporary destination names. Only pass bounded event types and stable destination names as low-cardinality values. Opt into high-cardinality identifiers only after sanitizing them and only when the backend can handle the additional series.
 
 #### Event Telemetry Sequence
 

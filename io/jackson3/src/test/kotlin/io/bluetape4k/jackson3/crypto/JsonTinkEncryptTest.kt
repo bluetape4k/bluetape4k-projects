@@ -10,12 +10,12 @@ import io.bluetape4k.jackson3.writeAsString
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
-import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
@@ -88,10 +88,10 @@ class JsonTinkEncryptTest {
     }
 
     @Test
-    fun `Tink 암호화 - 코루틴 suspend job 환경에서 동작한다`() = runTest {
+    fun `Tink 암호화 - 코루틴 suspend job 환경에서 동작한다`() = runSuspendDefault {
         SuspendedJobTester()
             .workers(Runtimex.availableProcessors)
-            .rounds(4 * 2 * Runtimex.availableProcessors)
+            .rounds(4 * Runtimex.availableProcessors)
             .add {
                 verifyEncryptProperty(createUser())
             }

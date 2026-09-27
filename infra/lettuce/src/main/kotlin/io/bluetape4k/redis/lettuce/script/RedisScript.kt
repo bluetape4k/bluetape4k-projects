@@ -3,6 +3,7 @@ package io.bluetape4k.redis.lettuce.script
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.awaitSuspending
+import io.bluetape4k.support.toUtf8Bytes
 import io.lettuce.core.RedisNoScriptException
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.api.async.RedisAsyncCommands
@@ -34,7 +35,7 @@ class RedisScript(val source: String) {
 
     companion object: KLogging() {
         private fun sha1Hex(text: String): String {
-            val digest = MessageDigest.getInstance("SHA-1").digest(text.toByteArray(Charsets.UTF_8))
+            val digest = MessageDigest.getInstance("SHA-1").digest(text.toUtf8Bytes())
             val sb = StringBuilder(digest.size * 2)
             for (b in digest) {
                 val v = b.toInt() and 0xff
@@ -194,15 +195,17 @@ object RedisScriptRunner: KLogging() {
             } else {
                 upstream.whenComplete { value, error ->
                     when (val cause = error?.unwrapCompletionCause()) {
-                        null -> result.complete(value)
-                        is CancellationException -> result.cancel(false)
+                        null                      -> result.complete(value)
+                        is CancellationException  -> result.cancel(false)
                         is RedisNoScriptException -> {
                             if (fallbackOnNoScript && !result.isCancelled) {
                                 noScriptFallback.set(true)
                                 log.debug { "NOSCRIPT(async) → 원문 전송 fallback (sha1=${script.sha1})" }
                                 dispatch(
                                     {
-                                        commands.eval<T>(script.source, outputType, keys, *args).toCompletableFuture()
+                                        commands
+                                            .eval<T>(script.source, outputType, keys, *args)
+                                            .toCompletableFuture()
                                     },
                                     false,
                                 )
@@ -210,7 +213,7 @@ object RedisScriptRunner: KLogging() {
                                 result.completeExceptionally(cause)
                             }
                         }
-                        else -> result.completeExceptionally(cause)
+                        else                      -> result.completeExceptionally(cause)
                     }
                 }
             }
@@ -220,7 +223,11 @@ object RedisScriptRunner: KLogging() {
         }
 
         dispatch(
-            { commands.evalsha<T>(script.sha1, outputType, keys, *args).toCompletableFuture() },
+            {
+                commands
+                    .evalsha<T>(script.sha1, outputType, keys, *args)
+                    .toCompletableFuture()
+            },
             true,
         )
         return result
@@ -256,11 +263,15 @@ object RedisScriptRunner: KLogging() {
         var noScriptFallback = false
         return try {
             try {
-                commands.evalsha<T>(script.sha1, outputType, keys, *args).awaitSuspending()
+                commands
+                    .evalsha<T>(script.sha1, outputType, keys, *args)
+                    .awaitSuspending()
             } catch (_: RedisNoScriptException) {
                 noScriptFallback = true
                 log.debug { "NOSCRIPT(suspend) → 원문 전송 fallback (sha1=${script.sha1})" }
-                commands.eval<T>(script.source, outputType, keys, *args).awaitSuspending()
+                commands
+                    .eval<T>(script.source, outputType, keys, *args)
+                    .awaitSuspending()
             }
         } finally {
             observer.recordSafely(RedisScriptExecutionObservation(System.nanoTime() - started, noScriptFallback))
@@ -278,7 +289,9 @@ object RedisScriptRunner: KLogging() {
             commands.evalsha<T>(script.sha1, outputType, keys, *args).awaitSuspending()
         } catch (_: RedisNoScriptException) {
             log.debug { "NOSCRIPT(suspend) → 원문 전송 fallback (sha1=${script.sha1})" }
-            commands.eval<T>(script.source, outputType, keys, *args).awaitSuspending()
+            commands
+                .eval<T>(script.source, outputType, keys, *args)
+                .awaitSuspending()
         }
     }
 }

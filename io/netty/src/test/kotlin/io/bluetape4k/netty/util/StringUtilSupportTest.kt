@@ -3,9 +3,12 @@ package io.bluetape4k.netty.util
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class StringUtilSupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `byte array to hex string`() {

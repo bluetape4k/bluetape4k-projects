@@ -169,49 +169,98 @@ internal class LockObservationRecorder(
         val leasePolicy = dimensions["lease_policy"].toLeasePolicyKind()
 
         when (observation.name) {
-            CoordinationObservationName.OPERATION_OUTCOME -> {
+            CoordinationObservationName.OPERATION_OUTCOME  -> {
                 val lockDimensions = dimensions(operation, outcome, leasePolicy, failure)
                 sink.recordSafely(LockObservation.Counter(LockCounterName.OPERATION_TOTAL, 1L, lockDimensions))
                 recordEvent(lockDimensions)
             }
-            CoordinationObservationName.RECONCILIATION ->
+            CoordinationObservationName.RECONCILIATION     ->
                 recordCounter(LockCounterName.RECONCILE_TOTAL, operation, outcome, leasePolicy, failure)
-            CoordinationObservationName.STALE_CLEANUP ->
+            CoordinationObservationName.STALE_CLEANUP      ->
                 recordCounter(LockCounterName.STALE_CLEANUP_TOTAL, operation, outcome, leasePolicy, failure)
-            CoordinationObservationName.CLEANUP_PENDING ->
+            CoordinationObservationName.CLEANUP_PENDING    ->
                 recordCounter(LockCounterName.CLEANUP_PENDING_TOTAL, operation, outcome, leasePolicy, failure)
-            CoordinationObservationName.OWNERSHIP_LOSS ->
+            CoordinationObservationName.OWNERSHIP_LOSS     ->
                 recordCounter(LockCounterName.OWNERSHIP_LOSS_TOTAL, operation, outcome, leasePolicy, failure)
-            CoordinationObservationName.WATCHDOG_LATE ->
+            CoordinationObservationName.WATCHDOG_LATE      ->
                 recordCounter(LockCounterName.WATCHDOG_LATE_TOTAL, operation, outcome, leasePolicy, failure)
-            CoordinationObservationName.WATCHDOG_MISSED ->
+            CoordinationObservationName.WATCHDOG_MISSED    ->
                 recordCounter(LockCounterName.WATCHDOG_MISSED_TOTAL, operation, outcome, leasePolicy, failure)
-            CoordinationObservationName.NOSCRIPT_FALLBACK ->
+            CoordinationObservationName.NOSCRIPT_FALLBACK  ->
                 recordCounter(LockCounterName.NOSCRIPT_FALLBACK_TOTAL, operation, outcome, leasePolicy, failure)
             CoordinationObservationName.INTEGRITY_REJECTION ->
                 recordCounter(LockCounterName.INTEGRITY_FAILURE_TOTAL, operation, outcome, leasePolicy, failure)
             CoordinationObservationName.CAPACITY_REJECTION ->
                 recordCounter(LockCounterName.CAPACITY_REJECTION_TOTAL, operation, outcome, leasePolicy, failure)
-            CoordinationObservationName.ACTIVE_WATCHDOGS ->
+            CoordinationObservationName.ACTIVE_WATCHDOGS   ->
                 recordGauge(LockGaugeName.ACTIVE_WATCHDOGS, observation.value, operation, outcome, leasePolicy, failure)
-            CoordinationObservationName.DUE_BACKLOG ->
-                recordGauge(LockGaugeName.WATCHDOG_DUE_BACKLOG, observation.value, operation, outcome, leasePolicy, failure)
-            CoordinationObservationName.ACTIVE_TASKS ->
+            CoordinationObservationName.DUE_BACKLOG        ->
+                recordGauge(
+                    LockGaugeName.WATCHDOG_DUE_BACKLOG,
+                    observation.value,
+                    operation,
+                    outcome,
+                    leasePolicy,
+                    failure
+                )
+            CoordinationObservationName.ACTIVE_TASKS       ->
                 recordGauge(LockGaugeName.SCHEDULED_TASKS, observation.value, operation, outcome, leasePolicy, failure)
-            CoordinationObservationName.WAITERS ->
+            CoordinationObservationName.WAITERS            ->
                 recordGauge(LockGaugeName.QUEUED_WAITERS, observation.value, operation, outcome, leasePolicy, failure)
-            CoordinationObservationName.OBJECTS ->
-                recordGauge(LockGaugeName.COORDINATION_OBJECTS, observation.value, operation, outcome, leasePolicy, failure)
-            CoordinationObservationName.REQUEST_HOLDS ->
-                recordGauge(LockGaugeName.ACTIVE_REQUEST_HOLDS, observation.value, operation, outcome, leasePolicy, failure)
-            CoordinationObservationName.REDIS_LATENCY ->
-                recordHistogram(LockHistogramName.REDIS_COMMAND_LATENCY_MILLIS, observation.value, operation, outcome, leasePolicy, failure)
-            CoordinationObservationName.WAIT_LATENCY ->
-                recordHistogram(LockHistogramName.CALLER_WAIT_LATENCY_MILLIS, observation.value, operation, outcome, leasePolicy, failure)
-            CoordinationObservationName.RETRIES ->
-                recordHistogram(LockHistogramName.RETRY_COUNT, observation.value, operation, outcome, leasePolicy, failure)
+            CoordinationObservationName.OBJECTS            ->
+                recordGauge(
+                    LockGaugeName.COORDINATION_OBJECTS,
+                    observation.value,
+                    operation,
+                    outcome,
+                    leasePolicy,
+                    failure
+                )
+            CoordinationObservationName.REQUEST_HOLDS      ->
+                recordGauge(
+                    LockGaugeName.ACTIVE_REQUEST_HOLDS,
+                    observation.value,
+                    operation,
+                    outcome,
+                    leasePolicy,
+                    failure
+                )
+            CoordinationObservationName.REDIS_LATENCY      ->
+                recordHistogram(
+                    LockHistogramName.REDIS_COMMAND_LATENCY_MILLIS,
+                    observation.value,
+                    operation,
+                    outcome,
+                    leasePolicy,
+                    failure
+                )
+            CoordinationObservationName.WAIT_LATENCY       ->
+                recordHistogram(
+                    LockHistogramName.CALLER_WAIT_LATENCY_MILLIS,
+                    observation.value,
+                    operation,
+                    outcome,
+                    leasePolicy,
+                    failure
+                )
+            CoordinationObservationName.RETRIES            ->
+                recordHistogram(
+                    LockHistogramName.RETRY_COUNT,
+                    observation.value,
+                    operation,
+                    outcome,
+                    leasePolicy,
+                    failure
+                )
             CoordinationObservationName.CLEANUP_BATCH_SIZE ->
-                recordHistogram(LockHistogramName.CLEANUP_BATCH_SIZE, observation.value, operation, outcome, leasePolicy, failure)
+                recordHistogram(
+                    LockHistogramName.CLEANUP_BATCH_SIZE,
+                    observation.value,
+                    operation,
+                    outcome,
+                    leasePolicy,
+                    failure
+                )
         }
     }
 
@@ -340,11 +389,11 @@ internal fun LockObservationSink.withObjectKind(objectKind: LockKind): LockObser
         val remapped = when (observation) {
             is LockObservation.Counter ->
                 observation.copy(dimensions = observation.dimensions.copy(objectKind = objectKind))
-            is LockObservation.Gauge ->
+            is LockObservation.Gauge   ->
                 observation.copy(dimensions = observation.dimensions.copy(objectKind = objectKind))
             is LockObservation.Histogram ->
                 observation.copy(dimensions = observation.dimensions.copy(objectKind = objectKind))
-            is LockObservation.Event ->
+            is LockObservation.Event   ->
                 observation.copy(event = observation.event.copy(objectKind = objectKind))
         }
         recordSafely(remapped)
@@ -365,31 +414,31 @@ private fun CoordinationObservationName.defaultOperation(): LockOperation =
         CoordinationObservationName.STALE_CLEANUP,
         CoordinationObservationName.CLEANUP_PENDING,
         CoordinationObservationName.CLEANUP_BATCH_SIZE,
-        -> LockOperation.CLEANUP
+             -> LockOperation.CLEANUP
         CoordinationObservationName.WATCHDOG_LATE,
         CoordinationObservationName.WATCHDOG_MISSED,
         CoordinationObservationName.OWNERSHIP_LOSS,
-        -> LockOperation.RENEW
+             -> LockOperation.RENEW
         else -> LockOperation.ACQUIRE
     }
 
 private fun CoordinationObservationName.defaultOutcome(): LockOutcome =
     when (this) {
-        CoordinationObservationName.CLEANUP_PENDING -> LockOutcome.CONTENDED
+        CoordinationObservationName.CLEANUP_PENDING    -> LockOutcome.CONTENDED
         CoordinationObservationName.OWNERSHIP_LOSS,
         CoordinationObservationName.WATCHDOG_MISSED,
-        -> LockOutcome.OWNERSHIP_LOST
+                                                       -> LockOutcome.OWNERSHIP_LOST
         CoordinationObservationName.CAPACITY_REJECTION -> LockOutcome.CAPACITY_REJECTED
         CoordinationObservationName.INTEGRITY_REJECTION -> LockOutcome.INTEGRITY_FAILED
-        CoordinationObservationName.WAITERS -> LockOutcome.CONTENDED
-        else -> LockOutcome.SUCCEEDED
+        CoordinationObservationName.WAITERS            -> LockOutcome.CONTENDED
+        else                                           -> LockOutcome.SUCCEEDED
     }
 
 private fun CoordinationObservationName.defaultFailureKind(): LockFailureMetricKind? =
     when (this) {
         CoordinationObservationName.NOSCRIPT_FALLBACK -> LockFailureMetricKind.COMMAND
         CoordinationObservationName.INTEGRITY_REJECTION -> LockFailureMetricKind.INVALID_STATE
-        else -> null
+        else                                          -> null
     }
 
 private fun LockCounterName.defaultOutcome(): LockOutcome =
@@ -398,9 +447,9 @@ private fun LockCounterName.defaultOutcome(): LockOutcome =
         LockCounterName.INTEGRITY_FAILURE_TOTAL -> LockOutcome.INTEGRITY_FAILED
         LockCounterName.OWNERSHIP_LOSS_TOTAL,
         LockCounterName.WATCHDOG_MISSED_TOTAL,
-        -> LockOutcome.OWNERSHIP_LOST
-        LockCounterName.CLEANUP_PENDING_TOTAL -> LockOutcome.CONTENDED
-        else -> LockOutcome.SUCCEEDED
+                                                -> LockOutcome.OWNERSHIP_LOST
+        LockCounterName.CLEANUP_PENDING_TOTAL   -> LockOutcome.CONTENDED
+        else                                    -> LockOutcome.SUCCEEDED
     }
 
 private fun LockCounterName.defaultFailureKind(): LockFailureMetricKind? =

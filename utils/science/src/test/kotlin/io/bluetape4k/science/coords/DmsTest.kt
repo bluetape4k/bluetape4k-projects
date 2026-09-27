@@ -1,9 +1,11 @@
 package io.bluetape4k.science.coords
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class DmsTest {
@@ -22,14 +24,14 @@ class DmsTest {
     fun `DMS equality가 올바르게 동작한다`() {
         val a = DMS(37, 33, 57.54)
         val b = DMS(37, 33, 57.54)
-        (a == b).shouldBeTrue()
+        a shouldBeEqualTo b
     }
 
     @Test
     fun `DMS 다른 값은 equal하지 않다`() {
         val a = DMS(37, 33, 57.54)
         val b = DMS(37, 33, 58.00)
-        (a == b).shouldBeFalse()
+        a shouldNotBeEqualTo b
     }
 
     @Test
@@ -39,29 +41,29 @@ class DmsTest {
         copy.degree shouldBeEqualTo 37
         copy.minute shouldBeEqualTo 33
         copy.second shouldBeEqualTo 0.0
-        (original == copy).shouldBeFalse()
+        original shouldNotBeEqualTo copy
     }
 
     @Test
     fun `DMS compareTo - 더 큰 초는 크다`() {
         val a = DMS(37, 33, 57.54)
         val b = DMS(37, 33, 58.00)
-        (a < b).shouldBeTrue()
-        (b > a).shouldBeTrue()
+        a shouldBeLessThan b
+        b shouldBeGreaterThan a
     }
 
     @Test
     fun `DMS compareTo - 더 큰 분은 크다`() {
         val a = DMS(37, 33, 59.9)
         val b = DMS(37, 34, 0.0)
-        (a < b).shouldBeTrue()
+        a shouldBeLessThan b
     }
 
     @Test
     fun `DMS compareTo - 더 큰 도는 크다`() {
         val a = DMS(36, 59, 59.9)
         val b = DMS(37, 0, 0.0)
-        (a < b).shouldBeTrue()
+        a shouldBeLessThan b
     }
 
     @Test
@@ -75,16 +77,15 @@ class DmsTest {
     fun `DMS compareTo - 도가 다르면 도 기준으로 비교한다`() {
         val a = DMS(38, 0, 0.0)
         val b = DMS(37, 59, 59.9)
-        (a > b).shouldBeTrue()
+        a shouldBeGreaterThan b
     }
 
     @Test
     fun `DMS Serializable - 예외 없이 직렬화된다`() {
         val dms = DMS(126, 58, 40.8)
-        java.io.ObjectOutputStream(java.io.ByteArrayOutputStream()).use { out ->
-            out.writeObject(dms)
-        }
-        // 예외 없이 직렬화되면 통과
+        val bytes = BinarySerializers.FastFory.serialize(dms)
+        val restored = BinarySerializers.FastFory.deserialize<DMS>(bytes)
+        restored shouldBeEqualTo dms
     }
 
     @Test

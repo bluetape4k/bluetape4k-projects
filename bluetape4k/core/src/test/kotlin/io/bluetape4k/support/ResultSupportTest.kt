@@ -1,18 +1,26 @@
 package io.bluetape4k.support
 
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class ResultSupportTest {
+
+    companion object: KLogging()
 
     private val mixed: List<Result<Int>> = listOf(
         Result.success(1),
         Result.failure(RuntimeException("fail")),
         Result.success(3)
     )
-    private val allSuccesses: List<Result<Int>> = listOf(Result.success(10), Result.success(20))
+    private val allSuccesses: List<Result<Int>> = listOf(
+        Result.success(10),
+        Result.success(20)
+    )
     private val allFailures: List<Result<Int>> = listOf(
         Result.failure(RuntimeException("e1")),
         Result.failure(IllegalStateException("e2"))
@@ -50,14 +58,14 @@ class ResultSupportTest {
     fun `successes 성공 결과 값 리스트를 반환한다`() {
         mixed.successes.sorted() shouldBeEqualTo listOf(1, 3)
         allSuccesses.successes.sorted() shouldBeEqualTo listOf(10, 20)
-        allFailures.successes shouldBeEqualTo emptyList()
+        allFailures.successes.shouldBeEmpty()
     }
 
     @Test
     fun `failures 실패 예외 리스트를 반환한다`() {
         mixed.failures.size shouldBeEqualTo 1
         allFailures.failures.size shouldBeEqualTo 2
-        allSuccesses.failures shouldBeEqualTo emptyList()
+        allSuccesses.failures.shouldBeEmpty()
     }
 
     @Test
@@ -74,18 +82,23 @@ class ResultSupportTest {
 
     @Test
     fun `Set Result T 에도 동일하게 적용된다`() {
-        val setResults: Set<Result<Int>> = setOf(Result.success(1), Result.failure(RuntimeException("e")))
+        val setResults: Set<Result<Int>> = setOf(
+            Result.success(1),
+            Result.failure(RuntimeException("e"))
+        )
+
         setResults.hasFailure.shouldBeTrue()
         setResults.hasSuccess.shouldBeTrue()
         setResults.allSuccess.shouldBeFalse()
         setResults.successes shouldBeEqualTo listOf(1)
-        setResults.failures.size shouldBeEqualTo 1
+        setResults.failures shouldHaveSize 1
     }
 
     @Test
     fun `빈 컬렉션은 allSuccess 와 allFailure 가 모두 true`() {
         // vacuous truth: empty collection — all {} 는 true
         val empty: List<Result<Int>> = emptyList()
+
         empty.allSuccess.shouldBeTrue()
         empty.allFailure.shouldBeTrue()
         empty.hasSuccess.shouldBeFalse()

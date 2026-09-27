@@ -3,10 +3,13 @@ package io.bluetape4k.io.compressor
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.nio.ByteOrder
 
 class CompressorBufferSupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `operation views isolate caller cursor limit order and mark`() {

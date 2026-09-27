@@ -1,6 +1,7 @@
 package io.bluetape4k.science.exposed.service.internal
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.science.exposed.NetCdfException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -8,6 +9,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 class NetCdfFileGuardTest {
+
+    companion object: KLogging()
 
     @Test
     fun `URI path is rejected`() {

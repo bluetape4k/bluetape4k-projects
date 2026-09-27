@@ -1,13 +1,17 @@
 package io.bluetape4k.junit5.utils
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class MultiExceptionTest {
+
+    companion object: KLogging()
+
     @Test
     fun `초기 상태는 비어있다`() {
         val subject = MultiException()

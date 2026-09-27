@@ -50,8 +50,7 @@ class ReactorContextSupportTest {
         }
 
         // ReactorContext에 아무 값도 전달되지 않았으므로, captured는 null입니다.
-        flow.asFlux()
-            .awaitFirst()
+        flow.asFlux().awaitFirst()
 
         captured.shouldBeNull()
 

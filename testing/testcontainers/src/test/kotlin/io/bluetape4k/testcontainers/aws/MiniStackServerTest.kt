@@ -1,13 +1,14 @@
 package io.bluetape4k.testcontainers.aws
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.testcontainers.AbstractContainerTest
-import io.bluetape4k.utils.ShutdownQueue
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContainAll
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldStartWith
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.testcontainers.AbstractContainerTest
+import io.bluetape4k.utils.ShutdownQueue
 import org.junit.jupiter.api.Test
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
@@ -16,7 +17,6 @@ import software.amazon.awssdk.services.s3.S3Configuration
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [MiniStackServer] 기본 동작 테스트.

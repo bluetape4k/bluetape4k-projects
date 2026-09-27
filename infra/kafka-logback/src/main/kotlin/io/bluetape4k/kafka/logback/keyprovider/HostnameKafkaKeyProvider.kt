@@ -11,7 +11,7 @@ import io.bluetape4k.kafka.logback.utils.hashBytes
  * - 컨텍스트의 `HOSTNAME_KEY` 속성을 해시한 4바이트 키를 사용합니다.
  * - hostname이 없으면 최초 1회 오류 로그를 남기고 null 키를 반환할 수 있습니다.
  */
-class HostnameKafkaKeyProvider: io.bluetape4k.kafka.logback.keyprovider.AbstractKafkaKeyProvider<Any>() {
+class HostnameKafkaKeyProvider: AbstractKafkaKeyProvider<Any>() {
 
     private var hostnameHash: ByteArray? = null
 

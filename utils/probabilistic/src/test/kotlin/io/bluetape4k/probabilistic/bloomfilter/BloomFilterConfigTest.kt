@@ -1,17 +1,18 @@
 package io.bluetape4k.probabilistic.bloomfilter
 
 import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeInRange
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.io.lookup
+import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.io.ObjectStreamClass
 
 class BloomFilterConfigTest {
+
+    companion object: KLogging()
 
     @Test
     fun `expectedInsertions 는 양수여야 한다`() {
@@ -51,14 +52,12 @@ class BloomFilterConfigTest {
         val config = BloomFilterConfig(expectedInsertions = 10_000L, falsePositiveProbability = 0.01)
 
         deserialize<BloomFilterConfig>(serialize(config)) shouldBeEqualTo config
-        ObjectStreamClass.lookup(BloomFilterConfig::class.java).serialVersionUID shouldBeEqualTo 1L
+        BloomFilterConfig::class.lookup().serialVersionUID shouldBeEqualTo 1L
     }
 
-    private fun serialize(value: Any): ByteArray = ByteArrayOutputStream().use { bytes ->
-        ObjectOutputStream(bytes).use { it.writeObject(value) }
-        bytes.toByteArray()
-    }
+    private fun serialize(value: Any): ByteArray =
+        BinarySerializers.FastFory.serialize(value)
 
-    private inline fun <reified T> deserialize(bytes: ByteArray): T =
-        ObjectInputStream(ByteArrayInputStream(bytes)).use { it.readObject() as T }
+    private inline fun <reified T: Any> deserialize(bytes: ByteArray): T =
+        BinarySerializers.FastFory.deserialize<T>(bytes).shouldNotBeNull()
 }

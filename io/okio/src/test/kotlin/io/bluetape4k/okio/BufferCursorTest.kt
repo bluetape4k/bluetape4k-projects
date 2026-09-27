@@ -274,6 +274,7 @@ class BufferCursorTest: AbstractOkioTest() {
             cursor.seek(originalSize + 2)
             cursor.data!![cursor.start] = 'c'.code.toByte()
         }
+
         buffer shouldBeEqualTo expected
     }
 
@@ -300,6 +301,7 @@ class BufferCursorTest: AbstractOkioTest() {
     @ParameterizedTest
     @MethodSource("buffers")
     fun `resize not acquired`(buffer: Buffer) {
+        // UnsafeCursor 는 readWrite = false 라 버퍼 크기를 조절할 수 없다.
         val cursor = Buffer.UnsafeCursor()
         assertFailsWith<IllegalStateException> {
             cursor.resizeBuffer(10)
@@ -309,6 +311,7 @@ class BufferCursorTest: AbstractOkioTest() {
     @ParameterizedTest
     @MethodSource("buffers")
     fun `expand not acquired`(buffer: Buffer) {
+        // UnsafeCursor 는 readWrite = false 라 버퍼 크기를 조절할 수 없다.
         val cursor = Buffer.UnsafeCursor()
         assertFailsWith<IllegalStateException> {
             cursor.expandBuffer(10)
@@ -319,6 +322,7 @@ class BufferCursorTest: AbstractOkioTest() {
     @MethodSource("buffers")
     fun `resize acquire readonly`(buffer: Buffer) {
         assertFailsWith<IllegalStateException> {
+            // UnsafeCursor 는 readWrite = false 라 버퍼 크기를 조절할 수 없다.
             buffer.readUnsafeAndClose { cursor ->
                 cursor.resizeBuffer(10)
             }
@@ -329,6 +333,7 @@ class BufferCursorTest: AbstractOkioTest() {
     @MethodSource("buffers")
     fun `expand acquired readonly`(buffer: Buffer) {
         assertFailsWith<IllegalStateException> {
+            // UnsafeCursor 는 readWrite = false 라 버퍼 크기를 조절할 수 없다.
             buffer.readUnsafeAndClose { cursor ->
                 cursor.expandBuffer(10)
             }

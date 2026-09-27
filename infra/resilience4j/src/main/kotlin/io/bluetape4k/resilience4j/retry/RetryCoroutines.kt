@@ -3,6 +3,7 @@ package io.bluetape4k.resilience4j.retry
 import io.bluetape4k.resilience4j.rethrowIfCancellation
 import io.github.resilience4j.retry.Retry
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Executes [block] through [retry].
@@ -21,9 +22,9 @@ import kotlinx.coroutines.delay
  * @param block suspend operation to execute
  * @return the successful operation result
  */
-suspend inline fun <R: Any> withRetry(
+suspend fun <R: Any> withRetry(
     retry: Retry,
-    crossinline block: suspend () -> R,
+    block: suspend () -> R,
 ): R {
     return retry.executeSuspendFunctionPreservingCancellation { block() }
 }
@@ -45,10 +46,10 @@ suspend inline fun <R: Any> withRetry(
  * @param func suspend function to execute
  * @return the successful function result
  */
-suspend inline fun <T: Any, R: Any> withRetry(
+suspend fun <T: Any, R: Any> withRetry(
     retry: Retry,
     input: T,
-    crossinline func: suspend (T) -> R,
+    func: suspend (T) -> R,
 ): R {
     return retry.decorateSuspendFunction1(func).invoke(input)
 }
@@ -71,11 +72,11 @@ suspend inline fun <T: Any, R: Any> withRetry(
  * @param bifunc suspend function to execute
  * @return the successful function result
  */
-suspend inline fun <T: Any, U: Any, R: Any> withRetry(
+suspend fun <T: Any, U: Any, R: Any> withRetry(
     retry: Retry,
     param1: T,
     param2: U,
-    crossinline bifunc: suspend (T, U) -> R,
+    bifunc: suspend (T, U) -> R,
 ): R {
     return retry.decorateSuspendBiFunction(bifunc).invoke(param1, param2)
 }
@@ -96,8 +97,8 @@ suspend inline fun <T: Any, U: Any, R: Any> withRetry(
  * @param func suspend function to decorate
  * @return decorated suspend function
  */
-inline fun <T, R> Retry.decorateSuspendFunction1(
-    crossinline func: suspend (input: T) -> R,
+fun <T, R> Retry.decorateSuspendFunction1(
+    func: suspend (input: T) -> R,
 ): suspend (T) -> R = { input: T ->
     this.executeSuspendFunctionPreservingCancellation { func(input) }
 }
@@ -119,8 +120,8 @@ inline fun <T, R> Retry.decorateSuspendFunction1(
  * @param bifunc suspend function to decorate
  * @return decorated suspend function
  */
-inline fun <T, U, R> Retry.decorateSuspendBiFunction(
-    crossinline bifunc: suspend (t: T, u: U) -> R,
+fun <T, U, R> Retry.decorateSuspendBiFunction(
+    bifunc: suspend (t: T, u: U) -> R,
 ): suspend (T, U) -> R = { t: T, u: U ->
     this.executeSuspendFunctionPreservingCancellation { bifunc(t, u) }
 }
@@ -137,7 +138,7 @@ internal suspend fun <T> Retry.executeSuspendFunctionPreservingCancellation(
             val delayMs = RetryAsyncContextBridge.onResult(retryContext, result)
 
             if (delayMs >= 0) {
-                delay(delayMs)
+                delay(delayMs.milliseconds)
                 continue
             }
 
@@ -148,7 +149,7 @@ internal suspend fun <T> Retry.executeSuspendFunctionPreservingCancellation(
 
             val delayMs = retryContext.onError(e)
             if (delayMs >= 0) {
-                delay(delayMs)
+                delay(delayMs.milliseconds)
                 continue
             }
 

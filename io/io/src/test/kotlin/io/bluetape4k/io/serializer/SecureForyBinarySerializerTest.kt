@@ -1,12 +1,13 @@
 package io.bluetape4k.io.serializer
 
-import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import net.datafaker.Faker
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
+import java.util.*
 
 /**
  * 보안 설정의 [ForyBinarySerializer] 사용 예제 테스트
@@ -24,7 +25,7 @@ import java.io.ByteArrayOutputStream
 class SecureForyBinarySerializerTest {
 
     companion object: KLogging() {
-        private val faker = Fakers.faker
+        private val faker = Faker(Locale.getDefault())
     }
 
     // 직렬화를 허용할 클래스 (등록 대상)
@@ -55,7 +56,7 @@ class SecureForyBinarySerializerTest {
         val bytes = serializer.serialize(expected)
         val actual = serializer.deserialize<AllowedPerson>(bytes)
 
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 
     @Test
@@ -87,7 +88,7 @@ class SecureForyBinarySerializerTest {
             serializer.serializeBinaryToStream(UnregisteredOrder(id = 2L, item = "monitor"), target)
         }
 
-        target.toByteArray() shouldBeEqualTo byteArrayOf()
+        target.toByteArray().shouldBeEmpty()
         target.flushCount shouldBeEqualTo 0
         target.closeCount shouldBeEqualTo 0
     }
@@ -101,6 +102,6 @@ class SecureForyBinarySerializerTest {
         val bytes = defaultSerializer.serialize(order)
         val actual = defaultSerializer.deserialize<UnregisteredOrder>(bytes)
 
-        actual.shouldNotBeNull() shouldBeEqualTo order
+        actual shouldBeEqualTo order
     }
 }

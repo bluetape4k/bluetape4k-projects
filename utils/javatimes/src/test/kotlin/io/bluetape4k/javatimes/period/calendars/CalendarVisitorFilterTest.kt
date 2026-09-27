@@ -1,17 +1,17 @@
 package io.bluetape4k.javatimes.period.calendars
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
 import java.time.Month
 
 class CalendarVisitorFilterTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `default filter has all empty collections`() {
@@ -38,8 +38,8 @@ class CalendarVisitorFilterTest {
         val filter = CalendarVisitorFilter()
         filter.addMonthOfYears(Month.JANUARY, Month.FEBRUARY)
         filter.monthOfYears shouldHaveSize 2
-        filter.monthOfYears.shouldContain(Month.JANUARY.value)
-        filter.monthOfYears.shouldContain(Month.FEBRUARY.value)
+        filter.monthOfYears shouldContain Month.JANUARY.value
+        filter.monthOfYears shouldContain Month.FEBRUARY.value
     }
 
     @Test
@@ -54,8 +54,8 @@ class CalendarVisitorFilterTest {
         val filter = CalendarVisitorFilter()
         filter.addDayOfMonths(1, 15, 31)
         filter.dayOfMonths shouldHaveSize 3
-        filter.dayOfMonths.shouldContain(1)
-        filter.dayOfMonths.shouldContain(15)
+        filter.dayOfMonths shouldContain 1
+        filter.dayOfMonths shouldContain 15
     }
 
     @Test
@@ -63,8 +63,8 @@ class CalendarVisitorFilterTest {
         val filter = CalendarVisitorFilter()
         filter.addDayOfWeeks(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
         filter.dayOfWeeks shouldHaveSize 3
-        filter.dayOfWeeks.shouldContain(DayOfWeek.MONDAY)
-        filter.dayOfWeeks.shouldContain(DayOfWeek.FRIDAY)
+        filter.dayOfWeeks shouldContain DayOfWeek.MONDAY
+        filter.dayOfWeeks shouldContain DayOfWeek.FRIDAY
     }
 
     @Test
@@ -72,11 +72,11 @@ class CalendarVisitorFilterTest {
         val filter = CalendarVisitorFilter()
         filter.addWorkingWeekdays()
         filter.dayOfWeeks shouldHaveSize 5
-        filter.dayOfWeeks.shouldContain(DayOfWeek.MONDAY)
-        filter.dayOfWeeks.shouldContain(DayOfWeek.TUESDAY)
-        filter.dayOfWeeks.shouldContain(DayOfWeek.WEDNESDAY)
-        filter.dayOfWeeks.shouldContain(DayOfWeek.THURSDAY)
-        filter.dayOfWeeks.shouldContain(DayOfWeek.FRIDAY)
+        filter.dayOfWeeks shouldContain DayOfWeek.MONDAY
+        filter.dayOfWeeks shouldContain DayOfWeek.TUESDAY
+        filter.dayOfWeeks shouldContain DayOfWeek.WEDNESDAY
+        filter.dayOfWeeks shouldContain DayOfWeek.THURSDAY
+        filter.dayOfWeeks shouldContain DayOfWeek.FRIDAY
     }
 
     @Test
@@ -84,8 +84,8 @@ class CalendarVisitorFilterTest {
         val filter = CalendarVisitorFilter()
         filter.addWorkingWeekends()
         filter.dayOfWeeks shouldHaveSize 2
-        filter.dayOfWeeks.shouldContain(DayOfWeek.SATURDAY)
-        filter.dayOfWeeks.shouldContain(DayOfWeek.SUNDAY)
+        filter.dayOfWeeks shouldContain DayOfWeek.SATURDAY
+        filter.dayOfWeeks shouldContain DayOfWeek.SUNDAY
     }
 
     @Test

@@ -16,7 +16,9 @@ class CastTest: AbstractFlowTest() {
 
     @Test
     fun `cast success`() = runTest {
-        flowOf<Any?>(1, 2, 3).cast<Int>().toList() shouldBeEqualTo listOf(1, 2, 3)
+        flowOf<Any?>(1, 2, 3)
+            .cast<Int>()
+            .toList() shouldBeEqualTo listOf(1, 2, 3)
 
         flowOf<Any?>(1, 2, 3)
             .cast<Int>()

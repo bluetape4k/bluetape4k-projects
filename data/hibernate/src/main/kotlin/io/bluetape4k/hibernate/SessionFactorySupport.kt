@@ -5,6 +5,7 @@ import org.hibernate.SessionFactory
 import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.hibernate.event.service.spi.EventListenerRegistry
 import org.hibernate.event.spi.EventType
+import org.hibernate.service.Service
 
 /**
  * Hibernate [SessionFactory]에 Event listener를 등록합니다.
@@ -104,3 +105,9 @@ fun SessionFactory.getEntityName(entityClass: Class<*>): String? {
 inline fun <reified T> SessionFactory.getEntityName(): String? {
     return getEntityName(T::class.java)
 }
+
+
+inline fun <reified T: Service> SessionFactory.getServiceOrNull(): T? =
+    this.unwrap(SessionFactoryImplementor::class.java)
+        ?.serviceRegistry
+        ?.getService(T::class.java)

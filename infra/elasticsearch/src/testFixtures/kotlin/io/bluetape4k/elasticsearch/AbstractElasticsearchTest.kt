@@ -30,7 +30,7 @@ import org.junit.jupiter.api.TestInstance
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class AbstractElasticsearchTest {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
 
         /** 컨테이너의 준비 대기가 개별 `runTest`의 제한시간을 소모하지 않도록 합니다. */
         @JvmStatic

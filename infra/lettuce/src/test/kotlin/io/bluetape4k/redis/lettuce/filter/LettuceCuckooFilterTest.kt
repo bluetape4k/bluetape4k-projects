@@ -1,16 +1,16 @@
 package io.bluetape4k.redis.lettuce.filter
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.codec.StringCodec
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class LettuceCuckooFilterTest: AbstractLettuceTest() {
 
@@ -93,7 +93,11 @@ class LettuceCuckooFilterTest: AbstractLettuceTest() {
             CuckooFilterOptions(capacity = 10L, bucketSize = 2, maxIterations = 5),
         )
         smallFilter.tryInit()
-        val inserted = (1..8).filter { index -> smallFilter.insert("item-$index") }
-        inserted.forEach { index -> smallFilter.contains("item-$index").shouldBeTrue() }
+
+        val inserted = List(8) { index ->
+            smallFilter.insert("item-$index")
+            index
+        }
+        inserted.all { index -> smallFilter.contains("item-$index") }.shouldBeTrue()
     }
 }

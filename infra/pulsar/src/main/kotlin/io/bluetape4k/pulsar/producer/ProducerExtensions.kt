@@ -1,9 +1,9 @@
 package io.bluetape4k.pulsar.producer
 
-import io.bluetape4k.coroutines.support.awaitSuspending
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.future.await
 import org.apache.pulsar.client.api.MessageId
 import org.apache.pulsar.client.api.Producer
 import org.apache.pulsar.client.api.TypedMessageBuilder
@@ -20,7 +20,7 @@ import org.apache.pulsar.client.api.TypedMessageBuilder
  * @throws org.apache.pulsar.client.api.PulsarClientException 브로커 오류 시
  */
 suspend fun <T> Producer<T>.sendSuspend(message: T): MessageId =
-    sendAsync(message).awaitSuspending()
+    sendAsync(message).await()
 
 /**
  * [TypedMessageBuilder] DSL 기반으로 메시지를 발행합니다.
@@ -39,7 +39,8 @@ suspend fun <T> Producer<T>.sendSuspend(message: T): MessageId =
  */
 suspend fun <T> Producer<T>.sendSuspend(
     setup: TypedMessageBuilder<T>.() -> Unit,
-): MessageId = newMessage().apply(setup).sendAsync().awaitSuspending()
+): MessageId =
+    newMessage().apply(setup).sendAsync().await()
 
 /**
  * [Flow] 기반으로 메시지를 순차 발행하고 [MessageId] Flow를 반환합니다.
@@ -62,7 +63,7 @@ fun <T> Producer<T>.sendAsFlow(messages: Flow<T>): Flow<MessageId> = flow {
     messages.collect { message ->
         val future = sendAsync(message)
         try {
-            emit(future.awaitSuspending())
+            emit(future.await())
         } catch (ce: CancellationException) {
             future.cancel(true)
             throw ce

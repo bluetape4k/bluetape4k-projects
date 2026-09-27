@@ -13,34 +13,34 @@ class LettuceSynchronizerJavaDocumentationTest {
     @Test
     void publicBlockingAndAsyncMethodsRemainJavaCallable() throws Exception {
         assertEquals(
-            CompletableFuture.class,
-            LettuceDistributedSemaphore.class
-                .getMethod(
-                    "acquireAsync",
-                    SemaphoreOwnerId.class,
-                    SemaphoreRequestId.class,
-                    int.class,
-                    Duration.class
-                )
-                .getReturnType()
+                CompletableFuture.class,
+                LettuceDistributedSemaphore.class
+                        .getMethod(
+                                "acquireAsync",
+                                SemaphoreOwnerId.class,
+                                SemaphoreRequestId.class,
+                                int.class,
+                                Duration.class
+                        )
+                        .getReturnType()
         );
         LettucePermitExpirableSemaphore.class.getMethod(
-            "create",
-            StatefulRedisConnection.class,
-            String.class,
-            ExpirableSemaphoreConfig.class
+                "create",
+                StatefulRedisConnection.class,
+                String.class,
+                ExpirableSemaphoreConfig.class
         );
         LettuceCountDownLatch.class.getMethod(
-            "await",
-            LatchGeneration.class,
-            LatchRequestId.class,
-            Duration.class
+                "await",
+                LatchGeneration.class,
+                LatchRequestId.class,
+                Duration.class
         );
         assertEquals(
-            CompletableFuture.class,
-            LettuceCountDownLatch.class
-                .getMethod("getCountAsync", LatchGeneration.class)
-                .getReturnType()
+                CompletableFuture.class,
+                LettuceCountDownLatch.class
+                        .getMethod("getCountAsync", LatchGeneration.class)
+                        .getReturnType()
         );
     }
 }

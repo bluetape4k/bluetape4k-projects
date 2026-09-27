@@ -1,12 +1,13 @@
 package io.bluetape4k.r2dbc.core
 
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.r2dbc.spi.ConnectionFactories
 import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.ConnectionFactoryOptions
 import io.r2dbc.spi.Option
-import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.springframework.r2dbc.core.DatabaseClient
 
@@ -57,7 +58,7 @@ class DatabaseClientBuilderTest {
 
         client.shouldNotBeNull()
         client.shouldBeInstanceOf<DatabaseClient>()
-        client.connectionFactory shouldBeInstanceOf factory::class
+        client.connectionFactory shouldBeSameInstanceAs factory
     }
 
     /**

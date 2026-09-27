@@ -1,12 +1,17 @@
 package io.bluetape4k.io.serializer
 
 import com.esotericsoftware.kryo.Kryo
-import com.esotericsoftware.kryo.io.Output
 import com.esotericsoftware.kryo.util.Pool
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.spyk
@@ -15,6 +20,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.io.InvalidClassException
 import java.io.ObjectInputFilter
 import java.io.OutputStream
 import java.io.Serializable
@@ -23,6 +29,10 @@ import java.nio.ByteOrder
 import java.util.concurrent.CancellationException
 
 class CoreBinarySerializerOutputStreamTest {
+
+    private companion object: KLogging() {
+        const val VALUE = "stream-value"
+    }
 
     @Test
     fun `JDK와 Kryo direct stream은 기존 wire format과 count를 보존한다`() {
@@ -53,7 +63,7 @@ class CoreBinarySerializerOutputStreamTest {
 
             serializer.serializeBinaryToStream(VALUE, target)
 
-            target.toByteArray().isNotEmpty().shouldBeTrue()
+            target.toByteArray().shouldNotBeEmpty()
         }
     }
 
@@ -70,6 +80,7 @@ class CoreBinarySerializerOutputStreamTest {
             generateSequence(actual as Throwable?) { it.cause }
                 .any { it === writeFailure }
                 .shouldBeTrue()
+
             target.flushCount shouldBeEqualTo 0
             target.closeCount shouldBeEqualTo 0
         }
@@ -143,7 +154,7 @@ class CoreBinarySerializerOutputStreamTest {
             target.toByteArray() shouldBeEqualTo expected
             target.flushCount shouldBeEqualTo 0
             target.closeCount shouldBeEqualTo 0
-            borrowed.outputStream shouldBeEqualTo null
+            borrowed.outputStream.shouldBeNull()
 
             verify(exactly = failures.size + 1) { KryoProvider.obtainOutput() }
             verify(exactly = failures.size + 1) { KryoProvider.releaseOutput(borrowed) }
@@ -179,8 +190,11 @@ class CoreBinarySerializerOutputStreamTest {
         target.closeCount shouldBeEqualTo 0
         verify(exactly = 1) { serializer.serialize(value) }
 
-        val restored = requireNotNull(serializer.deserialize<ArrayList<KryoReferencePayload>>(target.toByteArray()))
-        (restored[0] === restored[1]).shouldBeTrue()
+        val restored = serializer
+            .deserialize<ArrayList<KryoReferencePayload>>(target.toByteArray())
+            .shouldNotBeNull()
+
+        restored[0] shouldBe restored[1]
     }
 
     @Test
@@ -218,7 +232,7 @@ class CoreBinarySerializerOutputStreamTest {
 
         directFailure.javaClass shouldBeEqualTo arrayFailure.javaClass
         directFailure.cause?.javaClass shouldBeEqualTo arrayFailure.cause?.javaClass
-        (directFailure.cause is java.io.InvalidClassException).shouldBeTrue()
+        directFailure.cause.shouldBeInstanceOf<InvalidClassException>()
     }
 
     @Test
@@ -263,7 +277,7 @@ class CoreBinarySerializerOutputStreamTest {
         )
 
         arrayDecoded shouldBeEqualTo directDecoded
-        (directDecoded[0] === directDecoded[1]).shouldBeTrue()
+        directDecoded[0] shouldBe directDecoded[1]
     }
 
     @Test
@@ -319,7 +333,7 @@ class CoreBinarySerializerOutputStreamTest {
             }
 
             actual.message shouldBeEqualTo "Serialized output exceeds Int.MAX_VALUE bytes."
-            (actual.cause is ArithmeticException).shouldBeTrue()
+            actual.cause.shouldBeInstanceOf<ArithmeticException>()
             target.toByteArray() shouldBeEqualTo byteArrayOf()
         }
     }
@@ -354,10 +368,6 @@ class CoreBinarySerializerOutputStreamTest {
         }
 
         fun toByteArray(): ByteArray = output.toByteArray()
-    }
-
-    private companion object {
-        const val VALUE = "stream-value"
     }
 
     private data class UnregisteredPayload(val value: String): Serializable {

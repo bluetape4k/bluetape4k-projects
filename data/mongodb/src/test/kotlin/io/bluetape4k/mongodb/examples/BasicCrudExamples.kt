@@ -6,8 +6,11 @@ import com.mongodb.client.model.Updates
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.mongodb.AbstractMongoTest
 import io.bluetape4k.mongodb.bson.documentOf
 import io.bluetape4k.mongodb.exists
@@ -48,20 +51,21 @@ class BasicCrudExamples: AbstractMongoTest() {
     }
 
     @Test
-    fun `기본 CRUD 예제`() = runTest(timeout = 60.seconds) {
+    fun `기본 CRUD 예제`() = runSuspendIO(timeout = 60.seconds) {
         // Create (Insert)
         val alice = documentOf("name" to "Alice", "age" to 25, "city" to "Seoul")
         val bob = documentOf("name" to "Bob", "age" to 30, "city" to "Busan")
         val charlie = documentOf("name" to "Charlie", "age" to 20, "city" to "Seoul")
 
-        collection.insertOne(alice)
-        collection.insertMany(listOf(bob, charlie))
+        collection.insertOne(alice).wasAcknowledged().shouldBeTrue()
+        collection.insertMany(listOf(bob, charlie)).wasAcknowledged().shouldBeTrue()
 
         // 총 3개 삽입 확인
         collection.countDocuments() shouldBeEqualTo 3L
 
         // Read (findFirst 확장함수)
         val found = collection.findFirst(Filters.eq("name", "Alice"))
+        log.debug { "found:$found" }
         found.shouldNotBeNull()
         found.getString("city") shouldBeEqualTo "Seoul"
 
@@ -73,8 +77,10 @@ class BasicCrudExamples: AbstractMongoTest() {
         collection.updateOne(
             Filters.eq("name", "Alice"),
             Updates.set("age", 26)
-        )
+        ).wasAcknowledged().shouldBeTrue()
+
         val updated = collection.findFirst(Filters.eq("name", "Alice"))
+        log.debug { "updated:$updated" }
         updated.shouldNotBeNull()
         updated.getInteger("age") shouldBeEqualTo 26
 
@@ -86,11 +92,11 @@ class BasicCrudExamples: AbstractMongoTest() {
                 Updates.set("age", 35),
                 Updates.set("city", "Daegu")
             )
-        )
+        ).wasAcknowledged().shouldBeTrue()
         collection.countDocuments() shouldBeEqualTo 4L
 
         // Delete
-        collection.deleteOne(Filters.eq("name", "Charlie"))
+        collection.deleteOne(Filters.eq("name", "Charlie")).wasAcknowledged().shouldBeTrue()
         collection.countDocuments() shouldBeEqualTo 3L
 
         // findAsFlow 확장함수로 서울 거주자 조회 + 이름 오름차순 정렬
@@ -100,17 +106,18 @@ class BasicCrudExamples: AbstractMongoTest() {
             sort = Sorts.ascending("name")
         ).toList()
 
-        seoulResidents.size shouldBeEqualTo 1
+        log.debug { "seoulResidents:${seoulResidents.joinToString()}" }
+        seoulResidents shouldHaveSize 1
         seoulResidents[0].getString("name") shouldBeEqualTo "Alice"
     }
 
     @Test
-    fun `네이티브 CRUD와 확장함수 조합 예제`() = runTest(timeout = 60.seconds) {
+    fun `네이티브 CRUD와 확장함수 조합 예제`() = runSuspendIO(timeout = 60.seconds) {
         // 네이티브 insertMany (이미 suspend)
         val docs = (1..10).map { i ->
             documentOf("index" to i, "value" to "item_$i", "even" to (i % 2 == 0))
         }
-        collection.insertMany(docs)
+        collection.insertMany(docs).wasAcknowledged().shouldBeTrue()
 
         // findAsFlow + skip/limit/sort 조합
         val paged = collection.findAsFlow(
@@ -120,8 +127,12 @@ class BasicCrudExamples: AbstractMongoTest() {
             limit = 3
         ).toList()
 
+        paged.forEach {
+            log.debug { "doc:$it" }
+        }
+
         // 짝수: 2, 4, 6, 8, 10 -> skip 1 -> 4, 6, 8 -> limit 3 -> [4, 6, 8]
-        paged.size shouldBeEqualTo 3
+        paged shouldHaveSize 3
         paged[0].getInteger("index") shouldBeEqualTo 4
         paged[1].getInteger("index") shouldBeEqualTo 6
         paged[2].getInteger("index") shouldBeEqualTo 8

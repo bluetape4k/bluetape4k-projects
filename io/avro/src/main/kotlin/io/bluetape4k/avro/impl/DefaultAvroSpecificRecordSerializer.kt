@@ -117,8 +117,7 @@ class DefaultAvroSpecificRecordSerializer private constructor(
         } catch (failure: Throwable) {
             failure.escapingBufferFailure()?.let { throw it }
             val graphType = graph.javaClass.name
-            val failureType = failure.javaClass.name
-            log.error { "SpecificRecord ByteBuffer 직렬화에 실패했습니다. graphType=$graphType, failureType=$failureType" }
+            log.error(failure) { "SpecificRecord ByteBuffer 직렬화에 실패했습니다. graphType=$graphType" }
             0
         }
     }

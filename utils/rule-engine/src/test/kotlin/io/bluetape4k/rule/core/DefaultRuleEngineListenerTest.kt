@@ -1,12 +1,13 @@
 package io.bluetape4k.rule.core
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Condition
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.RuleEngineConfig
 import io.bluetape4k.rule.api.ruleSetOf
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class DefaultRuleEngineListenerTest {
@@ -43,7 +44,7 @@ class DefaultRuleEngineListenerTest {
     @Test
     fun `RuleEngineListener registered in engine is called`() {
         var afterExecuteCalled = false
-        val customListener = object : io.bluetape4k.rule.api.RuleEngineListener {
+        val customListener = object: io.bluetape4k.rule.api.RuleEngineListener {
             override fun afterExecute(rules: Iterable<io.bluetape4k.rule.api.Rule>, facts: Facts) {
                 afterExecuteCalled = true
             }
@@ -73,6 +74,6 @@ class DefaultRuleEngineListenerTest {
                 DefaultRuleEngineListener()
             )
         )
-        engine.ruleEngineListeners.size shouldBeEqualTo 2
+        engine.ruleEngineListeners shouldHaveSize 2
     }
 }

@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
  * - `loggerName -> hashBytes` 결과를 캐시에 저장해 재계산을 줄입니다.
  * - loggerName이 null이면 null 키를 반환합니다.
  */
-class LoggerNameKafkaKeyProvider: io.bluetape4k.kafka.logback.keyprovider.AbstractKafkaKeyProvider<ILoggingEvent>() {
+class LoggerNameKafkaKeyProvider: AbstractKafkaKeyProvider<ILoggingEvent>() {
 
     // 계산을 계속 하지 않기 위해
     private val keyCaches = ConcurrentHashMap<String, ByteArray?>()

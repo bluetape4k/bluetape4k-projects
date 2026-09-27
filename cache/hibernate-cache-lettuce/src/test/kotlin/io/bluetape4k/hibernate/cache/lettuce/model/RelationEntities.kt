@@ -1,5 +1,6 @@
 package io.bluetape4k.hibernate.cache.lettuce.model
 
+import io.bluetape4k.support.hashOf
 import jakarta.persistence.Cacheable
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Entity
@@ -37,6 +38,15 @@ class Department: Serializable {
         employees += employee
         employee.department = this
     }
+
+    override fun equals(other: Any?): Boolean =
+        other is Department && id == other.id && name == other.name
+
+    override fun hashCode(): Int =
+        id?.hashCode() ?: hashOf(name)
+
+    override fun toString(): String =
+        "Department(id=$id, name='$name')"
 }
 
 @Entity
@@ -59,6 +69,15 @@ class Employee: Serializable {
     @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     val projects: MutableSet<Project> = linkedSetOf()
+
+    override fun equals(other: Any?): Boolean =
+        other is Employee && id == other.id && name == other.name && department == other.department
+
+    override fun hashCode(): Int =
+        id?.hashCode() ?: hashOf(name, department)
+
+    override fun toString(): String =
+        "Employee(id=$id, name='$name', department=$department)"
 }
 
 @Entity
@@ -86,4 +105,13 @@ class Project: Serializable {
         members += employee
         employee.projects += this
     }
+
+    override fun equals(other: Any?): Boolean =
+        other is Project && id == other.id && title == other.title
+
+    override fun hashCode(): Int =
+        id?.hashCode() ?: hashOf(title)
+
+    override fun toString(): String =
+        "Project(id=$id, title='$title')"
 }

@@ -1,17 +1,17 @@
 package io.bluetape4k.junit5.faker
 
-import io.bluetape4k.junit5.model.DomainObject
-import io.bluetape4k.junit5.model.NestedDomainObject
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.bluetape4k.logging.trace
-import net.datafaker.Faker
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldStartWith
+import io.bluetape4k.junit5.model.DomainObject
+import io.bluetape4k.junit5.model.NestedDomainObject
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.trace
+import net.datafaker.Faker
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -29,10 +29,10 @@ class DataFakerExamples {
 
         val streetAddress = faker.address().streetAddress(true)
 
-        log.trace { "name=$name" }
-        log.trace { "first name=$firstName" }
-        log.trace { "last name=$lastName" }
-        log.trace { "street address = $streetAddress" }
+        log.debug { "name=$name" }
+        log.debug { "first name=$firstName" }
+        log.debug { "last name=$lastName" }
+        log.debug { "street address = $streetAddress" }
 
         faker.zelda().game().shouldNotBeBlank()
         faker.starTrek().villain().shouldNotBeBlank()
@@ -43,8 +43,8 @@ class DataFakerExamples {
         val fakeObj = fakeDomainObject()
 
         fakeObj.nestedDomainObject.shouldNotBeNull()
-        fakeObj.nestedDomainObject!!.address!!.shouldNotBeEmpty()
-        fakeObj.nestedDomainObject!!.category!!.shouldNotBeEmpty()
+        fakeObj.nestedDomainObject?.address.shouldNotBeEmpty()
+        fakeObj.nestedDomainObject?.category.shouldNotBeEmpty()
 
         fakeObj.wotsits.shouldNotBeNull()
         fakeObj.objectLists.shouldNotBeEmpty()
@@ -92,15 +92,15 @@ class DataFakerExamples {
     @Test
     fun `faker letterify`() {
         val letter = faker.letterify("134-??-01-???", true)
-        letter shouldStartWith "134-"
         log.debug { "letter=$letter" }
+        letter shouldStartWith "134-"
     }
 
     @Test
     fun `fake bothify`() {
         val fakeString = faker.bothify("??-###", true)
-        fakeString shouldContain "-"
         log.debug { "fakeString=$fakeString" }
+        fakeString shouldContain "-"
     }
 
     @Test

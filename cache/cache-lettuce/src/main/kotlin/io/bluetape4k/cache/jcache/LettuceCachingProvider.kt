@@ -101,8 +101,10 @@ class LettuceCachingProvider: CachingProvider {
 
     override fun close(classLoader: ClassLoader) {
         log.info { "Close LettuceCachingProvider. classLoader=$classLoader" }
-        managers.remove(classLoader)?.values?.forEach { manager ->
-            runCatching { manager.close() }
+        lock.withLock {
+            managers.remove(classLoader)?.values?.forEach { manager ->
+                runCatching { manager.close() }
+            }
         }
     }
 
@@ -110,12 +112,14 @@ class LettuceCachingProvider: CachingProvider {
         log.info {
             "Close LettuceCachingProvider. uri=${uri.toRedactedLogString()}, classLoader=$classLoader"
         }
-        managers[classLoader]?.let { uri2manager ->
-            uri2manager.remove(uri)?.let { manager ->
-                runCatching { manager.close() }
-            }
-            if (uri2manager.isEmpty()) {
-                managers.remove(classLoader)
+        lock.withLock {
+            managers[classLoader]?.let { uri2manager ->
+                uri2manager.remove(uri)?.let { manager ->
+                    runCatching { manager.close() }
+                }
+                if (uri2manager.isEmpty()) {
+                    managers.remove(classLoader)
+                }
             }
         }
     }

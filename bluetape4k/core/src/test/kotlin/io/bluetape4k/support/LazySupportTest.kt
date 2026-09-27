@@ -3,10 +3,13 @@ package io.bluetape4k.support
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 
 class LazySupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `unsafeLazy는 동일 인스턴스에서 값을 캐시한다`() {
@@ -38,4 +41,3 @@ class LazySupportTest {
         initialized.get() shouldBeGreaterOrEqualTo 1
     }
 }
-

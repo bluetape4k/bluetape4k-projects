@@ -9,6 +9,7 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldContentEqual
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
@@ -16,6 +17,9 @@ import java.nio.ByteOrder
 import java.util.concurrent.atomic.AtomicInteger
 
 class ZstdCompressorByteBufferTest {
+
+    companion object: KLogging()
+
     private val compressor = ZstdCompressor()
 
     @Test
@@ -40,7 +44,7 @@ class ZstdCompressorByteBufferTest {
             source.position() shouldBeEqualTo sourceStart
             target.position() shouldBeEqualTo targetStart + written
             CompressorByteBufferTestSupport.bytes(target, targetStart, written)
-                .shouldContentEqual(expectedWire)
+                .shouldBeEqualTo(expectedWire)
 
             val wire = if (direct) {
                 CompressorByteBufferTestSupport.directSlice(expectedWire)
@@ -52,7 +56,7 @@ class ZstdCompressorByteBufferTest {
 
             compressor.decompress(wire, restored) shouldBeEqualTo payload.size
             CompressorByteBufferTestSupport.bytes(restored, restoredStart, payload.size)
-                .shouldContentEqual(payload)
+                .shouldBeEqualTo(payload)
         }
     }
 
@@ -455,8 +459,10 @@ class ZstdCompressorByteBufferTest {
         target.position() shouldBeEqualTo targetStart
 
         target.limit(target.capacity())
+
         compressor.decompress(CompressorByteBufferTestSupport.direct(wire), target)
             .shouldBeEqualTo(payload.size)
+
         CompressorByteBufferTestSupport.bytes(target, targetStart, payload.size)
             .shouldContentEqual(payload)
     }

@@ -18,5 +18,9 @@ import java.sql.PreparedStatement
  * // updated == 1
  * ```
  */
-inline fun PreparedStatement.arguments(body: PreparedStatementArgumentSetter.() -> Unit): PreparedStatement =
-    apply { PreparedStatementArgumentSetter(this).body() }
+inline fun PreparedStatement.arguments(
+    body: PreparedStatementArgumentSetter.() -> Unit
+)
+        : PreparedStatement = apply {
+    PreparedStatementArgumentSetter(this).body()
+}

@@ -7,10 +7,13 @@ import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.RedisConnectionException
+import io.lettuce.core.api.StatefulRedisConnection
+import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.StringCodec
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.cancelAndJoin
@@ -22,7 +25,29 @@ import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicBoolean
 
-internal class LettuceFencingLeaseCancellationTest : AbstractLettuceTest() {
+internal class LettuceFencingLeaseCancellationTest: AbstractLettuceTest() {
+
+    private companion object: KLogging() {
+        const val CONFIG_EPOCH: Long = 17
+        const val TTL_TOLERANCE_MILLIS: Long = 5_000
+        val INITIAL_LEASE: Duration = Duration.ofSeconds(30)
+        val RENEWED_LEASE: Duration = Duration.ofMinutes(5)
+        val OWNER: FencingOwnerId = FencingOwnerId.from("cancellation-owner")
+        val CONTENDER: FencingOwnerId = FencingOwnerId.from("cancellation-contender")
+        val mutationOperations = listOf(
+            FencingLeaseOperation.BOOTSTRAP,
+            FencingLeaseOperation.ACQUIRE,
+            FencingLeaseOperation.RENEW,
+            FencingLeaseOperation.RELEASE,
+        )
+
+        val connection: StatefulRedisConnection<String, String> by lazy {
+            LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8)
+        }
+        val commands: RedisCommands<String?, String?> by lazy {
+            connection.sync()
+        }
+    }
 
     @Test
     fun `backend failure before and after apply has operation specific reconciliation`() {
@@ -95,6 +120,7 @@ internal class LettuceFencingLeaseCancellationTest : AbstractLettuceTest() {
                 .shouldBeInstanceOf<FencingAcquireResult.Acquired>().token
 
             fixture.healthy.release(OWNER, original) shouldBeEqualTo FencingReleaseResult.Released
+
             val contenderToken = fixture.healthy.acquire(CONTENDER, INITIAL_LEASE)
                 .shouldBeInstanceOf<FencingAcquireResult.Acquired>().token
             fixture.healthy.inspect(OWNER).shouldBeInstanceOf<FencingInspectResult.Contended>()
@@ -103,6 +129,7 @@ internal class LettuceFencingLeaseCancellationTest : AbstractLettuceTest() {
                 .shouldBeInstanceOf<FencingInspectResult.Owned>().token shouldBeEqualTo contenderToken
 
             fixture.healthy.release(CONTENDER, contenderToken) shouldBeEqualTo FencingReleaseResult.Released
+
             val newer = fixture.healthy.acquire(OWNER, INITIAL_LEASE)
                 .shouldBeInstanceOf<FencingAcquireResult.Acquired>().token
             newer shouldBeGreaterThan original
@@ -143,10 +170,12 @@ internal class LettuceFencingLeaseCancellationTest : AbstractLettuceTest() {
         }
         FencingLeaseOperation.RENEW,
         FencingLeaseOperation.RELEASE,
-        -> {
+                                      -> {
             healthy.bootstrap() shouldBeEqualTo FencingBootstrapResult.Initialized
-            val token = healthy.acquire(OWNER, INITIAL_LEASE)
-                .shouldBeInstanceOf<FencingAcquireResult.Acquired>().token
+            val token = healthy
+                .acquire(OWNER, INITIAL_LEASE)
+                .shouldBeInstanceOf<FencingAcquireResult.Acquired>()
+                .token
             OperationContext(token)
         }
         FencingLeaseOperation.INSPECT -> error("Inspect is not a mutation operation.")
@@ -159,7 +188,7 @@ internal class LettuceFencingLeaseCancellationTest : AbstractLettuceTest() {
     ): Any = when (operation) {
         FencingLeaseOperation.BOOTSTRAP -> lease.bootstrap()
         FencingLeaseOperation.ACQUIRE -> lease.acquire(OWNER, INITIAL_LEASE)
-        FencingLeaseOperation.RENEW -> lease.renew(OWNER, context.requiredToken(), RENEWED_LEASE)
+        FencingLeaseOperation.RENEW   -> lease.renew(OWNER, context.requiredToken(), RENEWED_LEASE)
         FencingLeaseOperation.RELEASE -> lease.release(OWNER, context.requiredToken())
         FencingLeaseOperation.INSPECT -> error("Inspect is not a mutation operation.")
     }
@@ -171,7 +200,7 @@ internal class LettuceFencingLeaseCancellationTest : AbstractLettuceTest() {
     ): CompletableFuture<*> = when (operation) {
         FencingLeaseOperation.BOOTSTRAP -> lease.bootstrapAsync()
         FencingLeaseOperation.ACQUIRE -> lease.acquireAsync(OWNER, INITIAL_LEASE)
-        FencingLeaseOperation.RENEW -> lease.renewAsync(OWNER, context.requiredToken(), RENEWED_LEASE)
+        FencingLeaseOperation.RENEW   -> lease.renewAsync(OWNER, context.requiredToken(), RENEWED_LEASE)
         FencingLeaseOperation.RELEASE -> lease.releaseAsync(OWNER, context.requiredToken())
         FencingLeaseOperation.INSPECT -> error("Inspect is not a mutation operation.")
     }
@@ -183,7 +212,7 @@ internal class LettuceFencingLeaseCancellationTest : AbstractLettuceTest() {
     ): Any = when (operation) {
         FencingLeaseOperation.BOOTSTRAP -> lease.bootstrap()
         FencingLeaseOperation.ACQUIRE -> lease.acquire(OWNER, INITIAL_LEASE)
-        FencingLeaseOperation.RENEW -> lease.renew(OWNER, context.requiredToken(), RENEWED_LEASE)
+        FencingLeaseOperation.RENEW   -> lease.renew(OWNER, context.requiredToken(), RENEWED_LEASE)
         FencingLeaseOperation.RELEASE -> lease.release(OWNER, context.requiredToken())
         FencingLeaseOperation.INSPECT -> error("Inspect is not a mutation operation.")
     }
@@ -194,7 +223,7 @@ internal class LettuceFencingLeaseCancellationTest : AbstractLettuceTest() {
                 result.shouldBeInstanceOf<FencingBootstrapResult.BackendFailure>().failure
             FencingLeaseOperation.ACQUIRE ->
                 result.shouldBeInstanceOf<FencingAcquireResult.BackendFailure>().failure
-            FencingLeaseOperation.RENEW ->
+            FencingLeaseOperation.RENEW   ->
                 result.shouldBeInstanceOf<FencingRenewResult.BackendFailure>().failure
             FencingLeaseOperation.RELEASE ->
                 result.shouldBeInstanceOf<FencingReleaseResult.BackendFailure>().failure
@@ -227,7 +256,7 @@ internal class LettuceFencingLeaseCancellationTest : AbstractLettuceTest() {
                 }
                 token shouldBeEqualTo FencingToken(CONFIG_EPOCH, 1)
             }
-            FencingLeaseOperation.RENEW -> {
+            FencingLeaseOperation.RENEW   -> {
                 val owned = healthy.inspect(OWNER).shouldBeInstanceOf<FencingInspectResult.Owned>()
                 owned.token shouldBeEqualTo context.requiredToken()
                 if (phase == FaultPhase.BEFORE_APPLY) {
@@ -236,7 +265,7 @@ internal class LettuceFencingLeaseCancellationTest : AbstractLettuceTest() {
                     owned.remainingTtlMillis shouldBeGreaterThan RENEWED_LEASE.toMillis() - TTL_TOLERANCE_MILLIS
                 }
                 healthy.renew(OWNER, context.requiredToken(), RENEWED_LEASE) shouldBeEqualTo
-                    FencingRenewResult.Renewed
+                        FencingRenewResult.Renewed
             }
             FencingLeaseOperation.RELEASE -> {
                 if (phase == FaultPhase.BEFORE_APPLY) {
@@ -256,7 +285,7 @@ internal class LettuceFencingLeaseCancellationTest : AbstractLettuceTest() {
         phase: FaultPhase,
         block: (Fixture) -> Unit,
     ) {
-        val suffix = randomName().substringAfter(':')
+        val suffix = randomName().substringAfterLast(':')
         val config = LettuceFencingLeaseConfig(
             "cancellation",
             "${operation.name.lowercase()}-${phase.name.lowercase()}-$suffix",
@@ -380,23 +409,5 @@ internal class LettuceFencingLeaseCancellationTest : AbstractLettuceTest() {
                 delegate.run(operation, keys, args)
             }
         }
-    }
-
-    private companion object {
-        const val CONFIG_EPOCH: Long = 17
-        const val TTL_TOLERANCE_MILLIS: Long = 5_000
-        val INITIAL_LEASE: Duration = Duration.ofSeconds(30)
-        val RENEWED_LEASE: Duration = Duration.ofMinutes(5)
-        val OWNER: FencingOwnerId = FencingOwnerId.from("cancellation-owner")
-        val CONTENDER: FencingOwnerId = FencingOwnerId.from("cancellation-contender")
-        val mutationOperations = listOf(
-            FencingLeaseOperation.BOOTSTRAP,
-            FencingLeaseOperation.ACQUIRE,
-            FencingLeaseOperation.RENEW,
-            FencingLeaseOperation.RELEASE,
-        )
-
-        val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
-        val commands by lazy { connection.sync() }
     }
 }

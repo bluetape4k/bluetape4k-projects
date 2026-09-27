@@ -1,15 +1,15 @@
 package io.bluetape4k.rule.engines.janino
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.rule.api.Facts
 import org.junit.jupiter.api.Test
 
 class JaninoConditionTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private fun intCast(varName: String) = "((Integer)facts.get(\"$varName\")).intValue()"
 
@@ -54,8 +54,7 @@ class JaninoConditionTest {
         val expr = "${intCast("x")} > 10"
         val c1 = JaninoCondition(expr)
         val c2 = JaninoCondition(expr)
-        (c1 == c2).shouldBeTrue()
-        (c1.hashCode() == c2.hashCode()).shouldBeTrue()
+        c1 shouldBeEqualTo c2
     }
 
     @Test

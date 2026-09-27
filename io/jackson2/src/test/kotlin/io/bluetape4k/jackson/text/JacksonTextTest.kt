@@ -2,8 +2,8 @@ package io.bluetape4k.jackson.text
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
@@ -23,37 +23,37 @@ class JacksonTextTest: AbstractJacksonTextTest() {
     inner class SingletonBehavior {
         @Test
         fun `Yaml defaultMapper는 lazy singleton이다`() {
-            (JacksonText.Yaml.defaultMapper === JacksonText.Yaml.defaultMapper).shouldBeTrue()
+            JacksonText.Yaml.defaultMapper shouldBe JacksonText.Yaml.defaultMapper
         }
 
         @Test
         fun `Yaml defaultSerializer는 lazy singleton이다`() {
-            (JacksonText.Yaml.defaultSerializer === JacksonText.Yaml.defaultSerializer).shouldBeTrue()
+            JacksonText.Yaml.defaultSerializer shouldBe JacksonText.Yaml.defaultSerializer
         }
 
         @Test
         fun `Props defaultMapper는 lazy singleton이다`() {
-            (JacksonText.Props.defaultMapper === JacksonText.Props.defaultMapper).shouldBeTrue()
+            JacksonText.Props.defaultMapper shouldBe JacksonText.Props.defaultMapper
         }
 
         @Test
         fun `Props defaultSerializer는 lazy singleton이다`() {
-            (JacksonText.Props.defaultSerializer === JacksonText.Props.defaultSerializer).shouldBeTrue()
+            JacksonText.Props.defaultSerializer shouldBe JacksonText.Props.defaultSerializer
         }
 
         @Test
         fun `Toml defaultMapper는 lazy singleton이다`() {
-            (JacksonText.Toml.defaultMapper === JacksonText.Toml.defaultMapper).shouldBeTrue()
+            JacksonText.Toml.defaultMapper shouldBe JacksonText.Toml.defaultMapper
         }
 
         @Test
         fun `Toml defaultSerializer는 lazy singleton이다`() {
-            (JacksonText.Toml.defaultSerializer === JacksonText.Toml.defaultSerializer).shouldBeTrue()
+            JacksonText.Toml.defaultSerializer shouldBe JacksonText.Toml.defaultSerializer
         }
 
         @Test
         fun `Csv defaultMapper는 lazy singleton이다`() {
-            (JacksonText.Csv.defaultMapper === JacksonText.Csv.defaultMapper).shouldBeTrue()
+            JacksonText.Csv.defaultMapper shouldBe JacksonText.Csv.defaultMapper
         }
     }
 

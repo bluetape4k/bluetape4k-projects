@@ -1,17 +1,16 @@
 package io.bluetape4k.rule.engines.spel
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.exception.RuleException
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class SpelActionTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `SpelAction 실행 - 변수 설정`() {
@@ -28,8 +27,7 @@ class SpelActionTest {
         val expr = "#amount > 0 ? #discount : 0"
         val a1 = SpelAction(expr)
         val a2 = SpelAction(expr)
-        (a1 == a2).shouldBeTrue()
-        (a1.hashCode() == a2.hashCode()).shouldBeTrue()
+        a1 shouldBeEqualTo a2
     }
 
     @Test

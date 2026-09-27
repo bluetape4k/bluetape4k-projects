@@ -1,24 +1,27 @@
 package io.bluetape4k.redis.lettuce.map
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * [LettuceLoadedMap] Read-through / Write-through / Write-behind / NONE 모드 테스트.
  */
 class LettuceLoadedMapTest: AbstractLettuceTest() {
-    companion object: KLoggingChannel()
+
+    companion object: KLogging()
 
     // -------------------------------------------------------------------------
     // 헬퍼: 테스트마다 고유한 keyPrefix를 가진 맵 생성
@@ -43,17 +46,16 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
     @Test
     fun `get - 캐시 미스 시 loader를 통해 Read-through 후 Redis에 캐싱한다`() {
         val loaderCallCount = AtomicInteger(0)
-        val loader =
-            object: MapLoader<String, String> {
-                override fun load(key: String): String {
-                    loaderCallCount.incrementAndGet()
-                    return "loaded-$key"
-                }
-
-                override fun loadAllKeys(): Iterable<String> = emptyList()
+        val loader = object: MapLoader<String, String> {
+            override fun load(key: String): String {
+                loaderCallCount.incrementAndGet()
+                return "loaded-$key"
             }
 
-        newMap(loader = loader).use { map ->
+            override fun loadAllKeys(): Iterable<String> = emptyList()
+        }
+
+        newMap(loader = loader).use { map: LettuceLoadedMap<String, String> ->
             val value = map["key1"]
             value shouldBeEqualTo "loaded-key1"
             loaderCallCount.get() shouldBeEqualTo 1
@@ -73,12 +75,10 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
 
     @Test
     fun `get - loader가 null을 반환하면 Redis에 캐싱하지 않는다`() {
-        val loader =
-            object: MapLoader<String, String> {
-                override fun load(key: String): String? = null
-
-                override fun loadAllKeys(): Iterable<String> = emptyList()
-            }
+        val loader = object: MapLoader<String, String> {
+            override fun load(key: String): String? = null
+            override fun loadAllKeys(): Iterable<String> = emptyList()
+        }
 
         newMap(loader = loader).use { map ->
             map["key1"].shouldBeNull()
@@ -94,16 +94,15 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
     @Test
     fun `set - NONE 모드에서는 Redis에만 저장하고 writer는 호출하지 않는다`() {
         val writerCallCount = AtomicInteger(0)
-        val writer =
-            object: MapWriter<String, String> {
-                override fun write(map: Map<String, String>) {
-                    writerCallCount.incrementAndGet()
-                }
-
-                override fun delete(keys: Collection<String>) {
-                    writerCallCount.incrementAndGet()
-                }
+        val writer = object: MapWriter<String, String> {
+            override fun write(map: Map<String, String>) {
+                writerCallCount.incrementAndGet()
             }
+
+            override fun delete(keys: Collection<String>) {
+                writerCallCount.incrementAndGet()
+            }
+        }
 
         newMap(writer = writer, config = LettuceCacheConfig.READ_ONLY).use { map ->
             map["k1"] = "v1"
@@ -119,16 +118,15 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
     @Test
     fun `set - WRITE_THROUGH 모드에서 writer와 Redis를 모두 갱신한다`() {
         val written = mutableMapOf<String, String>()
-        val writer =
-            object: MapWriter<String, String> {
-                override fun write(map: Map<String, String>) {
-                    written.putAll(map)
-                }
-
-                override fun delete(keys: Collection<String>) {
-                    keys.forEach { written.remove(it) }
-                }
+        val writer = object: MapWriter<String, String> {
+            override fun write(map: Map<String, String>) {
+                written.putAll(map)
             }
+
+            override fun delete(keys: Collection<String>) {
+                keys.forEach { written.remove(it) }
+            }
+        }
 
         newMap(writer = writer, config = LettuceCacheConfig.READ_WRITE_THROUGH).use { map ->
             map["k1"] = "v1"
@@ -140,18 +138,17 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
 
     @Test
     fun `set - WRITE_THROUGH 모드에서 writer 실패 시 Redis는 갱신되지 않는다`() {
-        val writer =
-            object: MapWriter<String, String> {
-                override fun write(map: Map<String, String>) {
-                    error("write failure")
-                }
-
-                override fun delete(keys: Collection<String>) = Unit
+        val writer = object: MapWriter<String, String> {
+            override fun write(map: Map<String, String>) {
+                error("write failure")
             }
+
+            override fun delete(keys: Collection<String>) = Unit
+        }
 
         newMap(writer = writer, config = LettuceCacheConfig.READ_WRITE_THROUGH).use { map ->
             val ex = runCatching { map["k1"] = "v1" }.exceptionOrNull()
-            ex.shouldNotBeNull()
+            ex.shouldBeInstanceOf<IllegalStateException>()
             ex.message shouldBeEqualTo "write failure"
             map["k1"].shouldBeNull()
         }
@@ -161,20 +158,22 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
     fun `delete - WRITE_THROUGH 모드에서 writer delete와 Redis 삭제를 모두 수행한다`() {
         val deleted = mutableListOf<String>()
         val written = mutableMapOf<String, String>()
-        val writer =
-            object: MapWriter<String, String> {
-                override fun write(map: Map<String, String>) {
-                    written.putAll(map)
-                }
-
-                override fun delete(keys: Collection<String>) {
-                    deleted.addAll(keys)
-                }
+        val writer = object: MapWriter<String, String> {
+            override fun write(map: Map<String, String>) {
+                written.putAll(map)
             }
+
+            override fun delete(keys: Collection<String>) {
+                deleted.addAll(keys)
+            }
+        }
 
         newMap(writer = writer, config = LettuceCacheConfig.READ_WRITE_THROUGH).use { map ->
             map["k1"] = "v1"
             map.delete("k1")
+
+            log.debug { "deleted=${deleted.joinToString()}" }
+            log.debug { "written=${written.entries.joinToString()}" }
 
             deleted.contains("k1").shouldBeTrue()
             map["k1"].shouldBeNull()
@@ -188,19 +187,17 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
     @Test
     fun `set - WRITE_BEHIND 모드에서 Redis를 즉시 갱신하고 writer를 비동기로 호출한다`() {
         val writerCallCount = AtomicInteger(0)
-        val writer =
-            object: MapWriter<String, String> {
-                override fun write(map: Map<String, String>) {
-                    writerCallCount.incrementAndGet()
-                }
-
-                override fun delete(keys: Collection<String>) = Unit
+        val writer = object: MapWriter<String, String> {
+            override fun write(map: Map<String, String>) {
+                writerCallCount.incrementAndGet()
             }
 
-        val config =
-            LettuceCacheConfig.WRITE_BEHIND.copy(
-                writeBehindDelay = java.time.Duration.ofMillis(200)
-            )
+            override fun delete(keys: Collection<String>) = Unit
+        }
+
+        val config = LettuceCacheConfig.WRITE_BEHIND.copy(
+            writeBehindDelay = Duration.ofMillis(200)
+        )
 
         newMap(writer = writer, config = config).use { map ->
             map["k1"] = "v1"
@@ -209,7 +206,7 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
             map["k1"] shouldBeEqualTo "v1"
 
             // writer는 비동기로 호출됨 — 최대 3초 대기
-            await atMost Duration.ofSeconds(3) until { writerCallCount.get() == 1 }
+            await atMost 3.seconds until { writerCallCount.get() == 1 }
             writerCallCount.get() shouldBeEqualTo 1
         }
     }
@@ -221,15 +218,14 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
     @Test
     fun `getAll - 일부 캐시 미스 키는 loader로 Read-through한다`() {
         val loaderCallCount = AtomicInteger(0)
-        val loader =
-            object: MapLoader<String, String> {
-                override fun load(key: String): String {
-                    loaderCallCount.incrementAndGet()
-                    return "from-db-$key"
-                }
-
-                override fun loadAllKeys(): Iterable<String> = emptyList()
+        val loader = object: MapLoader<String, String> {
+            override fun load(key: String): String {
+                loaderCallCount.incrementAndGet()
+                return "from-db-$key"
             }
+
+            override fun loadAllKeys(): Iterable<String> = emptyList()
+        }
 
         newMap(loader = loader).use { map ->
             // k1은 미리 캐싱
@@ -253,15 +249,14 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
     @Test
     fun `getAll - 모든 키가 캐시 미스인 경우 loader로 모두 처리한다`() {
         val loaderCallCount = AtomicInteger(0)
-        val loader =
-            object: MapLoader<String, String> {
-                override fun load(key: String): String {
-                    loaderCallCount.incrementAndGet()
-                    return "fallback-$key"
-                }
-
-                override fun loadAllKeys(): Iterable<String> = emptyList()
+        val loader = object: MapLoader<String, String> {
+            override fun load(key: String): String {
+                loaderCallCount.incrementAndGet()
+                return "fallback-$key"
             }
+
+            override fun loadAllKeys(): Iterable<String> = emptyList()
+        }
 
         newMap(loader = loader).use { map ->
             // No pre-populated keys — all will be cache misses
@@ -315,7 +310,6 @@ class LettuceLoadedMapTest: AbstractLettuceTest() {
         val written = mutableMapOf<String, String>()
         val writer = object: MapWriter<String, String> {
             override fun write(map: Map<String, String>) = written.putAll(map)
-
             override fun delete(keys: Collection<String>) = keys.forEach(written::remove)
         }
 

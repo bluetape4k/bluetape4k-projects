@@ -2,6 +2,7 @@ package io.bluetape4k.io.serializer.compat.issue756.java;
 
 import io.bluetape4k.io.serializer.BinarySerializer;
 import io.bluetape4k.json.JsonSerializer;
+
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
@@ -11,13 +12,13 @@ import java.nio.charset.StandardCharsets;
 
 public final class ConcreteSerializerStreamCaller {
     private static final String JAVA_DUAL =
-        "io.bluetape4k.json.compat.issue756.java.LegacyDualSerializer";
+            "io.bluetape4k.json.compat.issue756.java.LegacyDualSerializer";
     private static final String KOTLIN_DUAL =
-        "io.bluetape4k.json.compat.issue756.kotlin.LegacyDualSerializer";
+            "io.bluetape4k.json.compat.issue756.kotlin.LegacyDualSerializer";
     private static final String JAVA_DECORATOR =
-        "io.bluetape4k.io.serializer.compat.issue756.java.LegacyBinaryDecorator";
+            "io.bluetape4k.io.serializer.compat.issue756.java.LegacyBinaryDecorator";
     private static final String KOTLIN_DECORATOR =
-        "io.bluetape4k.io.serializer.compat.issue756.kotlin.LegacyBinaryDecorator";
+            "io.bluetape4k.io.serializer.compat.issue756.kotlin.LegacyBinaryDecorator";
 
     private ConcreteSerializerStreamCaller() {
     }
@@ -52,14 +53,14 @@ public final class ConcreteSerializerStreamCaller {
         JsonSerializer json = (JsonSerializer) instance;
 
         Method binaryMethod = BinarySerializer.class.getMethod(
-            "serializeBinaryToStream",
-            Object.class,
-            OutputStream.class
+                "serializeBinaryToStream",
+                Object.class,
+                OutputStream.class
         );
         Method jsonMethod = JsonSerializer.class.getMethod(
-            "serializeJsonToStream",
-            Object.class,
-            OutputStream.class
+                "serializeJsonToStream",
+                Object.class,
+                OutputStream.class
         );
         require(binaryMethod.isDefault(), "binary stream method is not a default");
         require(jsonMethod.isDefault(), "JSON stream method is not a default");
@@ -81,7 +82,7 @@ public final class ConcreteSerializerStreamCaller {
         int written = decorator.serializeBinaryToStream("value", target);
         require(written == 15, "unexpected decorated stream count");
         require("decorated:value".equals(target.toString(StandardCharsets.UTF_8)),
-            "stream dispatch bypassed the legacy decorator override");
+                "stream dispatch bypassed the legacy decorator override");
     }
 
     private static void expectNullPointer(CheckedRunnable action) throws Exception {
@@ -121,8 +122,8 @@ public final class ConcreteSerializerStreamCaller {
         @SuppressWarnings("unchecked")
         public <T> T deserialize(byte[] bytes) {
             return bytes == null || bytes.length == 0
-                ? null
-                : (T) new String(bytes, StandardCharsets.UTF_8);
+                    ? null
+                    : (T) new String(bytes, StandardCharsets.UTF_8);
         }
 
         @Override

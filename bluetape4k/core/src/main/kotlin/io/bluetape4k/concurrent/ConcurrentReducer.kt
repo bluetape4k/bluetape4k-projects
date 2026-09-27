@@ -89,7 +89,7 @@ class ConcurrentReducer<T> internal constructor(
                     CapacityReachedException("Queue size has reached capacity: $maxQueueSize"),
                 )
 
-                else -> {
+                else         -> {
                     promise.whenComplete { _, _ ->
                         if (promise.isCancelled && cancelJob(job, requirePromiseCancellation = true) && !closed.value) {
                             schedulePump()
@@ -307,7 +307,7 @@ class ConcurrentReducer<T> internal constructor(
             while (true) {
                 val current = state.value
                 val phase = when (current) {
-                    NEW -> CancellationPhase.BEFORE_START
+                    NEW  -> CancellationPhase.BEFORE_START
                     RUNNING -> CancellationPhase.RUNNING
                     else -> return null
                 }

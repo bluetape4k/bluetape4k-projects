@@ -3,7 +3,9 @@ package io.bluetape4k.mongodb
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.support.closeSafe
 import io.bluetape4k.testcontainers.storage.MongoDBServer
+import io.bluetape4k.utils.ShutdownQueue
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.TestInstance
 
@@ -29,7 +31,10 @@ abstract class AbstractMongoTest {
         val mongoServer: MongoDBServer by lazy { MongoDBServer.Launcher.mongoDB }
     }
 
-    private val _clientDelegate = lazy { MongoClient.create(mongoServer.url) }
+    private val _clientDelegate = lazy {
+        MongoClient.create(mongoServer.url)
+            .apply { ShutdownQueue.register(this) }
+    }
 
     /** Kotlin Coroutine 드라이버 기반 [MongoClient]입니다. */
     val client: MongoClient by _clientDelegate
@@ -47,7 +52,7 @@ abstract class AbstractMongoTest {
     @AfterAll
     fun closeClient() {
         if (_clientDelegate.isInitialized()) {
-            client.close()
+            client.closeSafe()
         }
     }
 }

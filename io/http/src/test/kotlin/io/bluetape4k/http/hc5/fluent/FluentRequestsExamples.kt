@@ -1,12 +1,13 @@
 package io.bluetape4k.http.hc5.fluent
 
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
-import io.bluetape4k.assertions.shouldBeGreaterThan
 import org.apache.hc.client5.http.fluent.Form
 import org.apache.hc.core5.http.ContentType
 import org.apache.hc.core5.http.HttpVersion
@@ -30,6 +31,7 @@ class FluentRequestsExamples: AbstractHc5Test() {
             .asString()
 
         log.debug { "content=$content" }
+        content shouldContain "$httpbinBaseUrl/get"
     }
 
     // HTTP/1.1 + expect-continue 핸드셰이크로 POST 요청을 실행하고 바이트 배열 응답을 반환합니다.
@@ -44,6 +46,10 @@ class FluentRequestsExamples: AbstractHc5Test() {
             .asBytes()
 
         log.debug { "content=${content.toUtf8String()}" }
+
+        val contentText = content.toUtf8String()
+        contentText shouldContain "$httpbinBaseUrl/post"
+        contentText shouldContain "Important stuff"
     }
 
     // 커스텀 헤더와 HTML 폼 본문을 포함한 POST 요청 결과를 파일에 저장합니다.
@@ -61,7 +67,12 @@ class FluentRequestsExamples: AbstractHc5Test() {
             .execute()
             .saveContent(file)
 
-        file.length() shouldBeGreaterThan 0
         log.debug { "body=${file.readText()}" }
+        file.length() shouldBeGreaterThan 0
+        with(file.readText()) {
+            this shouldContain "$httpbinBaseUrl/post"
+            this shouldContain "stuff"
+            this shouldContain "username"
+        }
     }
 }

@@ -1,11 +1,11 @@
 package io.bluetape4k.hibernate.mapping.associations.manytoone
 
-import io.bluetape4k.hibernate.AbstractHibernateTest
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.hibernate.AbstractHibernateTest
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull

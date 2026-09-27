@@ -5,36 +5,43 @@ import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.JCacheEntryEventListener
 import io.bluetape4k.cache.jcache.JCaching
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.concurrent.virtualthread.virtualThread
+import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.spyk
 import io.mockk.verify
 import org.junit.jupiter.api.Test
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import javax.cache.Cache
 import javax.cache.CacheManager
 import javax.cache.configuration.CacheEntryListenerConfiguration
 import javax.cache.configuration.Configuration
-import javax.cache.configuration.Factory
 import javax.cache.configuration.MutableConfiguration
-import javax.cache.event.CacheEntryEvent
 import javax.cache.event.CacheEntryCreatedListener
+import javax.cache.event.CacheEntryEvent
 import javax.cache.event.CacheEntryUpdatedListener
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class NearJCacheContractTest {
+
+    companion object: KLogging()
 
     @Test
     fun `명시적 close는 front cleanup failure를 호출자에게 전달한다`() {
@@ -46,7 +53,7 @@ class NearJCacheContractTest {
 
         val error = assertFailsWith<IllegalStateException> { nearCache.close() }
 
-        (error === failure).shouldBeTrue()
+        error shouldBe failure
         verify(exactly = 1) { frontCache.close() }
     }
 
@@ -144,7 +151,7 @@ class NearJCacheContractTest {
 
         val error = assertFailsWith<IllegalStateException> { nearCache.close() }
 
-        (error === listenerFailure).shouldBeTrue()
+        error shouldBe listenerFailure
         error.suppressed.single() shouldBeEqualTo frontFailure
         verify(exactly = 1) { frontCache.close() }
     }
@@ -197,6 +204,7 @@ class NearJCacheContractTest {
         val frontFailure = IllegalArgumentException("front close failed")
         val deregisterAttempts = AtomicInteger()
         val closeAttempts = AtomicInteger()
+
         every { backCache.registerCacheEntryListener(any()) } returns Unit
         every { backCache.deregisterCacheEntryListener(any()) } answers {
             if (deregisterAttempts.incrementAndGet() == 1) {
@@ -211,8 +219,10 @@ class NearJCacheContractTest {
         val nearCache = newNearCache(frontCache, backCache)
         nearCache.registerBackCacheListener()
 
-        val error = assertFailsWith<IllegalStateException> { nearCache.close() }
-        (error === listenerFailure).shouldBeTrue()
+        val error = assertFailsWith<IllegalStateException> {
+            nearCache.close()
+        }
+        error shouldBe listenerFailure
         error.suppressed.single() shouldBeEqualTo frontFailure
 
         nearCache.close()
@@ -252,15 +262,16 @@ class NearJCacheContractTest {
         every { frontCache.close() } throws cleanupFailure
 
         val nearConfig = NearJCacheConfig<String, String>(
-            cacheManagerFactory = Factory { frontCacheManager },
+            cacheManagerFactory = { frontCacheManager },
             cacheName = cacheName,
             isSynchronous = true,
         )
 
         val error = assertFailsWith<IllegalStateException> { NearJCache(nearConfig, backCache) }
 
-        (error === listenerFailure).shouldBeTrue()
+        error shouldBe listenerFailure
         error.suppressed.single() shouldBeEqualTo cleanupFailure
+
         verify(exactly = 1) { frontCache.close() }
     }
 
@@ -458,7 +469,7 @@ class NearJCacheContractTest {
             cache.getAll(keys) shouldBeEqualTo values
 
             verify(exactly = 2) { backCache.getAll(keys) }
-            frontCache.getAll(keys) shouldBeEqualTo emptyMap()
+            frontCache.getAll(keys).shouldBeEmpty()
         } finally {
             cache.close()
             backCache.close()
@@ -521,8 +532,8 @@ class NearJCacheContractTest {
             ),
         )
 
-        cache.getAll(emptySet()) shouldBeEqualTo emptyMap()
-        cache.getAll(keys) shouldBeEqualTo emptyMap()
+        cache.getAll(emptySet()).shouldBeEmpty()
+        cache.getAll(keys).shouldBeEmpty()
 
         verify(exactly = 1) { frontCache.getAll(keys) }
         verify(exactly = 1) { backCache.getAll(keys) }
@@ -563,12 +574,14 @@ class NearJCacheContractTest {
         val backCache = mockk<JCache<String, String>>(relaxed = true)
         val readStarted = CountDownLatch(1)
         val releaseRead = CountDownLatch(1)
+
         every { frontCache.get("key") } returns null
         every { backCache.get("key") } answers {
             readStarted.countDown()
-            releaseRead.await(2, TimeUnit.SECONDS)
+            releaseRead.await(2.seconds)
             "stale"
         }
+
         val nearCache = newNearCache(frontCache, backCache)
         val result = arrayOfNulls<String>(1)
         val reader = virtualThread(start = false, name = "near-jcache-stale-read") {
@@ -576,13 +589,14 @@ class NearJCacheContractTest {
         }
 
         reader.start()
-        readStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
+        readStarted.await(2.seconds).shouldBeTrue()
         nearCache.put("key", "fresh")
         releaseRead.countDown()
         reader.join(2_000)
 
         reader.isAlive.shouldBeFalse()
         result[0] shouldBeEqualTo "stale"
+
         verify(exactly = 1) { frontCache.put("key", "fresh") }
         verify(exactly = 0) { frontCache.put("key", "stale") }
     }
@@ -593,12 +607,14 @@ class NearJCacheContractTest {
         val backCache = mockk<JCache<String, String>>(relaxed = true)
         val readStarted = CountDownLatch(1)
         val releaseRead = CountDownLatch(1)
+
         every { frontCache.getAll(setOf("key")) } returns mutableMapOf()
         every { backCache.getAll(setOf("key")) } answers {
             readStarted.countDown()
-            releaseRead.await(2, TimeUnit.SECONDS)
+            releaseRead.await(2.seconds)
             mutableMapOf("key" to "stale")
         }
+
         val nearCache = newNearCache(
             frontCache,
             backCache,
@@ -614,7 +630,7 @@ class NearJCacheContractTest {
 
         try {
             reader.start()
-            readStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
+            readStarted.await(2.seconds).shouldBeTrue()
             nearCache.put("key", "fresh")
         } finally {
             releaseRead.countDown()
@@ -636,7 +652,7 @@ class NearJCacheContractTest {
         every { frontCache.get("key") } returns null
         every { backCache.get("key") } answers {
             readStarted.countDown()
-            releaseRead.await(2, TimeUnit.SECONDS)
+            releaseRead.await(2.seconds)
             "stale"
         }
         val nearCache = newNearCache(frontCache, backCache)
@@ -646,7 +662,7 @@ class NearJCacheContractTest {
         }
 
         reader.start()
-        readStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
+        readStarted.await(2.seconds).shouldBeTrue()
         nearCache.clear()
         releaseRead.countDown()
         reader.join(2_000)
@@ -665,7 +681,7 @@ class NearJCacheContractTest {
         every { frontCache.get("key") } returns null
         every { backCache.get("key") } answers {
             readStarted.countDown()
-            releaseRead.await(2, TimeUnit.SECONDS)
+            releaseRead.await(2.seconds)
             "stale"
         }
         every { backCache.registerCacheEntryListener(capture(listenerConfiguration)) } returns Unit
@@ -682,7 +698,7 @@ class NearJCacheContractTest {
         }
 
         reader.start()
-        readStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
+        readStarted.await(2.seconds).shouldBeTrue()
         listener.onUpdated(listOf(event))
         releaseRead.countDown()
         reader.join(2_000)
@@ -700,7 +716,7 @@ class NearJCacheContractTest {
         val releaseWrite = CountDownLatch(1)
         every { backCache.put("key", "value") } answers {
             writeStarted.countDown()
-            releaseWrite.await(2, TimeUnit.SECONDS)
+            releaseWrite.await(2.seconds)
         }
         val nearCache =
             NearJCache(
@@ -710,7 +726,7 @@ class NearJCacheContractTest {
                 clearAuthority = NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE,
             )
         nearCache.put("key", "value")
-        writeStarted.await(2, TimeUnit.SECONDS).shouldBeTrue()
+        writeStarted.await(2.seconds).shouldBeTrue()
 
         val clearFinished = CountDownLatch(1)
         val clearer = virtualThread(start = false, name = "near-jcache-clear-barrier") {
@@ -718,10 +734,10 @@ class NearJCacheContractTest {
             clearFinished.countDown()
         }
         clearer.start()
-        clearFinished.await(100, TimeUnit.MILLISECONDS).shouldBeFalse()
+        clearFinished.await(100.milliseconds).shouldBeFalse()
 
         releaseWrite.countDown()
-        clearFinished.await(2, TimeUnit.SECONDS).shouldBeTrue()
+        clearFinished.await(2.seconds).shouldBeTrue()
         verify(exactly = 1) { backCache.clear() }
     }
 
@@ -758,6 +774,7 @@ class NearJCacheContractTest {
         val backValues = mutableMapOf("secret-key" to "secret-value")
         val cacheName = "tenant-a\nsecret-cache"
         val attempts = AtomicInteger()
+
         every { frontCache.getAll(keys) } returns mutableMapOf()
         every { backCache.getAll(keys) } returns backValues
         every { frontCache.putAll(backValues) } answers {
@@ -779,6 +796,7 @@ class NearJCacheContractTest {
         val appender = ListAppender<ILoggingEvent>().apply { start() }
         logger.level = Level.WARN
         logger.addAppender(appender)
+
         try {
             nearCache.getAll(keys) shouldBeEqualTo backValues
             verify(exactly = 1) { frontCache.putAll(backValues) }
@@ -794,10 +812,10 @@ class NearJCacheContractTest {
             secondResult[0] shouldBeEqualTo backValues
             verify(exactly = 2) { frontCache.putAll(backValues) }
             val warning = appender.list.single { it.formattedMessage.contains("operation=getAll") }
-            warning.formattedMessage.contains(cacheName).shouldBeFalse()
-            warning.formattedMessage.contains("tenant-a").shouldBeFalse()
-            warning.formattedMessage.contains("secret-key").shouldBeFalse()
-            warning.formattedMessage.contains("secret-value").shouldBeFalse()
+            warning.formattedMessage shouldNotContain cacheName
+            warning.formattedMessage shouldNotContain "tenant-a"
+            warning.formattedMessage shouldNotContain "secret-key"
+            warning.formattedMessage shouldNotContain "secret-value"
             (warning.throwableProxy == null).shouldBeTrue()
         } finally {
             logger.detachAppender(appender)
@@ -887,9 +905,12 @@ class NearJCacheContractTest {
         val frontCache = mockk<JCache<String, String>>(relaxed = true)
         val backCache = mockk<JCache<String, String>>(relaxed = true)
         every { frontCache.clear() } throws IllegalStateException("front unavailable")
+
         val nearCache = newNearCache(frontCache, backCache)
 
-        assertFailsWith<IllegalStateException> { nearCache.clear() }
+        assertFailsWith<IllegalStateException> {
+            nearCache.clear()
+        }
 
         verify(exactly = 0) { backCache.clear() }
     }
@@ -910,8 +931,9 @@ class NearJCacheContractTest {
 
         val error = assertFailsWith<IllegalStateException> { nearCache.clear() }
 
-        (error === primaryFailure).shouldBeTrue()
+        error shouldBe primaryFailure
         error.suppressed.single() shouldBeEqualTo registrationFailure
+
         verify(exactly = 0) { backCache.clear() }
     }
 
@@ -929,7 +951,8 @@ class NearJCacheContractTest {
 
         val error = assertFailsWith<IllegalArgumentException> { nearCache.clear() }
 
-        (error === registrationFailure).shouldBeTrue()
+        error shouldBe registrationFailure
+
         verify(exactly = 1) { frontCache.clear() }
         verify(exactly = 1) { backCache.clear() }
     }
@@ -959,6 +982,7 @@ class NearJCacheContractTest {
         val frontCache = mockk<JCache<String, String>>(relaxed = true)
         val backCache = mockk<JCache<String, String>>(relaxed = true)
         val actualConfiguration = MutableConfiguration<String, String>().setStoreByValue(true)
+
         @Suppress("UNCHECKED_CAST")
         val configurationType = Configuration::class.java as Class<Configuration<String, String>>
         every { frontCache.getConfiguration(configurationType) } returns actualConfiguration

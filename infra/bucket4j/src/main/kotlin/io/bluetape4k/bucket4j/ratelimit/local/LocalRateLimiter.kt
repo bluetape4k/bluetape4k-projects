@@ -73,7 +73,7 @@ open class LocalRateLimiter(
      */
     override fun consume(key: String, numToken: Long): RateLimitResult {
         validateRateLimitRequest(key, numToken)
-        log.debug { "rate limit for key=$key, numToken=$numToken" }
+        log.debug { "consume for key=$key, numToken=$numToken" }
 
         return try {
             val bucketProxy = bucketProvider.resolveBucket(key)

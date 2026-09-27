@@ -5,11 +5,14 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.io.InputStream
 
 class BoundedInputStreamSupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `상한 이하에서는 전체 본문을 반환하고 stream을 닫지 않는다`() {

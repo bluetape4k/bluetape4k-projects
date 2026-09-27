@@ -12,9 +12,11 @@ import org.springframework.core.task.TaskDecorator
  *
  * executor 생성·종료와 Spring bean 등록은 이 decorator의 책임이 아닙니다.
  */
-class MdcTaskDecorator : TaskDecorator {
+class MdcTaskDecorator: TaskDecorator {
+
     override fun decorate(task: Runnable): Runnable {
         val callerContext = captureMdcContext()
+
         return Runnable {
             withMdcContext(callerContext) {
                 task.run()

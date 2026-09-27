@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.fail
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.junit5.concurrency.TestingExecutors
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.system.assumeNotWindows
@@ -28,6 +29,7 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class PipeTest: AbstractOkioTest() {
 
@@ -44,7 +46,7 @@ class PipeTest: AbstractOkioTest() {
     fun afterEach() {
         runCatching {
             executor.shutdown()
-            executor.awaitTermination(1, TimeUnit.SECONDS)
+            executor.awaitTermination(1.seconds)
         }
     }
 
@@ -104,7 +106,7 @@ class PipeTest: AbstractOkioTest() {
             val hashingSink = HashingSink.sha1(blackhole)
             val buffer = Buffer()
             while (pipe.source.read(buffer, Long.MAX_VALUE) != -1L) {
-                log.trace { "Read ${buffer.size} bytes" }  // pipe 가 1000L 이므로, 1000L 만큼 읽는다
+                log.trace { "Read ${buffer.size} bytes" }  // pipe 가 100L 이므로, 100L 만큼 읽는다
                 hashingSink.write(buffer, buffer.size)
                 blackhole.clear()
             }
@@ -121,7 +123,7 @@ class PipeTest: AbstractOkioTest() {
         assumeNotWindows()
 
         val pipe = Pipe(3)
-        pipe.sink.timeout().timeout(1000L, TimeUnit.MILLISECONDS)
+        pipe.sink.timeout().timeout(100L, TimeUnit.MILLISECONDS)
         pipe.sink.write(Buffer().writeUtf8("abc"), 3L)
 
         // Pipe 버퍼 크기가 3이고, sink timeout 이 1초라면,
@@ -135,7 +137,7 @@ class PipeTest: AbstractOkioTest() {
             log.warn(expected) { "timeout" }
         }
 
-        assertElapsed(1000.0, start)
+        assertElapsed(100.0, start)
 
         // 이미 타임아웃으로 `def` 쓰기는 실패했으므로 `abc`만 읽어온다
         val readBuffer = Buffer()
@@ -148,7 +150,7 @@ class PipeTest: AbstractOkioTest() {
         assumeNotWindows()
 
         val pipe = Pipe(3)
-        pipe.source.timeout().timeout(1000L, TimeUnit.MILLISECONDS)
+        pipe.source.timeout().timeout(100L, TimeUnit.MILLISECONDS)
 
         val start = now()
         val readBuffer = Buffer()
@@ -161,24 +163,23 @@ class PipeTest: AbstractOkioTest() {
             log.warn(expected) { "timeout" }
         }
 
-        assertElapsed(1000.0, start)
+        assertElapsed(100.0, start)
         readBuffer.size shouldBeEqualTo 0L
     }
 
     /**
      * writer는 12바이트를 3바이트 buffer에 가능한 한 빠르게 씁니다. reader는 번갈아
-     * sleeping 1000 ms, then reading 3 bytes. That should make for an approximate timeline like
+     * sleeping 100 ms, then reading 3 bytes. That should make for an approximate timeline like
      * this:
-     *
      * ```
-     *    0: writer writes 'abc', blocks 0: reader sleeps until 1000
-     * 1000: reader reads 'abc', sleeps until 2000
-     * 1000: writer writes 'def', blocks
-     * 2000: reader reads 'def', sleeps until 3000
-     * 2000: writer writes 'ghi', blocks
-     * 3000: reader reads 'ghi', sleeps until 4000
-     * 3000: writer가 'jkl'을 쓰고 반환합니다
-     * 4000: reader가 'jkl'을 읽고 반환합니다
+     *   0: writer writes 'abc', blocks 0: reader sleeps until 100
+     * 100: reader reads 'abc', sleeps until 200
+     * 100: writer writes 'def', blocks
+     * 200: reader reads 'def', sleeps until 300
+     * 200: writer writes 'ghi', blocks
+     * 300: reader reads 'ghi', sleeps until 400
+     * 300: writer가 'jkl'을 쓰고 반환합니다
+     * 400: reader가 'jkl'을 읽고 반환합니다
      * ```
      *
      *
@@ -189,26 +190,26 @@ class PipeTest: AbstractOkioTest() {
         val pipe = Pipe(3L)
         executor.execute {
             val buffer = Buffer()
-            Thread.sleep(1000L)
+            Thread.sleep(100L)
             pipe.source.read(buffer, Long.MAX_VALUE) shouldBeEqualTo 3L
             buffer.readUtf8() shouldBeEqualTo "abc"
 
-            Thread.sleep(1000L)
+            Thread.sleep(100L)
             pipe.source.read(buffer, Long.MAX_VALUE) shouldBeEqualTo 3L
             buffer.readUtf8() shouldBeEqualTo "def"
 
-            Thread.sleep(1000L)
+            Thread.sleep(100L)
             pipe.source.read(buffer, Long.MAX_VALUE) shouldBeEqualTo 3L
             buffer.readUtf8() shouldBeEqualTo "ghi"
 
-            Thread.sleep(1000L)
+            Thread.sleep(100L)
             pipe.source.read(buffer, Long.MAX_VALUE) shouldBeEqualTo 3L
             buffer.readUtf8() shouldBeEqualTo "jkl"
         }
 
         val start = now()
         pipe.sink.write(bufferOf("abcdefghijkl"), 12L)
-        assertElapsed(3000.0, start)
+        assertElapsed(300.0, start)
     }
 
     @Test
@@ -218,14 +219,14 @@ class PipeTest: AbstractOkioTest() {
             {
                 pipe.source.close()
             },
-            1000L,
+            100L,
             TimeUnit.MILLISECONDS
         )
         val start = now()
         assertFailsWith<IOException> {
             pipe.sink.write(bufferOf("abcdef"), 6)
         }.message shouldBeEqualTo "source is closed"
-        assertElapsed(1000.0, start)
+        assertElapsed(100.0, start)
     }
 
     @Test
@@ -299,32 +300,31 @@ class PipeTest: AbstractOkioTest() {
             {
                 pipe.sink.close()
             },
-            1000L,
+            100L,
             TimeUnit.MILLISECONDS
         )
         val start = now()
         val readBuffer = Buffer()
         pipe.source.read(readBuffer, Long.MAX_VALUE) shouldBeEqualTo -1L
         readBuffer.size shouldBeEqualTo 0L
-        assertElapsed(1000.0, start)
+        assertElapsed(100.0, start)
     }
 
-
     /**
-     * writer는 12바이트를 써야 합니다. 1000 ms sleep 후 3바이트 쓰기를 반복합니다.
+     * writer는 12바이트를 써야 합니다. 100 ms sleep 후 3바이트 쓰기를 반복합니다.
      * reader is reading as fast as it can. That should make for an approximate timeline like this:
      *
      * ```
-     *    0: writer sleeps until 1000
-     *    0: reader blocks
-     * 1000: writer writes 'abc', sleeps until 2000
-     * 1000: reader reads 'abc'
-     * 2000: writer writes 'def', sleeps until 3000
-     * 2000: reader reads 'def'
-     * 3000: writer writes 'ghi', sleeps until 4000
-     * 3000: reader reads 'ghi'
-     * 4000: writer가 'jkl'을 쓰고 반환합니다
-     * 4000: reader가 'jkl'을 읽고 반환합니다
+     *   0: writer sleeps until 100
+     *   0: reader blocks
+     * 100: writer writes 'abc', sleeps until 200
+     * 100: reader reads 'abc'
+     * 200: writer writes 'def', sleeps until 300
+     * 200: reader reads 'def'
+     * 300: writer writes 'ghi', sleeps until 400
+     * 300: reader reads 'ghi'
+     * 400: writer가 'jkl'을 쓰고 반환합니다
+     * 400: reader가 'jkl'을 읽고 반환합니다
      * ```
      */
     @Test
@@ -332,19 +332,19 @@ class PipeTest: AbstractOkioTest() {
         val pipe = Pipe(100L)
 
         executor.execute {
-            Thread.sleep(1000L)
+            Thread.sleep(100L)
             log.debug { "Write abc" }
             pipe.sink.write(bufferOf("abc"), 3L)
 
-            Thread.sleep(1000L)
+            Thread.sleep(100L)
             log.debug { "Write def" }
             pipe.sink.write(bufferOf("def"), 3L)
 
-            Thread.sleep(1000L)
+            Thread.sleep(100L)
             log.debug { "Write ghi" }
             pipe.sink.write(bufferOf("ghi"), 3L)
 
-            Thread.sleep(1000L)
+            Thread.sleep(100L)
             log.debug { "Write jkl" }
             pipe.sink.write(bufferOf("jkl"), 3L)
         }
@@ -355,39 +355,39 @@ class PipeTest: AbstractOkioTest() {
         pipe.source.read(readBuffer, Long.MAX_VALUE) shouldBeEqualTo 3L
         readBuffer.readUtf8() shouldBeEqualTo "abc"
         log.debug { "Read abc" }
-        assertElapsed(1000.0, start)
+        assertElapsed(100.0, start)
 
         pipe.source.read(readBuffer, Long.MAX_VALUE) shouldBeEqualTo 3L
         readBuffer.readUtf8() shouldBeEqualTo "def"
         log.debug { "Read def" }
-        assertElapsed(2000.0, start)
+        assertElapsed(200.0, start)
 
         pipe.source.read(readBuffer, Long.MAX_VALUE) shouldBeEqualTo 3L
         readBuffer.readUtf8() shouldBeEqualTo "ghi"
         log.debug { "Read ghi" }
-        assertElapsed(3000.0, start)
+        assertElapsed(300.0, start)
 
         pipe.source.read(readBuffer, Long.MAX_VALUE) shouldBeEqualTo 3L
         readBuffer.readUtf8() shouldBeEqualTo "jkl"
         log.debug { "Read jkl" }
-        assertElapsed(4000.0, start)
+        assertElapsed(400.0, start)
     }
 
     /**
-     * writer는 12바이트를 써야 합니다. 1000 ms sleep 후 3바이트 쓰기를 반복합니다.
+     * writer는 12바이트를 써야 합니다. 100 ms sleep 후 3바이트 쓰기를 반복합니다.
      * reader is reading as fast as it can. That should make for an approximate timeline like this:
      *
      * ```
-     *    0: writer sleeps until 1000
-     *    0: reader blocks
-     * 1000: writer writes 'abc', sleeps until 2000
-     * 1000: reader reads 'abc'
-     * 2000: writer writes 'def', sleeps until 3000
-     * 2000: reader reads 'def'
-     * 3000: writer writes 'ghi', sleeps until 4000
-     * 3000: reader reads 'ghi'
-     * 4000: writer가 'jkl'을 쓰고 반환합니다
-     * 4000: reader가 'jkl'을 읽고 반환합니다
+     *   0: writer sleeps until 100
+     *   0: reader blocks
+     * 100: writer writes 'abc', sleeps until 200
+     * 100: reader reads 'abc'
+     * 200: writer writes 'def', sleeps until 300
+     * 200: reader reads 'def'
+     * 300: writer writes 'ghi', sleeps until 400
+     * 300: reader reads 'ghi'
+     * 400: writer가 'jkl'을 쓰고 반환합니다
+     * 400: reader가 'jkl'을 읽고 반환합니다
      * ```
      */
     @Test
@@ -395,19 +395,19 @@ class PipeTest: AbstractOkioTest() {
         val pipe = Pipe(100L)
 
         val job = launch {
-            delay(1000L.milliseconds)
+            delay(100L.milliseconds)
             log.debug { "Write abc" }
             pipe.sink.write(bufferOf("abc"), 3L)
 
-            delay(1000L.milliseconds)
+            delay(100L.milliseconds)
             log.debug { "Write def" }
             pipe.sink.write(bufferOf("def"), 3L)
 
-            delay(1000L.milliseconds)
+            delay(100L.milliseconds)
             log.debug { "Write ghi" }
             pipe.sink.write(bufferOf("ghi"), 3L)
 
-            delay(1000L.milliseconds)
+            delay(100L.milliseconds)
             log.debug { "Write jkl" }
             pipe.sink.write(bufferOf("jkl"), 3L)
         }
@@ -419,22 +419,22 @@ class PipeTest: AbstractOkioTest() {
         pipe.source.read(readBuffer, Long.MAX_VALUE) shouldBeEqualTo 3L
         readBuffer.readUtf8() shouldBeEqualTo "abc"
         log.debug { "Read abc" }
-        assertElapsed(1000.0, start)
+        assertElapsed(100.0, start)
 
         pipe.source.read(readBuffer, Long.MAX_VALUE) shouldBeEqualTo 3L
         readBuffer.readUtf8() shouldBeEqualTo "def"
         log.debug { "Read def" }
-        assertElapsed(2000.0, start)
+        assertElapsed(200.0, start)
 
         pipe.source.read(readBuffer, Long.MAX_VALUE) shouldBeEqualTo 3L
         readBuffer.readUtf8() shouldBeEqualTo "ghi"
         log.debug { "Read ghi" }
-        assertElapsed(3000.0, start)
+        assertElapsed(300.0, start)
 
         pipe.source.read(readBuffer, Long.MAX_VALUE) shouldBeEqualTo 3L
         readBuffer.readUtf8() shouldBeEqualTo "jkl"
         log.debug { "Read jkl" }
-        assertElapsed(4000.0, start)
+        assertElapsed(400.0, start)
 
         job.join() // Wait for the job to complete
     }

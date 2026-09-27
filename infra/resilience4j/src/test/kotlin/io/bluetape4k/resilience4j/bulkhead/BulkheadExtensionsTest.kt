@@ -2,6 +2,7 @@ package io.bluetape4k.resilience4j.bulkhead
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.bulkhead.Bulkhead
@@ -60,7 +61,9 @@ class BulkheadExtensionsTest {
         }
 
         assertFailsWith<BulkheadFullException> {
-            withBulkhead(bulkhead) { error("should not run") }
+            withBulkhead(bulkhead) {
+                error("should not run")
+            }
         }
     }
 
@@ -72,6 +75,7 @@ class BulkheadExtensionsTest {
         }
 
         decorated("world") shouldBeEqualTo "Hello, world!"
+        decorated("debop") shouldBeEqualTo "Hello, debop!"
     }
 
     @Test
@@ -82,6 +86,7 @@ class BulkheadExtensionsTest {
         }
 
         decorated(20, 22) shouldBeEqualTo 42
+        decorated(13, 33) shouldBeEqualTo 46
     }
 
     @Test
@@ -94,7 +99,7 @@ class BulkheadExtensionsTest {
 
     @Test
     fun `runnable - bulkhead 초과 시 BulkheadFullException 발생한다`() {
-        val bulkhead = Bulkhead.of("test-zero-runnable-${System.nanoTime()}") {
+        val bulkhead = Bulkhead.of("test-zero-runnable-${Base58.randomString(6)}") {
             BulkheadConfig.custom()
                 .maxConcurrentCalls(0)
                 .maxWaitDuration(Duration.ZERO)
@@ -109,28 +114,36 @@ class BulkheadExtensionsTest {
     fun `checkedRunnable - 성공 시 실행된다`() {
         val bulkhead = defaultBulkhead()
         var executed = false
+
         bulkhead.checkedRunnable { executed = true }.run()
+
         executed shouldBeEqualTo true
     }
 
     @Test
     fun `callable - 결과를 반환한다`() {
         val bulkhead = defaultBulkhead()
+
         val result = bulkhead.callable { 42 }.invoke()
+
         result shouldBeEqualTo 42
     }
 
     @Test
     fun `supplier - 결과를 반환한다`() {
         val bulkhead = defaultBulkhead()
+
         val result = bulkhead.supplier { "hello" }.invoke()
+
         result shouldBeEqualTo "hello"
     }
 
     @Test
     fun `checkedSupplier - 결과를 반환한다`() {
         val bulkhead = defaultBulkhead()
+
         val result = bulkhead.checkedSupplier { 42 }.invoke()
+
         result shouldBeEqualTo 42
     }
 
@@ -138,7 +151,9 @@ class BulkheadExtensionsTest {
     fun `consumer - 입력을 처리한다`() {
         val bulkhead = defaultBulkhead()
         var received: String? = null
+
         bulkhead.consumer<String> { received = it }.invoke("hello")
+
         received shouldBeEqualTo "hello"
     }
 

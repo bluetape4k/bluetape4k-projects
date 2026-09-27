@@ -31,10 +31,8 @@ operator fun PropertyResolver.get(key: String): String? = getProperty(key)
  * // value == "myDefault"
  * ```
  */
-operator fun PropertyResolver.get(
-    key: String,
-    defaultValue: String,
-): String = getProperty(key, defaultValue)
+operator fun PropertyResolver.get(key: String, defaultValue: String): String =
+    getProperty(key, defaultValue)
 
 /**
  * 지정한 키의 속성 값을 [targetType]으로 조회합니다.
@@ -48,10 +46,8 @@ operator fun PropertyResolver.get(
  * // num == 5
  * ```
  */
-operator fun <T: Any> PropertyResolver.get(
-    key: String,
-    targetType: KClass<T>,
-): T? = getProperty(key, targetType.java)
+operator fun <T: Any> PropertyResolver.get(key: String, targetType: KClass<T>): T? =
+    getProperty(key, targetType.java)
 
 /**
  * 지정한 키의 속성 값을 reified 타입으로 조회합니다.
@@ -97,10 +93,8 @@ operator fun <T: Any> PropertyResolver.get(
  * // enabled == true
  * ```
  */
-inline fun <reified T: Any> PropertyResolver.getAs(
-    key: String,
-    defaultValue: T,
-): T = getProperty<T>(key, defaultValue)
+inline fun <reified T: Any> PropertyResolver.getAs(key: String, defaultValue: T): T =
+    getProperty<T>(key, defaultValue)
 
 /**
  * 지정한 키의 속성 값을 [targetType]으로 필수 조회합니다.
@@ -115,10 +109,8 @@ inline fun <reified T: Any> PropertyResolver.getAs(
  * ```
  */
 @Throws(IllegalStateException::class)
-fun <T: Any> PropertyResolver.getRequiredProperty(
-    key: String,
-    targetType: KClass<T>,
-): T = getRequiredProperty(key, targetType.java)
+fun <T: Any> PropertyResolver.getRequiredProperty(key: String, targetType: KClass<T>): T =
+    getRequiredProperty(key, targetType.java)
 
 /**
  * 지정한 키의 속성 값을 reified 타입으로 필수 조회합니다.
@@ -132,4 +124,5 @@ fun <T: Any> PropertyResolver.getRequiredProperty(
  * // required == "required.value"
  * ```
  */
-inline fun <reified T: Any> PropertyResolver.getRequiredPropertyAs(key: String): T = getRequiredProperty<T>(key)
+inline fun <reified T: Any> PropertyResolver.getRequiredPropertyAs(key: String): T =
+    getRequiredProperty<T>(key)

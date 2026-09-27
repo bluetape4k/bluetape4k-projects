@@ -2,7 +2,9 @@ package io.bluetape4k.http.vertx
 
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldNotBeSameInstanceAs
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.http.AbstractHttpTest
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.vertx.asCompletableFuture
 import io.bluetape4k.vertx.closeDefaultVertx
 import io.mockk.clearMocks
@@ -15,9 +17,11 @@ import io.vertx.core.http.HttpClientOptions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class VertxHttpClientSupportTest: AbstractHttpTest() {
+
+    companion object: KLogging()
 
     private val vertx = mockk<Vertx>()
     private val client = mockk<HttpClientAgent>()
@@ -29,8 +33,8 @@ class VertxHttpClientSupportTest: AbstractHttpTest() {
 
     @AfterEach
     fun closeManagedResources() {
-        closeDefaultVertxHttpClient().asCompletableFuture().get(5, TimeUnit.SECONDS)
-        closeDefaultVertx().asCompletableFuture().get(5, TimeUnit.SECONDS)
+        closeDefaultVertxHttpClient().asCompletableFuture().get(5.seconds)
+        closeDefaultVertx().asCompletableFuture().get(5.seconds)
     }
 
     @Test
@@ -51,7 +55,7 @@ class VertxHttpClientSupportTest: AbstractHttpTest() {
 
         second shouldBeSameInstanceAs first
 
-        closeDefaultVertxHttpClient().asCompletableFuture().get(5, TimeUnit.SECONDS)
+        closeDefaultVertxHttpClient().asCompletableFuture().get(5.seconds)
 
         val recreated = defaultVertxHttpClient
         recreated shouldNotBeSameInstanceAs first

@@ -4,7 +4,7 @@ import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationMX
 
 /**
  * 기존 consumer가 컴파일한 configuration MXBean 구현체를 흉내 내는 fixture입니다.
- *
+ * <p>
  * 새 getter를 구현하지 않아도 Kotlin JVM default method가 기본 토큰을 제공해야 합니다.
  */
 public final class LegacyNearJCacheConfigurationMXBean implements NearJCacheConfigurationMXBean {

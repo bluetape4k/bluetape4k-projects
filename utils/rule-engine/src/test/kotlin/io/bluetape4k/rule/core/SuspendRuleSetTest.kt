@@ -1,14 +1,14 @@
 package io.bluetape4k.rule.core
 
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.SuspendCondition
 import io.bluetape4k.rule.api.SuspendRule
 import io.bluetape4k.rule.api.SuspendRuleSet
 import io.bluetape4k.rule.api.suspendRuleSetOf
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class SuspendRuleSetTest {
@@ -21,8 +21,7 @@ class SuspendRuleSetTest {
     @Test
     fun `빈 SuspendRuleSet 생성`() {
         val ruleSet = SuspendRuleSet()
-        ruleSet.isEmpty().shouldBeTrue()
-        ruleSet.size shouldBeEqualTo 0
+        ruleSet.shouldBeEmpty()
     }
 
     @Test
@@ -30,15 +29,14 @@ class SuspendRuleSetTest {
         val rule1 = makeRule("a")
         val rule2 = makeRule("b")
         val ruleSet = suspendRuleSetOf(rule1, rule2)
-        ruleSet.size shouldBeEqualTo 2
-        ruleSet.isNotEmpty().shouldBeTrue()
+        ruleSet shouldHaveSize 2
     }
 
     @Test
     fun `suspendRuleSetOf Collection으로 생성`() {
         val rules = listOf(makeRule("a"), makeRule("b"))
         val ruleSet = suspendRuleSetOf(rules)
-        ruleSet.size shouldBeEqualTo 2
+        ruleSet shouldHaveSize 2
     }
 
     @Test
@@ -46,7 +44,7 @@ class SuspendRuleSetTest {
         val ruleSet = SuspendRuleSet()
         val rule = makeRule("test")
         ruleSet.register(rule)
-        ruleSet.size shouldBeEqualTo 1
+        ruleSet shouldHaveSize 1
     }
 
     @Test
@@ -55,14 +53,14 @@ class SuspendRuleSetTest {
         val rule2 = makeRule("b")
         val ruleSet = suspendRuleSetOf(rule1, rule2)
         ruleSet.unregister(rule1)
-        ruleSet.size shouldBeEqualTo 1
+        ruleSet shouldHaveSize 1
     }
 
     @Test
     fun `clear removes all rules`() {
         val ruleSet = suspendRuleSetOf(makeRule("a"), makeRule("b"))
         ruleSet.clear()
-        ruleSet.isEmpty().shouldBeTrue()
+        ruleSet.shouldBeEmpty()
     }
 
     @Test
@@ -82,7 +80,7 @@ class SuspendRuleSetTest {
         val rule = makeRule("asyncRule")
         val ruleSet = suspendRuleSetOf(rule)
         val str = ruleSet.toString()
-        str.contains("asyncRule").shouldBeTrue()
+        str shouldContain "asyncRule"
     }
 
     @Test
@@ -93,6 +91,6 @@ class SuspendRuleSetTest {
         for (rule in ruleSet) {
             collected.add(rule)
         }
-        collected.size shouldBeEqualTo 2
+        collected shouldHaveSize 2
     }
 }

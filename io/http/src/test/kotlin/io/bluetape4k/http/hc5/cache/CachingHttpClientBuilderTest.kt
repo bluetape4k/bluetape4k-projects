@@ -1,10 +1,10 @@
 package io.bluetape4k.http.hc5.cache
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient
 import org.junit.jupiter.api.Test
@@ -71,7 +71,11 @@ class CachingHttpClientBuilderTest: AbstractHc5Test() {
 
     @Test
     fun `fileCachingHttpClientOf 파라미터 커스텀 생성`(@TempDir tempDir: File) {
-        val client: CloseableHttpClient = fileCachingHttpClientOf(tempDir, maxCacheMb = 50L, maxObjectSizeBytes = 512 * 1024L)
+        val client: CloseableHttpClient = fileCachingHttpClientOf(
+            cacheDir = tempDir,
+            maxCacheMb = 50L,
+            maxObjectSizeBytes = 512 * 1024L
+        )
         client.shouldNotBeNull()
         client.close()
     }

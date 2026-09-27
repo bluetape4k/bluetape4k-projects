@@ -1,6 +1,7 @@
 package io.bluetape4k.redis.lettuce.map
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeLessThan
@@ -25,6 +26,8 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class LettuceSuspendedLoadedMapTest: AbstractLettuceTest() {
 
@@ -137,10 +140,10 @@ class LettuceSuspendedLoadedMapTest: AbstractLettuceTest() {
             override suspend fun delete(keys: Collection<String>) {}
         }
 
-        LettuceSuspendedLoadedMap<String, String>(client = client, writer = failingWriter, config = config).use { map ->
+        LettuceSuspendedLoadedMap(client = client, writer = failingWriter, config = config).use { map ->
             map.set("deadkey", "deadvalue")
             // Allow 3 retry cycles: each cycle ≈ writeBehindDelay (20ms) → ~60ms minimum
-            delay(400L)
+            delay(400.milliseconds)
         }
 
         // Verify dead-letter list contains the key
@@ -167,13 +170,13 @@ class LettuceSuspendedLoadedMapTest: AbstractLettuceTest() {
         val slowWriter = object: SuspendedMapWriter<String, String> {
             override suspend fun write(map: Map<String, String>) {
                 writerStarted.complete(Unit)
-                delay(5_000L)
+                delay(5.seconds)
             }
 
             override suspend fun delete(keys: Collection<String>) {}
         }
 
-        val map = LettuceSuspendedLoadedMap<String, String>(
+        val map = LettuceSuspendedLoadedMap(
             client = client,
             writer = slowWriter,
             config = config,
@@ -184,7 +187,7 @@ class LettuceSuspendedLoadedMapTest: AbstractLettuceTest() {
 
         val elapsedMillis = measureTimeMillis {
             assertFailsWith<TimeoutCancellationException> {
-                withTimeout(150L) {
+                withTimeout(150.milliseconds) {
                     map.suspendClose()
                 }
             }
@@ -273,7 +276,7 @@ class LettuceSuspendedLoadedMapTest: AbstractLettuceTest() {
             map.evictAll(emptyList())
             map.get("k1").shouldBeNull()
             map.get("k2") shouldBeEqualTo "v2"
-            deleted shouldBeEqualTo emptyList<String>()
+            deleted.shouldBeEmpty()
         }
     }
 

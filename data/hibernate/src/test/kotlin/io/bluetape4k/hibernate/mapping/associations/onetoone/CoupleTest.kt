@@ -1,6 +1,7 @@
 package io.bluetape4k.hibernate.mapping.associations.onetoone
 
 import io.bluetape4k.ToStringBuilder
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.hibernate.findAs
 import io.bluetape4k.hibernate.model.IntJpaEntity
@@ -13,7 +14,6 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToOne
 import jakarta.validation.constraints.NotBlank
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jpa.repository.JpaRepository

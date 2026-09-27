@@ -16,6 +16,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.junit.jupiter.api.Test
+import java.util.concurrent.ConcurrentLinkedQueue
 
 class ChunkedTest: AbstractFlowTest() {
 
@@ -88,9 +89,10 @@ class ChunkedTest: AbstractFlowTest() {
     @Test
     fun `chunked with mutable shared flow`() = runTest {
         val flow = MutableSharedFlow<Int>(extraBufferCapacity = 64)
-        val results = mutableListOf<List<Int>>()
+        val results = ConcurrentLinkedQueue<List<Int>>()
 
-        flow.chunked(3)
+        flow
+            .chunked(3)
             .onEach {
                 results += it
                 if (it == listOf(1, 2, 3)) {
@@ -98,7 +100,9 @@ class ChunkedTest: AbstractFlowTest() {
                     flow.tryEmit(5)
                     flow.tryEmit(6)
                 }
-            }.launchIn(this)
+            }
+            .launchIn(this)
+
         yield()
 
         launch {
@@ -111,6 +115,6 @@ class ChunkedTest: AbstractFlowTest() {
         advanceUntilIdle()
         this.coroutineContext.cancelChildren()
 
-        results shouldBeEqualTo listOf(listOf(1, 2, 3), listOf(4, 5, 6))
+        results.toList() shouldBeEqualTo listOf(listOf(1, 2, 3), listOf(4, 5, 6))
     }
 }

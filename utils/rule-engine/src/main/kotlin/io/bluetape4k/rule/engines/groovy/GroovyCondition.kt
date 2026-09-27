@@ -35,7 +35,7 @@ class GroovyCondition(val expression: String): Condition {
         expression.requireNotBlank("expression")
     }
 
-    private val parsedScript by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+    private val parsedScript by lazy {
         GroovyShell(compilerConfig).parse(expression)
     }
 
@@ -45,9 +45,8 @@ class GroovyCondition(val expression: String): Condition {
             parsedScript.binding = binding
             parsedScript.run() as Boolean
         } catch (e: Exception) {
-            log.warn {
-                "Fail to evaluate Groovy expression. ${expression.toRuleSourceLogContext()}, " +
-                        "exceptionType=${e.javaClass.name}, factCount=${facts.size}"
+            log.warn(e) {
+                "Fail to evaluate Groovy expression. ${expression.toRuleSourceLogContext()}, factCount=${facts.size}"
             }
             false
         }

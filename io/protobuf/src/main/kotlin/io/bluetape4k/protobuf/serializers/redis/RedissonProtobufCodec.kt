@@ -114,7 +114,7 @@ class RedissonProtobufCodec private constructor(
                 val trustedFallback = fallbackCodec
                     ?: throw IllegalArgumentException(
                         "Strict Protobuf codec can encode only Protobuf messages. " +
-                            "Use RedissonProtobufCodec.trustedInternal() for trusted fallback payloads."
+                                "Use RedissonProtobufCodec.trustedInternal() for trusted fallback payloads."
                     )
                 log.debug {
                     "Encoding: Protobuf Message가 아닙니다. fallbackCodec[$fallbackCodec] 사용. graph class=${graph.javaClass}"

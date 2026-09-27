@@ -1,7 +1,8 @@
 package io.bluetape4k.math.ml.clustering
 
-import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.math.model.Gender
 import io.bluetape4k.math.model.Patient
 import org.junit.jupiter.api.Test
@@ -39,10 +40,10 @@ class ClusteringTest {
         clusters.forEachIndexed { index, centroid ->
             println("CENTROID:$index")
             centroid.points.forEach {
-                println("\t$it")
+                log.debug { "point=$it" }
             }
         }
-        clusters.size shouldBeEqualTo 3
+        clusters shouldHaveSize 3
     }
 
     @Test
@@ -57,10 +58,10 @@ class ClusteringTest {
         clusters.forEachIndexed { index, centroid ->
             println("CENTROID:$index")
             centroid.points.forEach {
-                println("\t$it")
+                log.debug { "point=$it" }
             }
         }
-        clusters.size shouldBeEqualTo 3
+        clusters shouldHaveSize 3
     }
 
     @Test
@@ -76,10 +77,10 @@ class ClusteringTest {
         clusters.forEachIndexed { index, centroid ->
             println("CENTROID:$index")
             centroid.points.forEach {
-                println("\t$it")
+                log.debug { "point=$it" }
             }
         }
-        clusters.size shouldBeEqualTo 3
+        clusters shouldHaveSize 3
     }
 
     @Test
@@ -94,9 +95,9 @@ class ClusteringTest {
         clusters.forEachIndexed { index, centroid ->
             println("CENTROID:$index")
             centroid.points.forEach {
-                println("\t$it")
+                log.debug { "point=$it" }
             }
         }
-        clusters.size shouldBeEqualTo 4
+        clusters shouldHaveSize 4
     }
 }

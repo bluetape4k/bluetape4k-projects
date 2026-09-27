@@ -5,6 +5,7 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -50,7 +51,7 @@ internal fun <T> onBackpressureDropInternal(source: Flow<T>): Flow<T> = flow {
         }
 
         while (true) {
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
             state.consumerReady.value = true
             producerReady.await()
 

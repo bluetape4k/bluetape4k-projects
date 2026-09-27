@@ -104,6 +104,7 @@ internal class BindSpecImpl<T: Any>(
 
     override fun fetch(): RowsFetchSpec<T> {
         log.debug { "sql=$sql, named params=$namedParameters" }
+
         return client.databaseClient
             .sql(sql)
             .bindMap(namedParameters)
@@ -126,6 +127,5 @@ inline fun <reified T: Any> R2dbcClient.execute(
         }
 }
 
-inline fun <reified T: Any> R2dbcClient.execute(query: Query): RowsFetchSpec<T> {
-    return execute<T>(query.sql, query.parameters)
-}
+inline fun <reified T: Any> R2dbcClient.execute(query: Query): RowsFetchSpec<T> =
+    execute<T>(query.sql, query.parameters)

@@ -1,17 +1,16 @@
 package io.bluetape4k.http.hc5.entity
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.core5.http.ContentType
 import org.apache.hc.core5.http.io.entity.StringEntity
 import org.junit.jupiter.api.Test
 
 class HttpEntitySupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `consumeQuietly on non-null entity does not throw`() {

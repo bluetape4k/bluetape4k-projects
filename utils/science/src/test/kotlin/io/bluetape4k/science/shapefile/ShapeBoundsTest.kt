@@ -2,33 +2,39 @@ package io.bluetape4k.science.shapefile
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.science.coords.BoundingBox
+import org.junit.jupiter.api.Test
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
-import org.junit.jupiter.api.Test
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
 
 class ShapeBoundsTest {
+
+    companion object: KLogging()
 
     @Test
     fun `투영좌표와 영면적 경계를 허용하고 직렬화로 보존한다`() {
         val bounds = ShapeBounds(minX = -1000000.0, minY = 4000000.0, maxX = 15000000.0, maxY = 4000000.0)
         bounds.copy() shouldBeEqualTo bounds
-        val bytes = ByteArrayOutputStream().use { output ->
-            ObjectOutputStream(output).use { it.writeObject(bounds) }
-            output.toByteArray()
-        }
-        ObjectInputStream(ByteArrayInputStream(bytes)).use { it.readObject() } shouldBeEqualTo bounds
+
+        val bytes = BinarySerializers.FastFory.serialize(bounds)
+        val restored = BinarySerializers.FastFory.deserialize<ShapeBounds>(bytes)
+        restored shouldBeEqualTo bounds
     }
 
     @Test
     fun `생성자와 copy는 유한하지 않은 축 값을 거부한다`() {
         val bounds = ShapeBounds(minX = 0.0, minY = 0.0, maxX = 1.0, maxY = 1.0)
         for (invalid in listOf(Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY)) {
-            assertFailsWith<IllegalArgumentException> { ShapeBounds(minX = invalid, minY = 0.0, maxX = 1.0, maxY = 1.0) }
+            assertFailsWith<IllegalArgumentException> {
+                ShapeBounds(
+                    minX = invalid,
+                    minY = 0.0,
+                    maxX = 1.0,
+                    maxY = 1.0
+                )
+            }
             assertFailsWith<IllegalArgumentException> { bounds.copy(minX = invalid) }
             assertFailsWith<IllegalArgumentException> { bounds.copy(minY = invalid) }
             assertFailsWith<IllegalArgumentException> { bounds.copy(maxX = invalid) }
@@ -48,8 +54,10 @@ class ShapeBoundsTest {
         val shape = shapeOf(Coordinate(14000000.0, 4000000.0), Coordinate(13000000.0, 5000000.0))
         shape.computeBoundingBox() shouldBeEqualTo
                 ShapeBounds(minX = 13000000.0, minY = 4000000.0, maxX = 14000000.0, maxY = 5000000.0)
+
         val boundary = ShapeBounds(minX = 14000000.0, minY = 4000000.0, maxX = 14000000.0, maxY = 4000000.0)
         shape.filterByBoundingBox(boundary).records.map { it.recordNumber } shouldBeEqualTo listOf(0)
+
         val outside = ShapeBounds(minX = 15000000.0, minY = 6000000.0, maxX = 16000000.0, maxY = 7000000.0)
         shape.filterByBoundingBox(outside).size shouldBeEqualTo 0
     }
@@ -75,12 +83,16 @@ class ShapeBoundsTest {
                 ShapeRecord(
                     recordNumber = index,
                     shapeType = 1,
-                    bbox = ShapeBounds(minX = coordinate.x, minY = coordinate.y, maxX = coordinate.x, maxY = coordinate.y),
+                    bbox = ShapeBounds(
+                        minX = coordinate.x,
+                        minY = coordinate.y,
+                        maxX = coordinate.x,
+                        maxY = coordinate.y
+                    ),
                     geometry = factory.createPoint(coordinate),
                 )
             },
             attributes = emptyList(),
         )
     }
-
 }

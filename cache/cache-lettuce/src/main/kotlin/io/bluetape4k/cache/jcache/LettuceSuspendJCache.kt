@@ -2,19 +2,18 @@ package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireNotBlank
-import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import javax.cache.configuration.CacheEntryListenerConfiguration
 import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableConfiguration
 import javax.cache.event.CacheEntryListener
 
-@OptIn(ExperimentalLettuceCoroutinesApi::class)
 /**
  * Lettuce Redis hash를 기반으로 동작하는 [SuspendJCache] 구현체입니다.
  *
@@ -60,6 +59,7 @@ class LettuceSuspendJCache<V: Any>(private val cache: LettuceJCache<String, V>):
                 cacheName,
                 configuration
             ) as LettuceJCache<String, V>
+
             return LettuceSuspendJCache(jcache)
         }
     }
@@ -70,7 +70,7 @@ class LettuceSuspendJCache<V: Any>(private val cache: LettuceJCache<String, V>):
         cache.asSequence().forEach {
             emit(SuspendJCacheEntry(it.key, it.value))
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun clear() {
         withContext(Dispatchers.IO) { cache.clear() }
@@ -94,7 +94,7 @@ class LettuceSuspendJCache<V: Any>(private val cache: LettuceJCache<String, V>):
         cache.getAll(keys).forEach { (key, value) ->
             emit(SuspendJCacheEntry(key, value))
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun getAndPut(key: String, value: V): V? =
         get(key).also { put(key, value) }

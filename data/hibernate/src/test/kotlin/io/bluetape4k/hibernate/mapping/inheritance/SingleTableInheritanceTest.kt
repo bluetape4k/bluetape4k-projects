@@ -1,6 +1,9 @@
 package io.bluetape4k.hibernate.mapping.inheritance
 
 import io.bluetape4k.ToStringBuilder
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.hibernate.model.IntJpaEntity
 import io.bluetape4k.support.uninitialized
@@ -11,9 +14,6 @@ import jakarta.persistence.Index
 import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
 import jakarta.persistence.Table
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import org.hibernate.annotations.DynamicInsert
 import org.hibernate.annotations.DynamicUpdate
 import org.junit.jupiter.api.Test

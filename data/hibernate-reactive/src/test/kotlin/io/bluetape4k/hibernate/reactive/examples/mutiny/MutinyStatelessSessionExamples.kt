@@ -20,6 +20,7 @@ import io.bluetape4k.hibernate.reactive.mutiny.withStatelessTransactionSuspendin
 import io.bluetape4k.hibernate.reactive.mutiny.withTransactionSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.persistence.LockModeType
 import jakarta.persistence.criteria.CriteriaQuery
@@ -36,23 +37,12 @@ class MutinyStatelessSessionExamples: AbstractMutinyTest() {
 
     companion object: KLoggingChannel()
 
-    private val author1 = Author(faker.name().name())
-    private val author2 = Author(faker.name().name())
-    private val book1 = Book(
-        faker.numerify("#-#####-###-#"),
-        faker.book().title(),
-        LocalDate.of(1994, Month.JANUARY, 1)
-    )
-    private val book2 = Book(
-        faker.numerify("#-#####-###-#"),
-        faker.book().title(),
-        LocalDate.of(1999, Month.MAY, 1)
-    )
-    private val book3 = Book(
-        faker.numerify("#-#####-###-#"),
-        faker.book().title(),
-        LocalDate.of(1992, Month.JUNE, 1)
-    )
+    private val author1 = newAuthor()
+    private val author2 = newAuthor()
+
+    private val book1 = newBook(LocalDate.of(1994, Month.JANUARY, 1))
+    private val book2 = newBook(LocalDate.of(1999, Month.MAY, 1))
+    private val book3 = newBook(LocalDate.of(1992, Month.JUNE, 1))
 
     @BeforeAll
     fun beforeAll() = runSuspendIO {
@@ -69,10 +59,9 @@ class MutinyStatelessSessionExamples: AbstractMutinyTest() {
     fun `mutiny session example`() = runSuspendIO {
         // enableFetchProfile 은 statelessSession 에서는 지원하지 않습니다.
         val book = sf.withSessionSuspending { session ->
-            // NOTE: many-to-one 을 lazy로 fetch 하기 위해서 EntityGraph나 @FetchProfile 을 사용해야 합니다.
+            // HINT: many-to-one 을 lazy로 fetch 하기 위해서 EntityGraph나 @FetchProfile 을 사용해야 합니다.
             session.enableFetchProfile("withAuthor").findAs<Book>(book2.id).awaitSuspending()
         }
-        book.shouldNotBeNull()
         book.author.shouldNotBeNull()
 
         val authors = sf.withSessionSuspending { session ->
@@ -90,7 +79,6 @@ class MutinyStatelessSessionExamples: AbstractMutinyTest() {
                 .awaitSuspending()
                 .toLong()
         }
-
         count shouldBeEqualTo 2L
     }
 
@@ -104,7 +92,8 @@ class MutinyStatelessSessionExamples: AbstractMutinyTest() {
                 addAttributeNodes(Book_.author)
             }
             val byGraph = session.getAs(graph, book2.id).awaitSuspending()
-            byGraph.shouldNotBeNull()
+
+            log.debug { "byGraph book:$byGraph" }
             byGraph.author.shouldNotBeNull()
         }
     }
@@ -116,7 +105,7 @@ class MutinyStatelessSessionExamples: AbstractMutinyTest() {
             session.createSelectionQueryAs<Book>(sql).resultList.awaitSuspending()
         }
         books.forEach {
-            println("book=$it, author=${it.author}")
+            log.debug { "book=$it, author=${it.author}" }
         }
         books shouldHaveSize 3
     }
@@ -137,7 +126,7 @@ class MutinyStatelessSessionExamples: AbstractMutinyTest() {
             query.resultList.awaitSuspending()
         }
         books.forEach {
-            println("book=$it, author=${it.author}")
+            log.debug { "book=$it, author=${it.author}" }
         }
         books shouldHaveSize 3
     }
@@ -158,7 +147,7 @@ class MutinyStatelessSessionExamples: AbstractMutinyTest() {
             session.createQuery(criteria).setPlan(graph).resultList.awaitSuspending()
         }
         books.forEach {
-            println("book=$it, author=${it.author}")
+            log.debug { "book=$it, author=${it.author}" }
         }
         books shouldHaveSize 1
     }
@@ -175,11 +164,11 @@ class MutinyStatelessSessionExamples: AbstractMutinyTest() {
             session.createQuery(criteria).resultList.awaitSuspending()
         }
 
-        // NOTE: author 만 로딩했으므로, books 에 접근하면 lazy initialization 예외가 발생합니다.
+        // HINT: author 만 로딩했으므로, books 에 접근하면 lazy initialization 예외가 발생합니다.
         assertFailsWith<LazyInitializationException> {
             authors.forEach {
                 it.books.forEach { book ->
-                    println("book=$book")
+                    log.debug { "book=$book" }
                 }
             }
         }
@@ -202,12 +191,7 @@ class MutinyStatelessSessionExamples: AbstractMutinyTest() {
 
             session.createQuery(criteria).setPlan(graph).resultList.awaitSuspending()
         }
-        authors.forEach { a ->
-            println(a)
-            a.books.forEach { b ->
-                println("\t$b")
-            }
-        }
+        authors.forEach { it.logging() }
         authors shouldHaveSize 1
         authors.forEach {
             it.books shouldHaveSize 2

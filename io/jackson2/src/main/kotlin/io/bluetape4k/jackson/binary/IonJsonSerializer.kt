@@ -8,7 +8,7 @@ import io.bluetape4k.logging.KLogging
  * 이전 Ion 직렬화기 이름을 유지하기 위한 deprecated 래퍼입니다.
  *
  * ## 동작/계약
- * - 실제 직렬화/역직렬화는 [IonJacksonSerializer]와 동일 경로를 사용합니다.
+ * - 실제 동작은 [IonJacksonSerializer]와 동일한 [JacksonSerializer] 경로를 사용합니다.
  * - 신규 코드는 [IonJacksonSerializer] 사용을 권장합니다.
  * - 기본 [mapper]는 [JacksonBinary.ION.defaultMapper]입니다.
  *

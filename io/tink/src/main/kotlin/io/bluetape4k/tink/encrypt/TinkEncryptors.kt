@@ -5,7 +5,6 @@ import com.google.crypto.tink.aead.ChaCha20Poly1305KeyManager
 import com.google.crypto.tink.aead.XChaCha20Poly1305KeyManager
 import com.google.crypto.tink.daead.AesSivKeyManager
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.support.publicLazy
 import io.bluetape4k.tink.aead.TinkAead
 import io.bluetape4k.tink.aeadKeysetHandle
 import io.bluetape4k.tink.daead.TinkDeterministicAead
@@ -37,27 +36,27 @@ object TinkEncryptors: KLogging() {
     }
 
     /** AES256-GCM non-deterministic encryption for general authenticated encryption. */
-    val AES256_GCM: TinkEncryptor by publicLazy {
+    val AES256_GCM: TinkEncryptor by lazy {
         TinkAeadEncryptor(TinkAead(aeadKeysetHandle(AesGcmKeyManager.aes256GcmTemplate())))
     }
 
     /** AES128-GCM non-deterministic encryption for performance-focused use. */
-    val AES128_GCM: TinkEncryptor by publicLazy {
+    val AES128_GCM: TinkEncryptor by lazy {
         TinkAeadEncryptor(TinkAead(aeadKeysetHandle(AesGcmKeyManager.aes128GcmTemplate())))
     }
 
     /** ChaCha20-Poly1305 non-deterministic encryption for environments without hardware AES acceleration. */
-    val CHACHA20_POLY1305: TinkEncryptor by publicLazy {
+    val CHACHA20_POLY1305: TinkEncryptor by lazy {
         TinkAeadEncryptor(TinkAead(aeadKeysetHandle(ChaCha20Poly1305KeyManager.chaCha20Poly1305Template())))
     }
 
     /** XChaCha20-Poly1305 non-deterministic encryption with a 192-bit nonce. */
-    val XCHACHA20_POLY1305: TinkEncryptor by publicLazy {
+    val XCHACHA20_POLY1305: TinkEncryptor by lazy {
         TinkAeadEncryptor(TinkAead(aeadKeysetHandle(XChaCha20Poly1305KeyManager.xChaCha20Poly1305Template())))
     }
 
     /** AES256-SIV deterministic encryption for process-local equality checks only. */
-    val DETERMINISTIC_AES256_SIV: TinkEncryptor by publicLazy {
+    val DETERMINISTIC_AES256_SIV: TinkEncryptor by lazy {
         TinkDaeadEncryptor(TinkDeterministicAead(daeadKeysetHandle(AesSivKeyManager.aes256SivTemplate())))
     }
 }

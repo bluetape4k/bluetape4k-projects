@@ -3,6 +3,9 @@ package io.bluetape4k.protobuf.serializers.redis
 import com.google.protobuf.Message
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.io.serializer.BinarySerializationException
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.protobuf.ProtoAny
@@ -43,13 +46,13 @@ class LettuceProtobufByteBufCodecTest {
 
         strict.javaClass shouldBeEqualTo trusted.javaClass
         compressed.forEach { codec ->
-            codec.javaClass shouldBeEqualTo LettuceBinaryCodec::class.java
-            (strict.javaClass != codec.javaClass) shouldBeEqualTo true
+            codec.shouldBeInstanceOf<LettuceBinaryCodec<*>>()
+            strict.javaClass shouldNotBeEqualTo codec.javaClass
         }
-        Modifier.isPrivate(strict.javaClass.modifiers) shouldBeEqualTo true
+        Modifier.isPrivate(strict.javaClass.modifiers).shouldBeTrue()
         strict.javaClass.declaredConstructors.none {
             Modifier.isPublic(it.modifiers) || Modifier.isProtected(it.modifiers)
-        } shouldBeEqualTo true
+        }.shouldBeTrue()
     }
 
     @Test
@@ -74,7 +77,7 @@ class LettuceProtobufByteBufCodecTest {
                 repeatedTarget.getUnsignedByte(0) shouldBeEqualTo 0x5A
                 val actual = ByteArray(expected.size)
                 repeatedTarget.getBytes(1, actual)
-                actual.contentEquals(expected) shouldBeEqualTo true
+                actual.contentEquals(expected).shouldBeTrue()
                 strict.decodeValue(ByteBuffer.wrap(expected)) shouldBeEqualTo message
             }
         } finally {
@@ -105,7 +108,7 @@ class LettuceProtobufByteBufCodecTest {
         val trustedProtobufTarget = Unpooled.buffer()
         try {
             trusted.encodeValue(message, trustedProtobufTarget)
-            trustedProtobufTarget.remainingBytes().contentEquals(expected) shouldBeEqualTo true
+            trustedProtobufTarget.remainingBytes().contentEquals(expected).shouldBeTrue()
         } finally {
             trustedProtobufTarget.release()
         }
@@ -114,7 +117,7 @@ class LettuceProtobufByteBufCodecTest {
         val trustedTarget = Unpooled.buffer()
         try {
             trusted.encodeValue(fallbackValue, trustedTarget)
-            trustedTarget.remainingBytes().contentEquals(expectedFallback) shouldBeEqualTo true
+            trustedTarget.remainingBytes().contentEquals(expectedFallback).shouldBeTrue()
             trusted.decodeValue(ByteBuffer.wrap(expectedFallback)) shouldBeEqualTo fallbackValue
         } finally {
             trustedTarget.release()
@@ -127,7 +130,7 @@ class LettuceProtobufByteBufCodecTest {
         val customTarget = Unpooled.buffer()
         try {
             customCodec.encodeValue(message, customTarget)
-            customTarget.remainingBytes().contentEquals(customSerializer.serialize(message)) shouldBeEqualTo true
+            customTarget.remainingBytes().contentEquals(customSerializer.serialize(message)).shouldBeTrue()
             customCodec.decodeValue(ByteBuffer.wrap(expected)) shouldBeEqualTo message
         } finally {
             customTarget.release()
@@ -148,7 +151,7 @@ class LettuceProtobufByteBufCodecTest {
         val target = Unpooled.buffer()
         try {
             LettuceProtobufCodecJavaCompatibilityFixture.compileExistingUsage(message, target)
-            target.remainingBytes().contentEquals(expected) shouldBeEqualTo true
+            target.remainingBytes().contentEquals(expected).shouldBeTrue()
         } finally {
             target.release()
         }
@@ -168,9 +171,15 @@ class LettuceProtobufByteBufCodecTest {
             Unpooled.buffer(8, 4096),
             Unpooled.directBuffer(8, 4096),
             Unpooled.compositeBuffer().apply {
-                addComponents(true, Unpooled.buffer(4, 2048), Unpooled.buffer(4, 2048))
+                addComponents(
+                    true,
+                    Unpooled.buffer(4, 2048),
+                    Unpooled.buffer(4, 2048)
+                )
             },
-            Unpooled.buffer(4096).apply { writerIndex(1) }.slice(0, 4096),
+            Unpooled.buffer(4096)
+                .apply { writerIndex(1) }
+                .slice(0, 4096)
         )
 
         targets.forEach { target ->
@@ -285,8 +294,8 @@ class LettuceProtobufByteBufCodecTest {
             val failure = assertFailsWith<BinarySerializationException> {
                 codec.encodeValue(message, target)
             }
-            failure.message!!.startsWith("Fail to serialize. graphType=") shouldBeEqualTo true
-            (failure.cause is AssertionError) shouldBeEqualTo true
+            failure.message!!.startsWith("Fail to serialize. graphType=").shouldBeTrue()
+            failure.cause.shouldBeInstanceOf<AssertionError>()
             assertUncommittedState(target, 1)
         } finally {
             target.release()
@@ -310,7 +319,7 @@ class LettuceProtobufByteBufCodecTest {
     @Test
     fun `public codec ABI stays open only at the target overload`() {
         val codecClass = LettuceBinaryCodec::class.java
-        Modifier.isPublic(codecClass.modifiers) shouldBeEqualTo true
+        Modifier.isPublic(codecClass.modifiers).shouldBeTrue()
         Modifier.isFinal(codecClass.modifiers) shouldBeEqualTo false
         codecClass.getDeclaredConstructor(BinarySerializer::class.java)
 
@@ -330,13 +339,13 @@ class LettuceProtobufByteBufCodecTest {
             codecClass.getMethod("estimateSize", Any::class.java),
             codecClass.getMethod("toString"),
         ).forEach { method ->
-            Modifier.isFinal(method.modifiers) shouldBeEqualTo true
+            Modifier.isFinal(method.modifiers).shouldBeTrue()
         }
 
         codecClass.getMethod("getSerializer").returnType shouldBeEqualTo BinarySerializer::class.java
         val optimized = LettuceProtobufCodecs.protobuf<Any>().javaClass
         optimized.enclosingClass shouldBeEqualTo LettuceProtobufCodecs::class.java
-        Modifier.isPrivate(optimized.modifiers) shouldBeEqualTo true
+        Modifier.isPrivate(optimized.modifiers).shouldBeTrue()
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -356,14 +365,14 @@ class LettuceProtobufByteBufCodecTest {
             arrayOf(writerType),
         ) { proxy, method, arguments ->
             when (method.name) {
-                "write"  -> {
+                "write" -> {
                     requireNotNull(arguments)
                     write(arguments[1] as ByteBuf, arguments[2] as Int)
                 }
                 "toString" -> "InjectedPackedAnyWriter"
                 "hashCode" -> System.identityHashCode(proxy)
                 "equals" -> proxy === arguments?.singleOrNull()
-                else     -> error("Unexpected writer method: ${method.name}")
+                else    -> error("Unexpected writer method: ${method.name}")
             }
         }
         return constructor.newInstance(serializer, writer) as LettuceBinaryCodec<Any>
@@ -391,7 +400,7 @@ class LettuceProtobufByteBufCodecTest {
             target.getUnsignedByte(0) shouldBeEqualTo 0x5A
             val actual = ByteArray(expected.size)
             target.getBytes(start, actual)
-            actual.contentEquals(expected) shouldBeEqualTo true
+            actual.contentEquals(expected).shouldBeTrue()
             codec.decodeValue(codec.encodeValue(message)) shouldBeEqualTo message
             target.resetReaderIndex()
             target.resetWriterIndex()

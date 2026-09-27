@@ -1,7 +1,6 @@
 package io.bluetape4k.math.commons
 
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import org.apache.commons.math3.stat.ranking.NaNStrategy
@@ -31,11 +30,11 @@ class RankingTest {
 
         val scoreAndRanks = scores.ranking()
 
-        scoreAndRanks[Double.POSITIVE_INFINITY].shouldNotBeNull() shouldBeEqualTo 0
-        scoreAndRanks[50.0].shouldNotBeNull() shouldBeEqualTo 1
-        scoreAndRanks[20.0].shouldNotBeNull() shouldBeEqualTo 4
-        scoreAndRanks[Double.NaN].shouldNotBeNull() shouldBeEqualTo 8
-        scoreAndRanks[Double.NEGATIVE_INFINITY].shouldNotBeNull() shouldBeEqualTo 8
+        scoreAndRanks[Double.POSITIVE_INFINITY] shouldBeEqualTo 0
+        scoreAndRanks[50.0] shouldBeEqualTo 1
+        scoreAndRanks[20.0] shouldBeEqualTo 4
+        scoreAndRanks[Double.NaN] shouldBeEqualTo 8
+        scoreAndRanks[Double.NEGATIVE_INFINITY] shouldBeEqualTo 8
     }
 
     @Test
@@ -49,11 +48,11 @@ class RankingTest {
         scoreAndRanks.forEach {
             log.trace { "score=${it.key}, rank=${it.value}" }
         }
-        scoreAndRanks[Double.POSITIVE_INFINITY].shouldNotBeNull() shouldBeEqualTo 0
-        scoreAndRanks[50.0].shouldNotBeNull() shouldBeEqualTo 1
-        scoreAndRanks[20.0].shouldNotBeNull() shouldBeEqualTo 4
-        scoreAndRanks[Double.NaN].shouldNotBeNull() shouldBeEqualTo 8
-        scoreAndRanks[Double.NEGATIVE_INFINITY].shouldNotBeNull() shouldBeEqualTo 8
+        scoreAndRanks[Double.POSITIVE_INFINITY] shouldBeEqualTo 0
+        scoreAndRanks[50.0] shouldBeEqualTo 1
+        scoreAndRanks[20.0] shouldBeEqualTo 4
+        scoreAndRanks[Double.NaN] shouldBeEqualTo 8
+        scoreAndRanks[Double.NEGATIVE_INFINITY] shouldBeEqualTo 8
     }
 
     @Test
@@ -65,6 +64,7 @@ class RankingTest {
         )
 
         data class Student(val name: String, val score: Double)
+
         val students = sequenceOf(
             Student("Alice", 90.0),
             Student("Bob", 70.0),
@@ -92,8 +92,8 @@ class RankingTest {
         scoreAndRanks.forEach {
             log.trace { "score=${it.key}, rank=${it.value}" }
         }
-        scoreAndRanks[50.0.toBigDecimal()].shouldNotBeNull() shouldBeEqualTo 0
-        scoreAndRanks[20.0.toBigDecimal()].shouldNotBeNull() shouldBeEqualTo 3
+        scoreAndRanks[50.0.toBigDecimal()] shouldBeEqualTo 0
+        scoreAndRanks[20.0.toBigDecimal()] shouldBeEqualTo 3
     }
 
     // ----- Iterable.ranking -----
@@ -110,9 +110,9 @@ class RankingTest {
             log.trace { "score=${it.key}, rank=${it.value}" }
         }
 
-        scoreAndRanks[Double.POSITIVE_INFINITY].shouldNotBeNull() shouldBeEqualTo 0
-        scoreAndRanks[50.0].shouldNotBeNull() shouldBeEqualTo 1
-        scoreAndRanks[20.0].shouldNotBeNull() shouldBeEqualTo 4
+        scoreAndRanks[Double.POSITIVE_INFINITY] shouldBeEqualTo 0
+        scoreAndRanks[50.0] shouldBeEqualTo 1
+        scoreAndRanks[20.0] shouldBeEqualTo 4
     }
 
     @Test
@@ -140,6 +140,7 @@ class RankingTest {
         emptyList<Double>().ranking() shouldBeEqualTo emptyMap<Double, Int>()
 
         data class Student(val name: String, val score: Double)
+
         val students = listOf(
             Student("Alice", 90.0),
             Student("Bob", 90.0),

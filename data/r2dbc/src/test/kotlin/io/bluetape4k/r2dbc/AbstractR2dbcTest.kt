@@ -1,5 +1,6 @@
 package io.bluetape4k.r2dbc
 
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.core.execute
@@ -19,11 +20,10 @@ abstract class AbstractR2dbcTest {
     protected val client: R2dbcClient = uninitialized()
 
     @BeforeEach
-    fun beforeEach() {
-        runSuspendIO {
-            client
-                .execute(
-                    """
+    fun beforeEach() = runSuspendIO {
+        client
+            .execute(
+                """
                     CREATE TABLE IF NOT EXISTS users (
                       user_id serial NOT NULL,
                       username varchar(255) NOT NULL,
@@ -43,25 +43,21 @@ abstract class AbstractR2dbcTest {
                       PRIMARY KEY (logs_id)
                     );
                     """.trimIndent()
-                )
-                .fetch()
-                .awaitRowsUpdated()
-        }
+            )
+            .fetch()
+            .awaitRowsUpdated() shouldBeGreaterThan 0
     }
 
     @AfterEach
-    fun afterEach() {
-        runSuspendIO {
-            client
-                .execute(
-                    """
+    fun afterEach() = runSuspendIO {
+        client
+            .execute(
+                """
                     DROP TABLE users;
                     DROP TABLE logs;
                     """.trimIndent()
-                )
-                .fetch()
-                .awaitRowsUpdated()
-        }
+            )
+            .fetch()
+            .awaitRowsUpdated()
     }
-
 }

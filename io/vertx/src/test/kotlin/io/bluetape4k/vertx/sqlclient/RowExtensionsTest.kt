@@ -7,16 +7,19 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.vertx.sqlclient.templates.INT_ROW_MAPPER
+import io.bluetape4k.vertx.sqlclient.templates.LONG_ROW_MAPPER
+import io.bluetape4k.vertx.sqlclient.templates.rowMapperAs
 import io.bluetape4k.vertx.sqlclient.tests.testWithSuspendRollback
+import io.mockk.every
+import io.mockk.mockk
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
 import io.vertx.junit5.VertxTestContext
-import io.vertx.sqlclient.Row
-import io.vertx.sqlclient.SqlConnection
-import io.vertx.sqlclient.RowSet
 import io.vertx.kotlin.coroutines.coAwait
-import io.mockk.every
-import io.mockk.mockk
+import io.vertx.sqlclient.Row
+import io.vertx.sqlclient.RowSet
+import io.vertx.sqlclient.SqlConnection
 import org.junit.jupiter.api.Test
 
 class RowExtensionsTest: AbstractVertxSqlClientTest() {
@@ -98,10 +101,10 @@ class RowExtensionsTest: AbstractVertxSqlClientTest() {
         every { row.getInteger(0) } returns 7
         every { row.getLong(0) } returns 9L
 
-        val mapper = io.bluetape4k.vertx.sqlclient.templates.rowMapperAs<Map<String, Any>>()
+        val mapper = rowMapperAs<Map<String, Any>>()
         mapper.map(row)["id"] shouldBeEqualTo 1
         mapper.map(row)["name"] shouldBeEqualTo "Fred"
-        io.bluetape4k.vertx.sqlclient.templates.INT_ROW_MAPPER.map(row) shouldBeEqualTo 7
-        io.bluetape4k.vertx.sqlclient.templates.LONG_ROW_MAPPER.map(row) shouldBeEqualTo 9L
+        INT_ROW_MAPPER.map(row) shouldBeEqualTo 7
+        LONG_ROW_MAPPER.map(row) shouldBeEqualTo 9L
     }
 }

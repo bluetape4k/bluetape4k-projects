@@ -22,7 +22,7 @@ interface KafkaExporter {
         producer: Producer<K, V>,
         record: ProducerRecord<K, V>,
         event: E,
-        exceptionHandler: io.bluetape4k.kafka.logback.exporter.ExportExceptionHandler<E>,
+        exceptionHandler: ExportExceptionHandler<E>,
     ): Boolean
 
 }

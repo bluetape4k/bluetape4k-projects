@@ -176,8 +176,8 @@ class KafkaAppenderTest {
     @Test
     fun `로그 발송 시 keyProvider로부터 key 값을 얻는다`() {
         every { encoder.encode(any<ILoggingEvent>()) } returns ByteArray(2)
-        appender.start()
 
+        appender.start()
         appender.doAppend(sampleEvent)
 
         verify { keyProvider.get(sampleEvent) }
@@ -187,9 +187,11 @@ class KafkaAppenderTest {
     @Test
     fun `로그 발송 시 이미 지정된 partition이 있다면 그 값을 사용한다`() {
         every { encoder.encode(any<ILoggingEvent>()) } returns ByteArray(2)
+
         // 참고: https://notwoods.github.io/mockk-guidebook/docs/mockito-migrate/argument-captor/
         val producerRecordCaptor: CapturingSlot<ProducerRecord<ByteArray, ByteArray>> =
             slot<ProducerRecord<ByteArray, ByteArray>>()
+
         appender.partition = 3
         appender.start()
 
@@ -205,6 +207,7 @@ class KafkaAppenderTest {
         }
 
         val record = producerRecordCaptor.captured
+        log.debug { "record=$record" }
         record.partition() shouldBeEqualTo appender.partition
     }
 

@@ -1,11 +1,10 @@
 package io.bluetape4k.rule.core
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.ruleSetOf
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class InferenceRuleEngineTest {
@@ -25,7 +24,8 @@ class InferenceRuleEngineTest {
         }
 
         val facts = Facts.of("count" to 3)
-        engine.fire(ruleSetOf(rule), facts); facts.get<Int>("count") shouldBeEqualTo 0
+        engine.fire(ruleSetOf(rule), facts)
+        facts.get<Int>("count") shouldBeEqualTo 0
     }
 
     @Test
@@ -38,7 +38,8 @@ class InferenceRuleEngineTest {
         }
 
         val facts = Facts.empty()
-        engine.fire(ruleSetOf(rule), facts); facts.isEmpty().shouldBeTrue()
+        engine.fire(ruleSetOf(rule), facts)
+        facts.isEmpty().shouldBeTrue()
     }
 
     @Test
@@ -51,7 +52,7 @@ class InferenceRuleEngineTest {
         }
 
         val result = engine.check(ruleSetOf(rule), Facts.empty())
-        result[rule].shouldNotBeNull().shouldBeTrue()
+        result[rule].shouldBeTrue()
     }
 
     @Test

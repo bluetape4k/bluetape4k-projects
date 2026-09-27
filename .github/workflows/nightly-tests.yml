@@ -1095,8 +1095,8 @@ jobs:
               :bluetape4k-spring-boot-hibernate-lettuce:koverXmlReport
           - group: demos
             test_tasks: >-
-              :bluetape4k-spring-boot-cassandra-demo:test
-              :bluetape4k-spring-boot-hibernate-lettuce-demo:test
+              :bluetape4k-examples-cassandra-demo:test
+              :bluetape4k-examples-hibernate-lettuce-demo:test
             kover_tasks: ""
     steps:
       - uses: actions/checkout@v7

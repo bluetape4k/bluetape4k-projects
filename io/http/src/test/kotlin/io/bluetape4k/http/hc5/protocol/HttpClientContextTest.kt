@@ -1,8 +1,8 @@
 package io.bluetape4k.http.hc5.protocol
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.client5.http.protocol.HttpClientContext
 import org.apache.hc.core5.http.protocol.HttpCoreContext
 import org.junit.jupiter.api.Test

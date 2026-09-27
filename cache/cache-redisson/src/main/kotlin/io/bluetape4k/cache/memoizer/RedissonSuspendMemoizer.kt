@@ -3,15 +3,15 @@ package io.bluetape4k.cache.memoizer
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import org.redisson.api.RMap
 import java.util.concurrent.ConcurrentHashMap
 
@@ -84,8 +84,9 @@ class RedissonSuspendMemoizer<T: Any, R: Any>(
     companion object: KLoggingChannel()
 
     private val inFlight = ConcurrentHashMap<T, Deferred<R>>()
+
     // evaluator는 lock 밖에서 실행하고, 세대 변경과 캐시 저장/삭제만 직렬화합니다.
-    private val mutationMutex = Mutex()
+    private val mutex = Mutex()
     private var generation = 0L
 
     /**
@@ -102,7 +103,7 @@ class RedissonSuspendMemoizer<T: Any, R: Any>(
     override suspend fun invoke(key: T): R {
         val deferred = CompletableDeferred<R>()
         var capturedGeneration = 0L
-        val existing = mutationMutex.withLock {
+        val existing = mutex.withLock {
             capturedGeneration = generation
             inFlight.putIfAbsent(key, deferred)
         }
@@ -116,10 +117,12 @@ class RedissonSuspendMemoizer<T: Any, R: Any>(
             }
 
             val evaluated = evaluator(key)
-            val winner = mutationMutex.withLock {
+            val winner = mutex.withLock {
                 if (capturedGeneration == generation) {
                     // 서버 쓰기가 끝나기 전에 취소로 lock을 풀면 clear와 순서가 뒤집힐 수 있습니다.
-                    withContext(NonCancellable) { map.putIfAbsentAsync(key, evaluated).await() } ?: evaluated
+                    withContext(NonCancellable) {
+                        map.putIfAbsentAsync(key, evaluated).await()
+                    } ?: evaluated
                 } else evaluated
             }
             currentCoroutineContext().ensureActive()
@@ -142,7 +145,7 @@ class RedissonSuspendMemoizer<T: Any, R: Any>(
      */
     override suspend fun clear() {
         log.debug { "모든 메모이제이션 값 삭제: map=${map.name}" }
-        mutationMutex.withLock {
+        mutex.withLock {
             generation++
             inFlight.clear()
             withContext(NonCancellable) { map.clearAsync().await() }

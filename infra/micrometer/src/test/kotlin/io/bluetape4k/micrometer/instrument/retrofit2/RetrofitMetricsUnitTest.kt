@@ -1,10 +1,13 @@
 package io.bluetape4k.micrometer.instrument.retrofit2
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.micrometer.AbstractMicrometerTest
 import io.micrometer.core.instrument.Tag
 import okhttp3.Request
 import okio.Timeout
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import retrofit2.Call
 import retrofit2.Callback
@@ -13,7 +16,9 @@ import java.io.IOException
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 
-class RetrofitMetricsUnitTest {
+class RetrofitMetricsUnitTest: AbstractMicrometerTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `measureRequestException should record consistent failure tags`() {
@@ -26,6 +31,10 @@ class RetrofitMetricsUnitTest {
             IOException("boom"),
             async = true,
         )
+
+        recorder.lastTags.forEach { (key, value) ->
+            log.debug { "lastTag key=$key value=$value" }
+        }
 
         recorder.lastTags shouldBeEqualTo mapOf(
             "method" to "GET",
@@ -43,21 +52,25 @@ class RetrofitMetricsUnitTest {
         val recorder = CapturingMetricsRecorder()
         val collector = RetrofitCallMetricsCollector("https://example.com", "/posts/{id}", recorder)
         val cloneCount = AtomicInteger()
-        val measured =
-            MeasuredCall(
-                FakeCall(
-                    request = getRequest("https://example.com/posts/1"),
-                    response = Response.success("ok"),
-                    cloneCount = cloneCount,
-                ),
-                collector,
-            )
+        val measured = MeasuredCall(
+            FakeCall(
+                request = getRequest("https://example.com/posts/1"),
+                response = Response.success("ok"),
+                cloneCount = cloneCount,
+            ),
+            collector,
+        )
 
         val cloned = measured.clone()
         cloned.shouldBeInstanceOf<MeasuredCall<*>>()
 
         cloned.execute().body() shouldBeEqualTo "ok"
         cloneCount.get() shouldBeEqualTo 1
+
+        recorder.lastTags.forEach { (key, value) ->
+            log.debug { "lastTag key=$key value=$value" }
+        }
+
         recorder.lastTags shouldBeEqualTo mapOf(
             "method" to "GET",
             "coroutines" to "false",

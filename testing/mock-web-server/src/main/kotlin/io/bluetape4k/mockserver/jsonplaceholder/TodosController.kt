@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/jsonplaceholder/todos")
 class TodosController(private val service: JsonplaceholderService) {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 할 일 목록을 반환한다. `userId`가 지정되면 해당 사용자의 할 일만 반환한다.

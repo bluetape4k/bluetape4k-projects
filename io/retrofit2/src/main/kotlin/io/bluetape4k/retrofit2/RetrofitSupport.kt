@@ -222,7 +222,7 @@ fun <T: Any> Retrofit.service(serviceClass: Class<T>): T = create(serviceClass)
  * [KClass]를 받아 [Retrofit] 서비스 인스턴스를 생성합니다.
  *
  * ## 동작/계약
- * - 내부적으로 [serviceClass.java]를 사용해 [Retrofit.create]를 호출합니다.
+ * - 내부적으로 [serviceClass].java를 사용해 [Retrofit.create]를 호출합니다.
  *
  * ```kotlin
  * val service = retrofit.service(MyApi::class)

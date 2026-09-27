@@ -5,11 +5,18 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 import java.security.MessageDigest
 
 class CompressorBufferAbiCompatibilityTest {
+
+    private companion object: KLogging() {
+        const val PRE_CHANGE_COMMIT = "a065a8e88cf246975660c68df2dd78dfb5b6dc4d"
+        const val PRE_CHANGE_TREE = "50cf7789648c0091b6c16de6cf5eb495c26510f8"
+        const val BASELINE_JAR_SHA = "34d280b0cb465ffca2a23a2aa57895cc3ba9c08ea18f57c706443b91a0eae6f1"
+    }
 
     @Test
     fun `frozen pre-change authority matches its manifest`() {
@@ -42,9 +49,4 @@ class CompressorBufferAbiCompatibilityTest {
             .digest(this)
             .joinToString("") { byte -> "%02x".format(byte) }
 
-    private companion object {
-        const val PRE_CHANGE_COMMIT = "a065a8e88cf246975660c68df2dd78dfb5b6dc4d"
-        const val PRE_CHANGE_TREE = "50cf7789648c0091b6c16de6cf5eb495c26510f8"
-        const val BASELINE_JAR_SHA = "34d280b0cb465ffca2a23a2aa57895cc3ba9c08ea18f57c706443b91a0eae6f1"
-    }
 }

@@ -6,7 +6,7 @@
 
 - Near Cache는 휘발성 캐시이며, Redis를 중간 계층의 source of truth로 둔다.
 - 일반적인 사용 패턴은 `Cache-Aside`, `Read-Through`, `Write-Through`, `Write-Behind` 이다.
-- 초기 적재(init / warm-up)는 가능한 한 `L2 Redis`를 먼저 채우고, 각 서버의 `L1 Local Cache`는 lazy populate를 기본으로 한다.
+- 초기 적재 (init / warm-up)는 가능한 한 `L2 Redis`를 먼저 채우고, 각 서버의 `L1 Local Cache`는 lazy populate를 기본으로 한다.
 - 모든 서버의 local cache를 eager full load하는 방식은 startup spike와 메모리 낭비를 유발할 수 있으므로 hot set preload가 필요한 경우에만 제한적으로 적용한다.
 
 ## RESP3 CLIENT TRACKING

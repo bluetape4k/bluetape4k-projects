@@ -1,17 +1,22 @@
 package io.bluetape4k.micrometer.instrument.retrofit2
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.micrometer.AbstractMicrometerTest
 import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
 import okhttp3.Request
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import retrofit2.Response
-import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import java.io.IOException
 import java.time.Duration
 
-class RetrofitMetricsSupportTest {
+class RetrofitMetricsSupportTest: AbstractMicrometerTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `collector should add stable tags for successful responses`() {
@@ -29,6 +34,10 @@ class RetrofitMetricsSupportTest {
         )
 
         val tags = recorded.single().associate { it.key to it.value }
+        tags.forEach { (key, value) ->
+            log.debug { "tag key=$key, value=$value" }
+        }
+
         tags["base_url"] shouldBeEqualTo "https://example.com"
         tags["uri"] shouldBeEqualTo "/posts"
         tags["method"] shouldBeEqualTo "GET"
@@ -40,10 +49,9 @@ class RetrofitMetricsSupportTest {
     @Test
     fun `collector should classify exceptions without omitting status tags`() {
         val recorded = mutableListOf<List<Tag>>()
-        val collector =
-            RetrofitCallMetricsCollector("https://example.com", "/posts") { tags, _ ->
-                recorded += tags.toList()
-            }
+        val collector = RetrofitCallMetricsCollector("https://example.com", "/posts") { tags, _ ->
+            recorded += tags.toList()
+        }
 
         collector.measureRequestException(
             Duration.ofMillis(25),
@@ -52,6 +60,10 @@ class RetrofitMetricsSupportTest {
         )
 
         val tags = recorded.single().associate { it.key to it.value }
+        tags.forEach { (key, value) ->
+            log.debug { "tag key=$key, value=$value" }
+        }
+
         tags["outcome"] shouldBeEqualTo Outcome.UNKNOWN.name
         tags["status_code"] shouldBeEqualTo "IO_ERROR"
         tags["exception"] shouldBeEqualTo IOException::class.java.simpleName
@@ -89,15 +101,14 @@ class RetrofitMetricsSupportTest {
         // ConcurrentHashMap.computeIfAbsent 가 레이스 컨디션 없이 단일 Timer 를 등록해야 한다
         val registry = SimpleMeterRegistry()
         val recorder = MicrometerRetrofitMetricsRecorder(registry)
-        val tags =
-            listOf(
-                Tag.of("base_url", "https://concurrent.example.com"),
-                Tag.of("uri", "/items"),
-                Tag.of("method", "GET"),
-                Tag.of("coroutines", "false"),
-                Tag.of("outcome", Outcome.SUCCESS.name),
-                Tag.of("status_code", "200"),
-            )
+        val tags = listOf(
+            Tag.of("base_url", "https://concurrent.example.com"),
+            Tag.of("uri", "/items"),
+            Tag.of("method", "GET"),
+            Tag.of("coroutines", "false"),
+            Tag.of("outcome", Outcome.SUCCESS.name),
+            Tag.of("status_code", "200"),
+        )
 
         val threadCount = 8
         val callsPerThread = 20
@@ -110,9 +121,9 @@ class RetrofitMetricsSupportTest {
             }
             .run()
 
-        val timer = registry.find(MicrometerRetrofitMetricsRecorder.METRICS_KEY).tags(tags).timer()
-        timer.shouldNotBeNull()
-        timer.count() shouldBeEqualTo (threadCount * callsPerThread).toLong()
+        val timer = registry.find(MicrometerRetrofitMetricsRecorder.METRICS_KEY).tags(tags).timer().shouldNotBeNull()
+        timer.count() shouldBeEqualTo threadCount * callsPerThread.toLong()
+
         // 동일 태그 집합에 대해 하나의 meter 만 등록되어야 한다
         registry.find(MicrometerRetrofitMetricsRecorder.METRICS_KEY).meters().size shouldBeEqualTo 1
     }
@@ -121,10 +132,9 @@ class RetrofitMetricsSupportTest {
     fun `collector coroutines tag should be false for sync calls`() {
         // async=false 일 때 coroutines 태그가 "false" 임을 검증
         val recorded = mutableListOf<List<Tag>>()
-        val collector =
-            RetrofitCallMetricsCollector("https://example.com", "/sync") { tags, _ ->
-                recorded += tags.toList()
-            }
+        val collector = RetrofitCallMetricsCollector("https://example.com", "/sync") { tags, _ ->
+            recorded += tags.toList()
+        }
 
         collector.measureRequestDuration(
             Duration.ofMillis(10),
@@ -134,7 +144,12 @@ class RetrofitMetricsSupportTest {
         )
 
         val tags = recorded.single().associate { it.key to it.value }
+        tags.forEach { (key, value) ->
+            log.debug { "tag key=$key, value=$value" }
+        }
         tags["coroutines"] shouldBeEqualTo "false"
+        tags["outcome"] shouldBeEqualTo Outcome.SUCCESS.name
+        tags["status_code"] shouldBeEqualTo "200"
     }
 
     @Test
@@ -155,6 +170,14 @@ class RetrofitMetricsSupportTest {
 
         val durationMap = durationTags.single().associate { it.key to it.value }
         val millisMap = millisTags.single().associate { it.key to it.value }
+
+        durationMap.forEach { (key, value) ->
+            log.debug { "duration key=$key, value=$value" }
+        }
+        millisMap.forEach { (key, value) ->
+            log.debug { "millis key=$key, value=$value" }
+        }
+
         durationMap shouldBeEqualTo millisMap
     }
 
@@ -176,6 +199,14 @@ class RetrofitMetricsSupportTest {
 
         val durationMap = durationTags.single().associate { it.key to it.value }
         val millisMap = millisTags.single().associate { it.key to it.value }
+
+        durationMap.forEach { (key, value) ->
+            log.debug { "duration key=$key, value=$value" }
+        }
+        millisMap.forEach { (key, value) ->
+            log.debug { "millis key=$key, value=$value" }
+        }
+
         durationMap shouldBeEqualTo millisMap
         durationMap["coroutines"] shouldBeEqualTo "true"
     }
@@ -206,24 +237,22 @@ class RetrofitMetricsSupportTest {
         val registry = SimpleMeterRegistry()
         val recorder = MicrometerRetrofitMetricsRecorder(registry)
 
-        val tagsGet =
-            listOf(
-                Tag.of("method", "GET"),
-                Tag.of("uri", "/a"),
-                Tag.of("base_url", "https://example.com"),
-                Tag.of("coroutines", "false"),
-                Tag.of("outcome", Outcome.SUCCESS.name),
-                Tag.of("status_code", "200"),
-            )
-        val tagsPost =
-            listOf(
-                Tag.of("method", "POST"),
-                Tag.of("uri", "/b"),
-                Tag.of("base_url", "https://example.com"),
-                Tag.of("coroutines", "false"),
-                Tag.of("outcome", Outcome.SUCCESS.name),
-                Tag.of("status_code", "201"),
-            )
+        val tagsGet = listOf(
+            Tag.of("method", "GET"),
+            Tag.of("uri", "/a"),
+            Tag.of("base_url", "https://example.com"),
+            Tag.of("coroutines", "false"),
+            Tag.of("outcome", Outcome.SUCCESS.name),
+            Tag.of("status_code", "200"),
+        )
+        val tagsPost = listOf(
+            Tag.of("method", "POST"),
+            Tag.of("uri", "/b"),
+            Tag.of("base_url", "https://example.com"),
+            Tag.of("coroutines", "false"),
+            Tag.of("outcome", Outcome.SUCCESS.name),
+            Tag.of("status_code", "201"),
+        )
 
         recorder.recordTiming(tagsGet, Duration.ofMillis(10))
         recorder.recordTiming(tagsPost, Duration.ofMillis(15))

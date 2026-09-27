@@ -1,8 +1,8 @@
 package io.bluetape4k.bucket4j.distributed.redis
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import org.redisson.api.RedissonClient
 
 class RedissonBasedProxyManagerSupportTest {

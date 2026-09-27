@@ -1,15 +1,16 @@
 package io.bluetape4k.io.compressor
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [AbstractCompressor.compressOrNull] / [AbstractCompressor.decompressOrNull] 보안 API 테스트.
@@ -43,7 +44,7 @@ class CompressorNullableApiTest {
         val input = "hello compressOrNull".toByteArray()
         val result = compressor.compressOrNull(input)
         result.shouldNotBeNull()
-        require(result.isNotEmpty()) { "compressOrNull result should not be empty" }
+        result.shouldNotBeEmpty()
     }
 
     // ────────────────────────────────────────────────────────────────────────────

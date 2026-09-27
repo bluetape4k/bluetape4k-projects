@@ -1,11 +1,12 @@
 package io.bluetape4k.bucket4j.distributed
 
-import io.bluetape4k.bucket4j.MAX_BUCKET_KEY_BYTES
-import io.bluetape4k.bucket4j.bucketConfiguration
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.bucket4j.DEFAULT_KEY_PREFIX
+import io.bluetape4k.bucket4j.MAX_BUCKET_KEY_BYTES
+import io.bluetape4k.bucket4j.bucketConfiguration
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
@@ -15,10 +16,10 @@ import kotlin.time.toJavaDuration
 abstract class AbstractBucketProxyProviderTest {
 
     companion object: KLogging() {
-        internal const val INITIAL_TOKEN = 10L
+        protected const val INITIAL_TOKEN = 10L
 
         @JvmStatic
-        val defaultBucketConfiguration by lazy {
+        protected val defaultBucketConfiguration by lazy {
             bucketConfiguration {
                 addLimit {
                     it.capacity(INITIAL_TOKEN).refillIntervally(INITIAL_TOKEN, 10.seconds.toJavaDuration())
@@ -79,7 +80,7 @@ abstract class AbstractBucketProxyProviderTest {
 
     @Test
     fun `serialized bucket key size cap 은 prefix 포함 경계값으로 적용한다`() {
-        val prefixBytes = BucketProxyProvider.DEFAULT_KEY_PREFIX.toByteArray().size
+        val prefixBytes = DEFAULT_KEY_PREFIX.toByteArray().size
         val maxKey = "x".repeat(MAX_BUCKET_KEY_BYTES - prefixBytes)
         val oversizedKey = "x".repeat(MAX_BUCKET_KEY_BYTES - prefixBytes + 1)
 

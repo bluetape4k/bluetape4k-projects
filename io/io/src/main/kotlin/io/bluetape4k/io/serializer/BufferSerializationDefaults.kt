@@ -72,7 +72,6 @@ internal inline fun <R, T> useWithCleanup(
 }
 
 private object BufferSerializationFailureSupport: KLogging() {
-
     fun throwSerialization(
         graph: Any,
         failure: Throwable,

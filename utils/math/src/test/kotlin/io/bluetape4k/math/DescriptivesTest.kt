@@ -7,14 +7,16 @@ import org.junit.jupiter.api.Test
 
 class DescriptivesTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-10
+    }
 
     private val data = listOf(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0)
 
     @Test
     fun `descriptiveStatistics 평균이 올바르다`() {
         val ds = data.descriptiveStatistics()
-        ds.mean.shouldBeNear(5.5, 1e-10)
+        ds.mean.shouldBeNear(5.5, EPSILON)
     }
 
     @Test
@@ -33,7 +35,7 @@ class DescriptivesTest {
     @Test
     fun `descriptiveStatistics 합이 올바르다`() {
         val ds = data.descriptiveStatistics()
-        ds.sum.shouldBeNear(55.0, 1e-10)
+        ds.sum.shouldBeNear(55.0, EPSILON)
     }
 
     @Test
@@ -74,7 +76,7 @@ class DescriptivesTest {
     @Test
     fun `Sequence descriptiveStatistics 가 동작한다`() {
         val ds = data.asSequence().descriptiveStatistics()
-        ds.mean.shouldBeNear(5.5, 1e-10)
+        ds.mean.shouldBeNear(5.5, EPSILON)
         ds.size shouldBeEqualTo 10L
     }
 

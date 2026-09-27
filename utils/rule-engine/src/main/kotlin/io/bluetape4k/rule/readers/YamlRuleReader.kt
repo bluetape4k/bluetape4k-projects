@@ -1,11 +1,10 @@
 package io.bluetape4k.rule.readers
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.rule.api.RuleDefinition
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.dataformat.yaml.YAMLFactory
 import java.io.Reader
 
 /**
@@ -26,7 +25,7 @@ import java.io.Reader
  * ```
  */
 class YamlRuleReader(
-    private val mapper: ObjectMapper = ObjectMapper(YAMLFactory()).registerKotlinModule(),
+    private val mapper: ObjectMapper = ObjectMapper(YAMLFactory()),
 ): RuleReader<Reader> {
 
     companion object: KLogging()

@@ -20,7 +20,7 @@ abstract class AbstractRecordReaderTest {
     abstract val productTypePath: String
     abstract val extraWordsPath: String
 
-    val mapper = { record: Record ->
+    val mapper: (Record) -> ProductType = { record: Record ->
         val tagFamily = record.getValue(0, "").trim()
         val representative = record.getValue(1, "").trim()
         val synonym = record.getString(2)?.trim()
@@ -49,10 +49,12 @@ abstract class AbstractRecordReaderTest {
             records.forEach { record ->
                 log.debug { "product type record=$record" }
                 val row = record.values.toList()
+
+                log.debug { "row=$row" }
                 row.shouldNotBeEmpty()
                 row.size shouldBeGreaterThan 1
-                row[0]!!.shouldNotBeBlank()
-                row[1]!!.shouldNotBeBlank()
+                row[0].shouldNotBeBlank()
+                row[1].shouldNotBeBlank()
             }
         }
     }
@@ -79,10 +81,11 @@ abstract class AbstractRecordReaderTest {
             records.forEach { record ->
                 log.debug { "extra words record=$record" }
                 val row = record.values.toList()
+                log.debug { "row=$row" }
                 row.shouldNotBeEmpty()
                 row.size shouldBeGreaterThan 1
-                row[0]!!.shouldNotBeBlank()
-                row[4]!!.shouldNotBeBlank()
+                row[0].shouldNotBeBlank()
+                row[4].shouldNotBeBlank()
             }
         }
     }

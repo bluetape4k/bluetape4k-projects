@@ -176,15 +176,27 @@ internal object NetCdfSampleWriter {
         // build + write
         builder.build().use { writer ->
             // coord values
-            writer.write(writer.findVariable("time"), Array.factory(DataType.DOUBLE, intArrayOf(DEFAULT_TIME_N), DoubleArray(DEFAULT_TIME_N) { it.toDouble() }))
+            writer.write(
+                writer.findVariable("time"),
+                Array.factory(
+                    DataType.DOUBLE,
+                    intArrayOf(DEFAULT_TIME_N),
+                    DoubleArray(DEFAULT_TIME_N) { it.toDouble() })
+            )
             if (rank == 4 && levelDim != null) {
                 writer.write(
                     writer.findVariable(levelDim.shortName),
-                    Array.factory(DataType.DOUBLE, intArrayOf(DEFAULT_LEVEL_N), DoubleArray(DEFAULT_LEVEL_N) { (it + 1) * 100.0 }),
+                    Array.factory(
+                        DataType.DOUBLE,
+                        intArrayOf(DEFAULT_LEVEL_N),
+                        DoubleArray(DEFAULT_LEVEL_N) { (it + 1) * 100.0 }),
                 )
             }
             if (latDim != null) {
-                writer.write(writer.findVariable("lat"), Array.factory(DataType.DOUBLE, intArrayOf(DEFAULT_LAT_N), DEFAULT_LAT_VALUES))
+                writer.write(
+                    writer.findVariable("lat"),
+                    Array.factory(DataType.DOUBLE, intArrayOf(DEFAULT_LAT_N), DEFAULT_LAT_VALUES)
+                )
             }
             writer.write(
                 writer.findVariable("lon"),
@@ -412,7 +424,7 @@ internal object NetCdfSampleWriter {
             val columnIndex = dataOrder.indexOf("x")
             val data = DoubleArray(shape.fold(1) { acc, length -> acc * length }) { flatIndex ->
                 val indices = indicesForFlatIndex(flatIndex, shape)
-                valueAt(indices[rowIndex], indices[columnIndex] )
+                valueAt(indices[rowIndex], indices[columnIndex])
             }
             check(timeIndex >= 0) { "temperature must include time dimension" }
             writer.write(

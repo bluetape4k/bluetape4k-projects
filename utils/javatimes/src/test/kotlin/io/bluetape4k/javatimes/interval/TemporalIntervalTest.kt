@@ -1,5 +1,9 @@
 package io.bluetape4k.javatimes.interval
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.javatimes.dayPeriod
 import io.bluetape4k.javatimes.days
 import io.bluetape4k.javatimes.hours
@@ -11,10 +15,6 @@ import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.time.Duration
@@ -83,7 +83,7 @@ class TemporalIntervalTest {
         val interval = temporalIntervalOf(start, duration)
 
         interval.startInclusive shouldBeEqualTo start
-        interval.endExclusive shouldBeEqualTo (start + duration)
+        interval.endExclusive shouldBeEqualTo start + duration
         interval.zoneId shouldBeEqualTo ZoneOffset.UTC
         interval.toDuration() shouldBeEqualTo duration
     }
@@ -185,10 +185,8 @@ class TemporalIntervalTest {
 
         interval.withStart(50.toInstant()) shouldBeEqualTo temporalIntervalOf(50.toInstant(), 100.toInstant())
         interval.withEnd(200.toInstant()) shouldBeEqualTo temporalIntervalOf(0.toInstant(), 200.toInstant())
-        interval.withStart(50.toInstant()).withEnd(200.toInstant()) shouldBeEqualTo temporalIntervalOf(
-            50.toInstant(),
-            200.toInstant()
-        )
+        interval.withStart(50.toInstant()).withEnd(200.toInstant()) shouldBeEqualTo
+                temporalIntervalOf(50.toInstant(), 200.toInstant())
     }
 
     @Test
@@ -196,24 +194,21 @@ class TemporalIntervalTest {
         val start = nowZonedDateTime()
         val interval = TemporalInterval(start, start + 100.days())
 
-        interval.withAmountBeforeEnd(50.dayPeriod()) shouldBeEqualTo temporalIntervalOf(
-            50.dayPeriod(),
-            start + 100.days()
-        )
-        interval.withAmountAfterStart(200.dayPeriod()) shouldBeEqualTo temporalIntervalOf(start, 200.days())
+        interval.withAmountBeforeEnd(50.dayPeriod()) shouldBeEqualTo
+                temporalIntervalOf(50.dayPeriod(), start + 100.days())
+
+        interval.withAmountAfterStart(200.dayPeriod()) shouldBeEqualTo
+                temporalIntervalOf(start, 200.days())
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `parse TemporalInterval instance with zoneId is system default`(@RandomValue zoneId: ZoneId) {
 
         val start = nowZonedDateTime(zoneId)
-
         val expected = TemporalInterval(start, start + 100.days())
+        log.trace { "interval=$expected" }
 
-        val str = expected.toString()
-        log.trace { "interval=$str" }
-        val actual = TemporalInterval.parse(str)
-
+        val actual = TemporalInterval.parse(expected.toString())
         actual shouldBeEqualTo expected
     }
 

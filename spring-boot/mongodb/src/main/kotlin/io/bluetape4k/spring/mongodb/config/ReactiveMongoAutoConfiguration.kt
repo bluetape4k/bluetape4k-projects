@@ -3,8 +3,8 @@ package io.bluetape4k.spring.mongodb.config
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
-import org.springframework.context.annotation.Bean
 import org.springframework.context.EnvironmentAware
+import org.springframework.context.annotation.Bean
 import org.springframework.core.env.Environment
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory
 import org.springframework.data.mongodb.core.ReactiveMongoOperations
@@ -40,7 +40,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter
 )
 @ConditionalOnClass(ReactiveMongoOperations::class)
 @ConditionalOnMissingBean(ReactiveMongoOperations::class)
-class ReactiveMongoAutoConfiguration : EnvironmentAware {
+class ReactiveMongoAutoConfiguration: EnvironmentAware {
 
     override fun setEnvironment(environment: Environment) {
         if (environment.containsProperty(LEGACY_URI_PROPERTY) &&

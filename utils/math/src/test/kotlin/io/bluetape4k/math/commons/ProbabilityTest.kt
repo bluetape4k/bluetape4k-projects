@@ -8,7 +8,9 @@ import org.junit.jupiter.api.Test
 
 class ProbabilityTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val DEFAULT_EPSILON = 1e-10
+    }
 
     data class Item(val id: Int, val name: String)
 
@@ -110,7 +112,7 @@ class ProbabilityTest {
 
         val prob = values.probability(1) { a, b -> a == b }
         log.trace { "prob=$prob" }
-        prob.shouldBeNear(3.0 / 5.0, 1e-10)
+        prob.shouldBeNear(3.0 / 5.0, DEFAULT_EPSILON)
     }
 
     // ----- normalDensity (Sequence) -----
@@ -122,8 +124,8 @@ class ProbabilityTest {
 
         log.trace { "probs=$probs" }
         // 표준정규분포 f(0) = 1/sqrt(2π) ≈ 0.3989
-        probs[1].shouldBeNear(0.3989422804014327, 1e-10)
+        probs[1].shouldBeNear(0.3989422804014327, DEFAULT_EPSILON)
         // 대칭: f(-1) == f(1)
-        probs[0].shouldBeNear(probs[2], 1e-10)
+        probs[0].shouldBeNear(probs[2], DEFAULT_EPSILON)
     }
 }

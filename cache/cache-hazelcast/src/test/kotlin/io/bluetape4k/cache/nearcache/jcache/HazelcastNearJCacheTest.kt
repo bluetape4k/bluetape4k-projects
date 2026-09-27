@@ -1,17 +1,19 @@
 package io.bluetape4k.cache.nearcache.jcache
 
+import com.hazelcast.nio.serialization.HazelcastSerializationException
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.cache.HazelcastCaches
 import io.bluetape4k.cache.HazelcastServers
 import io.bluetape4k.cache.HazelcastServers.hazelcastClient
-import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.JCache
+import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.nearcache.jcache.NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import com.hazelcast.nio.serialization.HazelcastSerializationException
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -30,7 +32,11 @@ class HazelcastNearJCacheTest {
         val config = MutableConfiguration<String, Any>().apply {
             setTypes(String::class.java, Any::class.java)
         }
-        return HazelcastCaches.jcache(HazelcastServers.hazelcastClient, cacheName, config)
+        return HazelcastCaches.jcache(
+            HazelcastServers.hazelcastClient,
+            cacheName,
+            config
+        )
     }
 
     @Test
@@ -59,6 +65,7 @@ class HazelcastNearJCacheTest {
             "hazelcast-public-front-" + Base58.randomString(6),
             frontConfiguration,
         )
+
         val config = NearJCacheConfig<String, String>(cacheName = cacheName)
         val nearCache = HazelcastNearJCache(
             frontCache = frontCache,
@@ -80,9 +87,9 @@ class HazelcastNearJCacheTest {
             nearCache.close()
         }
 
-        frontCache.isClosed shouldBeEqualTo true
-        nearCache.backCache.isClosed shouldBeEqualTo false
-        hazelcastClient.lifecycleService.isRunning shouldBeEqualTo true
+        frontCache.isClosed.shouldBeTrue()
+        nearCache.backCache.isClosed.shouldBeFalse()
+        hazelcastClient.lifecycleService.isRunning.shouldBeTrue()
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -96,9 +103,8 @@ class HazelcastNearJCacheTest {
         }
         val cleanupFailure = IllegalStateException("front close failed")
         val configurationClass = Configuration::class.java as Class<Configuration<String, String>>
-        every {
-            frontCache.getConfiguration(configurationClass)
-        } returns storeByValueConfiguration
+
+        every { frontCache.getConfiguration(configurationClass) } returns storeByValueConfiguration
         every { frontCache.close() } throws cleanupFailure
         every {
             frontCacheManager.createCache<String, String, MutableConfiguration<String, String>>(cacheName, any())
@@ -120,10 +126,12 @@ class HazelcastNearJCacheTest {
     @Test
     fun `factory creates listener-free NearJCache with read-through and write-through`() {
         val cacheName = "hazelcast-near-jcache-" + Base58.randomString(6)
-        val cache =
-            HazelcastCaches.nearJCache<String, String>(hazelcastClient, EXCLUSIVE_BACK_CACHE) {
-                this.cacheName = cacheName
-            }
+        val cache = HazelcastCaches.nearJCache<String, String>(
+            hazelcastClient,
+            EXCLUSIVE_BACK_CACHE
+        ) {
+            this.cacheName = cacheName
+        }
 
         try {
             cache.put("k", "v")
@@ -152,7 +160,9 @@ class HazelcastNearJCacheTest {
         }
 
         try {
-            assertFailsWith<SecurityException> { cache.clear() }
+            assertFailsWith<SecurityException> {
+                cache.clear()
+            }
         } finally {
             cache.close()
         }

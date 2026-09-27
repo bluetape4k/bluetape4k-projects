@@ -3,6 +3,13 @@ package io.bluetape4k.grpc
 import io.bluetape4k.support.requireInRange
 import io.grpc.Server
 import io.grpc.ServerBuilder
+import java.util.concurrent.TimeUnit
+
+@PublishedApi
+internal const val MIN_PORT = 1
+
+@PublishedApi
+internal const val MAX_PORT = 65535
 
 /**
  * 포트 기반 [ServerBuilder]를 생성하고 초기화 블록을 적용합니다.
@@ -21,7 +28,9 @@ inline fun grpcServerBuilder(
     port: Int,
     builder: ServerBuilder<*>.() -> Unit,
 ): ServerBuilder<*> =
-    ServerBuilder.forPort(port.requireInRange(1, 65535, "port")).apply(builder)
+    ServerBuilder
+        .forPort(port.requireInRange(MIN_PORT, MAX_PORT, "port"))
+        .apply(builder)
 
 /**
  * [ServerBuilder] 설정을 적용해 즉시 [Server]를 빌드합니다.
@@ -41,3 +50,7 @@ inline fun grpcServer(
     builder: ServerBuilder<*>.() -> Unit,
 ): Server =
     grpcServerBuilder(port, builder).build()
+
+
+fun Server.awaitTermination(timeout: kotlin.time.Duration): Boolean =
+    awaitTermination(timeout.inWholeNanoseconds, TimeUnit.NANOSECONDS)

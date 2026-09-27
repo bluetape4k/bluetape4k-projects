@@ -1,13 +1,14 @@
 package io.bluetape4k.testcontainers.graphdb
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.AbstractContainerTest
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldNotBeNullOrBlank
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.MethodOrderer
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestMethodOrder
 import org.neo4j.driver.GraphDatabase
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [Neo4jServer] 통합 테스트.
@@ -39,7 +39,7 @@ class Neo4jServerTest: AbstractContainerTest() {
 
     @AfterAll
     fun afterAll() {
-        if(this::neo4j.isInitialized && neo4j.isRunning) {
+        if (this::neo4j.isInitialized && neo4j.isRunning) {
             neo4j.close()
         }
     }

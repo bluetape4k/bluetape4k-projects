@@ -1,15 +1,16 @@
 package io.bluetape4k.javatimes.period
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class PeriodRelationTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `all enum values are accessible`() {
@@ -58,9 +59,9 @@ class PeriodRelationTest {
     @Test
     fun `overlapping relations are not in NotOverlappedRelations`() {
         val notOverlapped = PeriodRelation.NotOverlappedRelations
-        notOverlapped.contains(PeriodRelation.Inside).let { it.not().shouldBeTrue() }
-        notOverlapped.contains(PeriodRelation.Enclosing).let { it.not().shouldBeTrue() }
-        notOverlapped.contains(PeriodRelation.ExactMatch).let { it.not().shouldBeTrue() }
+        notOverlapped.contains(PeriodRelation.Inside).shouldBeFalse()
+        notOverlapped.contains(PeriodRelation.Enclosing).shouldBeFalse()
+        notOverlapped.contains(PeriodRelation.ExactMatch).shouldBeFalse()
     }
 
     @Test

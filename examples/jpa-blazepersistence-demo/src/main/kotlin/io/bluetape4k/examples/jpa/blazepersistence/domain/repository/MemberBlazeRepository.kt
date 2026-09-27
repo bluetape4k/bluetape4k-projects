@@ -45,7 +45,8 @@ class MemberBlazeRepository(
         firstResult: Int,
         maxResults: Int,
     ): MemberPage<MemberTeamView> {
-        val setting = EntityViewSetting.create(MemberTeamView::class.java, firstResult, maxResults)
+        val setting = EntityViewSetting
+            .create(MemberTeamView::class.java, firstResult, maxResults)
             .withKeysetPage(keysetPage)
 
         val paged = entityViewManager
@@ -60,7 +61,8 @@ class MemberBlazeRepository(
         firstResult: Int,
         maxResults: Int,
     ): PagedList<MemberTeamView> {
-        val setting = EntityViewSetting.create(MemberTeamView::class.java, firstResult, maxResults)
+        val setting = EntityViewSetting
+            .create(MemberTeamView::class.java, firstResult, maxResults)
             .withKeysetPage(null)
 
         return entityViewManager
@@ -69,7 +71,8 @@ class MemberBlazeRepository(
     }
 
     private fun baseCriteria(condition: MemberSearchCondition): CriteriaBuilder<Member> {
-        val criteria = criteriaBuilderFactory.create(entityManager, Member::class.java, "member")
+        val criteria = criteriaBuilderFactory
+            .create(entityManager, Member::class.java, "member")
             .leftJoin("member.team", "team")
 
         condition.memberName?.let { criteria.where("member.name").eq(it) }

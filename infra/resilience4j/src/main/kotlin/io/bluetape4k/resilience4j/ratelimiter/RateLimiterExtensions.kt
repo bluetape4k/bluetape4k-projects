@@ -21,9 +21,7 @@ import java.util.function.Consumer
  * @param runnable 실행할 코드
  * @return RateLimiter가 적용된 Runnable
  */
-inline fun RateLimiter.runnable(
-    crossinline runnable: () -> Unit,
-): () -> Unit = {
+fun RateLimiter.runnable(runnable: () -> Unit): () -> Unit = {
     RateLimiter.decorateRunnable(this) { runnable() }.run()
 }
 
@@ -42,9 +40,7 @@ inline fun RateLimiter.runnable(
  * @param runnable 실행할 코드
  * @return RateLimiter가 적용된 CheckedRunnable
  */
-inline fun RateLimiter.checkedRunnable(
-    crossinline runnable: () -> Unit,
-): CheckedRunnable =
+fun RateLimiter.checkedRunnable(runnable: () -> Unit): CheckedRunnable =
     RateLimiter.decorateCheckedRunnable(this) { runnable() }
 
 /**
@@ -62,9 +58,7 @@ inline fun RateLimiter.checkedRunnable(
  * @param callable 실행할 코드
  * @return RateLimiter가 적용된 Callable
  */
-inline fun <T> RateLimiter.callable(
-    crossinline callable: () -> T,
-): () -> T = {
+fun <T> RateLimiter.callable(callable: () -> T): () -> T = {
     RateLimiter.decorateCallable(this) { callable() }.call()
 }
 
@@ -83,9 +77,7 @@ inline fun <T> RateLimiter.callable(
  * @param supplier 실행할 코드
  * @return RateLimiter가 적용된 Supplier
  */
-inline fun <T> RateLimiter.supplier(
-    crossinline supplier: () -> T,
-): () -> T = {
+fun <T> RateLimiter.supplier(supplier: () -> T): () -> T = {
     RateLimiter.decorateSupplier(this) { supplier() }.get()
 }
 
@@ -104,9 +96,7 @@ inline fun <T> RateLimiter.supplier(
  * @param supplier 실행할 코드
  * @return RateLimiter가 적용된 CheckedSupplier
  */
-inline fun <T> RateLimiter.checkedSupplier(
-    crossinline supplier: () -> T,
-): () -> T = {
+fun <T> RateLimiter.checkedSupplier(supplier: () -> T): () -> T = {
     RateLimiter.decorateCheckedSupplier(this) { supplier() }.get()
 }
 
@@ -125,9 +115,7 @@ inline fun <T> RateLimiter.checkedSupplier(
  * @param consumer 실행할 코드
  * @return RateLimiter가 적용된 Consumer
  */
-inline fun <T> RateLimiter.consumer(
-    crossinline consumer: (T) -> Unit,
-): (T) -> Unit = { input: T ->
+fun <T> RateLimiter.consumer(consumer: (T) -> Unit): (T) -> Unit = { input: T ->
     RateLimiter.decorateConsumer(this, Consumer<T> { consumer(it) }).accept(input)
 }
 
@@ -146,9 +134,7 @@ inline fun <T> RateLimiter.consumer(
  * @param consumer 실행할 코드
  * @return RateLimiter가 적용된 CheckedConsumer
  */
-inline fun <T, R> RateLimiter.function(
-    crossinline func: (T) -> R,
-): (T) -> R = { input: T ->
+fun <T, R> RateLimiter.function(func: (T) -> R): (T) -> R = { input: T ->
     RateLimiter.decorateFunction<T, R>(this) { func(it) }.apply(input)
 }
 
@@ -167,9 +153,7 @@ inline fun <T, R> RateLimiter.function(
  * @param consumer 실행할 코드
  * @return RateLimiter가 적용된 CheckedFunction
  */
-inline fun <T, R> RateLimiter.checkedFunction(
-    crossinline func: (T) -> R,
-): (T) -> R = { input: T ->
+fun <T, R> RateLimiter.checkedFunction(func: (T) -> R): (T) -> R = { input: T ->
     RateLimiter.decorateCheckedFunction<T, R>(this) { func(it) }.apply(input)
 }
 
@@ -192,9 +176,7 @@ inline fun <T, R> RateLimiter.checkedFunction(
  * @param supplier 실행할 비동기 함수
  * @return RateLimiter가 적용된 Supplier
  */
-inline fun <T> RateLimiter.completionStage(
-    crossinline supplier: () -> CompletionStage<T>,
-): () -> CompletionStage<T> = {
+fun <T> RateLimiter.completionStage(supplier: () -> CompletionStage<T>): () -> CompletionStage<T> = {
     RateLimiter.decorateCompletionStage(this) { supplier() }.get()
 }
 
@@ -213,9 +195,7 @@ inline fun <T> RateLimiter.completionStage(
  * @param supplier 실행할 비동기 함수
  * @return RateLimiter가 적용된 Supplier
  */
-inline fun <T, R> RateLimiter.completableFuture(
-    crossinline func: (T) -> CompletableFuture<R>,
-): (T) -> CompletableFuture<R> =
+fun <T, R> RateLimiter.completableFuture(func: (T) -> CompletableFuture<R>): (T) -> CompletableFuture<R> =
     decorateCompletableFuture(func)
 
 /**
@@ -233,8 +213,8 @@ inline fun <T, R> RateLimiter.completableFuture(
  * @param func 실행할 비동기 함수
  * @return RateLimiter가 적용된 Supplier
  */
-inline fun <T, R> RateLimiter.decorateCompletableFuture(
-    crossinline func: (T) -> CompletableFuture<R>,
+fun <T, R> RateLimiter.decorateCompletableFuture(
+    func: (T) -> CompletableFuture<R>,
 ): (T) -> CompletableFuture<R> = { input: T ->
     val promise = CompletableFuture<R>()
 

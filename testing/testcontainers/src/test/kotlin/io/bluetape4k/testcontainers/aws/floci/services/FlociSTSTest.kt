@@ -1,12 +1,12 @@
 package io.bluetape4k.testcontainers.aws.floci.services
 
+import io.bluetape4k.assertions.shouldNotBeBlank
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.aws.floci.AbstractFlociServiceTest
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.utils.ShutdownQueue
-import io.bluetape4k.assertions.shouldNotBeBlank
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -20,9 +20,9 @@ import software.amazon.awssdk.services.sts.StsClient
  * LocalStack 기반 [io.bluetape4k.testcontainers.aws.localstack.services.STSTest]에 대응합니다.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FlociSTSTest : AbstractFlociServiceTest() {
+class FlociSTSTest: AbstractFlociServiceTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val stsClient: StsClient by lazy {
         StsClient.builder()

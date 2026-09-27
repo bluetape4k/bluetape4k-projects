@@ -1,11 +1,13 @@
 package io.bluetape4k.concurrent.virtualthread.api
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
@@ -50,7 +52,7 @@ class StructuredScopesTest {
     @Test
     fun `provider priority 가 양수여야 한다`() {
         val provider = StructuredTaskScopes.provider()
-        provider.priority.shouldBeGreaterThan(0)
+        provider.priority shouldBeGreaterThan 0
     }
 
     @Test
@@ -59,7 +61,7 @@ class StructuredScopesTest {
             FailingNextThenProviderIterator(TestStructuredTaskScopeProvider("valid-provider", priority = 10))
         )
 
-        providers.size shouldBeEqualTo 1
+        providers shouldHaveSize 1
         providers.first().providerName shouldBeEqualTo "valid-provider"
     }
 
@@ -67,7 +69,7 @@ class StructuredScopesTest {
     fun `provider discovery stops cleanly when hasNext fails`() {
         val providers = StructuredTaskScopes.discoverStructuredTaskScopeProviders(FailingHasNextIterator())
 
-        providers shouldBeEqualTo emptyList<StructuredTaskScopeProvider>()
+        providers.shouldBeEmpty()
     }
 
     // ── 기존 all/any 회귀 테스트 (deprecated API 동작 검증) ─────────────────────
@@ -204,7 +206,7 @@ class StructuredScopesTest {
         }
         val subtask = capturedSubtask.shouldNotBeNull()
         subtask.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.FAILED
-        subtask.exceptionOrNull().shouldNotBeNull().shouldBeInstanceOf<RuntimeException>()
+        subtask.exceptionOrNull().shouldBeInstanceOf<RuntimeException>()
     }
 
     // ── failFast 신규 API 테스트 ────────────────────────────────────────────────
@@ -371,9 +373,10 @@ class StructuredScopesTest {
                 99
             }
             ready.await()
+
             // join() 이전에 getOrNull() 호출 — ISE 가 아니라 null 반환이어야 한다
-            val result = earlySubtask.getOrNull()
-            result.shouldBeNull()
+            earlySubtask.getOrNull().shouldBeNull()
+
             hold.countDown()
             scope.join().throwIfFailed()
             earlySubtask.getOrNull() shouldBeEqualTo 99
@@ -400,7 +403,7 @@ class StructuredScopesTest {
 
     @Test
     fun `supervised scope 일부 성공 일부 실패 시 결과를 분리해야 한다`() {
-        val (successes, failures) = StructuredTaskScopes.supervised<Int, Pair<List<Int>, List<Throwable>>> { scope ->
+        val (successes, failures) = StructuredTaskScopes.supervised { scope ->
             scope.fork { 1 }
             scope.fork { throw RuntimeException("fail2") }
             scope.fork { 3 }
@@ -414,7 +417,7 @@ class StructuredScopesTest {
 
     @Test
     fun `supervised scope 모두 성공 시 successfulResults 에 전부 포함되어야 한다`() {
-        val (successes, failures) = StructuredTaskScopes.supervised<Int, Pair<List<Int>, List<Throwable>>> { scope ->
+        val (successes, failures) = StructuredTaskScopes.supervised { scope ->
             scope.fork { 10 }
             scope.fork { 20 }
             scope.fork { 30 }
@@ -441,7 +444,7 @@ class StructuredScopesTest {
     fun `supervised scope 병렬 실행으로 thread-safe 하게 결과를 수집해야 한다`() {
         val taskCount = 100
         val failEvery = 10  // 10번째마다 실패
-        val (successes, failures) = StructuredTaskScopes.supervised<Int, Pair<List<Int>, List<Throwable>>> { scope ->
+        val (successes, failures) = StructuredTaskScopes.supervised { scope ->
             repeat(taskCount) { i ->
                 if (i % failEvery == 0) {
                     scope.fork { throw RuntimeException("fail $i") }
@@ -461,7 +464,7 @@ class StructuredScopesTest {
     @Test
     fun `supervised scope joinUntil 데드라인 초과 시 TimeoutException 이 발생해야 한다`() {
         assertFailsWith<TimeoutException> {
-            StructuredTaskScopes.supervised<Int, Unit> { scope ->
+            StructuredTaskScopes.supervised { scope ->
                 scope.fork {
                     Thread.sleep(200)
                     42
@@ -477,13 +480,13 @@ class StructuredScopesTest {
             scope.join()
             scope.successfulResults() to scope.failedExceptions()
         }
-        successes.size shouldBeEqualTo 0
-        failures.size shouldBeEqualTo 0
+        successes.shouldBeEmpty()
+        failures.shouldBeEmpty()
     }
 
     @Test
     fun `supervised scope nullable T 타입에서 null 성공 결과도 수집되어야 한다`() {
-        val (successes, failures) = StructuredTaskScopes.supervised<Int?, Pair<List<Int?>, List<Throwable>>> { scope ->
+        val (successes, failures) = StructuredTaskScopes.supervised { scope ->
             scope.fork { 1 }
             scope.fork { null }  // 성공적으로 null 반환
             scope.fork { 3 }
@@ -492,7 +495,7 @@ class StructuredScopesTest {
         }
         successes.size shouldBeEqualTo 3  // null 포함
         successes.filterNotNull().sorted() shouldBeEqualTo listOf(1, 3)
-        failures.size shouldBeEqualTo 0
+        failures.shouldBeEmpty()
     }
 
     @Test
@@ -520,14 +523,14 @@ class StructuredScopesTest {
 
     @Test
     fun `supervised scope results 일부 성공 일부 실패 시 Result 리스트를 반환해야 한다`() {
-        val allResults = StructuredTaskScopes.supervised<Int, List<Result<Int>>> { scope ->
+        val allResults = StructuredTaskScopes.supervised { scope ->
             scope.fork { 1 }
             scope.fork { throw RuntimeException("fail2") }
             scope.fork { 3 }
             scope.join()
             scope.results()
         }
-        allResults.size shouldBeEqualTo 3
+        allResults shouldHaveSize 3
         val successes = allResults.filter { it.isSuccess }.map { it.getOrThrow() }.sorted()
         val failures = allResults.mapNotNull { it.exceptionOrNull() }
         successes shouldBeEqualTo listOf(1, 3)
@@ -537,13 +540,13 @@ class StructuredScopesTest {
 
     @Test
     fun `supervised scope results 모두 성공 시 모두 Result success 이어야 한다`() {
-        val allResults = StructuredTaskScopes.supervised<Int, List<Result<Int>>> { scope ->
+        val allResults = StructuredTaskScopes.supervised { scope ->
             scope.fork { 10 }
             scope.fork { 20 }
             scope.join()
             scope.results()
         }
-        allResults.size shouldBeEqualTo 2
+        allResults shouldHaveSize 2
         allResults.all { it.isSuccess }.shouldBeTrue()
         allResults.map { it.getOrThrow() }.sorted() shouldBeEqualTo listOf(10, 20)
     }
@@ -556,20 +559,20 @@ class StructuredScopesTest {
             scope.join()
             scope.results()
         }
-        allResults.size shouldBeEqualTo 2
+        allResults shouldHaveSize 2
         allResults.all { it.isFailure }.shouldBeTrue()
     }
 
     @Test
     fun `supervised scope results nullable T 에서 null 성공도 Result success 로 포함되어야 한다`() {
-        val allResults = StructuredTaskScopes.supervised<Int?, List<Result<Int?>>> { scope ->
+        val allResults = StructuredTaskScopes.supervised { scope ->
             scope.fork { 1 }
             scope.fork { null }  // 성공적으로 null 반환
             scope.fork { 3 }
             scope.join()
             scope.results()
         }
-        allResults.size shouldBeEqualTo 3
+        allResults shouldHaveSize 3
         allResults.all { it.isSuccess }.shouldBeTrue()
         allResults.map { it.getOrThrow() }.filterNotNull().sorted() shouldBeEqualTo listOf(1, 3)
     }
@@ -580,7 +583,7 @@ class StructuredScopesTest {
         var failures: List<Throwable> = emptyList()
         var allResults: List<Result<Int>> = emptyList()
 
-        StructuredTaskScopes.supervised<Int, Unit> { scope ->
+        StructuredTaskScopes.supervised { scope ->
             scope.fork { 1 }
             scope.fork { throw RuntimeException("boom") }
             scope.fork { 3 }
@@ -591,7 +594,7 @@ class StructuredScopesTest {
         }
 
         successes.sorted() shouldBeEqualTo allResults.filter { it.isSuccess }.map { it.getOrThrow() }.sorted()
-        failures.size shouldBeEqualTo allResults.mapNotNull { it.exceptionOrNull() }.size
+        failures shouldHaveSize allResults.mapNotNull { it.exceptionOrNull() }.size
     }
 
     private class FailingNextThenProviderIterator(

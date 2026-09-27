@@ -2,13 +2,14 @@ package io.bluetape4k.csv
 
 import io.bluetape4k.csv.internal.ArrayRecord
 import io.bluetape4k.csv.internal.HeaderIndex
+import io.bluetape4k.logging.KLogging
 
 /**
  * CSV/TSV 레코드 생성 팩토리.
  *
  * 내부적으로 [ArrayRecord]를 생성하고 공개 [Record] 인터페이스로 반환합니다.
  */
-object RecordFactory {
+object RecordFactory: KLogging() {
 
     /**
      * 원시 값 배열, 헤더, 행 번호로 [Record]를 생성합니다.

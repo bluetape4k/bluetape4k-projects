@@ -2,10 +2,11 @@ package io.bluetape4k.concurrent.virtualthread
 
 
 import io.bluetape4k.concurrent.asCompletableFuture
+import io.bluetape4k.concurrent.get
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
+import kotlin.time.toKotlinDuration
 
 /**
  * JDK 21 의 Virtual Thread를 이용하여 비동기 작업을 수행하는 [Future]
@@ -59,6 +60,10 @@ class VirtualFuture<T>(private val future: Future<T>): Future<T> by future {
      * @throws java.util.concurrent.TimeoutException 제한 시간 초과 시
      */
     fun await(timeout: Duration): T {
+        return awaitInternal(timeout.toKotlinDuration())
+    }
+
+    fun await(timeout: kotlin.time.Duration): T {
         return awaitInternal(timeout)
     }
 
@@ -79,10 +84,10 @@ class VirtualFuture<T>(private val future: Future<T>): Future<T> by future {
         return future.asCompletableFuture()
     }
 
-    private fun awaitInternal(timeout: Duration? = null): T {
+    private fun awaitInternal(timeout: kotlin.time.Duration? = null): T {
         return when (timeout) {
             null -> future.get()
-            else -> future.get(timeout.toMillis(), TimeUnit.MILLISECONDS)
+            else -> future.get(timeout)
         }
     }
 }

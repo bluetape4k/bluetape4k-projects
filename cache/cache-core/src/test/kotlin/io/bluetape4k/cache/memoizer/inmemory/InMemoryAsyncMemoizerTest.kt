@@ -1,18 +1,20 @@
 package io.bluetape4k.cache.memoizer.inmemory
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cache.memoizer.AbstractAsyncMemoizerTest
 import io.bluetape4k.cache.memoizer.AsyncFactorialProvider
 import io.bluetape4k.cache.memoizer.AsyncFibonacciProvider
-import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 class InMemoryAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
 
@@ -54,13 +56,13 @@ class InMemoryAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
         }
 
         val first = memo("hello")
-        evalStarted.await(2, TimeUnit.SECONDS)
+        evalStarted.await(2.seconds)
 
         memo.clear()
         firstEvaluatorFuture.complete(5)
 
-        first.get(2, TimeUnit.SECONDS) shouldBeEqualTo 5
-        memo("hello").get(2, TimeUnit.SECONDS) shouldBeEqualTo 5
+        first.get(2.seconds) shouldBeEqualTo 5
+        memo("hello").get(2.seconds) shouldBeEqualTo 5
         evalCount.get() shouldBeEqualTo 2
     }
 
@@ -77,10 +79,10 @@ class InMemoryAsyncMemoizerTest: AbstractAsyncMemoizerTest() {
         }
 
         assertFailsWith<ExecutionException> {
-            memo("recover").get(2, TimeUnit.SECONDS)
+            memo("recover").get(2.seconds)
         }
 
-        memo("recover").get(2, TimeUnit.SECONDS) shouldBeEqualTo 7
+        memo("recover").get(2.seconds) shouldBeEqualTo 7
         evalCount.get() shouldBeEqualTo 2
     }
 }

@@ -2,10 +2,13 @@ package io.bluetape4k.science.exposed.service.internal
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.science.exposed.NetCdfException
 import org.junit.jupiter.api.Test
 
 class NetCdfImportLimitsTest {
+
+    companion object: KLogging()
 
     @Test
     fun `checked product rejects long overflow as typed resource failure`() {

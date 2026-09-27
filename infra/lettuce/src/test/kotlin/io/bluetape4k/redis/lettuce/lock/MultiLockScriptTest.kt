@@ -3,16 +3,26 @@ package io.bluetape4k.redis.lettuce.lock
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.lock.internal.deriveMultiLockKeys
+import io.bluetape4k.support.toUtf8Bytes
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.codec.StringCodec
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
-import java.nio.charset.StandardCharsets
 import java.time.Duration
 
 internal class MultiLockScriptTest {
+
+    private companion object: KLogging() {
+        val OWNER_1 = LockOwnerId.from("multi-owner-1")
+        val REQUEST_1 = LockRequestId.from("multi-request-1")
+        val REQUEST_2 = LockRequestId.from("multi-request-2")
+        val LEASE = LeasePolicy.Fixed(Duration.ofSeconds(3))
+    }
 
     @Test
     fun `same slot distinct bounded names derive one stable ordered group identity`() {
@@ -41,26 +51,40 @@ internal class MultiLockScriptTest {
     @Test
     fun `partial state and changed constituent set fail closed without mutation`() {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val config = MultiLockConfig(lock = LockConfig(hashTag = "multi-partial-${System.nanoTime()}"))
+            val config = MultiLockConfig(lock = LockConfig(hashTag = "multi-partial-${Base58.randomString(8)}"))
             val firstKeys = deriveMultiLockKeys(listOf("one", "two"), config, connection.codec)
             val changedKeys = deriveMultiLockKeys(listOf("one", "three"), config, connection.codec)
             val first = LettuceMultiLock.create(connection, listOf("one", "two"), config)
             val changed = LettuceMultiLock.create(connection, listOf("one", "three"), config)
             try {
                 connection.sync().del(*(firstKeys.all + changedKeys.all).distinct().toTypedArray())
-                val handle = first.tryAcquire(OWNER_1, REQUEST_1, LEASE)
-                    .shouldBeInstanceOf<LockAcquireResult.Acquired<MultiLockHandle>>()
-                    .handle
+
+                val handle = first.tryAcquire(
+                    OWNER_1,
+                    REQUEST_1,
+                    LEASE
+                ).shouldBeInstanceOf<LockAcquireResult.Acquired<MultiLockHandle>>().handle
+                log.debug { "handle=$handle" }
 
                 changed.tryAcquire(OWNER_1, REQUEST_2, LEASE)
                     .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
+
                 connection.sync().exists(changedKeys.states[1]) shouldBeEqualTo 0L
-                assertFailsWith<IllegalArgumentException> { changed.inspect(handle) }
+
+                assertFailsWith<IllegalArgumentException> {
+                    changed.inspect(handle)
+                }
 
                 first.release(handle) shouldBeEqualTo LockMutationResult.Released(0)
+
                 connection.sync().hset(firstKeys.states[0], "owner", OWNER_1.value)
-                first.tryAcquire(OWNER_1, REQUEST_2, LEASE)
-                    .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
+
+                first.tryAcquire(
+                    OWNER_1,
+                    REQUEST_2,
+                    LEASE
+                ).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
+
                 connection.sync().exists(firstKeys.states[1]) shouldBeEqualTo 0L
             } finally {
                 first.close()
@@ -73,18 +97,29 @@ internal class MultiLockScriptTest {
     @Test
     fun `persistent complete same owner state fails closed`() {
         LettuceTestUtils.client.connect(StringCodec.UTF8).use { connection ->
-            val config = MultiLockConfig(lock = LockConfig(hashTag = "multi-persistent-${System.nanoTime()}"))
+            val config = MultiLockConfig(lock = LockConfig(hashTag = "multi-persistent-${Base58.randomString(8)}"))
             val keys = deriveMultiLockKeys(listOf("one", "two"), config, connection.codec)
             val lock = LettuceMultiLock.create(connection, listOf("one", "two"), config)
+
             try {
                 connection.sync().del(*keys.all.toTypedArray())
-                lock.tryAcquire(OWNER_1, REQUEST_1, LEASE)
-                    .shouldBeInstanceOf<LockAcquireResult.Acquired<MultiLockHandle>>()
+                lock.tryAcquire(
+                    OWNER_1,
+                    REQUEST_1,
+                    LEASE
+                ).shouldBeInstanceOf<LockAcquireResult.Acquired<MultiLockHandle>>()
+
+                keys.states.forEach {
+                    log.debug { "states=$it" }
+                }
                 keys.states.forEach(connection.sync()::persist)
                 connection.sync().persist(keys.holds)
 
-                lock.tryAcquire(OWNER_1, REQUEST_2, LEASE)
-                    .shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
+                lock.tryAcquire(
+                    OWNER_1,
+                    REQUEST_2,
+                    LEASE
+                ).shouldBeInstanceOf<LockAcquireResult.IntegrityFailure>()
             } finally {
                 lock.close()
                 connection.sync().del(*keys.all.toTypedArray())
@@ -103,16 +138,9 @@ internal class MultiLockScriptTest {
                 key.endsWith(":two:state") -> key.replace("{multi-contract}", "{slot-two}")
                 else -> key
             }
-            return ByteBuffer.wrap(rewritten.toByteArray(StandardCharsets.UTF_8))
+            return ByteBuffer.wrap(rewritten.toUtf8Bytes())
         }
 
         override fun encodeValue(value: String): ByteBuffer = StringCodec.UTF8.encodeValue(value)
-    }
-
-    private companion object {
-        val OWNER_1 = LockOwnerId.from("multi-owner-1")
-        val REQUEST_1 = LockRequestId.from("multi-request-1")
-        val REQUEST_2 = LockRequestId.from("multi-request-2")
-        val LEASE = LeasePolicy.Fixed(Duration.ofSeconds(3))
     }
 }

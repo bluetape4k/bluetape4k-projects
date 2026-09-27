@@ -1,18 +1,17 @@
 package io.bluetape4k.javatimes.period.ranges
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
 import io.bluetape4k.javatimes.period.TimeCalendar
 import io.bluetape4k.javatimes.startOfYear
 import io.bluetape4k.javatimes.yearPeriod
 import io.bluetape4k.javatimes.zonedDateTimeOf
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.runBlocking
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class YearRangeTest: AbstractPeriodTest() {
@@ -51,12 +50,14 @@ class YearRangeTest: AbstractPeriodTest() {
         yr.prevYear().start shouldBeEqualTo startYear - 1.yearPeriod()
         yr.nextYear().start shouldBeEqualTo startYear + 1.yearPeriod()
 
-        runBlocking(Dispatchers.Default) {
-            (-120..120).map { year ->
-                async {
-                    yr.addYears(year).start shouldBeEqualTo startYear + year.yearPeriod()
+        runSuspendDefault {
+            (-120..120)
+                .map { year ->
+                    async {
+                        yr.addYears(year).start shouldBeEqualTo startYear + year.yearPeriod()
+                    }
                 }
-            }.awaitAll()
+                .awaitAll()
         }
     }
 }

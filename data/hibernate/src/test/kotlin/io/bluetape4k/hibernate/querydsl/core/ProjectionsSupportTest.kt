@@ -1,11 +1,14 @@
 package io.bluetape4k.hibernate.querydsl.core
 
 import com.querydsl.core.types.dsl.Expressions
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 
 class ProjectionsSupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `array and constructor projections are created`() {
@@ -13,10 +16,12 @@ class ProjectionsSupportTest {
         val num = Expressions.numberPath(Long::class.javaObjectType, "id")
 
         val arrayProj = arrayProjectionOf(Array<String>::class.java, str, str)
-        arrayProj.shouldNotBeNull()
+        log.debug { "arrayProj: $arrayProj" }
+        arrayProj.toString() shouldBeEqualTo "new String[](str, str)"
 
         val ctorProj = constructorProjectionOf<DummyDto>(str, num)
-        ctorProj.shouldNotBeNull()
+        log.debug { "ctorProj: $ctorProj" }
+        ctorProj.toString() shouldBeEqualTo "new DummyDto(str, id)"
     }
 
     @Test
@@ -25,10 +30,12 @@ class ProjectionsSupportTest {
         val num = Expressions.numberPath(Long::class.javaObjectType, "id")
 
         val bean = beanProjectionOf<DummyDto>(str, num)
-        bean.shouldNotBeNull()
+        log.debug { "bean: $bean" }
+        bean.toString() shouldBeEqualTo "new DummyDto(name, id)"
 
         val fields = fieldProjectionOf<DummyDto>(str, num)
-        fields.shouldNotBeNull()
+        log.debug { "fields: $fields" }
+        fields.toString() shouldBeEqualTo "new DummyDto(name, id)"
     }
 
     @Test
@@ -36,7 +43,8 @@ class ProjectionsSupportTest {
         val str = Expressions.stringPath("name")
         val bindings = mapOf("name" to str)
         val bean = beanProjectionOf<DummyDto>(bindings)
-        bean.shouldNotBeNull()
+        log.debug { "bean: $bean" }
+        bean.toString() shouldBeEqualTo "new DummyDto(name)"
     }
 
     @Test
@@ -44,7 +52,8 @@ class ProjectionsSupportTest {
         val str = Expressions.stringPath("name")
         val bindings = mapOf("name" to str)
         val fields = fieldProjectionOf<DummyDto>(bindings)
-        fields.shouldNotBeNull()
+        log.debug { "fields: $fields" }
+        fields.toString() shouldBeEqualTo "new DummyDto(name)"
     }
 
     @Test
@@ -55,7 +64,8 @@ class ProjectionsSupportTest {
             arrayOf(String::class, Long::class),
             str, num
         )
-        proj.shouldNotBeNull()
+        log.debug { "proj: $proj" }
+        proj.toString() shouldBeEqualTo "new DummyDto(name, id)"
     }
 
     @Test
@@ -66,7 +76,8 @@ class ProjectionsSupportTest {
             arrayOf(String::class, Long::class),
             listOf(str, num)
         )
-        proj.shouldNotBeNull()
+        log.debug { "proj: $proj" }
+        proj.toString() shouldBeEqualTo "new DummyDto(name, id)"
     }
 
     @Test
@@ -74,11 +85,11 @@ class ProjectionsSupportTest {
         val str = Expressions.stringPath("name")
         val num = Expressions.numberPath(Int::class.javaObjectType, "age")
 
-        projectionListOf(str, num).args.shouldNotBeEmpty()
-        projectionListOf(listOf(str, num)).args.shouldNotBeEmpty()
-        projectionMapOf(str, num).args.shouldNotBeEmpty()
-        projectionTupleOf(str, num).args.shouldNotBeEmpty()
-        projectionTupleOf(listOf(str, num)).args.shouldNotBeEmpty()
+        projectionListOf(str, num).toString() shouldBeEqualTo "new List(name, age)"
+        projectionListOf(listOf(str, num)).toString() shouldBeEqualTo "new List(name, age)"
+        projectionMapOf(str, num).toString() shouldBeEqualTo "new Map(name, age)"
+        projectionTupleOf(str, num).toString() shouldBeEqualTo "new Tuple(name, age)"
+        projectionTupleOf(listOf(str, num)).toString() shouldBeEqualTo "new Tuple(name, age)"
     }
 
     @Test
@@ -87,10 +98,10 @@ class ProjectionsSupportTest {
         val num = Expressions.numberPath(Long::class.javaObjectType, "id")
         val path = Expressions.path(DummyDto::class.java, "dto")
 
-        path.beanProjectionOf(str, num).shouldNotBeNull()
-        path.beanProjectionOf(mapOf("name" to str)).shouldNotBeNull()
-        path.fieldProjectionOf(str, num).shouldNotBeNull()
-        path.fieldProjectionOf(mapOf("name" to str)).shouldNotBeNull()
+        path.beanProjectionOf(str, num).toString() shouldBeEqualTo "new DummyDto(name, id)"
+        path.beanProjectionOf(mapOf("name" to str)).toString() shouldBeEqualTo "new DummyDto(name)"
+        path.fieldProjectionOf(str, num).toString() shouldBeEqualTo "new DummyDto(name, id)"
+        path.fieldProjectionOf(mapOf("name" to str)).toString() shouldBeEqualTo "new DummyDto(name)"
     }
 
     private data class DummyDto(val name: String?, val id: Long? = null)

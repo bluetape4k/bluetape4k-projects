@@ -44,7 +44,8 @@ EXPECTED_METHODS = tuple(
 
 
 def _metric(record: dict, metric_name: str) -> tuple[float, float, str]:
-    metric = record["primaryMetric"] if metric_name == "throughput" else record["secondaryMetrics"]["gc.alloc.rate.norm"]
+    metric = record["primaryMetric"] if metric_name == "throughput" else record["secondaryMetrics"][
+        "gc.alloc.rate.norm"]
     score = float(metric["score"])
     error = float(metric["scoreError"])
     unit = metric["scoreUnit"]
@@ -73,11 +74,11 @@ def validate_records(records: list[dict]) -> list[dict]:
         candidate = by_method[cell["candidate"]]
         for record in (baseline, candidate):
             if (
-                record.get("mode") != "thrpt"
-                or record.get("threads") != 1
-                or record.get("forks") != 2
-                or record.get("warmupIterations") != 3
-                or record.get("measurementIterations") != 5
+                    record.get("mode") != "thrpt"
+                    or record.get("threads") != 1
+                    or record.get("forks") != 2
+                    or record.get("warmupIterations") != 3
+                    or record.get("measurementIterations") != 5
             ):
                 raise ValidationError("JMH protocol mismatch")
         b_alloc, b_alloc_error, b_alloc_unit = _metric(baseline, "allocation")

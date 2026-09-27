@@ -1,6 +1,7 @@
 package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
@@ -9,7 +10,7 @@ import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cache.jcache.CaffeineSuspendJCache
 import io.bluetape4k.cache.jcache.SuspendJCache
-import io.bluetape4k.codec.encodeBase62
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -18,7 +19,7 @@ import io.mockk.coVerify
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
-import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -33,15 +34,14 @@ import java.time.Duration
 class SuspendNearJCacheTest {
 
     companion object: KLoggingChannel() {
-        private fun randomKey(): String = Fakers.randomUuid().encodeBase62()
+        private fun randomKey(): String = Base58.randomString(8)
         private fun randomValue(): String = Fakers.randomString(64, 256)
     }
 
-    private fun newSuspendJCache(): SuspendJCache<String, Any> =
-        CaffeineSuspendJCache {
-            expireAfterWrite(Duration.ofSeconds(60))
-            maximumSize(10_000)
-        }
+    private fun newSuspendJCache(): SuspendJCache<String, Any> = CaffeineSuspendJCache {
+        expireAfterWrite(Duration.ofSeconds(60))
+        maximumSize(10_000)
+    }
 
     private lateinit var frontCache: SuspendJCache<String, Any>
     private lateinit var backCache: SuspendJCache<String, Any>
@@ -220,11 +220,12 @@ class SuspendNearJCacheTest {
         val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         coEvery { frontCache.clear() } just runs
         coEvery { backCache.clear() } throws failure
+
         val localNearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
 
         val thrown = assertFailsWith<AssertionError> { localNearCache.clearAll() }
 
-        (thrown === failure).shouldBeTrue()
+        thrown shouldBe failure
         coVerify { frontCache.clear() }
         coVerify { backCache.clear() }
     }
@@ -237,7 +238,6 @@ class SuspendNearJCacheTest {
 
         nearCache.put(key, value1)
         val old = nearCache.getAndPut(key, value2)
-
         old shouldBeEqualTo value1
         nearCache.get(key) shouldBeEqualTo value2
     }
@@ -249,7 +249,6 @@ class SuspendNearJCacheTest {
 
         nearCache.put(key, value)
         val removed = nearCache.getAndRemove(key)
-
         removed shouldBeEqualTo value
         nearCache.get(key).shouldBeNull()
     }
@@ -267,7 +266,6 @@ class SuspendNearJCacheTest {
 
         nearCache.put(key, value1)
         val old = nearCache.getAndReplace(key, value2)
-
         old shouldBeEqualTo value1
         nearCache.get(key) shouldBeEqualTo value2
     }
@@ -336,11 +334,7 @@ class SuspendNearJCacheTest {
     fun `putAllFlow - Flow로 여러 항목 저장`() = runSuspendIO {
         val entries = (1..5).map { "key-$it" to "value-$it" as Any }
 
-        nearCache.putAllFlow(
-            kotlinx.coroutines.flow.flow {
-                entries.forEach { emit(it) }
-            }
-        )
+        nearCache.putAllFlow(entries.asFlow())
 
         entries.forEach { (k, v) ->
             nearCache.get(k) shouldBeEqualTo v
@@ -360,6 +354,7 @@ class SuspendNearJCacheTest {
         val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         coEvery { frontCache.close() } throws failure
+
         val localNearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
 
         localNearCache.close()
@@ -373,11 +368,14 @@ class SuspendNearJCacheTest {
         val frontCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         val backCache = mockk<SuspendJCache<String, String>>(relaxed = true)
         coEvery { frontCache.close() } throws failure
+
         val localNearCache = SuspendNearJCache.withoutListener(frontCache, backCache)
 
-        val thrown = assertFailsWith<AssertionError> { localNearCache.close() }
+        val thrown = assertFailsWith<AssertionError> {
+            localNearCache.close()
+        }
 
-        (thrown === failure).shouldBeTrue()
+        thrown shouldBe failure
         coVerify { frontCache.close() }
     }
 }

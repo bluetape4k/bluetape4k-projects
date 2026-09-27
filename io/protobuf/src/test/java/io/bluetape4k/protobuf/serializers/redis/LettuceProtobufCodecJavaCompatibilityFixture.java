@@ -5,13 +5,14 @@ import io.netty.buffer.ByteBuf;
 
 public final class LettuceProtobufCodecJavaCompatibilityFixture {
 
-    private LettuceProtobufCodecJavaCompatibilityFixture() {}
+    private LettuceProtobufCodecJavaCompatibilityFixture() {
+    }
 
     public static void compileExistingUsage(Object value, ByteBuf target) {
         LettuceBinaryCodec<Object> strict =
-            LettuceProtobufCodecs.INSTANCE.protobuf();
+                LettuceProtobufCodecs.INSTANCE.protobuf();
         LettuceBinaryCodec<Object> trusted =
-            LettuceProtobufCodecs.INSTANCE.trustedInternalProtobuf();
+                LettuceProtobufCodecs.INSTANCE.trustedInternalProtobuf();
 
         strict.encodeValue(value, target);
         trusted.encodeValue(value, null);

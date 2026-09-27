@@ -2,15 +2,16 @@ package io.bluetape4k.workflow.core
 
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.workflow.api.AbstractWorkflowTest
 import io.bluetape4k.workflow.api.ParallelPolicy
 import io.bluetape4k.workflow.api.Work
 import io.bluetape4k.workflow.api.WorkReport
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class ParallelWorkFlowTest: AbstractWorkflowTest() {
 
@@ -50,7 +51,7 @@ class ParallelWorkFlowTest: AbstractWorkflowTest() {
         val works = listOf(
             interruptibleSlowWork(slowStarted, slowInterrupted),
             Work("fast-fail") { ctx ->
-                slowStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+                slowStarted.await(1.seconds).shouldBeTrue()
                 throw IllegalStateException("fail fast")
             },
         )
@@ -68,7 +69,7 @@ class ParallelWorkFlowTest: AbstractWorkflowTest() {
         val works = listOf(
             interruptibleSlowWork(slowStarted, slowInterrupted),
             Work("fast-failure-report") { ctx ->
-                slowStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+                slowStarted.await(1.seconds).shouldBeTrue()
                 WorkReport.failure(ctx, IllegalStateException("failure report"))
             },
         )
@@ -86,7 +87,7 @@ class ParallelWorkFlowTest: AbstractWorkflowTest() {
         val works = listOf(
             interruptibleSlowWork(slowStarted, slowInterrupted),
             Work("fast-aborted-report") { ctx ->
-                slowStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+                slowStarted.await(1.seconds).shouldBeTrue()
                 WorkReport.aborted(ctx, "aborted report")
             },
         )
@@ -104,7 +105,7 @@ class ParallelWorkFlowTest: AbstractWorkflowTest() {
         val works = listOf(
             interruptibleSlowWork(slowStarted, slowInterrupted),
             Work("fast-cancelled-report") { ctx ->
-                slowStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+                slowStarted.await(1.seconds).shouldBeTrue()
                 WorkReport.cancelled(ctx, "cancelled report")
             },
         )

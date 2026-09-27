@@ -1,5 +1,10 @@
 package io.bluetape4k.r2dbc.core
 
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.r2dbc.AbstractR2dbcTest
@@ -9,11 +14,6 @@ import io.bluetape4k.r2dbc.support.bindIndexedMap
 import io.bluetape4k.support.string
 import io.bluetape4k.support.stringOrNull
 import kotlinx.coroutines.flow.toList
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.springframework.r2dbc.core.awaitOne
 import org.springframework.r2dbc.core.awaitOneOrNull
@@ -116,7 +116,9 @@ class ExecuteTest: AbstractR2dbcTest() {
                     1 to true,
                 )
             )
-            .map<String> { row, _ -> row.get("name", String::class.java).shouldNotBeNull() }
+            .map { row, _ ->
+                row.get("name", String::class.java).shouldNotBeNull()
+            }
             .awaitOne()
         smithName shouldBeEqualTo "John Smith"
     }

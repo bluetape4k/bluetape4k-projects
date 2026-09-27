@@ -252,11 +252,13 @@ private suspend fun assertReplayHeaderDenylistAndAggregateBounds(
     adapter.awaitOwnerStarted(nominatedContentType)
     adapter.completeOwner(
         nominatedContentType,
-        createdResponse().copy(headers = mapOf(
-            "Content-Type" to listOf("application/json"),
-            "Connection" to listOf("Content-Type"),
-            "ETag" to listOf("widget-v2"),
-        )),
+        createdResponse().copy(
+            headers = mapOf(
+                "Content-Type" to listOf("application/json"),
+                "Connection" to listOf("Content-Type"),
+                "ETag" to listOf("widget-v2"),
+            )
+        ),
     )
     nominatedOwner.await().also { response ->
         response.headers.keys.shouldNotContain("content-type")
@@ -284,14 +286,22 @@ private fun hostileReplayOutcomes(
         add(createdResponse().copy(body = "x".repeat(config.maxReplayBodyBytes + 1)))
     }
     if (config.maxReplayHeaderValueBytes < INTRINSIC_MAX_HEADER_VALUE_BYTES) {
-        add(createdResponse().copy(headers = mapOf(
-            "content-type" to listOf("x".repeat(config.maxReplayHeaderValueBytes + 1)),
-        )))
+        add(
+            createdResponse().copy(
+                headers = mapOf(
+                    "content-type" to listOf("x".repeat(config.maxReplayHeaderValueBytes + 1)),
+                )
+            )
+        )
     }
     if (config.maxReplayValuesPerHeader < INTRINSIC_MAX_VALUES_PER_HEADER) {
-        add(createdResponse().copy(headers = mapOf(
-            "content-type" to List(config.maxReplayValuesPerHeader + 1) { "value-$it" },
-        )))
+        add(
+            createdResponse().copy(
+                headers = mapOf(
+                    "content-type" to List(config.maxReplayValuesPerHeader + 1) { "value-$it" },
+                )
+            )
+        )
     }
     replayHeaderNameOverflow(config)?.let(::add)
     replayHeaderAggregateOverflow(config)?.let(::add)

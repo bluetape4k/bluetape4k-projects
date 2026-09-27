@@ -2,10 +2,11 @@ package io.bluetape4k.examples.ktor.idgenerator
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
-import io.bluetape4k.ktor.core.HealthResponse as CoreHealthResponse
 import io.bluetape4k.ktor.testing.ExpectedApiError
 import io.bluetape4k.ktor.testing.decodeJsonBody
 import io.bluetape4k.ktor.testing.shouldHaveApiError
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
+import io.bluetape4k.ktor.core.HealthResponse as CoreHealthResponse
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class IdGeneratorKtorApplicationTest {
@@ -48,7 +50,7 @@ class IdGeneratorKtorApplicationTest {
 
             val body = response.decodeJsonBody<IdResponse>()
             body.type shouldBeEqualTo type
-            body.id.isNotBlank() shouldBeEqualTo true
+            body.id.shouldNotBeBlank()
         }
     }
 
@@ -67,7 +69,7 @@ class IdGeneratorKtorApplicationTest {
             body.size shouldBeEqualTo BATCH_SIZE
             body.ids shouldHaveSize BATCH_SIZE
             body.ids.distinct() shouldHaveSize BATCH_SIZE
-            body.ids.all { it.isNotBlank() } shouldBeEqualTo true
+            body.ids.all { it.isNotBlank() }.shouldBeTrue()
         }
     }
 
@@ -164,7 +166,7 @@ class IdGeneratorKtorApplicationTest {
         response shouldHaveStatus HttpStatusCode.OK
         val requestId = response.headers[HttpHeaders.XRequestId]
         requestId.shouldNotBeNull()
-        requestId.isNotBlank() shouldBeEqualTo true
+        requestId.shouldNotBeBlank()
     }
 
     @Test

@@ -36,14 +36,13 @@ A Kotlin extension library for working with Google Protocol Buffers messages.
 
 Trust profile: `AllowListedTypes`.
 
-`ProtobufSerializer` checks the `typeUrl` of each `Any` message against an allowlist before deserializing.
-Classes whose prefix is not in the allowlist throw `SecurityException` (wrapped as `BinarySerializationException`).
+`ProtobufSerializer` checks the `typeUrl` of each `Any` message against an allowlist before deserializing. Classes whose prefix is not in the allowlist throw `SecurityException` (wrapped as `BinarySerializationException`).
 
 **Default allowed prefixes** (`DEFAULT_ALLOWED_PREFIXES`):
 
-| Prefix | Description |
-|---|---|
-| `io.bluetape4k.` | All bluetape4k domain messages |
+| Prefix                 | Description                        |
+|------------------------|------------------------------------|
+| `io.bluetape4k.`       | All bluetape4k domain messages     |
 | `com.google.protobuf.` | Standard Protobuf well-known types |
 
 **Custom allowlist example:**
@@ -60,17 +59,11 @@ val expandedSerializer = ProtobufSerializer(
 )
 ```
 
-`ProtobufSerializer()` is strict by default: it accepts Protobuf `Message` values and rejects non-Protobuf values or
-bytes. `ProtobufSerializer(fallback = nonNullSerializer)` and
-`ProtobufSerializer.trustedInternalProtobuf(...)` enable a compatibility fallback only for stores where every producer
-and stored payload is trusted. Do not enable either profile for untrusted payloads. A fallback never bypasses a
-terminal allowlist violation or a resolved non-`Message` type.
+`ProtobufSerializer()` is strict by default: it accepts Protobuf `Message` values and rejects non-Protobuf values or bytes. `ProtobufSerializer(fallback = nonNullSerializer)` and
+`ProtobufSerializer.trustedInternalProtobuf(...)` enable a compatibility fallback only for stores where every producer and stored payload is trusted. Do not enable either profile for untrusted payloads. A fallback never bypasses a terminal allowlist violation or a resolved non-`Message` type.
 
-`RedissonProtobufCodec()` and `RedissonProtobufCodec(allowedClassPrefixes)` are also strict. They do not use Kryo5 or
-another fallback by default. `RedissonProtobufCodec(fallbackCodec)` and
-`RedissonProtobufCodec.trustedInternal(...)` are explicit trusted-store-only fallback profiles. For a fully trusted
-legacy deployment that temporarily needs allow-all Protobuf class loading, configure the migration escape hatch
-explicitly:
+`RedissonProtobufCodec()` and `RedissonProtobufCodec(allowedClassPrefixes)` are also strict. They do not use Kryo5 or another fallback by default. `RedissonProtobufCodec(fallbackCodec)` and
+`RedissonProtobufCodec.trustedInternal(...)` are explicit trusted-store-only fallback profiles. For a fully trusted legacy deployment that temporarily needs allow-all Protobuf class loading, configure the migration escape hatch explicitly:
 
 ```kotlin
 val codec = RedissonProtobufCodec(
@@ -78,16 +71,11 @@ val codec = RedissonProtobufCodec(
 )
 ```
 
-A trusted Redisson fallback decoder must consume its temporary input synchronously and return only an independent
-object. Retaining the input, transferring it to another thread, or returning a derived `ByteBuf` view is unsupported.
-If the decoded result must preserve those bytes, return an independently owned `ByteBuf.copy()` instead.
+A trusted Redisson fallback decoder must consume its temporary input synchronously and return only an independent object. Retaining the input, transferring it to another thread, or returning a derived `ByteBuf` view is unsupported. If the decoded result must preserve those bytes, return an independently owned `ByteBuf.copy()` instead.
 
-On decode, only a contiguous input that exposes exactly one NIO buffer (`nioBufferCount() == 1`) uses the lower-copy
-path. Composite input remains on the copied compatibility path, and trusted fallback decoding remains isolated through
-its own copied input. This is not a zero-copy guarantee.
+On decode, only a contiguous input that exposes exactly one NIO buffer (`nioBufferCount() == 1`) uses the lower-copy path. Composite input remains on the copied compatibility path, and trusted fallback decoding remains isolated through its own copied input. This is not a zero-copy guarantee.
 
-`ALLOW_ALL_CLASSES_UNSAFE` changes only the Protobuf class allowlist. It does not activate a fallback codec, so
-non-Protobuf values remain rejected by this constructor.
+`ALLOW_ALL_CLASSES_UNSAFE` changes only the Protobuf class allowlist. It does not activate a fallback codec, so non-Protobuf values remain rejected by this constructor.
 
 Prefer a narrow custom allowlist for production:
 
@@ -99,17 +87,14 @@ val codec = RedissonProtobufCodec(
 
 ### Lettuce caller-owned ByteBuf encoding
 
-`LettuceProtobufCodecs.protobuf()` keeps the strict default allowlist and writes an uncompressed Protobuf message
-directly into Lettuce's caller-owned `ByteBuf`. `trustedInternalProtobuf()` uses the same target path but retains the
-trusted Kryo fallback and must not be used across a shared or untrusted boundary.
+`LettuceProtobufCodecs.protobuf()` keeps the strict default allowlist and writes an uncompressed Protobuf message directly into Lettuce's caller-owned `ByteBuf`. `trustedInternalProtobuf()` uses the same target path but retains the trusted Kryo fallback and must not be used across a shared or untrusted boundary.
 
 ```kotlin
 val strictCodec = LettuceProtobufCodecs.protobuf<MyBluetapeMessage>()
 val trustedLegacyCodec = LettuceProtobufCodecs.trustedInternalProtobuf<MyBluetapeMessage>()
 ```
 
-For a package outside the default prefixes, construct the generic codec with an explicit serializer; this remains the
-copied compatibility path:
+For a package outside the default prefixes, construct the generic codec with an explicit serializer; this remains the copied compatibility path:
 
 ```kotlin
 val customCodec = LettuceBinaryCodec<MyMessage>(
@@ -118,10 +103,8 @@ val customCodec = LettuceBinaryCodec<MyMessage>(
 ```
 
 Compressed factories and the single-argument `ByteBuffer` encode/decode API are unchanged. A target write commits
-`writerIndex` only after success. Failure can still leave capacity growth or attempted bytes behind, so the caller must
-clear/reinitialize that range or discard the buffer. The measured heap/direct allocation reduction is recorded in the
-[issue #757 report](../../docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md); it is not a zero-copy or throughput
-guarantee. Java callers use `LettuceProtobufCodecs.INSTANCE.protobuf()`.
+`writerIndex` only after success. Failure can still leave capacity growth or attempted bytes behind, so the caller must clear/reinitialize that range or discard the buffer. The measured heap/direct allocation reduction is recorded in the
+[issue #757 report](../../docs/benchmarks/2026-07-18-protobuf-buffer-allocation.md); it is not a zero-copy or throughput guarantee. Java callers use `LettuceProtobufCodecs.INSTANCE.protobuf()`.
 
 ## Usage Examples
 
@@ -187,8 +170,7 @@ val source = target.duplicate().apply {
 val decoded = unpackMessage<MyMessage>(source)
 ```
 
-The caller-owned path is intended for an oversized buffer that is reused across calls. For tests or internal sizing
-checks, the exact capacity can be calculated without adding a separate public size API:
+The caller-owned path is intended for an oversized buffer that is reused across calls. For tests or internal sizing checks, the exact capacity can be calculated without adding a separate public size API:
 
 ```kotlin
 val packed = com.google.protobuf.Any.pack(myMessage)
@@ -197,8 +179,7 @@ packMessageTo(myMessage, exactTarget)
 ```
 
 Production callers should normally keep the deliberately larger reusable buffer. Exact sizing constructs the packed
-`Any` before the real write and gives up part of the intended allocation benefit. Existing `ByteArray` callers do not
-need to migrate.
+`Any` before the real write and gives up part of the intended allocation benefit. Existing `ByteArray` callers do not need to migrate.
 
 ### 6. ProtobufSerializer (BinarySerializer Implementation)
 
@@ -220,12 +201,9 @@ val decoded = serializer.deserializeFrom<MyMessage>(source)
 ```
 
 `serializeTo` keeps the caller-owned encode optimization. `deserializeFrom` deliberately uses the inherited
-`BinarySerializer` compatibility path: it copies only the bounded remaining bytes before decoding and preserves the
-source position, limit, mark, and byte order for heap, direct, sliced, and read-only buffers.
+`BinarySerializer` compatibility path: it copies only the bounded remaining bytes before decoding and preserves the source position, limit, mark, and byte order for heap, direct, sliced, and read-only buffers.
 
-The target remains caller-owned. A preflight `BufferOverflowException` does not change it, but a failure after writing
-has started restores only `position`; bytes may already have been overwritten. Clear and reinitialize every
-caller-owned prefix byte, or discard the buffer before reuse (`HEADER_SIZE` is the caller's prefix boundary):
+The target remains caller-owned. A preflight `BufferOverflowException` does not change it, but a failure after writing has started restores only `position`; bytes may already have been overwritten. Clear and reinitialize every caller-owned prefix byte, or discard the buffer before reuse (`HEADER_SIZE` is the caller's prefix boundary):
 
 ```kotlin
 try {
@@ -242,8 +220,7 @@ Recommended usage patterns:
 
 - If all values are Protobuf messages, using `packMessage` / `unpackMessage` or each message's own
   `parseFrom` directly is the simplest approach.
-- For trusted stores that mix Protobuf messages with historical JVM objects (e.g., internal caches or sessions), use
-  an explicit trusted fallback profile only after confirming every producer and stored payload is trusted.
+- For trusted stores that mix Protobuf messages with historical JVM objects (e.g., internal caches or sessions), use an explicit trusted fallback profile only after confirming every producer and stored payload is trusted.
 - Leave the service-to-service wire protocol to gRPC/Protobuf conventions, and use
   `ProtobufSerializer` at internal binary storage and delivery boundaries within the application.
 

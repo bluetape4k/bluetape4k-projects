@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class DelayTest: AbstractFlowTest() {
@@ -41,10 +42,10 @@ class DelayTest: AbstractFlowTest() {
         runCurrent()
         emitted.get().shouldBeFalse()
 
-        advanceTimeBy(1_000)
+        advanceTimeBy(1_000.milliseconds)
         emitted.get().shouldBeFalse()
 
-        advanceTimeBy(1_100)
+        advanceTimeBy(1_100.milliseconds)
         emitted.get().shouldBeTrue()
     }
 
@@ -63,10 +64,10 @@ class DelayTest: AbstractFlowTest() {
         runCurrent()
         emitted.get().shouldBeFalse()
 
-        advanceTimeBy(1_000)
+        advanceTimeBy(1_000.milliseconds)
         emitted.get().shouldBeFalse()
 
-        advanceTimeBy(1_100)
+        advanceTimeBy(1_100.milliseconds)
         emitted.get().shouldBeTrue()
     }
 }

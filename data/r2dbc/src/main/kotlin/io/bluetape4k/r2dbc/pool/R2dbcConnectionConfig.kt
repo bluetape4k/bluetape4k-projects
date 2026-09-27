@@ -133,17 +133,18 @@ class R2dbcConnectionConfig {
 
         return ConnectionFactoryOptions.builder()
             .option(ConnectionFactoryOptions.DRIVER, driver)
-            .apply { protocol?.let { option(ConnectionFactoryOptions.PROTOCOL, it) } }
-            .apply { host?.let { option(ConnectionFactoryOptions.HOST, it) } }
-            .apply { port?.let { option(ConnectionFactoryOptions.PORT, it) } }
-            .apply { database?.let { option(ConnectionFactoryOptions.DATABASE, it) } }
-            .apply { user?.let { option(ConnectionFactoryOptions.USER, it) } }
-            .apply { password?.let { option(ConnectionFactoryOptions.PASSWORD, it) } }
             .option(ConnectionFactoryOptions.SSL, ssl)
-            .apply { connectTimeout?.let { option(ConnectionFactoryOptions.CONNECT_TIMEOUT, it) } }
-            .apply { lockWaitTimeout?.let { option(ConnectionFactoryOptions.LOCK_WAIT_TIMEOUT, it) } }
-            .apply { statementTimeout?.let { option(ConnectionFactoryOptions.STATEMENT_TIMEOUT, it) } }
             .apply {
+                protocol?.let { option(ConnectionFactoryOptions.PROTOCOL, it) }
+                host?.let { option(ConnectionFactoryOptions.HOST, it) }
+                port?.let { option(ConnectionFactoryOptions.PORT, it) }
+                database?.let { option(ConnectionFactoryOptions.DATABASE, it) }
+                user?.let { option(ConnectionFactoryOptions.USER, it) }
+                password?.let { option(ConnectionFactoryOptions.PASSWORD, it) }
+                connectTimeout?.let { option(ConnectionFactoryOptions.CONNECT_TIMEOUT, it) }
+                lockWaitTimeout?.let { option(ConnectionFactoryOptions.LOCK_WAIT_TIMEOUT, it) }
+                statementTimeout?.let { option(ConnectionFactoryOptions.STATEMENT_TIMEOUT, it) }
+
                 @Suppress("UNCHECKED_CAST")
                 extraOptions.forEach { (key, value) ->
                     option(key as Option<Any>, value)

@@ -2,9 +2,7 @@
 
 [English](./README.md) | 한국어
 
-bluetape4k `idgenerators`를 HTTP endpoint로 노출하는 실행 가능한 Ktor application입니다.
-공통 bluetape4k Ktor 모듈을 사용해 JSON, 표준 오류 응답, health/readiness route,
-correlation ID, call logging, test assertion을 구성합니다.
+bluetape4k `idgenerators`를 HTTP endpoint로 노출하는 실행 가능한 Ktor application입니다. 공통 bluetape4k Ktor 모듈을 사용해 JSON, 표준 오류 응답, health/readiness route, correlation ID, call logging, test assertion을 구성합니다.
 
 ## 구조
 
@@ -92,11 +90,11 @@ curl http://localhost:8080/readyz
 
 ## Generator 선택 기준
 
-| Type | 사용 기준 |
-|---|---|
-| `uuid-v4` | 랜덤 UUID 호환성이 충분할 때 |
-| `uuid-v7` | UUID 형식을 유지하면서 시간 정렬 특성이 필요할 때 |
-| `ulid` | 짧고 사전순 정렬 가능한 문자열 ID가 필요할 때 |
-| `ksuid` | timestamp와 random payload를 포함한 K-sortable ID가 필요할 때 |
-| `snowflake` | 분산 시스템에서 쓰기 좋은 compact numeric ID가 필요할 때 |
-| `flake` | Boundary 스타일 128-bit Base62 ID가 필요할 때 |
+| Type        | 사용 기준                                                     |
+|-------------|---------------------------------------------------------------|
+| `uuid-v4`   | 랜덤 UUID 호환성이 충분할 때                                  |
+| `uuid-v7`   | UUID 형식을 유지하면서 시간 정렬 특성이 필요할 때             |
+| `ulid`      | 짧고 사전순 정렬 가능한 문자열 ID가 필요할 때                 |
+| `ksuid`     | timestamp와 random payload를 포함한 K-sortable ID가 필요할 때 |
+| `snowflake` | 분산 시스템에서 쓰기 좋은 compact numeric ID가 필요할 때      |
+| `flake`     | Boundary 스타일 128-bit Base62 ID가 필요할 때                 |

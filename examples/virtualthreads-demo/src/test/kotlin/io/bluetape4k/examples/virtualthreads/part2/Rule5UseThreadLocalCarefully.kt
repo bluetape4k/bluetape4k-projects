@@ -1,17 +1,16 @@
 package io.bluetape4k.examples.virtualthreads.part2
 
-import io.bluetape4k.concurrent.virtualthread.runWith
-import io.bluetape4k.concurrent.virtualthread.structuredTaskScopeAll
-import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
-import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
+import io.bluetape4k.concurrent.virtualthread.runWith
+import io.bluetape4k.concurrent.virtualthread.structuredTaskScopeFailFast
+import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
-import io.bluetape4k.concurrent.virtualthread.structuredTaskScopeFailFast
 
 
 /**

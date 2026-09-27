@@ -2,38 +2,58 @@ package io.bluetape4k.r2dbc.pool
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import io.r2dbc.pool.ConnectionPool
 import io.r2dbc.spi.ConnectionFactory
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.seconds
 
 class TenantConnectionRegistryTest {
 
+    companion object: KLogging()
+
+    private val tenantA = mockk<ConnectionPool>(relaxed = true)
+    private val tenantB = mockk<ConnectionPool>(relaxed = true)
+    private val tenantC = mockk<ConnectionPool>(relaxed = true)
+
+    @BeforeEach
+    fun beforeEach() {
+        clearAllMocks()
+    }
+
     @Test
     fun `caller-owned factory registry routes configured keys without taking lifecycle ownership`() {
-        val tenantA = mockk<ConnectionPool>(relaxed = true)
-        val tenantB = mockk<ConnectionFactory>(relaxed = true)
         val registry = TenantConnectionFactoryRegistry(
             mapOf(
                 TenantKey("tenant-a") to tenantA,
                 TenantKey("tenant-b") to tenantB,
             ),
         )
+
+        log.debug { "registry=$registry" }
 
         registry[TenantKey("tenant-a")] shouldBeSameInstanceAs tenantA
         registry.get(TenantKey("tenant-b")) shouldBeSameInstanceAs tenantB
@@ -55,7 +75,7 @@ class TenantConnectionRegistryTest {
             registry[TenantKey("unknown")]
         }
 
-        failure.message.orEmpty().contains("tenant key") shouldBeEqualTo true
+        failure.message shouldContain "tenant key"
     }
 
     @Test
@@ -71,7 +91,7 @@ class TenantConnectionRegistryTest {
             registry.asRoutingMap { "shared-route" }
         }
 
-        failure.message.orEmpty().contains("Duplicate routing key") shouldBeEqualTo true
+        failure.message shouldContain "Duplicate routing key"
     }
 
     @Test
@@ -95,14 +115,13 @@ class TenantConnectionRegistryTest {
 
     @Test
     fun `registry-owned pools are disposed exactly once`() {
-        val tenantA = mockk<ConnectionPool>(relaxed = true)
-        val tenantB = mockk<ConnectionPool>(relaxed = true)
         val registry = TenantConnectionPoolRegistry(
             mapOf(
                 TenantKey("tenant-a") to tenantA,
                 TenantKey("tenant-b") to tenantB,
             ),
         )
+        log.debug { "registry=$registry" }
 
         registry.close()
         registry.close()
@@ -116,27 +135,29 @@ class TenantConnectionRegistryTest {
         val disposeStarted = CountDownLatch(1)
         val allowDispose = CountDownLatch(1)
         val concurrentCloseStarted = CountDownLatch(1)
+
         val pool = mockk<ConnectionPool>(relaxed = true)
         every { pool.dispose() } answers {
             disposeStarted.countDown()
             allowDispose.await()
         }
+
         val registry = TenantConnectionPoolRegistry(mapOf(TenantKey("tenant-a") to pool))
         val executor = Executors.newFixedThreadPool(2)
 
         try {
             val firstClose = executor.submit(registry::close)
-            disposeStarted.await(5, TimeUnit.SECONDS) shouldBeEqualTo true
+            disposeStarted.await(5.seconds).shouldBeTrue()
             val concurrentClose = executor.submit {
                 concurrentCloseStarted.countDown()
                 registry.close()
             }
 
-            concurrentCloseStarted.await(5, TimeUnit.SECONDS) shouldBeEqualTo true
-            concurrentClose.isDone shouldBeEqualTo false
+            concurrentCloseStarted.await(5.seconds).shouldBeTrue()
+            concurrentClose.isDone.shouldBeFalse()
             allowDispose.countDown()
-            firstClose.get(5, TimeUnit.SECONDS)
-            concurrentClose.get(5, TimeUnit.SECONDS)
+            firstClose.get(5.seconds)
+            concurrentClose.get(5.seconds)
         } finally {
             allowDispose.countDown()
             executor.shutdownNow()
@@ -151,6 +172,7 @@ class TenantConnectionRegistryTest {
         val registry = TenantConnectionPoolRegistry(
             mapOf(TenantKey("tenant-a") to pool),
         )
+        log.debug { "registry=$registry" }
 
         registry.close()
 
@@ -183,18 +205,17 @@ class TenantConnectionRegistryTest {
         }
         caller.join()
 
-        caller.isCancelled shouldBeEqualTo true
+        caller.isCancelled.shouldBeTrue()
         verify(exactly = 1) { pool.dispose() }
     }
 
     @Test
     fun `closeSuspending은 취소를 primary로 유지하고 cleanup 실패를 보존한다`() = runSuspendIO {
-        val tenantA = mockk<ConnectionPool>(relaxed = true)
-        val tenantB = mockk<ConnectionPool>(relaxed = true)
         val firstFailure = IllegalStateException("tenant-a close failed")
         val secondFailure = IllegalArgumentException("tenant-b close failed")
         every { tenantA.dispose() } throws firstFailure
         every { tenantB.dispose() } throws secondFailure
+
         val registry = TenantConnectionPoolRegistry(
             mapOf(
                 TenantKey("tenant-a") to tenantA,
@@ -215,23 +236,25 @@ class TenantConnectionRegistryTest {
         caller.join()
 
         val cancellation = observed.get()
-        cancellation shouldBeInstanceOf CancellationException::class
+        cancellation.shouldBeInstanceOf<CancellationException>()
         cancellation shouldBeSameInstanceAs expectedCancellation
+
         val cleanupFailure = cancellation.suppressed.single()
         cleanupFailure shouldBeSameInstanceAs firstFailure
         cleanupFailure.suppressed.single() shouldBeSameInstanceAs secondFailure
+
         verify(exactly = 1) { tenantA.dispose() }
         verify(exactly = 1) { tenantB.dispose() }
     }
 
     @Test
     fun `closeSuspending은 정상 caller에서 cleanup 실패 identity와 집계를 유지한다`() = runSuspendIO {
-        val tenantA = mockk<ConnectionPool>(relaxed = true)
-        val tenantB = mockk<ConnectionPool>(relaxed = true)
         val firstFailure = IllegalStateException("tenant-a close failed")
         val secondFailure = IllegalArgumentException("tenant-b close failed")
+
         every { tenantA.dispose() } throws firstFailure
         every { tenantB.dispose() } throws secondFailure
+
         val registry = TenantConnectionPoolRegistry(
             mapOf(
                 TenantKey("tenant-a") to tenantA,
@@ -254,9 +277,6 @@ class TenantConnectionRegistryTest {
 
     @Test
     fun `registry-owned pool cleanup continues and suppresses later failures`() {
-        val tenantA = mockk<ConnectionPool>(relaxed = true)
-        val tenantB = mockk<ConnectionPool>(relaxed = true)
-        val tenantC = mockk<ConnectionPool>(relaxed = true)
         val firstFailure = IllegalStateException("tenant-a close failed")
         val secondFailure = IllegalArgumentException("tenant-b close failed")
         every { tenantA.dispose() } throws firstFailure
@@ -283,9 +303,6 @@ class TenantConnectionRegistryTest {
 
     @Test
     fun `registry-owned pool cleanup은 Error를 suppressed 처리하지 않고 즉시 전파한다`() {
-        val tenantA = mockk<ConnectionPool>(relaxed = true)
-        val tenantB = mockk<ConnectionPool>(relaxed = true)
-        val tenantC = mockk<ConnectionPool>(relaxed = true)
         every { tenantA.dispose() } throws IllegalStateException("ordinary close failure")
         every { tenantB.dispose() } throws AssertionError("fatal close failure")
         val registry = TenantConnectionPoolRegistry(

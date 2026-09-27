@@ -1,5 +1,8 @@
 package io.bluetape4k.pulsar.consumer
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.pulsar.AbstractPulsarTest
 import io.bluetape4k.pulsar.assertCleanupWaitsAfterCancellation
@@ -10,28 +13,23 @@ import io.mockk.verify
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.pulsar.client.api.Consumer
 import org.apache.pulsar.client.api.ConsumerBuilder
 import org.apache.pulsar.client.api.PulsarClient
 import org.apache.pulsar.client.api.Schema
 import org.apache.pulsar.client.api.SubscriptionType
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import java.util.concurrent.CompletableFuture
-import kotlin.time.Duration.Companion.seconds
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ConsumerSupportTest : AbstractPulsarTest() {
+class ConsumerSupportTest: AbstractPulsarTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
-    fun `consumer DSL - Schema와 setup으로 Consumer 생성`() = runTest(timeout = 30.seconds) {
-        val client = newClient()
-        val topic = newTopic()
-        try {
+    fun `consumer DSL - Schema와 setup으로 Consumer 생성`() = runSuspendIO {
+        newClient().use { client ->
+            val topic = newTopic()
+
             val consumer = client.consumer(Schema.STRING) {
                 topic(topic)
                 subscriptionName(newSubscription())
@@ -39,63 +37,67 @@ class ConsumerSupportTest : AbstractPulsarTest() {
             }
             consumer.shouldNotBeNull()
             consumer.close()
-        } finally {
-            client.close()
         }
     }
 
     @Test
-    fun `withConsumer - 블록 실행 후 자동 close`() = runTest(timeout = 30.seconds) {
-        val client = newClient()
-        val topic = newTopic()
-        val sub = newSubscription()
+    fun `withConsumer - 블록 실행 후 자동 close`() = runSuspendIO {
+        newClient().use { client ->
+            val topic = newTopic()
+            val sub = newSubscription()
 
-        // Consumer 먼저 구독 → 이후 메시지 발행
-        client.withConsumer(Schema.STRING, {
-            topic(topic)
-            subscriptionName(sub)
-            subscriptionType(SubscriptionType.Exclusive)
-        }) {
-            shouldNotBeNull()
-            // Consumer 생성 후 메시지 발행
-            launch {
-                val producer = client.newProducer(Schema.STRING).topic(topic).create()
-                producer.sendSuspend("withConsumer test")
-                producer.close()
-            }
-            val msg = receiveSuspend()
-            msg.value shouldBeEqualTo "withConsumer test"
-            acknowledgeSuspend(msg)
-        }
-        client.close()
-    }
-
-    @Test
-    fun `withConsumer - 복수 메시지 처리`() = runTest(timeout = 30.seconds) {
-        val client = newClient()
-        val topic = newTopic()
-        val sub = newSubscription()
-
-        val received = mutableListOf<String>()
-        client.withConsumer(Schema.STRING, {
-            topic(topic)
-            subscriptionName(sub)
-        }) {
-            // Consumer 생성 후 메시지 발행
-            launch {
-                val producer = client.newProducer(Schema.STRING).topic(topic).create()
-                repeat(3) { i -> producer.sendSuspend("msg-$i") }
-                producer.close()
-            }
-            repeat(3) {
+            // Consumer 먼저 구독 → 이후 메시지 발행
+            client.withConsumer(Schema.STRING, {
+                topic(topic)
+                subscriptionName(sub)
+                subscriptionType(SubscriptionType.Exclusive)
+            }) {
+                // Consumer 생성 후 메시지 발행
+                this@runSuspendIO.launch {
+                    client.newProducer(Schema.STRING)
+                        .topic(topic)
+                        .create().use { producer ->
+                            producer.sendSuspend("withConsumer test")
+                        }
+                }
                 val msg = receiveSuspend()
-                received.add(msg.value)
+                msg.value shouldBeEqualTo "withConsumer test"
                 acknowledgeSuspend(msg)
             }
         }
-        client.close()
+    }
 
-        received.forEachIndexed { i, v -> v shouldBeEqualTo "msg-$i" }
+    @Test
+    fun `withConsumer - 복수 메시지 처리`() = runSuspendIO {
+        val received = mutableListOf<String>()
+        val messageCount = 3
+
+        newClient().use { client ->
+            val topic = newTopic()
+            val sub = newSubscription()
+
+            client.withConsumer(Schema.STRING, {
+                topic(topic)
+                subscriptionName(sub)
+            }) {
+                // Consumer 생성 후 메시지 발행
+                this@runSuspendIO.launch {
+                    client.newProducer(Schema.STRING)
+                        .topic(topic)
+                        .create()
+                        .use { producer ->
+                            repeat(messageCount) { producer.sendSuspend("msg-$it") }
+                        }
+                }
+                repeat(messageCount) {
+                    val msg = receiveSuspend()
+                    received.add(msg.value)
+                    acknowledgeSuspend(msg)
+                }
+            }
+        }
+
+        received shouldBeEqualTo List(messageCount) { "msg-$it" }
     }
 
     @Test

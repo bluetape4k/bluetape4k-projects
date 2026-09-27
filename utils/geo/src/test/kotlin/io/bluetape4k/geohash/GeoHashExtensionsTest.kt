@@ -1,15 +1,13 @@
 package io.bluetape4k.geohash
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeNear
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class GeoHashExtensionsTest: AbstractGeoHashTest() {
 
@@ -84,6 +82,7 @@ class GeoHashExtensionsTest: AbstractGeoHashTest() {
     fun `geoHashOfLongValue round trip`() {
         val original = geoHashWithCharacters(37.5665, 126.9780, 5)
         val restored = geoHashOfLongValue(original.longValue, original.significantBits())
+
         restored.toBase32() shouldBeEqualTo original.toBase32()
     }
 
@@ -91,6 +90,7 @@ class GeoHashExtensionsTest: AbstractGeoHashTest() {
     fun `geoHashOfOrd round trip`() {
         val original = geoHashWithCharacters(37.5665, 126.9780, 5)
         val restored = geoHashOfOrd(original.ord(), original.significantBits)
+
         restored.ord() shouldBeEqualTo original.ord()
     }
 
@@ -99,6 +99,7 @@ class GeoHashExtensionsTest: AbstractGeoHashTest() {
         val original = geoHashWithBits(37.5665, 126.9780, 20)
         val binaryStr = original.toBinaryString()
         val restored = geoHashOfBinaryString(binaryStr)
+
         restored.significantBits() shouldBeEqualTo original.significantBits()
     }
 
@@ -114,6 +115,7 @@ class GeoHashExtensionsTest: AbstractGeoHashTest() {
         val hash = geoHashWithBits(0.0, 0.0, 10)
         val latRange = doubleArrayOf(-10.0, 10.0)
         val lonRange = doubleArrayOf(-20.0, 20.0)
+
         hash.setBoundingBox(latRange, lonRange)
         hash.boundingBox.southLatitude shouldBeEqualTo -10.0
         hash.boundingBox.northLatitude shouldBeEqualTo 10.0
@@ -125,12 +127,14 @@ class GeoHashExtensionsTest: AbstractGeoHashTest() {
     fun `stepsBetween returns correct count`() {
         val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
         val next5 = hash.next(5)
+
         hash.stepsBetween(next5) shouldBeEqualTo 5L
     }
 
     @Test
     fun `stepsBetween same hash returns 0`() {
         val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
+
         hash.stepsBetween(hash) shouldBeEqualTo 0L
     }
 
@@ -138,6 +142,7 @@ class GeoHashExtensionsTest: AbstractGeoHashTest() {
     fun `stepsBetween different bit precision throws`() {
         val hash5 = geoHashWithCharacters(37.5665, 126.9780, 5)
         val hash4 = geoHashWithCharacters(37.5665, 126.9780, 4)
+
         assertFailsWith<IllegalArgumentException> {
             hash5.stepsBetween(hash4)
         }
@@ -147,7 +152,7 @@ class GeoHashExtensionsTest: AbstractGeoHashTest() {
     fun `getAdjacent returns 8 neighbors`() {
         val hash = geoHashWithCharacters(37.5665, 126.9780, 5)
         val adjacent = hash.getAdjacent()
-        adjacent.shouldHaveSize(8)
+        adjacent shouldHaveSize 8
         adjacent.forEach { it.shouldNotBeNull() }
     }
 
@@ -171,6 +176,7 @@ class GeoHashExtensionsTest: AbstractGeoHashTest() {
     fun `within checks parent containment`() {
         val parent = geoHashWithCharacters(37.5665, 126.9780, 4)
         val child = geoHashWithCharacters(37.5665, 126.9780, 5)
+
         child.within(parent).shouldBeTrue()
         parent.within(child).shouldBeFalse()
     }

@@ -1,5 +1,6 @@
 package io.bluetape4k.javatimes.period.ranges
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.javatimes.HoursPerDay
 import io.bluetape4k.javatimes.MonthsPerYear
 import io.bluetape4k.javatimes.days
@@ -12,7 +13,6 @@ import io.bluetape4k.javatimes.startOfMonth
 import io.bluetape4k.javatimes.startOfYear
 import io.bluetape4k.javatimes.todayZonedDateTime
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 

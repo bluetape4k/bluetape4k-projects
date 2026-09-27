@@ -7,7 +7,8 @@ import io.nats.client.FetchConsumeOptions
  */
 inline fun fetchConsumeOptions(
     builder: FetchConsumeOptions.Builder.() -> Unit,
-): FetchConsumeOptions = FetchConsumeOptions.builder().apply(builder).build()
+): FetchConsumeOptions =
+    FetchConsumeOptions.builder().apply(builder).build()
 
 /** 기본 최대 메시지 수 */
 private const val DEFAULT_MAX_MESSAGES = 100
@@ -27,9 +28,8 @@ fun fetchConsumeOptionsOf(
     maxMessages: Int = DEFAULT_MAX_MESSAGES,
     expiresInMillis: Long = DEFAULT_EXPIRES_IN_MILLIS,
     maxBytes: Long? = null,
-): FetchConsumeOptions =
-    fetchConsumeOptions {
-        maxMessages(maxMessages)
-        expiresIn(expiresInMillis)
-        maxBytes?.run { maxBytes(this) }
-    }
+): FetchConsumeOptions = fetchConsumeOptions {
+    maxMessages(maxMessages)
+    expiresIn(expiresInMillis)
+    maxBytes?.let { maxBytes(it) }
+}

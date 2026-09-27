@@ -2,8 +2,7 @@
 
 [English](./README.md) | 한국어
 
-JVM backend/library 코드를 위한 Kotlin DSL 기반 유한 상태 머신(FSM) 라이브러리입니다. 동기 FSM, 코루틴 FSM,
-선택적 reactive event/effect runtime, Guard 조건, nested state-family 전이, StateFlow 기반 상태 관찰을 제공합니다.
+JVM backend/library 코드를 위한 Kotlin DSL 기반 유한 상태 머신 (FSM) 라이브러리입니다. 동기 FSM, 코루틴 FSM, 선택적 reactive event/effect runtime, Guard 조건, nested state-family 전이, StateFlow 기반 상태 관찰을 제공합니다.
 
 ## 아키텍처
 
@@ -22,7 +21,7 @@ JVM backend/library 코드를 위한 Kotlin DSL 기반 유한 상태 머신(FSM)
 ![States Class Structure diagram](../../docs/images/readme-diagrams/utils-states-diagram-02.png)
 
 > `StateMachine`과 `SuspendStateMachineInterface`는 서로 독립적입니다. `suspend fun transition()`과
-`fun transition()`의 시그니처 충돌을 방지하기 위해 공통 기반인 `BaseStateMachine`에서 읽기 전용 속성만 공유합니다.
+> `fun transition()`의 시그니처 충돌을 방지하기 위해 공통 기반인 `BaseStateMachine`에서 읽기 전용 속성만 공유합니다.
 
 ### DSL 빌더 구조
 
@@ -41,13 +40,9 @@ JVM backend/library 코드를 위한 Kotlin DSL 기반 유한 상태 머신(FSM)
 
 ## 모듈 포지셔닝
 
-`bluetape4k-states`는 backend workflow, domain service, library 코드에서 작은 Kotlin/JVM FSM이 필요할 때 사용합니다.
-명시적 `TransitionResult`, guard, final-state 검사, 결정적인 테스트가 중요한 경우에 맞습니다.
+`bluetape4k-states`는 backend workflow, domain service, library 코드에서 작은 Kotlin/JVM FSM이 필요할 때 사용합니다. 명시적 `TransitionResult`, guard, final-state 검사, 결정적인 테스트가 중요한 경우에 맞습니다.
 
-주 관심사가 ViewModel/Compose 상태, multiplatform UI target, UI lifecycle 통합이라면 UI/presentation-layer state
-machine을 선택하는 편이 낫습니다. [`joost-klitsie/StateMachine`](https://github.com/joost-klitsie/StateMachine)은
-event/effect와 nested-state 아이디어의 참고 자료일 뿐, 이 모듈의 의존성이 아닙니다. 비교와 개선 작업은 #436,
-#437, #438에서 추적합니다.
+주 관심사가 ViewModel/Compose 상태, multiplatform UI target, UI lifecycle 통합이라면 UI/presentation-layer state machine을 선택하는 편이 낫습니다. [`joost-klitsie/StateMachine`](https://github.com/joost-klitsie/StateMachine)은 event/effect와 nested-state 아이디어의 참고 자료일 뿐, 이 모듈의 의존성이 아닙니다. 비교와 개선 작업은 #436, #437, #438에서 추적합니다.
 
 ## 상태 전이 다이어그램 예시
 
@@ -131,8 +126,7 @@ val fsm = stateMachine<State, Event> {
 
 ### Nested State-Family 전이
 
-sealed parent type에 매칭되는 모든 상태에 inherited transition을 등록할 수 있습니다. 정확한 state 전이가 있으면
-그 전이가 inherited transition보다 우선합니다.
+sealed parent type에 매칭되는 모든 상태에 inherited transition을 등록할 수 있습니다. 정확한 state 전이가 있으면 그 전이가 inherited transition보다 우선합니다.
 
 ```kotlin
 sealed interface OrderState
@@ -156,8 +150,7 @@ val fsm = stateMachine<OrderState, OrderEvent> {
 
 ### Reactive Event/Effect Runtime
 
-event queue, one-time effect, lifecycle-managed state side effect가 필요할 때 `reactiveStateMachine {}`를 사용합니다.
-더 작은 명시적 FSM이면 기존 sync/suspend API가 더 적합합니다.
+event queue, one-time effect, lifecycle-managed state side effect가 필요할 때 `reactiveStateMachine {}`를 사용합니다. 더 작은 명시적 FSM이면 기존 sync/suspend API가 더 적합합니다.
 
 ```kotlin
 val machine = reactiveStateMachine<OrderState, OrderEvent, OrderEffect>(scope) {

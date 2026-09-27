@@ -33,8 +33,10 @@ class HttpRequestCapturer: WebFilter {
     ): Mono<Void> {
         val request = exchange.request.mutate().build()
 
-        return chain.filter(exchange).contextWrite { ctx ->
-            ctx.put(ServerHttpRequest::class.java, request)
-        }
+        return chain
+            .filter(exchange)
+            .contextWrite { ctx ->
+                ctx.put(ServerHttpRequest::class.java, request)
+            }
     }
 }

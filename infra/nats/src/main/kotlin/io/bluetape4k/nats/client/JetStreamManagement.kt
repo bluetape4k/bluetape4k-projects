@@ -9,7 +9,6 @@ import io.nats.client.api.PurgeResponse
 import io.nats.client.api.StorageType
 import io.nats.client.api.StreamConfiguration
 import io.nats.client.api.StreamInfo
-import java.util.LinkedHashSet
 
 /**
  * 스트림이 이미 제거되었더라도 실패로 간주하지 않고 삭제를 시도합니다.
@@ -20,7 +19,10 @@ import java.util.LinkedHashSet
  */
 fun JetStreamManagement.forcedDeleteStream(streamName: String): Boolean {
     streamName.requireNotBlank("streamName")
-    return ignoreNotFound(false) { deleteStream(streamName) }
+
+    return ignoreNotFound(false) {
+        deleteStream(streamName)
+    }
 }
 
 /**
@@ -33,7 +35,10 @@ fun JetStreamManagement.forcedDeleteStream(streamName: String): Boolean {
 fun JetStreamManagement.forcedDeleteConsumer(streamName: String, consumerName: String): Boolean {
     streamName.requireNotBlank("streamName")
     consumerName.requireNotBlank("consumerName")
-    return ignoreNotFound(false) { deleteConsumer(streamName, consumerName) }
+
+    return ignoreNotFound(false) {
+        deleteConsumer(streamName, consumerName)
+    }
 }
 
 /**
@@ -45,7 +50,9 @@ fun JetStreamManagement.forcedDeleteConsumer(streamName: String, consumerName: S
  */
 fun JetStreamManagement.forcedPurgeStream(streamName: String): PurgeResponse? {
     streamName.requireNotBlank("streamName")
-    return ignoreNotFound(null) { purgeStream(streamName) }
+    return ignoreNotFound(null) {
+        purgeStream(streamName)
+    }
 }
 
 /**
@@ -121,6 +128,7 @@ fun JetStreamManagement.getConsumerInfoOrNull(streamName: String, consumerName: 
 fun JetStreamManagement.consumerExists(streamName: String, consumerName: String): Boolean {
     streamName.requireNotBlank("streamName")
     consumerName.requireNotBlank("consumerName")
+
     return getConsumerInfoOrNull(streamName, consumerName) != null
 }
 
@@ -145,10 +153,8 @@ fun JetStreamManagement.createStream(
 /**
  * 단일 subject를 가진 스트림을 교체 생성합니다.
  */
-fun JetStreamManagement.createOrReplaceStream(
-    streamName: String,
-    subject: String,
-): StreamInfo = createOrReplaceStream(streamName, subjects = arrayOf(subject))
+fun JetStreamManagement.createOrReplaceStream(streamName: String, subject: String): StreamInfo =
+    createOrReplaceStream(streamName, subjects = arrayOf(subject))
 
 /**
  * 기존 스트림을 제거한 뒤 새 설정으로 다시 생성합니다.
@@ -164,7 +170,9 @@ fun JetStreamManagement.createOrReplaceStream(
 ): StreamInfo {
     streamName.requireNotBlank("streamName")
 
-    ignoreNotFound(false) { deleteStream(streamName) }
+    ignoreNotFound(false) {
+        deleteStream(streamName)
+    }
     return createStream(streamName, storageType, *subjects)
 }
 
@@ -188,6 +196,7 @@ fun JetStreamManagement.createStreamOrUpdateSubjects(
     val sc = si.configuration
     val mergedSubjects = LinkedHashSet(sc.subjects)
     val needToUpdate = mergedSubjects.addAll(subjects.asList())
+
     return if (needToUpdate) {
         val updatedSc = streamConfiguration(sc) { subjects(mergedSubjects) }
         updateStream(updatedSc)

@@ -1,10 +1,10 @@
 package io.bluetape4k.http.hc5.classic
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.apache.hc.client5.http.classic.methods.HttpGet
 import org.junit.jupiter.api.Test
 

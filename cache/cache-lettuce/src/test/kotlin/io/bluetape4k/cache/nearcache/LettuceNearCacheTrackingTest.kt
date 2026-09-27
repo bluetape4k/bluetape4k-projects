@@ -1,23 +1,22 @@
 package io.bluetape4k.cache.nearcache
 
-import io.bluetape4k.javatimes.seconds
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.awaitility.untilSuspending
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.lettuce.core.codec.StringCodec
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withContext
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import org.awaitility.kotlin.atMost
 import org.awaitility.kotlin.await
+import org.awaitility.kotlin.until
+import org.awaitility.kotlin.untilAsserted
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Redis RESP3 CLIENT TRACKING invalidation 검증 테스트.
@@ -36,6 +35,7 @@ import java.util.concurrent.TimeUnit
  * 다른 인스턴스의 local cache를 invalidate한다.
  */
 class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
+
     companion object: KLogging()
 
     private lateinit var nearCache1: LettuceNearCache<String>
@@ -47,30 +47,34 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
     @BeforeEach
     fun createCaches() {
         // 같은 cacheName → 같은 Redis key 공간 → cross-instance invalidation 동작
-        nearCache1 =
-            LettuceNearCache(resp3Client, StringCodec.UTF8, LettuceNearCacheConfig(cacheName = "tracking-cache"))
-        nearCache2 =
-            LettuceNearCache(resp3Client, StringCodec.UTF8, LettuceNearCacheConfig(cacheName = "tracking-cache"))
-        nearSuspendCache1 =
-            LettuceSuspendNearCache(
-                resp3Client,
-                StringCodec.UTF8,
-                LettuceNearCacheConfig(cacheName = "suspend-tracking-cache")
-            )
-        nearSuspendCache2 =
-            LettuceSuspendNearCache(
-                resp3Client,
-                StringCodec.UTF8,
-                LettuceNearCacheConfig(cacheName = "suspend-tracking-cache")
-            )
+        nearCache1 = LettuceNearCache(
+            resp3Client,
+            StringCodec.UTF8,
+            LettuceNearCacheConfig(cacheName = "tracking-cache")
+        )
+        nearCache2 = LettuceNearCache(
+            resp3Client,
+            StringCodec.UTF8,
+            LettuceNearCacheConfig(cacheName = "tracking-cache")
+        )
+        nearSuspendCache1 = LettuceSuspendNearCache(
+            resp3Client,
+            StringCodec.UTF8,
+            LettuceNearCacheConfig(cacheName = "suspend-tracking-cache")
+        )
+        nearSuspendCache2 = LettuceSuspendNearCache(
+            resp3Client,
+            StringCodec.UTF8,
+            LettuceNearCacheConfig(cacheName = "suspend-tracking-cache")
+        )
     }
 
     @AfterEach
     fun closeCaches() {
-        runCatching { runSuspendIO { withContext(Dispatchers.IO) { nearCache1.close() } } }
-        runCatching { runSuspendIO { withContext(Dispatchers.IO) { nearCache2.close() } } }
-        runCatching { runSuspendIO { withContext(Dispatchers.IO) { nearSuspendCache1.close() } } }
-        runCatching { runSuspendIO { withContext(Dispatchers.IO) { nearSuspendCache2.close() } } }
+        runCatching { runSuspendIO { nearCache1.close() } }
+        runCatching { runSuspendIO { nearCache2.close() } }
+        runCatching { runSuspendIO { nearSuspendCache1.close() } }
+        runCatching { runSuspendIO { nearSuspendCache2.close() } }
     }
 
     @AfterAll
@@ -82,7 +86,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `cross-instance invalidation - nearCache1이 읽은 키를 nearCache2가 쓰면 nearCache1의 local이 invalidated`() {
-        val key = "cross-key"
+        val key = "cross-key" + Base58.randomString(8)
         val cacheName = nearCache1.cacheName
 
         // Step 1: prefix key로 Redis에 직접 값 설정
@@ -96,7 +100,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         nearCache2.put(key, "updated-by-cache2")
 
         // Step 4: nearCache1의 local cache가 비동기로 invalidated되기를 기다림
-        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
+        await atMost 5.seconds untilAsserted {
             nearCache1.localCacheSize() shouldBeEqualTo 0L
         }
 
@@ -106,7 +110,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `noloop - 자신이 쓴 키는 자신의 local을 invalidate하지 않음`() {
-        val key = "noloop-key"
+        val key = "noloop-key" + Base58.randomString(8)
         val cacheName = nearCache1.cacheName
 
         // directCommands로 prefix key 설정 후 nearCache1이 읽어 tracking 활성화
@@ -125,7 +129,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `external writer invalidation - 외부 연결이 직접 Redis 쓰기 시 invalidation 전파`() {
-        val key = "external-key"
+        val key = "external-key" + Base58.randomString(8)
         val cacheName = nearCache1.cacheName
 
         // Step 1: prefix key로 초기값 설정
@@ -139,7 +143,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         directCommands.set("$cacheName:$key", "updated-by-external")
 
         // Step 4: nearCache1의 local이 invalidated되기를 기다림
-        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
+        await atMost 5.seconds untilAsserted {
             nearCache1.localCacheSize() shouldBeEqualTo 0L
         }
 
@@ -149,7 +153,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `remove invalidation - nearCache2가 삭제하면 nearCache1의 local이 invalidated`() {
-        val key = "remove-key"
+        val key = "remove-key" + Base58.randomString(8)
         val cacheName = nearCache1.cacheName
 
         // Step 1: prefix key로 설정
@@ -163,7 +167,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         nearCache2.remove(key)
 
         // Step 4: nearCache1의 local이 invalidated되기를 기다림
-        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
+        await atMost 5.seconds untilAsserted {
             nearCache1.localCacheSize() shouldBeEqualTo 0L
         }
 
@@ -173,16 +177,15 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `cacheName 격리 - 다른 cacheName 인스턴스의 쓰기는 invalidation을 발생시키지 않음`() {
-        val key = "isolation-key"
+        val key = "isolation-key" + Base58.randomString(8)
         val cacheName1 = nearCache1.cacheName // "tracking-cache"
 
         // 다른 cacheName 인스턴스 생성
-        val isolatedCache =
-            LettuceNearCache(
-                resp3Client,
-                StringCodec.UTF8,
-                LettuceNearCacheConfig(cacheName = "isolated-cache")
-            )
+        val isolatedCache = LettuceNearCache(
+            resp3Client,
+            StringCodec.UTF8,
+            LettuceNearCacheConfig(cacheName = "isolated-cache")
+        )
 
         isolatedCache.use { isolated ->
             // nearCache1이 키를 읽어 tracking 활성화
@@ -203,58 +206,56 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
     // ---- Coroutine (Suspend) 교차 invalidation ----
 
     @Test
-    fun `suspend - cross-instance invalidation`() =
-        runTest {
-            val key = "suspend-cross-key"
-            val cacheName = nearSuspendCache1.cacheName
+    fun `suspend - cross-instance invalidation`() = runSuspendIO {
+        val key = "suspend-cross-key" + Base58.randomString(8)
+        val cacheName = nearSuspendCache1.cacheName
 
-            // prefix key로 Redis에 직접 값 설정
-            directCommands.set("$cacheName:$key", "initial")
+        // prefix key로 Redis에 직접 값 설정
+        directCommands.set("$cacheName:$key", "initial")
 
-            // nearSuspendCache1이 읽어 local populate + tracking 활성화
-            nearSuspendCache1.get(key) shouldBeEqualTo "initial"
-            nearSuspendCache1.localCacheSize() shouldBeEqualTo 1L
+        // nearSuspendCache1이 읽어 local populate + tracking 활성화
+        nearSuspendCache1.get(key) shouldBeEqualTo "initial"
+        nearSuspendCache1.localCacheSize() shouldBeEqualTo 1L
 
-            // nearSuspendCache2가 수정 → Redis가 invalidation push 전송
-            nearSuspendCache2.put(key, "updated-by-suspend-cache2")
+        // nearSuspendCache2가 수정 → Redis가 invalidation push 전송
+        nearSuspendCache2.put(key, "updated-by-suspend-cache2")
 
-            // nearSuspendCache1의 local이 비동기로 invalidated되기를 기다림
-            await.atMost(5, TimeUnit.SECONDS).untilAsserted {
-                nearSuspendCache1.localCacheSize() shouldBeEqualTo 0L
-            }
-
-            nearSuspendCache1.get(key) shouldBeEqualTo "updated-by-suspend-cache2"
+        // nearSuspendCache1의 local이 비동기로 invalidated되기를 기다림
+        await atMost 5.seconds untilAsserted {
+            nearSuspendCache1.localCacheSize() shouldBeEqualTo 0L
         }
+
+        nearSuspendCache1.get(key) shouldBeEqualTo "updated-by-suspend-cache2"
+    }
 
     @Test
-    fun `suspend - external writer invalidation`() =
-        runTest {
-            val key = "suspend-external-key"
-            val cacheName = nearSuspendCache1.cacheName
+    fun `suspend - external writer invalidation`() = runSuspendIO {
+        val key = "suspend-external-key" + Base58.randomString(8)
+        val cacheName = nearSuspendCache1.cacheName
 
-            // prefix key로 초기값 설정
-            directCommands.set("$cacheName:$key", "initial")
+        // prefix key로 초기값 설정
+        directCommands.set("$cacheName:$key", "initial")
 
-            // nearSuspendCache1이 읽어 local populate + tracking 활성화
-            nearSuspendCache1.get(key) shouldBeEqualTo "initial"
-            nearSuspendCache1.localCacheSize() shouldBeEqualTo 1L
+        // nearSuspendCache1이 읽어 local populate + tracking 활성화
+        nearSuspendCache1.get(key) shouldBeEqualTo "initial"
+        nearSuspendCache1.localCacheSize() shouldBeEqualTo 1L
 
-            // 외부 연결이 prefix key를 직접 수정
-            directCommands.set("$cacheName:$key", "external-update")
+        // 외부 연결이 prefix key를 직접 수정
+        directCommands.set("$cacheName:$key", "external-update")
 
-            // nearSuspendCache1의 local이 invalidated되기를 기다림
-            await.atMost(5, TimeUnit.SECONDS).untilAsserted {
-                nearSuspendCache1.localCacheSize() shouldBeEqualTo 0L
-            }
-
-            nearSuspendCache1.get(key) shouldBeEqualTo "external-update"
+        // nearSuspendCache1의 local이 invalidated되기를 기다림
+        await atMost 5.seconds untilAsserted {
+            nearSuspendCache1.localCacheSize() shouldBeEqualTo 0L
         }
+
+        nearSuspendCache1.get(key) shouldBeEqualTo "external-update"
+    }
 
     // ---- putIfAbsent / replace tracking ----
 
     @Test
     fun `putIfAbsent success 경로도 tracking을 등록해서 외부 변경 시 invalidation 된다`() {
-        val key = "pia-tracking-key"
+        val key = "pia-tracking-key" + Base58.randomString(8)
         val cacheName = nearCache1.cacheName
 
         // putIfAbsent로 저장 (내부에서 tracking 활성화)
@@ -264,7 +265,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         // 외부 변경 → nearCache1 local이 invalidated 되어야 함
         directCommands.set("$cacheName:$key", "updated-externally")
 
-        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
+        await atMost 5.seconds untilAsserted {
             nearCache1.localCacheSize() shouldBeEqualTo 0L
         }
 
@@ -273,7 +274,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `replace success 경로도 tracking을 등록해서 외부 변경 시 invalidation 된다`() {
-        val key = "replace-tracking-key"
+        val key = "replace-tracking-key" + Base58.randomString(8)
 
         // 초기값 설정 후 replace (내부 get이 tracking 활성화)
         nearCache1.put(key, "initial")
@@ -286,7 +287,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         // 외부 변경 → nearCache1 local이 invalidated 되어야 함
         directCommands.set("${nearCache1.cacheName}:$key", "updated-externally")
 
-        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
+        await atMost 5.seconds untilAsserted {
             nearCache1.localCacheSize() shouldBeEqualTo 0L
         }
 
@@ -297,7 +298,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `suspend - putIfAbsent success 경로도 tracking을 등록한다`() = runSuspendIO {
-        val key = "susp-pia-tracking-key"
+        val key = "susp-pia-tracking-key" + Base58.randomString(8)
         val cacheName = nearSuspendCache1.cacheName
 
         nearSuspendCache1.putIfAbsent(key, "initial").shouldBeNull()
@@ -305,17 +306,16 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
         directCommands.set("$cacheName:$key", "updated-externally")
 
-        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
-            nearSuspendCache1.localCacheSize() shouldBeEqualTo 0L
+        await atMost 5.seconds untilSuspending {
+            nearSuspendCache1.localCacheSize() == 0L
         }
 
         nearSuspendCache1.get(key) shouldBeEqualTo "updated-externally"
     }
 
-
     @Test
     fun `suspend - replace success 경로도 tracking을 등록한다`() = runSuspendIO {
-        val key = "susp-replace-tracking-key"
+        val key = "susp-replace-tracking-key" + Base58.randomString(8)
         val cacheName = nearSuspendCache1.cacheName
 
         directCommands.set("$cacheName:$key", "initial")
@@ -327,7 +327,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
         directCommands.set("$cacheName:$key", "updated-externally")
 
-        await atMost 5.seconds() untilSuspending {
+        await atMost 5.seconds untilSuspending {
             nearSuspendCache1.get(key) == "updated-externally"
         }
 
@@ -349,7 +349,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         // nearCache2가 putAll로 한번에 수정 → nearCache1 local invalidated
         nearCache2.putAll(keys.associateWith { "updated-$it" })
 
-        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
+        await atMost 5.seconds untilAsserted {
             nearCache1.localCacheSize() shouldBeEqualTo 0L
         }
 
@@ -359,7 +359,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `removeAll - cross-instance invalidation`() {
-        val keys = listOf("rmall-k1", "rmall-k2", "rmall-k3")
+        val keys = List(3) { "rmall-key$it" + Base58.randomString(8) }
         val cacheName = nearCache2.cacheName
 
         // nearCache2가 읽어 tracking 활성화
@@ -370,8 +370,8 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         // nearCache1이 removeAll → Redis 삭제 → nearCache2 local invalidated
         nearCache1.removeAll(keys.toSet())
 
-        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
-            nearCache2.localCacheSize() shouldBeEqualTo 0L
+        await atMost 5.seconds until {
+            nearCache2.localCacheSize() == 0L
         }
 
         // nearCache2가 읽으면 null (Redis에서도 삭제됨)
@@ -380,7 +380,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `replace - cross-instance invalidation`() {
-        val key = "replace-inv-key"
+        val key = "replace-inv-key" + Base58.randomString(8)
         val cacheName = nearCache2.cacheName
 
         // nearCache2가 읽어 tracking 활성화
@@ -392,8 +392,8 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
         nearCache1.put(key, "initial")
         nearCache1.replace(key, "replaced")
 
-        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
-            nearCache2.localCacheSize() shouldBeEqualTo 0L
+        await atMost 5.seconds until {
+            nearCache2.localCacheSize() == 0L
         }
 
         // nearCache2가 다시 읽으면 새 값
@@ -402,7 +402,7 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `read-through after invalidation - 무효화 후 Redis에서 최신 값 조회`() {
-        val key = "readthrough-key"
+        val key = "readthrough-key" + Base58.randomString(8)
         val cacheName = nearCache1.cacheName
 
         // nearCache1이 읽어 local populate + tracking 활성화
@@ -412,8 +412,8 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
 
         // 외부에서 값 변경 → nearCache1 local invalidated
         directCommands.set("$cacheName:$key", "v2")
-        await.atMost(5, TimeUnit.SECONDS).untilAsserted {
-            nearCache1.localCacheSize() shouldBeEqualTo 0L
+        await atMost 5.seconds until {
+            nearCache1.localCacheSize() == 0L
         }
 
         // 다시 get → local miss → Redis에서 v2 read-through + re-populate
@@ -424,60 +424,61 @@ class LettuceNearCacheTrackingTest: AbstractLettuceNearCacheTest() {
     // ---- Suspend 추가 시나리오 ----
 
     @Test
-    fun `suspend - putAll cross-instance invalidation`() =
-        runTest {
-            val keys = listOf("susp-putall-k1", "susp-putall-k2")
-            val cacheName = nearSuspendCache1.cacheName
+    fun `suspend - putAll cross-instance invalidation`() = runSuspendIO {
+        val keys = List(2) { "susp-putall-key$it" + Base58.randomString(8) }
+        val cacheName = nearSuspendCache1.cacheName
 
-            keys.forEach { key -> directCommands.set("$cacheName:$key", "initial") }
-            keys.forEach { key -> nearSuspendCache1.get(key) shouldBeEqualTo "initial" }
-            nearSuspendCache1.localCacheSize() shouldBeEqualTo 2L
-
-            nearSuspendCache2.putAll(keys.associateWith { "updated-$it" })
-
-            await.atMost(5, TimeUnit.SECONDS).untilAsserted {
-                nearSuspendCache1.localCacheSize() shouldBeEqualTo 0L
-            }
-
-            keys.forEach { key -> nearSuspendCache1.get(key) shouldBeEqualTo "updated-$key" }
-        }
-
-    @Test
-    fun `suspend - removeAll cross-instance invalidation`() =
-        runTest {
-            val keys = listOf("susp-rmall-k1", "susp-rmall-k2")
-            val cacheName = nearSuspendCache2.cacheName
-
-            keys.forEach { key -> directCommands.set("$cacheName:$key", "value") }
-            keys.forEach { key -> nearSuspendCache2.get(key) shouldBeEqualTo "value" }
-            nearSuspendCache2.localCacheSize() shouldBeEqualTo 2L
-
-            nearSuspendCache1.removeAll(keys.toSet())
-
-            await.atMost(5, TimeUnit.SECONDS).untilAsserted {
-                nearSuspendCache2.localCacheSize() shouldBeEqualTo 0L
-            }
-
-            keys.forEach { key -> nearSuspendCache2.get(key).shouldBeNull() }
-        }
-
-    @Test
-    fun `suspend - replace cross-instance invalidation`() =
-        runTest {
-            val key = "susp-replace-key"
-            val cacheName = nearSuspendCache2.cacheName
-
+        keys.forEach { key ->
             directCommands.set("$cacheName:$key", "initial")
-            nearSuspendCache2.get(key) shouldBeEqualTo "initial"
-            nearSuspendCache2.localCacheSize() shouldBeEqualTo 1L
-
-            nearSuspendCache1.put(key, "initial")
-            nearSuspendCache1.replace(key, "replaced")
-
-            await.atMost(5, TimeUnit.SECONDS).untilAsserted {
-                nearSuspendCache2.localCacheSize() shouldBeEqualTo 0L
-            }
-
-            nearSuspendCache2.get(key) shouldBeEqualTo "replaced"
         }
+        keys.forEach { key ->
+            nearSuspendCache1.get(key) shouldBeEqualTo "initial"
+        }
+        nearSuspendCache1.localCacheSize() shouldBeEqualTo 2L
+
+        nearSuspendCache2.putAll(keys.associateWith { "updated-$it" })
+
+        await atMost 5.seconds untilSuspending {
+            nearSuspendCache1.localCacheSize() == 0L
+        }
+
+        keys.forEach { key -> nearSuspendCache1.get(key) shouldBeEqualTo "updated-$key" }
+    }
+
+    @Test
+    fun `suspend - removeAll cross-instance invalidation`() = runSuspendIO {
+        val keys = List(2) { "susp-rmall-key$it" + Base58.randomString(8) }
+        val cacheName = nearSuspendCache2.cacheName
+
+        keys.forEach { key -> directCommands.set("$cacheName:$key", "value") }
+        keys.forEach { key -> nearSuspendCache2.get(key) shouldBeEqualTo "value" }
+        nearSuspendCache2.localCacheSize() shouldBeEqualTo 2L
+
+        nearSuspendCache1.removeAll(keys.toSet())
+
+        await atMost 5.seconds untilSuspending {
+            nearSuspendCache2.localCacheSize() == 0L
+        }
+
+        keys.forEach { key -> nearSuspendCache2.get(key).shouldBeNull() }
+    }
+
+    @Test
+    fun `suspend - replace cross-instance invalidation`() = runSuspendIO {
+        val key = "susp-replace-key" + Base58.randomString(8)
+        val cacheName = nearSuspendCache2.cacheName
+
+        directCommands.set("$cacheName:$key", "initial")
+        nearSuspendCache2.get(key) shouldBeEqualTo "initial"
+        nearSuspendCache2.localCacheSize() shouldBeEqualTo 1L
+
+        nearSuspendCache1.put(key, "initial")
+        nearSuspendCache1.replace(key, "replaced")
+
+        await atMost 5.seconds untilSuspending {
+            nearSuspendCache2.localCacheSize() == 0L
+        }
+
+        nearSuspendCache2.get(key) shouldBeEqualTo "replaced"
+    }
 }

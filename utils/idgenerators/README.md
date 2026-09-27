@@ -216,4 +216,4 @@ dependencies {
 
 ## Failure and lifecycle contract
 
-Uuid.random() and the deprecated RandomUuidGenerator use SecureRandom by default. Explicitly supplied Random instances retain their deterministic seeded behavior.
+Uuid.random () and the deprecated RandomUuidGenerator use SecureRandom by default. Explicitly supplied Random instances retain their deterministic seeded behavior.

@@ -7,8 +7,8 @@ configurations {
 }
 
 dependencies {
+
     api(project(":bluetape4k-ktor-core"))
-    api(project(":bluetape4k-assertions"))
     api(libs.ktor.server.test.host)
     api(libs.ktor.client.core)
     api(libs.ktor.client.content.negotiation)
@@ -17,5 +17,6 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(bt4k.kotlinx.serialization.json)
 
+    api(project(":bluetape4k-assertions"))
     testImplementation(project(":bluetape4k-junit5"))
 }

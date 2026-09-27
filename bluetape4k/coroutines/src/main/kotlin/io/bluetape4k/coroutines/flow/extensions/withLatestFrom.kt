@@ -39,9 +39,7 @@ fun <A, B, R> Flow<A>.withLatestFrom(
 
             try {
                 collect { value: A ->
-                    emit(
-                        transform(value, NULL_VALUE.unbox(state.otherRef.value ?: return@collect))
-                    )
+                    emit(transform(value, NULL_VALUE.unbox(state.otherRef.value ?: return@collect)))
                 }
             } finally {
                 otherJob.cancel()

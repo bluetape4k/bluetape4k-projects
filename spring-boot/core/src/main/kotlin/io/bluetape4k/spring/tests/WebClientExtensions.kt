@@ -84,7 +84,8 @@ fun WebClient.httpPost(
             contentType?.let { contentType(it) }
             value?.let { bodyValue(it) }
             accept?.let { accept(it) }
-        }.retrieve()
+        }
+        .retrieve()
 
 /**
  * POST 요청을 전송하고 [WebClient.ResponseSpec]를 반환합니다.
@@ -114,7 +115,8 @@ inline fun <reified T: Any> WebClient.httpPost(
         .apply {
             contentType?.let { contentType(it) }
             accept?.let { accept(it) }
-        }.body(publisher)
+        }
+        .body(publisher)
         .retrieve()
 
 /**
@@ -145,7 +147,8 @@ inline fun <reified T: Any> WebClient.httpPost(
         .apply {
             contentType?.let { contentType(it) }
             accept?.let { accept(it) }
-        }.body(flow)
+        }
+        .body(flow)
         .retrieve()
 
 /**
@@ -207,7 +210,8 @@ inline fun <reified T: Any> WebClient.httpPut(
         .apply {
             contentType?.let { contentType(it) }
             accept?.let { accept(it) }
-        }.body(publisher)
+        }
+        .body(publisher)
         .retrieve()
 
 /**
@@ -238,7 +242,8 @@ inline fun <reified T: Any> WebClient.httpPut(
         .apply {
             contentType?.let { contentType(it) }
             accept?.let { accept(it) }
-        }.body(flow)
+        }
+        .body(flow)
         .retrieve()
 
 /**

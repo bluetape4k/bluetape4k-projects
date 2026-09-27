@@ -49,6 +49,7 @@ suspend fun BufferedSource.suspendReadAll(sink: SuspendedSink): Long {
     var totalBytesWritten = 0L
     var noProgressCount = 0
     val tempBuffer = Buffer()
+
     while (true) {
         val readCount = read(tempBuffer, SEGMENT_SIZE)
         if (readCount == -1L) break
@@ -67,6 +68,7 @@ suspend fun BufferedSource.suspendReadAll(sink: SuspendedSink): Long {
             sink.write(tempBuffer, emitByteCount)
         }
     }
+
     if (tempBuffer.size > 0L) {
         totalBytesWritten += tempBuffer.size
         sink.write(tempBuffer, tempBuffer.size)
@@ -92,6 +94,7 @@ suspend fun BufferedSource.suspendReadAll(sink: SuspendedSink): Long {
 suspend fun BufferedSink.suspendWriteAll(source: SuspendedSource): Long {
     var totalBytesRead = 0L
     var noProgressCount = 0
+
     while (true) {
         val readCount = source.read(this.buffer, SEGMENT_SIZE)
         if (readCount == -1L) break
@@ -107,6 +110,7 @@ suspend fun BufferedSink.suspendWriteAll(source: SuspendedSource): Long {
         totalBytesRead += readCount
         emitCompleteSegments()
     }
+
     return totalBytesRead
 }
 
@@ -128,6 +132,7 @@ suspend fun BufferedSuspendedSource.suspendReadAll(sink: Sink): Long {
     var totalBytesWritten = 0L
     var noProgressCount = 0
     val tempBuffer = Buffer()
+
     while (true) {
         val readCount = read(tempBuffer, SEGMENT_SIZE)
         if (readCount == -1L) break
@@ -146,6 +151,7 @@ suspend fun BufferedSuspendedSource.suspendReadAll(sink: Sink): Long {
             sink.write(tempBuffer, emitByteCount)
         }
     }
+
     if (tempBuffer.size > 0L) {
         totalBytesWritten += tempBuffer.size
         sink.write(tempBuffer, tempBuffer.size)
@@ -170,6 +176,7 @@ suspend fun BufferedSuspendedSource.suspendReadAll(sink: Sink): Long {
 suspend fun BufferedSuspendedSink.suspendWriteAll(source: Source): Long {
     var totalBytesRead = 0L
     var noProgressCount = 0
+
     while (true) {
         val readCount = source.read(this.buffer, SEGMENT_SIZE)
         if (readCount == -1L) break
@@ -185,6 +192,7 @@ suspend fun BufferedSuspendedSink.suspendWriteAll(source: Source): Long {
         totalBytesRead += readCount
         emitCompleteSegments()
     }
+
     return totalBytesRead
 }
 
@@ -208,6 +216,7 @@ suspend fun BufferedSuspendedSink.suspendWrite(source: Source, byteCount: Long):
     if (byteCount <= 0L) return this
     var remaining = byteCount
     var noProgressCount = 0
+
     while (remaining > 0L) {
         val read = source.read(this.buffer, remaining)
         if (read == -1L) throw okio.EOFException()
@@ -222,5 +231,6 @@ suspend fun BufferedSuspendedSink.suspendWrite(source: Source, byteCount: Long):
         remaining -= read
         emitCompleteSegments()
     }
+
     return this
 }

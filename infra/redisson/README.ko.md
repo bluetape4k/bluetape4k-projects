@@ -6,14 +6,14 @@ Redisson Redis 클라이언트를 Kotlin에서 편리하게 사용할 수 있도
 
 ## 주요 기능
 
-| 기능                              | 설명                                                                              |
-|---------------------------------|---------------------------------------------------------------------------------|
-| `RedissonClientSupport`         | DSL 기반 `RedissonClient` / `RedissonReactiveClient` 팩토리, YAML 설정 로드              |
-| `RedissonClientExtensions`      | `withBatch {}`, `withTransaction {}` DSL 확장 함수                                  |
-| `RedissonClientCoroutine`       | `withSuspendedBatch {}`, `withSuspendedTransaction {}` suspend 확장 함수            |
-| `RFutureSupport`                | `Collection<RFuture>.awaitAll()`, `Iterable<RFuture>.sequence()` Coroutines 어댑터 |
-| `RedissonCodecs`                | 직렬화(Fory/Kryo5/Jackson3/Fastjson2) × 압축(LZ4/Zstd/Snappy/GZip) 조합 Codec 목록         |
-| `RedissonNearCache`             | `RLocalCachedMap` 기반 2-tier Near Cache                                          |
+| 기능                       | 설명                                                                               |
+|----------------------------|------------------------------------------------------------------------------------|
+| `RedissonClientSupport`    | DSL 기반 `RedissonClient` / `RedissonReactiveClient` 팩토리, YAML 설정 로드        |
+| `RedissonClientExtensions` | `withBatch {}`, `withTransaction {}` DSL 확장 함수                                 |
+| `RedissonClientCoroutine`  | `withSuspendedBatch {}`, `withSuspendedTransaction {}` suspend 확장 함수           |
+| `RFutureSupport`           | `Collection<RFuture>.awaitAll()`, `Iterable<RFuture>.sequence()` Coroutines 어댑터 |
+| `RedissonCodecs`           | 직렬화(Fory/Kryo5/Jackson3/Fastjson2) × 압축(LZ4/Zstd/Snappy/GZip) 조합 Codec 목록 |
+| `RedissonNearCache`        | `RLocalCachedMap` 기반 2-tier Near Cache                                           |
 
 `RedissonCacheConfig` 및 Redisson near-cache 옵션 사용 시:
 
@@ -104,27 +104,29 @@ singleServerConfig:
 
 `io.bluetape4k.redis.redisson.codec` 패키지에서 고성능 Codec을 제공합니다.
 
-| 상수                            | 직렬화                    | 압축   | 설명                          |
-|---------------------------------|------------------------|------|-------------------------------|
-| `RedissonCodecs.Default`        | Fory (fallback: Kryo5) | 없음   | 범용 기본 Codec                   |
-| `RedissonCodecs.Fory`           | Fory                   | 없음   | Fory 직렬화만 사용                   |
-| `RedissonCodecs.Kryo5`          | Kryo5                  | 없음   | Kryo5 직렬화만 사용                  |
-| `RedissonCodecs.LZ4`            | Default                | LZ4  | LZ4 압축 래핑                     |
-| `RedissonCodecs.Zstd`           | Default                | Zstd | 높은 압축률                        |
-| `RedissonCodecs.Jackson3`       | Jackson3 (JSON)        | 없음   | Jackson 3.x JSON Codec         |
-| `RedissonCodecs.Fastjson2`      | Fastjson2 (JSONB)      | 없음   | Fastjson2 JSONB Codec          |
-| `RedissonCodecs.FastFory`       | FastFory               | 없음   | FastFory 직렬화만 사용                   |
-| `RedissonCodecs.LZ4FastFory`    | FastFory               | LZ4  | FastFory + LZ4 압축                     |
-| `RedissonCodecs.ZstdFastFory`   | FastFory               | Zstd | FastFory + Zstd 압축                    |
-| `RedissonCodecs.SnappyFastFory` | FastFory               | Snappy | FastFory + Snappy 압축                  |
-| `RedissonCodecs.GzipFastFory`   | FastFory               | GZip | FastFory + GZip 압축                    |
-| `RedissonCodecs.FastForyComposite`       | FastFory (composite)   | 없음   | FastFory Composite 직렬화                 |
-| `RedissonCodecs.LZ4FastForyComposite`    | FastFory (composite)   | LZ4  | FastFory Composite + LZ4 압축             |
-| `RedissonCodecs.ZstdFastForyComposite`   | FastFory (composite)   | Zstd | FastFory Composite + Zstd 압축            |
-| `RedissonCodecs.SnappyFastForyComposite` | FastFory (composite)   | Snappy | FastFory Composite + Snappy 압축          |
-| `RedissonCodecs.GzipFastForyComposite`   | FastFory (composite)   | GZip | FastFory Composite + GZip 압축            |
+| 상수                                     | 직렬화                 | 압축   | 설명                             |
+|------------------------------------------|------------------------|--------|----------------------------------|
+| `RedissonCodecs.Default`                 | Fory (fallback: Kryo5) | 없음   | 범용 기본 Codec                  |
+| `RedissonCodecs.Fory`                    | Fory                   | 없음   | Fory 직렬화만 사용               |
+| `RedissonCodecs.Kryo5`                   | Kryo5                  | 없음   | Kryo5 직렬화만 사용              |
+| `RedissonCodecs.LZ4`                     | Default                | LZ4    | LZ4 압축 래핑                    |
+| `RedissonCodecs.Zstd`                    | Default                | Zstd   | 높은 압축률                      |
+| `RedissonCodecs.Jackson3`                | Jackson3 (JSON)        | 없음   | Jackson 3.x JSON Codec           |
+| `RedissonCodecs.Fastjson2`               | Fastjson2 (JSONB)      | 없음   | Fastjson2 JSONB Codec            |
+| `RedissonCodecs.FastFory`                | FastFory               | 없음   | FastFory 직렬화만 사용           |
+| `RedissonCodecs.LZ4FastFory`             | FastFory               | LZ4    | FastFory + LZ4 압축              |
+| `RedissonCodecs.ZstdFastFory`            | FastFory               | Zstd   | FastFory + Zstd 압축             |
+| `RedissonCodecs.SnappyFastFory`          | FastFory               | Snappy | FastFory + Snappy 압축           |
+| `RedissonCodecs.GzipFastFory`            | FastFory               | GZip   | FastFory + GZip 압축             |
+| `RedissonCodecs.FastForyComposite`       | FastFory (composite)   | 없음   | FastFory Composite 직렬화        |
+| `RedissonCodecs.LZ4FastForyComposite`    | FastFory (composite)   | LZ4    | FastFory Composite + LZ4 압축    |
+| `RedissonCodecs.ZstdFastForyComposite`   | FastFory (composite)   | Zstd   | FastFory Composite + Zstd 압축   |
+| `RedissonCodecs.SnappyFastForyComposite` | FastFory (composite)   | Snappy | FastFory Composite + Snappy 압축 |
+| `RedissonCodecs.GzipFastForyComposite`   | FastFory (composite)   | GZip   | FastFory Composite + GZip 압축   |
 
-> ⚠️ **와이어 포맷 경고**: FastFory 코덱은 `CompatibleMode.SCHEMA_CONSISTENT`를 사용합니다. `FastForyCodec`은 구 Fory 데이터를 fallback으로 읽을 수 있으나, `ForyCodec`으로 FastFory 데이터를 읽는 것은 **불가**합니다. 휘발성 캐시 전용.
+> ⚠️ **와이어 포맷
+경고**: FastFory 코덱은 `CompatibleMode.SCHEMA_CONSISTENT`를 사용합니다. `FastForyCodec`은 구 Fory 데이터를 fallback으로 읽을 수 있으나, `ForyCodec`으로 FastFory 데이터를 읽는 것은
+> **불가**합니다. 휘발성 캐시 전용.
 
 ```kotlin
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
@@ -161,7 +163,7 @@ val customCodec = Lz4Codec(innerCodec = ForyCodec())
 
 Codec 클래스:
 
-- `ForyCodec` — Apache Fory 직렬화. 직렬화 실패 시 fallback Codec(Kryo5)으로 자동 전환
+- `ForyCodec` — Apache Fory 직렬화. 직렬화 실패 시 fallback Codec (Kryo5)으로 자동 전환
 - `Jackson3Codec` — Jackson 3.x JSON 직렬화. 사람이 읽을 수 있는 JSON 텍스트로 저장하며, `allowedPackagePrefixes`가 있으면 binary fallback decode를 차단
 - `Fastjson2Codec` — Fastjson2 JSONB 바이너리 포맷. 클래스 이름 헤더 + JSONB 바이트로 저장. `allowedPackagePrefixes`로 pre-instantiation 보안 검증을 수행하고 allow-list 사용 시 binary fallback decode를 차단
 - `Lz4Codec` — LZ4 압축 래퍼. `innerCodec`으로 감쌈
@@ -170,29 +172,20 @@ Codec 클래스:
 
 #### Raw Fory/FastFory buffer 경계
 
-압축하지 않는 `ForyCodec`과 `FastForyCodec`은 single-NIO-component heap/direct `ByteBuf`를 bounded read-only
-view로 decode합니다. Composite 또는 non-NIO buffer와 direct view 실패는 copied 호환 경로를 사용합니다. 두
-경로 모두 입력 `readerIndex`와 `writerIndex`를 보존합니다. Apache Fory는 계속 내부 재사용 `MemoryBuffer`를
-사용하므로 유지된 view 경로도 zero-copy가 아닙니다. Encode ownership은 별도 근거 gate이며 decode 결과에서
-추론하면 안 됩니다. 압축 wrapper는 기존 copied 경로를 유지합니다.
+압축하지 않는 `ForyCodec`과 `FastForyCodec`은 single-NIO-component heap/direct `ByteBuf`를 bounded read-only view로 decode합니다. Composite 또는 non-NIO buffer와 direct view 실패는 copied 호환 경로를 사용합니다. 두 경로 모두 입력 `readerIndex`와 `writerIndex`를 보존합니다. Apache Fory는 계속 내부 재사용 `MemoryBuffer`를 사용하므로 유지된 view 경로도 zero-copy가 아닙니다. Encode ownership은 별도 근거 gate이며 decode 결과에서 추론하면 안 됩니다. 압축 wrapper는 기존 copied 경로를 유지합니다.
 
-`FastForyCodec`은 legacy Fory bytes로 fallback할 수 있지만 `ForyCodec`은 FastFory bytes를 읽을 수 없습니다.
-같은 codec을 유지하면 caller API나 payload migration은 필요하지 않으며 mode 전환에는 명시적인 cache
-migration 또는 eviction이 필요합니다. Registration을 끈 이 codec들은 신뢰된 payload만 decode해야 합니다.
-Committed [issue #756 Fory 후속 근거](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md)는
-Redisson raw cell의 최종 disposition을 모두 기록합니다.
+`FastForyCodec`은 legacy Fory bytes로 fallback할 수 있지만 `ForyCodec`은 FastFory bytes를 읽을 수 없습니다. 같은 codec을 유지하면 caller API나 payload migration은 필요하지 않으며 mode 전환에는 명시적인 cache migration 또는 eviction이 필요합니다. Registration을 끈 이 codec들은 신뢰된 payload만 decode해야 합니다. Committed [issue #756 Fory 후속 근거](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md)는 Redisson raw cell의 최종 disposition을 모두 기록합니다.
 
-| Raw 경로 | Fory | FastFory |
-|---|---|---|
-| Direct decode | accepted: canonical A/B에서 allocation 28.57138% 감소 | accepted: 26.98408% 감소 |
-| Heap decode | rejected: allocation 20–30% 증가 | rejected: allocation 22.22% 증가 |
-| Composite decode | fallback: copied compatibility 전용, non-promotable | fallback: copied compatibility 전용, non-promotable |
-| Encode | feasibility probe에서 rejected, 기존 allocating 경로 유지 | feasibility probe에서 rejected, 기존 allocating 경로 유지 |
+| Raw 경로         | Fory                                                      | FastFory                                                  |
+|------------------|-----------------------------------------------------------|-----------------------------------------------------------|
+| Direct decode    | accepted: canonical A/B에서 allocation 28.57138% 감소     | accepted: 26.98408% 감소                                  |
+| Heap decode      | rejected: allocation 20–30% 증가                          | rejected: allocation 22.22% 증가                          |
+| Composite decode | fallback: copied compatibility 전용, non-promotable       | fallback: copied compatibility 전용, non-promotable       |
+| Encode           | feasibility probe에서 rejected, 기존 allocating 경로 유지 | feasibility probe에서 rejected, 기존 allocating 경로 유지 |
 
 ![이슈 #756 accepted Fory allocation 감소](../../docs/images/readme-charts/issue756-fory-followup-allocation-chart-01.png)
 
-Direct decode 2개 cell만 allocation 개선 주장을 부여합니다. Runtime feature flag와 dispatch telemetry는
-없습니다.
+Direct decode 2개 cell만 allocation 개선 주장을 부여합니다. Runtime feature flag와 dispatch telemetry는 없습니다.
 
 ```kotlin
 val codec = GzipCodec(
@@ -203,29 +196,28 @@ val codec = GzipCodec(
 
 #### Codec 신뢰 프로필
 
-공통 프로필 용어는 [Serialization Trust Profiles](../../docs/security/serialization-trust-profiles.md)를
-참고하세요.
+공통 프로필 용어는 [Serialization Trust Profiles](../../docs/security/serialization-trust-profiles.md)를 참고하세요.
 
-| Codec 계열 | 기본 프로필 | 공유 경계에서 더 안전한 선택 |
-|---|---|---|
-| `ForyCodec`, `Kryo5Codec`, 압축 변형 | `TrustedInternal` | 하나의 배포 경계가 제어하는 private Redis 데이터에만 사용하거나, 가능한 경우 secure serializer/factory를 선택합니다. |
-| `GzipCodec` 압축 payload | 확장 크기 제한이 있는 `TrustedInternal` | 배포 환경에서 정상 Redis 값의 최대 크기에 맞춰 `maxDecompressedSize`를 조정합니다. |
-| `allowedPackagePrefixes = null`인 `Jackson3Codec` / `Fastjson2Codec` | `TrustedInternal` | `allowedPackagePrefixes`를 지정해 `AllowListedTypes`로 사용합니다. |
-| `allowedPackagePrefixes = setOf(...)`인 `Jackson3Codec` / `Fastjson2Codec` | `AllowListedTypes` | 접두사를 좁게 유지합니다. binary fallback decode는 거부되며, 신뢰된 마이그레이션 구간에서만 `allowFallbackDecode = true`를 명시합니다. |
+| Codec 계열                                                                 | 기본 프로필                             | 공유 경계에서 더 안전한 선택                                                                                                           |
+|----------------------------------------------------------------------------|-----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| `ForyCodec`, `Kryo5Codec`, 압축 변형                                       | `TrustedInternal`                       | 하나의 배포 경계가 제어하는 private Redis 데이터에만 사용하거나, 가능한 경우 secure serializer/factory를 선택합니다.                   |
+| `GzipCodec` 압축 payload                                                   | 확장 크기 제한이 있는 `TrustedInternal` | 배포 환경에서 정상 Redis 값의 최대 크기에 맞춰 `maxDecompressedSize`를 조정합니다.                                                     |
+| `allowedPackagePrefixes = null`인 `Jackson3Codec` / `Fastjson2Codec`       | `TrustedInternal`                       | `allowedPackagePrefixes`를 지정해 `AllowListedTypes`로 사용합니다.                                                                     |
+| `allowedPackagePrefixes = setOf(...)`인 `Jackson3Codec` / `Fastjson2Codec` | `AllowListedTypes`                      | 접두사를 좁게 유지합니다. binary fallback decode는 거부되며, 신뢰된 마이그레이션 구간에서만 `allowFallbackDecode = true`를 명시합니다. |
 
 #### 사용 목적별 팩토리 함수
 
 `RedissonCodecs`는 내부 구현을 몰라도 적절한 Codec을 쉽게 선택할 수 있는 사용 목적 기반 팩토리 함수를 제공합니다:
 
-| 팩토리 함수                                  | 반환값              | 설명                                                  |
-|----------------------------------------------|---------------------|-------------------------------------------------------|
-| `RedissonCodecs.forCache()`                  | `LZ4Fory`           | 처리량 중심 값 캐시 (1KB 이상 객체)                   |
-| `RedissonCodecs.forHighThroughput()`         | `LZ4FastFory`       | `forCache()` 대비 ~27% 높은 처리량. 휘발성 캐시 전용 ⚠️ |
-| `RedissonCodecs.forCacheMap()`               | `LZ4ForyComposite`  | Map 형 캐시 (RMap, RLocalCachedMap)                   |
-| `RedissonCodecs.forGeneral()`                | `Fory`              | 범용 혼합 읽기/쓰기 워크로드                          |
-| `RedissonCodecs.forSmallValue()`             | `Kryo5`             | 작은 값 (<1KB) — 압축 오버헤드 생략                   |
-| `RedissonCodecs.forArchival()`               | `ZstdFory`          | 아카이브/콜드 스토리지 — 최고 압축률                  |
-| `RedissonCodecs.forCompatibility()`          | `Jdk`               | 외부 시스템 상호 운용 (non-bluetape4k)                 |
+| 팩토리 함수                          | 반환값             | 설명                                                    |
+|--------------------------------------|--------------------|---------------------------------------------------------|
+| `RedissonCodecs.forCache()`          | `LZ4Fory`          | 처리량 중심 값 캐시 (1KB 이상 객체)                     |
+| `RedissonCodecs.forHighThroughput()` | `LZ4FastFory`      | `forCache()` 대비 ~27% 높은 처리량. 휘발성 캐시 전용 ⚠️ |
+| `RedissonCodecs.forCacheMap()`       | `LZ4ForyComposite` | Map 형 캐시 (RMap, RLocalCachedMap)                     |
+| `RedissonCodecs.forGeneral()`        | `Fory`             | 범용 혼합 읽기/쓰기 워크로드                            |
+| `RedissonCodecs.forSmallValue()`     | `Kryo5`            | 작은 값 (<1KB) — 압축 오버헤드 생략                     |
+| `RedissonCodecs.forArchival()`       | `ZstdFory`         | 아카이브/콜드 스토리지 — 최고 압축률                    |
+| `RedissonCodecs.forCompatibility()`  | `Jdk`              | 외부 시스템 상호 운용 (non-bluetape4k)                  |
 
 ```kotlin
 val config = Config()
@@ -325,15 +317,15 @@ val value = nearCache.get("key")   // 로컬 캐시에서 우선 조회
 
 ## 고성능 Batch 패턴 — 메가배치
 
-코루틴 환경에서 대량 Redis 쓰기/읽기 처리 시, **코루틴당 1개의 RBatch**를 생성하면 Redis 왕복(RTT)을 100배 이상 줄일 수 있습니다.
+코루틴 환경에서 대량 Redis 쓰기/읽기 처리 시, **코루틴당 1개의 RBatch**를 생성하면 Redis 왕복 (RTT)을 100배 이상 줄일 수 있습니다.
 
 ### 패턴 비교
 
-| 방식 | RTT 수 (50 코루틴 × 100 ops) | 상대 처리량 |
-|------|------------------------------|-----------|
-| 개별 RMap op | 10,000 | 1× |
-| op당 RBatch | 5,000 | ~2× |
-| **코루틴당 1 RBatch (메가배치)** | **50** | **~8×** |
+| 방식                             | RTT 수 (50 코루틴 × 100 ops) | 상대 처리량 |
+|----------------------------------|------------------------------|-------------|
+| 개별 RMap op                     | 10,000                       | 1×          |
+| op당 RBatch                      | 5,000                        | ~2×         |
+| **코루틴당 1 RBatch (메가배치)** | **50**                       | **~8×**     |
 
 ### 메가배치 구현 예시
 
@@ -366,11 +358,11 @@ suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
 
 ### 핵심 최적화 포인트
 
-| 최적화 | 효과 | 비고 |
-|--------|------|------|
-| `redisson.createBatch()` 코루틴당 1개 | RTT 100배 감소 | 가장 큰 개선 |
-| `StringCodec.INSTANCE` | Jackson 직렬화 오버헤드 제거 | String 타입 Map에만 적용 |
-| 사전 계산된 KEY_POOL | 문자열 보간 GC 압력 제거 | 반복 키 패턴에 유효 |
+| 최적화                                | 효과                         | 비고                     |
+|---------------------------------------|------------------------------|--------------------------|
+| `redisson.createBatch()` 코루틴당 1개 | RTT 100배 감소               | 가장 큰 개선             |
+| `StringCodec.INSTANCE`                | Jackson 직렬화 오버헤드 제거 | String 타입 Map에만 적용 |
+| 사전 계산된 KEY_POOL                  | 문자열 보간 GC 압력 제거     | 반복 키 패턴에 유효      |
 
 ---
 
@@ -378,21 +370,21 @@ suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
 
 `RedissonCodecBenchmark` 기준 (JMH, Apple M4 Pro / GraalVM 21 / Warmup 3×2s / Measurement 5×3s / Fork 1 / 2026-04-27):
 
-| Codec | ops/ms | ± 오차 |
-|-------|-------:|-------:|
-| **FastFory** | **3,084** | ± 287 |
-| Fory | 2,504 | ± 105 |
-| fastjson2 | 1,928 | ± 62 |
-| Kryo5 | 1,225 | ± 67 |
-| LZ4FastFory | 829 | ± 71 |
-| LZ4Fory | 774 | ± 42 |
-| LZ4Kryo5 | 518 | ± 114 |
-| Jackson3 | 474 | ± 25 |
-| ZstdFory | 196 | ± 7 |
-| ZstdFastFory | 193 | ± 62 |
-| ZstdKryo5 | 139 | ± 5 |
-| JDK | 128 | ± 14 |
-| GzipFastFory | 108 | ± 1 |
+| Codec        |    ops/ms | ± 오차 |
+|--------------|----------:|-------:|
+| **FastFory** | **3,084** |  ± 287 |
+| Fory         |     2,504 |  ± 105 |
+| fastjson2    |     1,928 |   ± 62 |
+| Kryo5        |     1,225 |   ± 67 |
+| LZ4FastFory  |       829 |   ± 71 |
+| LZ4Fory      |       774 |   ± 42 |
+| LZ4Kryo5     |       518 |  ± 114 |
+| Jackson3     |       474 |   ± 25 |
+| ZstdFory     |       196 |    ± 7 |
+| ZstdFastFory |       193 |   ± 62 |
+| ZstdKryo5    |       139 |    ± 5 |
+| JDK          |       128 |   ± 14 |
+| GzipFastFory |       108 |    ± 1 |
 
 ![Redisson Codec Throughput chart](../../docs/images/readme-charts/infra-redisson-codec-throughput-chart-01.png)
 
@@ -405,13 +397,13 @@ suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
 
 `RedissonConcurrencyBenchmark` 기준 (50 코루틴, 코루틴당 100 ops):
 
-| 최적화 단계 | concurrent_ops/sec | 개선율 |
-|------------|-------------------|--------|
-| 기준선 (개별 op) | ~11,737 | — |
-| Warmup 안정화 | 16,025 | +36.5% |
-| RBatch 파이프라이닝 | 28,571 | +143% |
-| **메가배치 (코루틴당 1 RBatch)** | 78,125 | +566% |
-| **StringCodec + KEY_POOL** | **92,592** | **+689%** |
+| 최적화 단계                      | concurrent_ops/sec | 개선율    |
+|----------------------------------|--------------------|-----------|
+| 기준선 (개별 op)                 | ~11,737            | —         |
+| Warmup 안정화                    | 16,025             | +36.5%    |
+| RBatch 파이프라이닝              | 28,571             | +143%     |
+| **메가배치 (코루틴당 1 RBatch)** | 78,125             | +566%     |
+| **StringCodec + KEY_POOL**       | **92,592**         | **+689%** |
 
 ![Redisson Batch Optimization Throughput chart](../../docs/images/readme-charts/infra-redisson-batch-throughput-chart-01.png)
 
@@ -421,10 +413,10 @@ suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
 
 ## Redis 버전 요구사항
 
-| 기능                                                    | 최소 Redis 버전 |
-|-------------------------------------------------------|-------------|
-| 기본 기능 (Client, Batch, Transaction, NearCache)            | Redis 5.0+  |
-| RESP3 / CLIENT TRACKING (`bluetape4k-cache-redisson`) | Redis 6.0+  |
+| 기능                                                  | 최소 Redis 버전 |
+|-------------------------------------------------------|-----------------|
+| 기본 기능 (Client, Batch, Transaction, NearCache)     | Redis 5.0+      |
+| RESP3 / CLIENT TRACKING (`bluetape4k-cache-redisson`) | Redis 6.0+      |
 
 ## 빌드 및 테스트
 

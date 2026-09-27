@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.requireGt
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requirePositiveNumber
@@ -39,7 +40,7 @@ data class RedissonNearCacheConfig(
     val syncStrategy: LocalCachedMapOptions.SyncStrategy = LocalCachedMapOptions.SyncStrategy.INVALIDATE,
     val reconnectionStrategy: LocalCachedMapOptions.ReconnectionStrategy = LocalCachedMapOptions.ReconnectionStrategy.CLEAR,
     val evictionPolicy: LocalCachedMapOptions.EvictionPolicy = LocalCachedMapOptions.EvictionPolicy.LRU,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }
@@ -67,15 +68,22 @@ data class RedissonNearCacheConfig(
  * @param block [RedissonNearCacheConfigBuilder]에 대한 설정 블록
  * @return 빌드된 [RedissonNearCacheConfig] 인스턴스
  */
-inline fun redissonNearCacheConfig(block: RedissonNearCacheConfigBuilder.() -> Unit): RedissonNearCacheConfig =
+inline fun redissonNearCacheConfig(
+    block: RedissonNearCacheConfigBuilder.() -> Unit
+): RedissonNearCacheConfig =
     RedissonNearCacheConfigBuilder().apply(block).build()
 
 /**
  * [RedissonNearCacheConfig] 빌더 클래스.
  */
 class RedissonNearCacheConfigBuilder {
+
+    companion object: KLogging() {
+        const val DEFAULT_CACHE_NAME = "redisson-near-cache"
+    }
+
     /** 캐시 이름 (Redis map 이름으로 사용됨). 기본값: `"redisson-near-cache"` */
-    var cacheName: String = "redisson-near-cache"
+    var cacheName: String = DEFAULT_CACHE_NAME
 
     /** 로컬 캐시 최대 항목 수. 기본값: `10_000` */
     var maxLocalSize: Int = 10_000
@@ -87,14 +95,16 @@ class RedissonNearCacheConfigBuilder {
     var maxIdle: Duration? = null
 
     /** 로컬 캐시 동기화 전략. 기본값: [LocalCachedMapOptions.SyncStrategy.INVALIDATE] */
-    var syncStrategy: LocalCachedMapOptions.SyncStrategy = LocalCachedMapOptions.SyncStrategy.INVALIDATE
+    var syncStrategy: LocalCachedMapOptions.SyncStrategy =
+        LocalCachedMapOptions.SyncStrategy.INVALIDATE
 
     /** 재연결 시 로컬 캐시 처리 전략. 기본값: [LocalCachedMapOptions.ReconnectionStrategy.CLEAR] */
     var reconnectionStrategy: LocalCachedMapOptions.ReconnectionStrategy =
         LocalCachedMapOptions.ReconnectionStrategy.CLEAR
 
     /** 로컬 캐시 퇴거 정책. 기본값: [LocalCachedMapOptions.EvictionPolicy.LRU] */
-    var evictionPolicy: LocalCachedMapOptions.EvictionPolicy = LocalCachedMapOptions.EvictionPolicy.LRU
+    var evictionPolicy: LocalCachedMapOptions.EvictionPolicy =
+        LocalCachedMapOptions.EvictionPolicy.LRU
 
     /**
      * 설정값을 검증하고 [RedissonNearCacheConfig]를 생성합니다.
@@ -112,14 +122,13 @@ class RedissonNearCacheConfigBuilder {
      * @return 빌드된 [RedissonNearCacheConfig] 인스턴스
      * @throws IllegalArgumentException cacheName이 blank이거나 maxLocalSize가 0 이하인 경우
      */
-    fun build(): RedissonNearCacheConfig =
-        RedissonNearCacheConfig(
-            cacheName = cacheName.requireNotBlank("cacheName"),
-            maxLocalSize = maxLocalSize.requirePositiveNumber("maxLocalSize"),
-            timeToLive = timeToLive,
-            maxIdle = maxIdle,
-            syncStrategy = syncStrategy,
-            reconnectionStrategy = reconnectionStrategy,
-            evictionPolicy = evictionPolicy
-        )
+    fun build(): RedissonNearCacheConfig = RedissonNearCacheConfig(
+        cacheName = cacheName.requireNotBlank("cacheName"),
+        maxLocalSize = maxLocalSize.requirePositiveNumber("maxLocalSize"),
+        timeToLive = timeToLive,
+        maxIdle = maxIdle,
+        syncStrategy = syncStrategy,
+        reconnectionStrategy = reconnectionStrategy,
+        evictionPolicy = evictionPolicy
+    )
 }

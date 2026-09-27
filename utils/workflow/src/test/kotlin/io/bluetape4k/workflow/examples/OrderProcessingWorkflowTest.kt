@@ -1,7 +1,9 @@
 package io.bluetape4k.workflow.examples
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
@@ -88,11 +90,11 @@ class OrderProcessingWorkflowTest {
         report.isSuccess.shouldBeTrue()
         ctx.get<String>("order.status") shouldBeEqualTo "CONFIRMED"
         ctx.get<String>("pg.txId").shouldNotBeNull()
-        (ctx.get<Boolean>("pg.approved") == true).shouldBeTrue()
+        ctx.get<Boolean>("pg.approved").shouldBeTrue()
         ctx.get<Int>("pg.pollCount") shouldBeEqualTo 2
         ctx.get<Long>("coupon.discount") shouldBeEqualTo 2_000L
-        (ctx.get<Boolean>("inventory.ok") == true).shouldBeTrue()
-        (ctx.get<Boolean>("fraud.ok") == true).shouldBeTrue()
+        ctx.get<Boolean>("inventory.ok").shouldBeTrue()
+        ctx.get<Boolean>("fraud.ok").shouldBeTrue()
     }
 
     @Test
@@ -130,8 +132,8 @@ class OrderProcessingWorkflowTest {
         val report = buildOrderFlow(inventoryAvailable = false).execute(ctx)
 
         report shouldBeInstanceOf WorkReport.Aborted::class
-        (ctx.get<String>("pg.txId") == null).shouldBeTrue()
-        (ctx.get<String>("order.status") == null).shouldBeTrue()
+        ctx.get<String>("pg.txId").shouldBeNull()
+        ctx.get<String>("order.status").shouldBeNull()
     }
 
     @Test
@@ -141,7 +143,8 @@ class OrderProcessingWorkflowTest {
         val report = buildOrderFlow(fraudPassed = false).execute(ctx)
 
         report shouldBeInstanceOf WorkReport.Aborted::class
-        (ctx.get<String>("pg.txId") == null).shouldBeTrue()
+        ctx.get<String>("pg.txId").shouldBeNull()
+        ctx.get<String>("order.status").shouldBeNull()
     }
 
     @Test
@@ -156,7 +159,7 @@ class OrderProcessingWorkflowTest {
         report.isSuccess.shouldBeTrue()
         ctx.get<String>("order.status") shouldBeEqualTo "CANCELLED"
         ctx.get<Int>("pg.pollCount") shouldBeEqualTo 5
-        (ctx.get<Boolean>("pg.approved") == false).shouldBeTrue()
+        ctx.get<Boolean>("pg.approved").shouldBeFalse()
     }
 
     @Test

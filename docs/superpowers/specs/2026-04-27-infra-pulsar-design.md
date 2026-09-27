@@ -194,7 +194,7 @@ suspend inline fun <T, R> PulsarClient.withConsumer(
 suspend fun <T> Consumer<T>.receiveSuspend(): Message<T>
 
 // receiveAsFlow() 생명주기 계약:
-// - Flow 취소(coroutineContext.isActive == false) 시 루프 종료
+// - Flow 취소(currentCoroutineContext().isActive == false) 시 루프 종료
 // - CancellationException 발생 시 대기 중인 CompletableFuture.cancel(true) 후 예외 재전파
 // - Flow는 Consumer를 소유하지 않음 — withConsumer {} 블록이나 호출자가 close 책임
 // - Pulsar Java Client 내부 재연결(자동)은 receiveAsync() 수준에서 처리됨

@@ -5,7 +5,7 @@ English | [한국어](./README.ko.md)
 A unified module for geographic information processing. Provides Geocode, GeoHash, and GeoIP2 functionality.
 
 > The former `utils/geocode`, `utils/geohash`, and
-`utils/geoip2` modules have been consolidated into this single module.
+> `utils/geoip2` modules have been consolidated into this single module.
 
 ## Architecture
 

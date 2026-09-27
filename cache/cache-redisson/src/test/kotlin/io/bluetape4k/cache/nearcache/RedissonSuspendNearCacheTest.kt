@@ -1,10 +1,13 @@
 package io.bluetape4k.cache.nearcache
 
-import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.cache.RedisServers
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.faker.Fakers
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 
 /**
@@ -13,17 +16,18 @@ import org.junit.jupiter.api.Test
  * Redisson [org.redisson.api.RLocalCachedMap] 기반 [SuspendNearCacheOperations] 구현체를 검증합니다.
  */
 class RedissonSuspendNearCacheTest: AbstractSuspendNearCacheOperationsTest<String>() {
-    private val cacheName get() = "redisson-suspend-near-cache-test-${Fakers.randomString(6, 8)}"
 
-    override fun createCache(): SuspendNearCacheOperations<String> =
-        RedissonSuspendNearCache(
-            redisson = RedisServers.redisson,
-            config = RedissonNearCacheConfig(cacheName = cacheName)
-        )
+    companion object: KLoggingChannel()
+
+    private val cacheName get() = "redisson-suspend-near-cache-test-${Base58.randomString(8)}"
+
+    override fun createCache(): SuspendNearCacheOperations<String> = RedissonSuspendNearCache(
+        redisson = RedisServers.redisson,
+        config = RedissonNearCacheConfig(cacheName = cacheName)
+    )
 
     override fun sampleValue(): String = Fakers.randomString(8, 32)
-
-    override fun anotherValue(): String = Fakers.randomString(8, 32)
+    override fun anotherValue(): String = Fakers.randomString(16, 64)
 
     @Test
     fun `back cache size and statistics expose Redis state`() = runSuspendIO {
@@ -34,18 +38,22 @@ class RedissonSuspendNearCacheTest: AbstractSuspendNearCacheOperationsTest<Strin
         try {
             cache.put("size-key", "size-value")
             cache.backCacheSize() shouldBeEqualTo 1L
+
             cache.get("size-key") shouldBeEqualTo "size-value"
-            cache.get("missing-key")
+            cache.get("missing-key").shouldBeNull()
             cache.stats().backHits shouldBeEqualTo 1L
             cache.stats().backMisses shouldBeEqualTo 1L
 
             cache.removeAll(emptySet())
             cache.clearAll()
             cache.backCacheSize() shouldBeEqualTo 0L
+
             cache.close()
             cache.isClosed.shouldBeTrue()
         } finally {
-            cache.close()
+            if (!cache.isClosed) {
+                cache.close()
+            }
         }
     }
 
@@ -56,6 +64,7 @@ class RedissonSuspendNearCacheTest: AbstractSuspendNearCacheOperationsTest<Strin
             redisson = RedisServers.redisson,
             config = RedissonNearCacheConfig(cacheName = name)
         )
+
         try {
             cache.cacheName shouldBeEqualTo name
             cache.put("factory-key", "factory-value")

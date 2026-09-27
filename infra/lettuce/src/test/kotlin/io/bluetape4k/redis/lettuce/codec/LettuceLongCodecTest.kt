@@ -1,9 +1,8 @@
 package io.bluetape4k.redis.lettuce.codec
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.Test
 
 class LettuceLongCodecTest: AbstractLettuceTest() {
@@ -15,7 +14,7 @@ class LettuceLongCodecTest: AbstractLettuceTest() {
     @Test
     fun `encodeValue 와 decodeValue 가 round-trip 을 보장한다`() {
         val values = listOf(0L, 1L, -1L, 42L, Long.MIN_VALUE, Long.MAX_VALUE, 100L, -100L)
-        for (value in values) {
+        values.forEach { value ->
             val encoded = codec.encodeValue(value)
             val decoded = codec.decodeValue(encoded)
             decoded shouldBeEqualTo value
@@ -25,7 +24,7 @@ class LettuceLongCodecTest: AbstractLettuceTest() {
     @Test
     fun `encodeKey 와 decodeKey 가 round-trip 을 보장한다`() {
         val keys = listOf("key", "my-key", "ns:key:1", randomName())
-        for (key in keys) {
+        keys.forEach { key ->
             val encoded = codec.encodeKey(key)
             val decoded = codec.decodeKey(encoded)
             decoded shouldBeEqualTo key
@@ -83,7 +82,7 @@ class LettuceLongCodecTest: AbstractLettuceTest() {
             )
 
             commands.hset(key, originMap)
-            commands.hgetall(key) shouldContainSame originMap
+            commands.hgetall(key) shouldBeEqualTo originMap
 
             commands.del(key)
         }

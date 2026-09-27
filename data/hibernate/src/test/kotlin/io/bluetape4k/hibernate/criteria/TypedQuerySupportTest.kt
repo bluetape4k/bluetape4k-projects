@@ -2,16 +2,19 @@
 
 package io.bluetape4k.hibernate.criteria
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.collections.toList
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.hibernate.createQueryAs
 import io.bluetape4k.hibernate.mapping.simple.SimpleEntity
+import io.bluetape4k.logging.KLogging
 import jakarta.persistence.TypedQuery
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 
 class TypedQuerySupportTest: AbstractHibernateTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `longList, longArray, longStream 은 Long query 결과를 변환한다`() {
@@ -23,9 +26,7 @@ class TypedQuerySupportTest: AbstractHibernateTest() {
         flushAndClear()
 
         fun newLongIdQuery(): TypedQuery<java.lang.Long> = em
-            .createQueryAs<java.lang.Long>(
-                "select e.id from simple_entity e where e.name like :prefix order by e.id"
-            )
+            .createQueryAs<java.lang.Long>("select e.id from simple_entity e where e.name like :prefix order by e.id")
             .setParameter("prefix", "typed-query-%")
 
         val asList = newLongIdQuery().longList()
@@ -45,17 +46,13 @@ class TypedQuerySupportTest: AbstractHibernateTest() {
         flushAndClear()
 
         val countQuery: TypedQuery<java.lang.Long> = em
-            .createQueryAs<java.lang.Long>(
-                "select count(e) from simple_entity e where e.name = :name"
-            )
+            .createQueryAs<java.lang.Long>("select count(e) from simple_entity e where e.name = :name")
             .setParameter("name", "typed-single")
 
         countQuery.longResult() shouldBeEqualTo 1L
 
         val emptyQuery: TypedQuery<java.lang.Long> = em
-            .createQueryAs<java.lang.Long>(
-                "select e.id from simple_entity e where e.name = :name"
-            )
+            .createQueryAs<java.lang.Long>("select e.id from simple_entity e where e.name = :name")
             .setParameter("name", "typed-none")
 
         emptyQuery.findOneOrNull().shouldBeNull()
@@ -64,9 +61,7 @@ class TypedQuerySupportTest: AbstractHibernateTest() {
     @Test
     fun `longResult 는 결과가 없으면 null 을 반환한다`() {
         val emptyLongQuery: TypedQuery<java.lang.Long> = em
-            .createQueryAs<java.lang.Long>(
-                "select e.id from simple_entity e where e.name = :name"
-            )
+            .createQueryAs<java.lang.Long>("select e.id from simple_entity e where e.name = :name")
             .setParameter("name", "none-long")
 
         emptyLongQuery.longResult().shouldBeNull()
@@ -78,7 +73,9 @@ class TypedQuerySupportTest: AbstractHibernateTest() {
             SimpleEntity("typed-int-1"),
             SimpleEntity("typed-int-2")
         )
-        entities.forEach { tem.persist(it) }
+        entities.forEach {
+            tem.persist(it)
+        }
         flushAndClear()
 
         fun newIntLengthQuery(): TypedQuery<java.lang.Integer> = em
@@ -100,16 +97,17 @@ class TypedQuerySupportTest: AbstractHibernateTest() {
 
     @Test
     fun `intResult 는 단일 결과와 빈 결과를 처리한다`() {
-        tem.persist(SimpleEntity("typed-int-single"))
+        val entityName = "typed-int-single"
+        tem.persist(SimpleEntity(entityName))
         flushAndClear()
 
         val singleLengthQuery: TypedQuery<java.lang.Integer> = em
             .createQueryAs<java.lang.Integer>(
                 "select length(e.name) from simple_entity e where e.name = :name"
             )
-            .setParameter("name", "typed-int-single")
+            .setParameter("name", entityName)
 
-        singleLengthQuery.intResult() shouldBeEqualTo "typed-int-single".length
+        singleLengthQuery.intResult() shouldBeEqualTo entityName.length
 
         val emptyLengthQuery: TypedQuery<java.lang.Integer> = em
             .createQueryAs<java.lang.Integer>(

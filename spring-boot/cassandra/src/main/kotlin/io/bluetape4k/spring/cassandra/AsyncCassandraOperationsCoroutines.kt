@@ -112,8 +112,7 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.selectSuspending(
     selectSuspending(statementOf(cql), consumer)
 }
 
-// Spring 원본의 실수로 select 함수를 deprecate 시켰음
-@Suppress("DEPRECATION")
+
 /**
  * [Query]로 조회하고 각 원소에 대해 [consumer]를 수행합니다.
  *
@@ -128,6 +127,8 @@ suspend inline fun <reified T: Any> AsyncCassandraOperations.selectSuspending(
  * // 각 user.name이 출력됨
  * ```
  */
+// Spring 원본의 실수로 select 함수를 deprecate 시켰음
+@Suppress("DEPRECATION")
 suspend inline fun <reified T: Any> AsyncCassandraOperations.selectSuspending(
     query: Query,
     crossinline consumer: (T) -> Unit,

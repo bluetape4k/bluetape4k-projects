@@ -1,10 +1,12 @@
 package io.bluetape4k.kafka.logback
 
+import io.bluetape4k.logging.KLogging
+
 /**
  * Formats Kafka producer configuration for Logback status output without
  * exposing credential-bearing values.
  */
-internal object KafkaProducerConfigDiagnostics {
+internal object KafkaProducerConfigDiagnostics: KLogging() {
 
     private const val REDACTED = "[REDACTED]"
 

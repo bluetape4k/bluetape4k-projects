@@ -1,7 +1,7 @@
 package io.bluetape4k.states.core
 
 import io.bluetape4k.states.api.StateMachineException
-import java.util.ArrayDeque
+import java.util.*
 
 internal class TransitionRegistry<S: Any, E: Any>(
     private val exactTransitions: Map<TransitionKey<S, E>, TransitionTarget<S, E>>,
@@ -118,4 +118,3 @@ internal class TransitionMatch<S: Any, E: Any>(
     val exactKey: TransitionKey<S, E>?,
     val parentKey: ParentTransitionKey<S, E>?,
 )
-

@@ -1,10 +1,10 @@
 package io.bluetape4k.mockserver.httpbin
 
-import io.bluetape4k.mockserver.MockServerTestBase
-import okhttp3.Request
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.mockserver.MockServerTestBase
+import okhttp3.Request
 import org.junit.jupiter.api.Test
 
 /**
@@ -16,7 +16,7 @@ class HttpbinStreamContractTest: MockServerTestBase() {
 
     /** E15: GET /httpbin/gzip → Content-Encoding: gzip (OkHttp는 자동 해제) */
     @Test
-    fun `gzip_endpoint_returns_gzip_encoded`() {
+    fun `gzip endpoint returns gzip encoded`() {
         val req = Request.Builder()
             .url("$baseUrl/httpbin/gzip")
             .addHeader("Accept-Encoding", "gzip")
@@ -30,7 +30,7 @@ class HttpbinStreamContractTest: MockServerTestBase() {
 
     /** E16: GET /httpbin/deflate → 200 */
     @Test
-    fun `deflate_endpoint_returns_deflate_encoded`() {
+    fun `deflate endpoint returns deflate encoded`() {
         val req = Request.Builder().url("$baseUrl/httpbin/deflate").get().build()
         client.newCall(req).execute().use { response ->
             response.code shouldBeEqualTo 200
@@ -39,7 +39,7 @@ class HttpbinStreamContractTest: MockServerTestBase() {
 
     /** E17: GET /httpbin/stream/{n} → n NDJSON lines */
     @Test
-    fun `stream_endpoint_returns_ndjson_lines`() {
+    fun `stream endpoint returns ndjson lines`() {
         val req = Request.Builder().url("$baseUrl/httpbin/stream/5").get().build()
         client.newCall(req).execute().use { response ->
             response.code shouldBeEqualTo 200
@@ -51,7 +51,7 @@ class HttpbinStreamContractTest: MockServerTestBase() {
 
     /** E18: GET /httpbin/image/{fmt} → Content-Type "image/..." */
     @Test
-    fun `image_endpoint_returns_content_type_match`() {
+    fun `image endpoint returns content type match`() {
         val req = Request.Builder().url("$baseUrl/httpbin/image/png").get().build()
         client.newCall(req).execute().use { response ->
             response.code shouldBeEqualTo 200

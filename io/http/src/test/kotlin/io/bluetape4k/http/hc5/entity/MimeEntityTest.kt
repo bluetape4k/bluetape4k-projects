@@ -1,14 +1,14 @@
 package io.bluetape4k.http.hc5.entity
 
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNullOrEmpty
 import io.bluetape4k.http.hc5.entity.mime.formBodyPart
 import io.bluetape4k.http.hc5.entity.mime.formBodyPartOf
 import io.bluetape4k.http.hc5.entity.mime.multipartEntity
 import io.bluetape4k.http.hc5.entity.mime.multipartPart
 import io.bluetape4k.http.hc5.entity.mime.multipartPartOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldContain
-import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.assertions.shouldNotBeNullOrEmpty
 import org.apache.hc.client5.http.entity.mime.HttpMultipartMode
 import org.apache.hc.client5.http.entity.mime.StringBody
 import org.apache.hc.core5.http.ContentType
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test
 
 class MimeEntityTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `multipartEntity DSL creates multipart form entity`() {

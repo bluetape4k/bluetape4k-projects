@@ -33,7 +33,7 @@ data class RetryPolicy(
     val delay: Duration = Duration.ZERO,
     val backoffMultiplier: Double = 1.0,
     val maxDelay: Duration = 1.minutes,
-) : Serializable {
+): Serializable {
     /** 편의 프로퍼티: 재시도 횟수 (= maxAttempts - 1) */
     val maxRetries: Int get() = maxAttempts - 1
 

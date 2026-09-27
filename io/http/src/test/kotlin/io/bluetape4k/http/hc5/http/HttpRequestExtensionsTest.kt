@@ -1,22 +1,19 @@
 package io.bluetape4k.http.hc5.http
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class HttpRequestExtensionsTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `extractPathPrefix - GET 요청에서 prefix 추출`() {
         val request = classicRequest("GET") {
             setUri("https://example.com/api/v1/users")
         }
-
-        val prefix = request.extractPathPrefix()
-
-        prefix.shouldNotBeNull()
+        request.extractPathPrefix() shouldBeEqualTo "/api/v1/"
     }
 
     @Test
@@ -24,10 +21,7 @@ class HttpRequestExtensionsTest {
         val request = classicRequest("GET") {
             setUri("https://example.com/")
         }
-
-        val prefix = request.extractPathPrefix()
-
-        prefix.shouldNotBeNull()
+        request.extractPathPrefix() shouldBeEqualTo "/"
     }
 
     @Test
@@ -35,10 +29,7 @@ class HttpRequestExtensionsTest {
         val request = classicRequest("POST") {
             setUri("https://api.example.com/v2/data/submit")
         }
-
-        val prefix = request.extractPathPrefix()
-
-        prefix.shouldNotBeNull()
+        request.extractPathPrefix() shouldBeEqualTo "/v2/data/"
     }
 
     @Test
@@ -46,9 +37,6 @@ class HttpRequestExtensionsTest {
         val request = classicRequest("GET") {
             setUri("http://localhost:8080/health")
         }
-
-        val prefix = request.extractPathPrefix()
-
-        prefix.shouldNotBeNull()
+        request.extractPathPrefix() shouldBeEqualTo "/"
     }
 }

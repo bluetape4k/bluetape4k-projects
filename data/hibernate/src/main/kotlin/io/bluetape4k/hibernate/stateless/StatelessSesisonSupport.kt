@@ -1,15 +1,15 @@
+@file:Suppress("MatchingDeclarationName")
+
 package io.bluetape4k.hibernate.stateless
 
 import io.bluetape4k.hibernate.sessionFactory
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import jakarta.persistence.EntityManager
 import org.hibernate.SessionFactory
 import org.hibernate.StatelessSession
-import org.slf4j.Logger
 
-@PublishedApi
-internal val log: Logger by lazy { KotlinLogging.logger { } }
+internal object StatelessSessionLogger: KLogging()
 
 /**
  * [block]을 [StatelessSession] 환경하에서 작업을 수행합니다.
@@ -47,7 +47,7 @@ inline fun <T: Any> SessionFactory.withStateless(block: (StatelessSession) -> T?
                 }
             } catch (rollbackEx: Throwable) {
                 e.addSuppressed(rollbackEx)
-                log.error(rollbackEx) { "Rollback failed" }
+                StatelessSessionLogger.log.error(rollbackEx) { "Rollback failed" }
             }
             throw e
         }

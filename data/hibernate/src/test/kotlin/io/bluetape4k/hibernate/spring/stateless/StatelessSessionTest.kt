@@ -8,6 +8,7 @@ import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.spring.AbstractJpaTest
+import io.bluetape4k.hibernate.stateless.createNativeQueryAs
 import io.bluetape4k.hibernate.stateless.withStateless
 import io.bluetape4k.idgenerators.uuid.Uuid
 import io.bluetape4k.junit5.faker.Fakers
@@ -39,6 +40,7 @@ import kotlin.system.measureTimeMillis
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 @Import(StatelessSessionTestConfiguration::class)
 class StatelessSessionTest: AbstractJpaTest() {
+
     companion object: KLogging() {
         private const val COUNT = 10 // 1_000
         private const val DETAIL_COUNT = 10 // 1_000
@@ -91,12 +93,12 @@ class StatelessSessionTest: AbstractJpaTest() {
     @Test
     fun `injected StatelessSession proxy reuses dedicated transaction resource`() {
         statelessSession.isOpen.shouldBeTrue()
+
         val first = currentStatelessResource()
         (TransactionSynchronizationManager.getResource(sessionFactory) is StatelessSession).shouldBeFalse()
-
         statelessSession.isOpen.shouldBeTrue()
-        val second = currentStatelessResource()
 
+        val second = currentStatelessResource()
         second shouldBeSameInstanceAs first
     }
 
@@ -125,6 +127,7 @@ class StatelessSessionTest: AbstractJpaTest() {
 
     @Nested
     inner class WithSession: AbstractJpaTest() {
+
         @RepeatedTest(REPEAT_COUNT)
         fun `simple entity with session`() {
             val elapsed =
@@ -156,6 +159,7 @@ class StatelessSessionTest: AbstractJpaTest() {
 
     @Nested
     inner class WithStateless: AbstractJpaTest() {
+
         @RepeatedTest(REPEAT_COUNT)
         fun `simple entity with stateless`() {
             val elapsed =
@@ -205,7 +209,7 @@ class StatelessSessionTest: AbstractJpaTest() {
 
         val rows: List<Any> =
             tem.entityManager.withStateless { stateless ->
-                stateless.createNativeQuery("select * from spring_stateless_master m", Any::class.java).list()
+                stateless.createNativeQueryAs<Any>("select * from spring_stateless_master m").list()
             } ?: emptyList()
 
         rows.shouldNotBeEmpty()
@@ -233,9 +237,10 @@ class StatelessSessionTest: AbstractJpaTest() {
     }
 
     private fun currentStatelessResource(): StatelessSession {
-        val resources = currentStatelessResources()
-        resources.shouldHaveSize(1)
-        return resources.single()
+        return currentStatelessResources().let {
+            it shouldHaveSize 1
+            it.single()
+        }
     }
 
     private fun currentStatelessResources(): List<StatelessSession> {

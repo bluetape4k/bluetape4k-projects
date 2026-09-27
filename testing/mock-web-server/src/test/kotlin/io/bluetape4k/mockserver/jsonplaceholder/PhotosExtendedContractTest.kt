@@ -1,8 +1,8 @@
 package io.bluetape4k.mockserver.jsonplaceholder
 
-import io.bluetape4k.mockserver.jsonplaceholder.model.PhotoRecord
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.mockserver.jsonplaceholder.model.PhotoRecord
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
@@ -22,7 +22,13 @@ class PhotosExtendedContractTest: AbstractJsonplaceholderContractTest() {
     @Order(1)
     fun `PUT photos id 전체 교체 후 변경된 값이 조회된다`() {
         val createBody = jsonMapper.writeValueAsString(
-            PhotoRecord(albumId = 5L, id = 0L, title = "orig-photo", url = "http://a.com/o.png", thumbnailUrl = "http://a.com/t.png")
+            PhotoRecord(
+                albumId = 5L,
+                id = 0L,
+                title = "orig-photo",
+                url = "http://a.com/o.png",
+                thumbnailUrl = "http://a.com/t.png"
+            )
         )
         val mvcResult = mockMvc.perform(
             post("/jsonplaceholder/photos")
@@ -36,7 +42,13 @@ class PhotosExtendedContractTest: AbstractJsonplaceholderContractTest() {
         val id = created.id
 
         val updateBody = jsonMapper.writeValueAsString(
-            PhotoRecord(albumId = 5L, id = id, title = "updated-photo", url = "http://a.com/u.png", thumbnailUrl = "http://a.com/tu.png")
+            PhotoRecord(
+                albumId = 5L,
+                id = id,
+                title = "updated-photo",
+                url = "http://a.com/u.png",
+                thumbnailUrl = "http://a.com/tu.png"
+            )
         )
         mockMvc.perform(
             put("/jsonplaceholder/photos/$id")
@@ -51,7 +63,13 @@ class PhotosExtendedContractTest: AbstractJsonplaceholderContractTest() {
     @Order(2)
     fun `PATCH photos id 부분 수정 후 변경된 값이 조회된다`() {
         val createBody = jsonMapper.writeValueAsString(
-            PhotoRecord(albumId = 6L, id = 0L, title = "patch-photo", url = "http://b.com/p.png", thumbnailUrl = "http://b.com/pt.png")
+            PhotoRecord(
+                albumId = 6L,
+                id = 0L,
+                title = "patch-photo",
+                url = "http://b.com/p.png",
+                thumbnailUrl = "http://b.com/pt.png"
+            )
         )
         val mvcResult = mockMvc.perform(
             post("/jsonplaceholder/photos")
@@ -65,7 +83,13 @@ class PhotosExtendedContractTest: AbstractJsonplaceholderContractTest() {
         val id = created.id
 
         val patchBody = jsonMapper.writeValueAsString(
-            PhotoRecord(albumId = 6L, id = id, title = "patch-photo-updated", url = "http://b.com/pu.png", thumbnailUrl = "http://b.com/ptu.png")
+            PhotoRecord(
+                albumId = 6L,
+                id = id,
+                title = "patch-photo-updated",
+                url = "http://b.com/pu.png",
+                thumbnailUrl = "http://b.com/ptu.png"
+            )
         )
         mockMvc.perform(
             patch("/jsonplaceholder/photos/$id")
@@ -80,7 +104,13 @@ class PhotosExtendedContractTest: AbstractJsonplaceholderContractTest() {
     @Order(3)
     fun `GET photos albumId 필터가 동작한다`() {
         val createBody = jsonMapper.writeValueAsString(
-            PhotoRecord(albumId = 888L, id = 0L, title = "filtered-photo", url = "http://f.com/fp.png", thumbnailUrl = "http://f.com/fpt.png")
+            PhotoRecord(
+                albumId = 888L,
+                id = 0L,
+                title = "filtered-photo",
+                url = "http://f.com/fp.png",
+                thumbnailUrl = "http://f.com/fpt.png"
+            )
         )
         mockMvc.perform(
             post("/jsonplaceholder/photos")

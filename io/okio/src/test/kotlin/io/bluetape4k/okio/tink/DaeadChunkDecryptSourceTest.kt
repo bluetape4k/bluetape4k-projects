@@ -294,11 +294,11 @@ class DaeadChunkDecryptSourceTest: AbstractTinkEncryptTest() {
         chunkSize: Int,
         associatedData: ByteArray = ByteArray(0),
     ): Buffer {
-        val encrypted = Buffer()
-        encrypted.asDaeadChunkEncryptSink(daead, chunkSize = chunkSize, associatedData = associatedData).use { sink ->
-            sink.write(Buffer().write(plaintext), plaintext.size.toLong())
+        return Buffer().apply {
+            asDaeadChunkEncryptSink(daead, chunkSize = chunkSize, associatedData = associatedData).use { sink ->
+                sink.write(Buffer().write(plaintext), plaintext.size.toLong())
+            }
         }
-        return encrypted
     }
 
     private fun Source.readAllTo(sink: Buffer): Long {

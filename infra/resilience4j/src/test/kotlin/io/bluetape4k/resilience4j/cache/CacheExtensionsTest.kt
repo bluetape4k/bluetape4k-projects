@@ -1,9 +1,12 @@
 package io.bluetape4k.resilience4j.cache
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBe
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.concurrent.futureOf
+import io.bluetape4k.concurrent.join
 import io.bluetape4k.concurrent.onSuccess
 import io.bluetape4k.junit5.coroutines.runSuspendTest
 import io.bluetape4k.logging.KLogging
@@ -20,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class CacheExtensionsTest {
 
@@ -28,7 +32,7 @@ class CacheExtensionsTest {
     @Test
     fun `decorate function1 for Cache`() {
         val jcache = CaffeineJCacheProvider.getJCache<String, String>("function1")
-        val cache = Cache.of(jcache)
+        val resilienceCache = Cache.of(jcache)
 
         var called = 0
         val function: (String) -> String = { name ->
@@ -38,7 +42,7 @@ class CacheExtensionsTest {
 
         // 일반 함수를 Cache로 decorate 한다
         //
-        val cachedFunc = cache.decorateFunction1(function)
+        val cachedFunc = resilienceCache.decorateFunction1(function)
 
         cachedFunc("debop") shouldBeEqualTo "Hi debop!"
         called shouldBeEqualTo 1
@@ -56,9 +60,8 @@ class CacheExtensionsTest {
 
     @Test
     fun `decorate completableFuture function for Cache`() {
-
         val jcache = CaffeineJCacheProvider.getJCache<String, String>("future")
-        val cache = Cache.of(jcache)
+        val resilienceCache = Cache.of(jcache)
 
         val callCount = AtomicLong(0L)
         val function: (String) -> CompletableFuture<String> = { name ->
@@ -70,50 +73,50 @@ class CacheExtensionsTest {
             }
         }
 
-        val cachedFunc = cache.decorateCompletableFutureFunction(function)
+        val cachedFunc = resilienceCache.decorateCompletableFutureFunction(function)
 
         cachedFunc("debop").onSuccess {
             callCount.get() shouldBeEqualTo 1L
             it shouldBeEqualTo "Hi debop!"
-        }.join()
+        }.join(1.seconds)
 
         cachedFunc("debop").onSuccess {
             callCount.get() shouldBeEqualTo 1L
             it shouldBeEqualTo "Hi debop!"
-        }.join()
+        }.join(1.seconds)
 
         cachedFunc("Sunghyouk").onSuccess {
             callCount.get() shouldBeEqualTo 2L
             it shouldBeEqualTo "Hi Sunghyouk!"
-        }.join()
+        }.join(1.seconds)
 
         cachedFunc("Sunghyouk").onSuccess {
             callCount.get() shouldBeEqualTo 2L
             it shouldBeEqualTo "Hi Sunghyouk!"
-        }.join()
+        }.join(1.seconds)
     }
 
     @Test
     fun `decorate completion stage executes the loader and caches its result`() {
         val jcache = CaffeineJCacheProvider.getJCache<String, String>("completion-stage-${Base58.randomString(8)}")
-        val cache = Cache.of(jcache)
+        val resilienceCache = Cache.of(jcache)
         val callCount = AtomicInteger(0)
-        val cachedLoader = cache.decorateCompletionStage { key: String ->
+        val cachedLoader = resilienceCache.decorateCompletionStage { key: String ->
             callCount.incrementAndGet()
             CompletableFuture.completedFuture("value-$key")
         }
 
-        cachedLoader("key").toCompletableFuture().join() shouldBeEqualTo "value-key"
-        cachedLoader("key").toCompletableFuture().join() shouldBeEqualTo "value-key"
+        cachedLoader("key").toCompletableFuture().join(1.seconds) shouldBeEqualTo "value-key"
+        cachedLoader("key").toCompletableFuture().join(1.seconds) shouldBeEqualTo "value-key"
         callCount.get() shouldBeEqualTo 1
     }
 
     @Test
     fun `executeSuspendFunction 은 동일 key 동시 miss 에서 loader 를 한 번만 실행한다`() = runSuspendTest {
         val jcache = CaffeineJCacheProvider.getJCache<String, String>("suspend-concurrent")
-        val cache = Cache.of(jcache)
+        val resilienceCache = Cache.of(jcache)
         val callCount = AtomicInteger(0)
-        val cachedLoader = cache.decorateSuspendFunction { key: String ->
+        val cachedLoader = resilienceCache.decorateSuspendFunction { key: String ->
             callCount.incrementAndGet()
             delay(100.milliseconds)
             "Hi $key!"
@@ -144,11 +147,13 @@ class CacheExtensionsTest {
     @Test
     fun `executeSuspendFunction propagates cache cancellation`() = runSuspendTest {
         val cancellation = CancellationException("cache cancelled")
-        val cache = mockk<Cache<String, String>>()
-        every { cache.computeIfAbsent(any(), any()) } throws cancellation
+        val resilienceCache = mockk<Cache<String, String>>()
+        every { resilienceCache.computeIfAbsent(any(), any()) } throws cancellation
 
         val thrown = assertFailsWith<CancellationException> {
-            cache.executeSuspendFunction("debop") { key -> "Hi $key!" }
+            resilienceCache.executeSuspendFunction("debop") {
+                "Hi $it!"
+            }
         }
 
         thrown.message shouldBeEqualTo cancellation.message
@@ -158,11 +163,11 @@ class CacheExtensionsTest {
     fun `executeSuspendFunction propagates loader cancellation`() = runSuspendTest {
         val jcache = CaffeineJCacheProvider.getJCache<String, String>("loader-cancel")
         jcache.clear()
-        val cache = Cache.of(jcache)
+        val resilienceCache = Cache.of(jcache)
         val cancellation = CancellationException("loader cancelled")
 
         val thrown = assertFailsWith<CancellationException> {
-            cache.executeSuspendFunction("debop") {
+            resilienceCache.executeSuspendFunction("debop") {
                 throw cancellation
             }
         }
@@ -173,26 +178,26 @@ class CacheExtensionsTest {
     @Test
     fun `CacheCoroutineLocks release removes mutex entry when all callers release`() = runSuspendTest {
         val jcache = CaffeineJCacheProvider.getJCache<String, String>("refcount-test")
-        val cache = Cache.of(jcache)
-        val key = "refcount-test-key"
+        val resilienceCache = Cache.of(jcache)
+        val key = "refcount-test-key" + Base58.randomString(8)
 
         // Two callers acquire a Mutex for the same key — they must get the same instance.
-        val mutex1 = CacheCoroutineLocks.mutexFor(cache, key)
-        val mutex2 = CacheCoroutineLocks.mutexFor(cache, key)
-        (mutex1 === mutex2) shouldBeEqualTo true
+        val mutex1 = CacheCoroutineLocks.mutexFor(resilienceCache, key)
+        val mutex2 = CacheCoroutineLocks.mutexFor(resilienceCache, key)
+        mutex1 shouldBe mutex2
 
         // Release one of the two references — entry must still be alive.
-        CacheCoroutineLocks.release(cache, key, mutex1)
-        val mutex3 = CacheCoroutineLocks.mutexFor(cache, key)
-        (mutex3 === mutex1) shouldBeEqualTo true   // same entry still present
+        CacheCoroutineLocks.release(resilienceCache, key, mutex1)
+        val mutex3 = CacheCoroutineLocks.mutexFor(resilienceCache, key)
+        mutex3 shouldBe mutex1   // same entry still present
 
         // Release all remaining references (mutex2 + mutex3 = 2 remaining).
-        CacheCoroutineLocks.release(cache, key, mutex2)
-        CacheCoroutineLocks.release(cache, key, mutex3)
+        CacheCoroutineLocks.release(resilienceCache, key, mutex2)
+        CacheCoroutineLocks.release(resilienceCache, key, mutex3)
 
         // Entry has been removed. A fresh mutexFor call must create a new Mutex instance.
-        val mutex4 = CacheCoroutineLocks.mutexFor(cache, key)
-        (mutex4 === mutex1) shouldBeEqualTo false  // new Mutex after full release
-        CacheCoroutineLocks.release(cache, key, mutex4)
+        val mutex4 = CacheCoroutineLocks.mutexFor(resilienceCache, key)
+        mutex4 shouldNotBe mutex1  // new Mutex after full release
+        CacheCoroutineLocks.release(resilienceCache, key, mutex4)
     }
 }

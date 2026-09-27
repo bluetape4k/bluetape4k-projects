@@ -1,14 +1,19 @@
 package io.bluetape4k.idgenerators.ulid
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.RepeatedTest
 import java.util.*
 
 class JavaUUIDSupportTest: AbstractULIDTest() {
+
+    companion object: KLogging()
+
     @RepeatedTest(REPEAT_SIZE)
     fun `test ULID to UUID round-trip`() {
         val ulid = ULID.nextULID()
         val uuid = ulid.toUUID()
+
         val roundTripped = ULID.fromUUID(uuid)
         roundTripped shouldBeEqualTo ulid
     }
@@ -17,6 +22,7 @@ class JavaUUIDSupportTest: AbstractULIDTest() {
     fun `test UUID to ULID round-trip`() {
         val uuid = UUID.randomUUID()
         val ulid = ULID.fromUUID(uuid)
+
         val roundTripped = ulid.toUUID()
         roundTripped shouldBeEqualTo uuid
     }

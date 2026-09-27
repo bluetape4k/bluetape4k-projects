@@ -1,12 +1,12 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.redisson.api.BatchOptions
 import java.util.concurrent.TimeUnit
@@ -61,7 +61,7 @@ class ListMultimapCacheExamples: AbstractRedissonCoroutineTest() {
         mmap.replaceValuesAsync("2", listOf(5, 6, 7, 8, 9)).await() shouldBeEqualTo listOf(5, 6)
 
         // RList 를 반환한다
-        mmap.get("2").addAsync(100).await()
+        mmap.get("2").addAsync(100).await().shouldBeTrue()
 
         // List Value를 반환한다
         mmap.getAllAsync("2").await() shouldBeEqualTo listOf(5, 6, 7, 8, 9, 100)

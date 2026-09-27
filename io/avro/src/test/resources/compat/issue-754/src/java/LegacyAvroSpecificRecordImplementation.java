@@ -1,10 +1,11 @@
 package io.bluetape4k.avro.compat.issue754.java;
 
 import io.bluetape4k.avro.AvroSpecificRecordSerializer;
+import org.apache.avro.specific.SpecificRecord;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
-import org.apache.avro.specific.SpecificRecord;
 
 public final class LegacyAvroSpecificRecordImplementation implements AvroSpecificRecordSerializer {
     public int serializeCalls;
@@ -28,8 +29,8 @@ public final class LegacyAvroSpecificRecordImplementation implements AvroSpecifi
     public <T extends SpecificRecord> byte[] serializeList(List<? extends T> collection) {
         serializeListCalls++;
         return collection == null || collection.isEmpty()
-            ? null
-            : "specific-list".getBytes(StandardCharsets.UTF_8);
+                ? null
+                : "specific-list".getBytes(StandardCharsets.UTF_8);
     }
 
     @Override

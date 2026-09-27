@@ -252,6 +252,27 @@ inline fun <T> T.checkEquals(expected: T, lazyMessage: () -> Any): T {
 }
 
 /**
+ * `checkNotEquals` 불변 조건 검사를 제공합니다.
+ *
+ * ## 계약
+ * - 불변 조건을 만족하지 않으면 [IllegalStateException]이 발생합니다.
+ * - 불변 조건을 만족하면 원래 수신 값을 반환합니다.
+ * - 수신 객체를 변경하지 않습니다.
+ *
+ * ```kotlin
+ * val result = 10.checkNOtEquals(10, "value")
+ * // result != 10
+ * ```
+ */
+inline fun <T> T.checkNotEquals(expected: T, parameterName: String): T =
+    checkNotEquals(expected) { "$parameterName[$this] must not be equal to $expected" }
+
+inline fun <T> T.checkNotEquals(expected: T, lazyMessage: () -> Any): T {
+    check(this != expected) { lazyMessage() }
+    return this
+}
+
+/**
  * `checkGt` 불변 조건 검사를 제공합니다.
  *
  * ## 계약
@@ -729,4 +750,20 @@ inline fun Double.checkFinite(parameterName: String, noinline lazyMessage: (() -
     check(isFinite()) {
         lazyMessage?.invoke() ?: "$parameterName must be finite."
     }
+}
+
+fun Boolean.checkBeTrue(parameterName: String): Boolean = apply {
+    check(this) { "$parameterName must be true." }
+}
+
+fun Boolean.checkBeTrue(lazyMessage: () -> Any): Boolean = apply {
+    check(this) { lazyMessage.invoke() }
+}
+
+fun Boolean.checkBeFalse(parameterName: String): Boolean = apply {
+    check(!this) { "$parameterName must be false." }
+}
+
+fun Boolean.checkBeFalse(lazyMessage: () -> Any): Boolean = apply {
+    check(!this) { lazyMessage.invoke() }
 }

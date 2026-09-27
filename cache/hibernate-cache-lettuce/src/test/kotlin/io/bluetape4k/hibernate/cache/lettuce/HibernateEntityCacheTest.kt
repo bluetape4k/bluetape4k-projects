@@ -3,16 +3,21 @@ package io.bluetape4k.hibernate.cache.lettuce
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.cache.lettuce.model.Person
+import io.bluetape4k.hibernate.findAs
+import io.bluetape4k.hibernate.getServiceOrNull
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.classIsPresent
 import org.hibernate.cache.spi.RegionFactory
-import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * Hibernate Entity 2nd Level Cache 통합 테스트.
@@ -22,6 +27,8 @@ import java.util.*
  * - Hibernate statistics를 통해 캐시 동작 검증
  */
 class HibernateEntityCacheTest: AbstractHibernateNearCacheTest() {
+
+    companion object: KLogging()
 
     @BeforeEach
     fun clearCacheAndStats() {
@@ -37,7 +44,7 @@ class HibernateEntityCacheTest: AbstractHibernateNearCacheTest() {
             val p = Person().apply { name = "Alice"; age = 30 }
             session.persist(p)
             session.transaction.commit()
-            p.id!!
+            p.id.shouldNotBeNull()
         }
 
         sessionFactory.statistics.clear()
@@ -45,16 +52,15 @@ class HibernateEntityCacheTest: AbstractHibernateNearCacheTest() {
         // 2. Session 2: 1st level cache miss → 2nd level cache hit
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            val loaded = session.find(Person::class.java, personId)
+            val loaded = session.findAs<Person>(personId).shouldNotBeNull()
             session.transaction.commit()
-            loaded.shouldNotBeNull()
             loaded.name shouldBeEqualTo "Alice"
         }
 
         // 3. Session 3: 또 조회 → 2nd level cache hit
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            session.find(Person::class.java, personId).shouldNotBeNull()
+            session.findAs<Person>(personId).shouldNotBeNull()
             session.transaction.commit()
         }
 
@@ -69,33 +75,33 @@ class HibernateEntityCacheTest: AbstractHibernateNearCacheTest() {
             val p = Person().apply { name = "Parallel Alice"; age = 31 }
             session.persist(p)
             session.transaction.commit()
-            p.id!!
+            p.id.shouldNotBeNull()
         }
 
         // warm-up to populate 2nd level cache
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            session.find(Person::class.java, personId).shouldNotBeNull()
+            session.findAs<Person>(personId).shouldNotBeNull()
             session.transaction.commit()
         }
         sessionFactory.statistics.clear()
 
-        val loadedNames = Collections.synchronizedList(mutableListOf<String>())
+        val loadedNames = ConcurrentLinkedQueue<String>()
         MultithreadingTester()
             .workers(6)
             .rounds(3)
             .add {
                 sessionFactory.openSession().use { session ->
                     session.beginTransaction()
-                    val loaded = session.find(Person::class.java, personId).shouldNotBeNull()
+                    val loaded = session.findAs<Person>(personId).shouldNotBeNull()
                     loadedNames += loaded.name
                     session.transaction.commit()
                 }
             }
             .run()
 
-        loadedNames.size shouldBeEqualTo 18
-        loadedNames.forEach { it shouldBeEqualTo "Parallel Alice" }
+        loadedNames shouldHaveSize 18
+        loadedNames.all { it == "Parallel Alice" }.shouldBeTrue()
         sessionFactory.statistics.secondLevelCacheHitCount shouldBeGreaterThan 0L
     }
 
@@ -105,7 +111,7 @@ class HibernateEntityCacheTest: AbstractHibernateNearCacheTest() {
 
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            session.find(Person::class.java, Long.MAX_VALUE).shouldBeNull()
+            session.findAs<Person>(Long.MAX_VALUE).shouldBeNull()
             session.transaction.commit()
         }
 
@@ -122,7 +128,7 @@ class HibernateEntityCacheTest: AbstractHibernateNearCacheTest() {
             val p = Person().apply { name = "Bob"; age = 25 }
             session.persist(p)
             session.transaction.commit()
-            p.id!!
+            p.id.shouldNotBeNull()
         }
 
         // 2. Session 2: 2nd level cache에 올리기
@@ -139,9 +145,8 @@ class HibernateEntityCacheTest: AbstractHibernateNearCacheTest() {
         // 4. Session 3: 재조회 → cache miss → DB에서 로드
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            val loaded = session.find(Person::class.java, personId)
+            val loaded = session.findAs<Person>(personId).shouldNotBeNull()
             session.transaction.commit()
-            loaded.shouldNotBeNull()
             loaded.name shouldBeEqualTo "Bob"
         }
 
@@ -157,14 +162,14 @@ class HibernateEntityCacheTest: AbstractHibernateNearCacheTest() {
             val p = Person().apply { name = "Charlie"; age = 20 }
             session.persist(p)
             session.transaction.commit()
-            p.id!!
+            p.id.shouldNotBeNull()
         }
 
         // 2. Entity 수정
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            val p = session.find(Person::class.java, personId)
-            p!!.name = "Charlie Updated"
+            val p = session.findAs<Person>(personId).shouldNotBeNull()
+            p.name = "Charlie Updated"
             session.transaction.commit()
         }
 
@@ -173,9 +178,8 @@ class HibernateEntityCacheTest: AbstractHibernateNearCacheTest() {
         // 3. 수정 후 재조회 → 최신 값 확인
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            val loaded = session.find(Person::class.java, personId)
+            val loaded = session.findAs<Person>(personId).shouldNotBeNull()
             session.transaction.commit()
-            loaded.shouldNotBeNull()
             loaded.name shouldBeEqualTo "Charlie Updated"
         }
     }
@@ -187,25 +191,22 @@ class HibernateEntityCacheTest: AbstractHibernateNearCacheTest() {
             val p = Person().apply { name = "Eve"; age = 28 }
             session.persist(p)
             session.transaction.commit()
-            p.id!!
+            p.id.shouldNotBeNull()
         }
 
         sessionFactory.openSession().use { session ->
             session.beginTransaction()
-            session.find(Person::class.java, personId).shouldNotBeNull()
+            session.findAs<Person>(personId).shouldNotBeNull()
             session.transaction.commit()
         }
 
-        val regionFactory = (sessionFactory as SessionFactoryImplementor).serviceRegistry
-            .getService(RegionFactory::class.java) as LettuceNearCacheRegionFactory
-        val regionName = regionFactory.getCaches().keys.firstOrNull { it.contains("Person") }.also {
-            it.shouldNotBeNull()
-        }!!
-        regionFactory.getCaches()[regionName]!!.backCacheSize().shouldBeGreaterThan(0L)
+        val regionFactory = sessionFactory.getServiceOrNull<RegionFactory>() as LettuceNearCacheRegionFactory
+        val regionName = regionFactory.getCaches().keys.firstOrNull { it.contains("Person") }.shouldNotBeNull()
+        regionFactory.getCaches()[regionName].shouldNotBeNull().backCacheSize() shouldBeGreaterThan 0L
 
         sessionFactory.cache.evictEntityData(Person::class.java)
 
-        val cache = regionFactory.getCaches()[regionName]!!
+        val cache = regionFactory.getCaches()[regionName].shouldNotBeNull()
         cache.localCacheSize() shouldBeEqualTo 0L
         cache.backCacheSize() shouldBeEqualTo 0L
         cache.containsKey(personId.toString()) shouldBeEqualTo false
@@ -220,28 +221,26 @@ class HibernateEntityCacheTest: AbstractHibernateNearCacheTest() {
             val p = Person().apply { name = "Structured Bob"; age = 29 }
             session.persist(p)
             session.transaction.commit()
-            p.id!!
+            p.id.shouldNotBeNull()
         }
 
-        val loadedNames = Collections.synchronizedList(mutableListOf<String>())
+        val loadedNames = ConcurrentLinkedQueue<String>()
         StructuredTaskScopeTester()
             .rounds(6)
             .add {
                 sessionFactory.openSession().use { session ->
                     session.beginTransaction()
-                    val loaded = session.find(Person::class.java, personId).shouldNotBeNull()
+                    val loaded = session.findAs<Person>(personId).shouldNotBeNull()
                     loadedNames += loaded.name
                     session.transaction.commit()
                 }
             }
             .run()
 
-        loadedNames.size shouldBeEqualTo 6
-        loadedNames.forEach { it shouldBeEqualTo "Structured Bob" }
+        loadedNames shouldHaveSize 6
+        loadedNames.all { it == "Structured Bob" }.shouldBeTrue()
     }
 
     private fun structuredTaskScopeAvailable(): Boolean =
-        runCatching {
-            Class.forName("java.util.concurrent.StructuredTaskScope\$ShutdownOnFailure")
-        }.isSuccess
+        classIsPresent("java.util.concurrent.StructuredTaskScope\$ShutdownOnFailure")
 }

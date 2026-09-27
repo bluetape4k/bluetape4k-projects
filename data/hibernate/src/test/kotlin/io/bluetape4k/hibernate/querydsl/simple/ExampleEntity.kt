@@ -1,7 +1,6 @@
 package io.bluetape4k.hibernate.querydsl.simple
 
 import io.bluetape4k.ToStringBuilder
-import io.bluetape4k.hibernate.model.AbstractJpaTreeEntity
 import io.bluetape4k.hibernate.model.LongJpaTreeEntity
 import io.bluetape4k.support.requireNotEmpty
 import jakarta.persistence.Access
@@ -39,16 +38,12 @@ class ExampleEntity: LongJpaTreeEntity<ExampleEntity>() { // AbstractJpaTreeEnti
         return other is ExampleEntity && name == other.name
     }
 
-    override fun equals(other: Any?): Boolean {
-        return other != null && super.equals(other)
-    }
+    override fun equals(other: Any?): Boolean =
+        other != null && super.equals(other)
 
-    override fun hashCode(): Int {
-        return id?.hashCode() ?: name.hashCode()
-    }
+    override fun hashCode(): Int = id?.hashCode() ?: name.hashCode()
 
-    override fun buildStringHelper(): ToStringBuilder {
-        return super.buildStringHelper()
+    override fun buildStringHelper(): ToStringBuilder =
+        super.buildStringHelper()
             .add("name", name)
-    }
 }

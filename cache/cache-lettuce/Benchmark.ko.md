@@ -2,7 +2,7 @@
 
 [English](./Benchmark.md) | 한국어
 
-kotlinx-benchmark(JMH)를 이용한 `LettuceNearCache` (L1=Caffeine, L2=Redis RESP3) 성능 측정 결과입니다.
+kotlinx-benchmark (JMH)를 이용한 `LettuceNearCache` (L1=Caffeine, L2=Redis RESP3) 성능 측정 결과입니다.
 
 ## 아키텍처
 
@@ -15,14 +15,14 @@ LettuceNearCache
 
 ## 측정 시나리오
 
-| 벤치마크 | 설명 | 측정 대상 |
-|---------|------|---------|
-| `l1Hit` | L1(Caffeine) 캐시 적중 | 순수 메모리 읽기, Redis 왕복 없음 |
-| `l2Hit` | `clearLocal()` 후 L2(Redis) 적중 | `clearLocal()` 비용 + Redis 왕복 + L1 재충전 |
-| `l2Miss` | 양쪽 모두 미스 | Redis GET이 null 반환 |
-| `putSingle` | Write-through PUT (1건) | L1 + L2 쓰기 + CLIENT TRACKING GET |
-| `putAll` | 배치 PUT (100건) | 100× L1 + L2 쓰기 |
-| `removeSingle` | 1건 삭제 | L1 + L2 DEL (`@Setup(Level.Invocation)` pre-put 제외) |
+| 벤치마크       | 설명                             | 측정 대상                                             |
+|----------------|----------------------------------|-------------------------------------------------------|
+| `l1Hit`        | L1(Caffeine) 캐시 적중           | 순수 메모리 읽기, Redis 왕복 없음                     |
+| `l2Hit`        | `clearLocal()` 후 L2(Redis) 적중 | `clearLocal()` 비용 + Redis 왕복 + L1 재충전          |
+| `l2Miss`       | 양쪽 모두 미스                   | Redis GET이 null 반환                                 |
+| `putSingle`    | Write-through PUT (1건)          | L1 + L2 쓰기 + CLIENT TRACKING GET                    |
+| `putAll`       | 배치 PUT (100건)                 | 100× L1 + L2 쓰기                                     |
+| `removeSingle` | 1건 삭제                         | L1 + L2 DEL (`@Setup(Level.Invocation)` pre-put 제외) |
 
 > **참고**: `l2Hit` 측정값에는 `clearLocal()` 비용이 포함됩니다. 분석 섹션 참조.
 
@@ -38,23 +38,20 @@ Docker 필요 (Testcontainers Redis 7+).
 
 ## Issue #1369 bounded bulk 보고서
 
-`NearJCacheBulkPathBenchmark`와 `NearJCacheBulkContentionBenchmark`의 증거는 [Issue #1369 보고서](../../docs/benchmarks/2026-08-17-issue-1369-nearcache-bounded-bulk.md)에
-고정했다. 이 보고서는 bounded `getAll()` front population 정책을 위한 별도의 committed JMH snapshot이며,
-아래의 기존 `LettuceNearCache` 결과와 의도적으로 섞지 않는다. 보고서에서 baseline/candidate raw JSON과
-처리량·allocation 차트를 함께 확인할 수 있다.
+`NearJCacheBulkPathBenchmark`와 `NearJCacheBulkContentionBenchmark`의 증거는 [Issue #1369 보고서](../../docs/benchmarks/2026-08-17-issue-1369-nearcache-bounded-bulk.md)에 고정했다. 이 보고서는 bounded `getAll()` front population 정책을 위한 별도의 committed JMH snapshot이며, 아래의 기존 `LettuceNearCache` 결과와 의도적으로 섞지 않는다. 보고서에서 baseline/candidate raw JSON과 처리량·allocation 차트를 함께 확인할 수 있다.
 
 ## 결과
 
 ### 요약 표 (처리량: ops/ms, 높을수록 좋음)
 
-| 벤치마크 | payloadSize=512 | payloadSize=4096 | payloadSize=16384 |
-|---------|:--------------:|:----------------:|:-----------------:|
-| **l1Hit** | **65,560 ± 10,861** | **63,458 ± 23,120** | **64,580 ± 9,507** |
-| l2Hit | 4.067 ± 0.532 | 4.130 ± 0.452 | 3.930 ± 1.370 |
-| l2Miss | 3.961 ± 1.394 | 3.917 ± 0.784 | 4.208 ± 0.408 |
-| putSingle | 2.119 ± 0.100 | 2.077 ± 0.276 | 2.014 ± 0.152 |
-| putAll (×100) | 1.038 ± 0.247 | 0.930 ± 0.118 | 0.407 ± 0.281 |
-| removeSingle | 4.213 ± 0.177 | 4.243 ± 0.352 | 4.164 ± 0.271 |
+| 벤치마크      |   payloadSize=512   |  payloadSize=4096   | payloadSize=16384  |
+|---------------|:-------------------:|:-------------------:|:------------------:|
+| **l1Hit**     | **65,560 ± 10,861** | **63,458 ± 23,120** | **64,580 ± 9,507** |
+| l2Hit         |    4.067 ± 0.532    |    4.130 ± 0.452    |   3.930 ± 1.370    |
+| l2Miss        |    3.961 ± 1.394    |    3.917 ± 0.784    |   4.208 ± 0.408    |
+| putSingle     |    2.119 ± 0.100    |    2.077 ± 0.276    |   2.014 ± 0.152    |
+| putAll (×100) |    1.038 ± 0.247    |    0.930 ± 0.118    |   0.407 ± 0.281    |
+| removeSingle  |    4.213 ± 0.177    |    4.243 ± 0.352    |   4.164 ± 0.271    |
 
 ### JMH 상세 출력
 
@@ -128,33 +125,33 @@ NearCacheRemoveBenchmark.removeSingle          N/A          16384  thrpt    5   
 
 ### 핵심 인사이트
 
-| 인사이트 | 시사점 |
-|--------|-------|
-| L1 적중이 L2 대비 16,000배 빠름 | 적절한 `maxLocalSize`로 L1 적중률 최대화 |
-| putSingle이 get의 2배 느림 | 쓰기 집중 워크로드는 CLIENT TRACKING 비용 지불 |
-| putAll은 16KB에서 2.5배 저하 | 소용량 페이로드 사용 또는 대형 배치 분할 |
-| 모든 L2 연산 ~4 ops/ms | Redis RTT(~250µs)가 공통 병목 |
-| L1/읽기는 페이로드 크기 무관 | 캐시 값 역직렬화 비용 무시 가능 |
+| 인사이트                        | 시사점                                         |
+|---------------------------------|------------------------------------------------|
+| L1 적중이 L2 대비 16,000배 빠름 | 적절한 `maxLocalSize`로 L1 적중률 최대화       |
+| putSingle이 get의 2배 느림      | 쓰기 집중 워크로드는 CLIENT TRACKING 비용 지불 |
+| putAll은 16KB에서 2.5배 저하    | 소용량 페이로드 사용 또는 대형 배치 분할       |
+| 모든 L2 연산 ~4 ops/ms          | Redis RTT(~250µs)가 공통 병목                  |
+| L1/읽기는 페이로드 크기 무관    | 캐시 값 역직렬화 비용 무시 가능                |
 
 ---
 
 ## 벤치마크 환경
 
-| 항목 | 값 |
-|------|---|
-| **CPU** | Apple M4 Pro (12코어) |
-| **RAM** | 48 GB |
-| **OS** | macOS 26.4.1 (Darwin 25.4.0) |
-| **JVM** | Oracle GraalVM 21.0.11+9.1 |
-| **Redis** | 7+ (Testcontainers, Docker) |
-| **Kotlin** | 2.3 |
-| **kotlinx-benchmark** | 0.4.15 |
-| **JMH** | 1.37 |
-| **Warmup** | 3회 × 2초 |
-| **측정** | 5회 × 3초 |
-| **Fork** | 1 |
-| **스레드** | 1 |
-| **모드** | Throughput (ops/ms) |
-| **batchSize** | 100 (putAll 전용) |
-| **payloadSizes** | 512B, 4096B, 16384B |
-| **측정일** | 2026-04-27 |
+| 항목                  | 값                           |
+|-----------------------|------------------------------|
+| **CPU**               | Apple M4 Pro (12코어)        |
+| **RAM**               | 48 GB                        |
+| **OS**                | macOS 26.4.1 (Darwin 25.4.0) |
+| **JVM**               | Oracle GraalVM 21.0.11+9.1   |
+| **Redis**             | 7+ (Testcontainers, Docker)  |
+| **Kotlin**            | 2.3                          |
+| **kotlinx-benchmark** | 0.4.15                       |
+| **JMH**               | 1.37                         |
+| **Warmup**            | 3회 × 2초                    |
+| **측정**              | 5회 × 3초                    |
+| **Fork**              | 1                            |
+| **스레드**            | 1                            |
+| **모드**              | Throughput (ops/ms)          |
+| **batchSize**         | 100 (putAll 전용)            |
+| **payloadSizes**      | 512B, 4096B, 16384B          |
+| **측정일**            | 2026-04-27                   |

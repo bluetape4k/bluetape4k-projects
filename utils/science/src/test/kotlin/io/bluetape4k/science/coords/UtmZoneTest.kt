@@ -1,11 +1,14 @@
 package io.bluetape4k.science.coords
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class UtmZoneTest {
 
@@ -34,14 +37,14 @@ class UtmZoneTest {
     fun `UtmZone equality가 올바르게 동작한다`() {
         val a = UtmZone(52, 'S')
         val b = UtmZone(52, 'S')
-        (a == b).shouldBeTrue()
+        a shouldBeEqualTo b
     }
 
     @Test
     fun `UtmZone 다른 값은 equal하지 않다`() {
         val a = UtmZone(52, 'S')
         val b = UtmZone(18, 'T')
-        (a == b).shouldBeFalse()
+        a shouldNotBeEqualTo b
     }
 
     @Test
@@ -50,7 +53,7 @@ class UtmZoneTest {
         val copy = original.copy(longitudeZone = 18, latitudeZone = 'T')
         copy.longitudeZone shouldBeEqualTo 18
         copy.latitudeZone shouldBeEqualTo 'T'
-        (original == copy).shouldBeFalse()
+        original shouldNotBeEqualTo copy
     }
 
     @Test
@@ -58,14 +61,14 @@ class UtmZoneTest {
         val seoulZone = UtmZone(52, 'S')
         val newYorkZone = UtmZone(18, 'T')
         // S < T 이므로 seoulZone < newYorkZone
-        (seoulZone < newYorkZone).shouldBeTrue()
+        seoulZone shouldBeLessThan newYorkZone
     }
 
     @Test
     fun `UtmZone compareTo - 위도 구역이 같으면 경도로 비교한다`() {
         val a = UtmZone(18, 'T')
         val b = UtmZone(52, 'T')
-        (a < b).shouldBeTrue()
+        a shouldBeLessThan b
     }
 
     @Test
@@ -106,9 +109,11 @@ class UtmZoneTest {
     @Test
     fun `UtmZone Serializable - 예외 없이 직렬화된다`() {
         val zone = UtmZone(52, 'S')
-        java.io.ObjectOutputStream(java.io.ByteArrayOutputStream()).use { out ->
-            out.writeObject(zone)
-        }
+
+        val bytes = BinarySerializers.FastFory.serialize(zone)
+        val restored = BinarySerializers.FastFory.deserialize<UtmZone>(bytes)
+
+        restored shouldBeEqualTo zone
     }
 
     @Test

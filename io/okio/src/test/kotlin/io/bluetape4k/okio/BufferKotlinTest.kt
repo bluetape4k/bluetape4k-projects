@@ -1,6 +1,7 @@
 package io.bluetape4k.okio
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
@@ -100,7 +101,7 @@ class BufferKotlinTest: AbstractOkioTest() {
         source.writeTo(target.outputStream())   // source -> target  (move)
 
         target.readUtf8() shouldBeEqualTo expectedText
-        source.readUtf8() shouldBeEqualTo ""
+        source.readUtf8().shouldBeEmpty()
     }
 
     @RepeatedTest(REPEAT_SIZE)

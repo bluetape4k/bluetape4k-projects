@@ -1,8 +1,10 @@
 package io.bluetape4k.spring.mongodb.query
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import org.springframework.data.mongodb.core.query.Criteria
 
@@ -12,6 +14,7 @@ import org.springframework.data.mongodb.core.query.Criteria
  * MongoDB 연결 없이 [Criteria] 객체의 직렬화된 형태를 비교하여 DSL 함수의 정확성을 검증합니다.
  */
 class CriteriaExtensionsTest {
+
     companion object: KLoggingChannel()
 
     // ====================================================
@@ -23,6 +26,7 @@ class CriteriaExtensionsTest {
         val actual = Criteria.where("name") eq "Alice"
         val expected = Criteria.where("name").`is`("Alice")
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -31,6 +35,7 @@ class CriteriaExtensionsTest {
         val actual = Criteria.where("deletedAt") eq null
         val expected = Criteria.where("deletedAt").`is`(null)
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -43,6 +48,7 @@ class CriteriaExtensionsTest {
         val actual = (Criteria.where("status") ne "inactive")
         val expected = Criteria.where("status").ne("inactive")
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -55,6 +61,7 @@ class CriteriaExtensionsTest {
         val actual = Criteria.where("age") gt 20
         val expected = Criteria.where("age").gt(20)
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -63,6 +70,7 @@ class CriteriaExtensionsTest {
         val actual = Criteria.where("age") gte 20
         val expected = Criteria.where("age").gte(20)
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -71,6 +79,7 @@ class CriteriaExtensionsTest {
         val actual = Criteria.where("age") lt 65
         val expected = Criteria.where("age").lt(65)
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -79,6 +88,7 @@ class CriteriaExtensionsTest {
         val actual = Criteria.where("age") lte 65
         val expected = Criteria.where("age").lte(65)
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -92,6 +102,7 @@ class CriteriaExtensionsTest {
         val actual = Criteria.where("city") inValues cities
         val expected = Criteria.where("city").`in`(cities)
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -101,6 +112,7 @@ class CriteriaExtensionsTest {
         val actual = Criteria.where("status") notInValues statuses
         val expected = Criteria.where("status").nin(statuses)
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -112,10 +124,11 @@ class CriteriaExtensionsTest {
     fun `regex(String) - Criteria regex와 동일한 결과를 반환한다`() {
         val actual = Criteria.where("name") regex "^Alice"
 
+        log.debug { "actual=${actual.criteriaObject}" }
+
         // Pattern.equals()는 참조 동등성이므로 criteriaObject 직접 비교 불가
         // name 필드에 저장된 패턴 문자열을 추출하여 비교합니다
-        val nameValue = actual.criteriaObject["name"]
-        when (nameValue) {
+        when (val nameValue = actual.criteriaObject["name"]) {
             is java.util.regex.Pattern -> nameValue.pattern() shouldBeEqualTo "^Alice"
             else -> nameValue shouldBeEqualTo "^Alice"
         }
@@ -130,6 +143,7 @@ class CriteriaExtensionsTest {
         val actual = Criteria.where("deletedAt").isNull()
         val expected = Criteria.where("deletedAt").`is`(null)
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -138,6 +152,7 @@ class CriteriaExtensionsTest {
         val actual = Criteria.where("email").fieldExists()
         val expected = Criteria.where("email").exists(true)
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -146,6 +161,7 @@ class CriteriaExtensionsTest {
         val actual = Criteria.where("deletedAt").fieldNotExists()
         val expected = Criteria.where("deletedAt").exists(false)
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -158,18 +174,19 @@ class CriteriaExtensionsTest {
         val actual = "name".criteria() eq "Alice"
         val expected = Criteria.where("name").`is`("Alice")
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
     @Test
     fun `criteriaOf - 여러 조건을 AND로 결합한다`() {
-        val combined =
-            criteriaOf(
-                Criteria.where("age").gt(20),
-                Criteria.where("city").`is`("Seoul")
-            )
+        val actual = criteriaOf(
+            Criteria.where("age").gt(20),
+            Criteria.where("city").`is`("Seoul")
+        )
 
-        combined.criteriaObject.shouldNotBeNull()
+        log.debug { "actual=${actual.criteriaObject}" }
+        actual.criteriaObject.shouldNotBeNull()
     }
 
     // ====================================================
@@ -180,17 +197,19 @@ class CriteriaExtensionsTest {
     fun `andWith - AND 조건을 올바르게 생성한다`() {
         val actual = Criteria.where("age").gt(20) andWith Criteria.where("city").`is`("Seoul")
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject.shouldNotBeNull()
         // $and 키가 포함된다
-        actual.criteriaObject.containsKey("\$and").shouldBeEqualTo(true)
+        actual.criteriaObject.containsKey("\$and").shouldBeTrue()
     }
 
     @Test
     fun `orWith - OR 조건을 올바르게 생성한다`() {
         val actual = Criteria.where("age").gt(20) orWith Criteria.where("city").`is`("Seoul")
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject.shouldNotBeNull()
-        actual.criteriaObject.containsKey("\$or").shouldBeEqualTo(true)
+        actual.criteriaObject.containsKey("\$or").shouldBeTrue()
     }
 
     @Test
@@ -200,8 +219,9 @@ class CriteriaExtensionsTest {
             Criteria.where("blocked").`is`(true)
         )
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject.shouldNotBeNull()
-        actual.criteriaObject.containsKey("\$nor").shouldBeEqualTo(true)
+        actual.criteriaObject.containsKey("\$nor").shouldBeTrue()
     }
 
     // ====================================================
@@ -214,6 +234,7 @@ class CriteriaExtensionsTest {
         val actual = Criteria.where("city") inValues cities
         val expected = Criteria.where("city").`in`(*cities)
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -223,6 +244,7 @@ class CriteriaExtensionsTest {
         val actual = Criteria.where("status") notInValues statuses
         val expected = Criteria.where("status").nin(*statuses)
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -232,9 +254,11 @@ class CriteriaExtensionsTest {
 
     @Test
     fun `isNull 프로퍼티 - null 타입 조건을 생성한다`() {
-        val criteria = Criteria.where("deletedAt").isNull
-        criteria.criteriaObject.shouldNotBeNull()
-        criteria.criteriaObject.containsKey("deletedAt").shouldBeEqualTo(true)
+        val actual = Criteria.where("deletedAt").isNull
+
+        log.debug { "actual=${actual.criteriaObject}" }
+        actual.criteriaObject.shouldNotBeNull()
+        actual.criteriaObject.containsKey("deletedAt").shouldBeTrue()
     }
 
     // ====================================================
@@ -247,6 +271,7 @@ class CriteriaExtensionsTest {
         val actual = Criteria.where("tags") allValues tags
         val expected = Criteria.where("tags").all(tags)
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -255,6 +280,7 @@ class CriteriaExtensionsTest {
         val actual = Criteria.where("tags") sizeOf 3
         val expected = Criteria.where("tags").size(3)
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject shouldBeEqualTo expected.criteriaObject
     }
 
@@ -263,8 +289,9 @@ class CriteriaExtensionsTest {
         val inner = Criteria.where("value").gt(90)
         val actual = Criteria.where("scores") elemMatches inner
 
+        log.debug { "actual=${actual.criteriaObject}" }
         actual.criteriaObject.shouldNotBeNull()
-        actual.criteriaObject.containsKey("scores").shouldBeEqualTo(true)
+        actual.criteriaObject.containsKey("scores").shouldBeTrue()
     }
 
     // ====================================================
@@ -275,6 +302,7 @@ class CriteriaExtensionsTest {
     fun `regex(Regex) - Kotlin Regex로 Criteria를 생성한다`() {
         val actual = Criteria.where("name") regex Regex("^Alice", RegexOption.IGNORE_CASE)
 
+        log.debug { "actual=${actual.criteriaObject}" }
         val nameValue = actual.criteriaObject["name"]
         nameValue.shouldNotBeNull()
     }

@@ -55,7 +55,7 @@ dependencies {
     compileOnly(bt4k.zstd.jni)
 
     // Fallback codec
-    // compileOnly(bt4k.fory.kotlin)
+    compileOnly(bt4k.fory.kotlin)
 
     // Money (MoneySupport.kt)
     compileOnly(project(":bluetape4k-money"))

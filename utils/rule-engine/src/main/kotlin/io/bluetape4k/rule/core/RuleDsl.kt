@@ -220,7 +220,7 @@ class RuleEngineBuilder {
     var skipOnFirstNonTriggeredRule: Boolean = false
     var priorityThreshold: Int = RuleEngineConfig.DEFAULT_PRIORITY_THRESHOLD
 
-    internal fun build(): DefaultRuleEngine {
+    fun build(): DefaultRuleEngine {
         val config = RuleEngineConfig(
             skipOnFirstAppliedRule = skipOnFirstAppliedRule,
             skipOnFirstFailedRule = skipOnFirstFailedRule,
@@ -241,6 +241,5 @@ class RuleEngineBuilder {
  * }
  * ```
  */
-fun ruleEngine(setup: RuleEngineBuilder.() -> Unit): DefaultRuleEngine {
-    return RuleEngineBuilder().apply(setup).build()
-}
+inline fun ruleEngine(setup: RuleEngineBuilder.() -> Unit): DefaultRuleEngine =
+    RuleEngineBuilder().apply(setup).build()

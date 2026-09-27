@@ -62,6 +62,26 @@ class KryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.Kryo)
 class ForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.Fory)
 
 /**
+ * Kafka codec backed by the FastFory binary serializer.
+ *
+ * ```kotlin
+ * val codec = FastForyKafkaCodec()
+ * val bytes = codec.serialize("topic", null, "hello")
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result == "hello"
+ * ```
+ *
+ * ## Security
+ *
+ * This codec uses `BinarySerializers.FastFory`, whose FastFory configuration
+ * allows unregistered classes during deserialization. Use it only for trusted
+ * topics and brokers, or provide a codec backed by a class-registration-enforced
+ * `ForyBinarySerializer.fast()` for shared or external inputs.
+ */
+@BluetapeDelicateApi
+class FastForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.FastFory)
+
+/**
  * LZ4 압축 + Kryo 직렬화를 이용한 Kafka Codec
  *
  * ```kotlin
@@ -91,6 +111,25 @@ class LZ4KryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Kryo)
  */
 @BluetapeDelicateApi
 class LZ4ForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4Fory)
+
+/**
+ * Kafka codec backed by LZ4 compression and the FastFory binary serializer.
+ *
+ * ```kotlin
+ * val codec = LZ4FastForyKafkaCodec()
+ * val bytes = codec.serialize("topic", null, "hello")
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result == "hello"
+ * ```
+ *
+ * ## Security
+ *
+ * This codec uses `BinarySerializers.LZ4FastFory`, which delegates to the default
+ * Fory serializer and allows unregistered classes during deserialization. Use
+ * it only for trusted topics and brokers.
+ */
+@BluetapeDelicateApi
+class LZ4FastForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.LZ4FastFory)
 
 /**
  * Snappy 압축 + Kryo 직렬화를 이용한 Kafka Codec
@@ -124,6 +163,25 @@ class SnappyKryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyKryo)
 class SnappyForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyFory)
 
 /**
+ * Kafka codec backed by Snappy compression and the FastFory binary serializer.
+ *
+ * ```kotlin
+ * val codec = SnappyFastForyKafkaCodec()
+ * val bytes = codec.serialize("topic", null, "hello")
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result == "hello"
+ * ```
+ *
+ * ## Security
+ *
+ * This codec uses `BinarySerializers.SnappyFastFory`, which delegates to the default
+ * Fory serializer and allows unregistered classes during deserialization. Use
+ * it only for trusted topics and brokers.
+ */
+@BluetapeDelicateApi
+class SnappyFastForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.SnappyFastFory)
+
+/**
  * Zstd 압축 + Kryo 직렬화를 이용한 Kafka Codec
  *
  * ```kotlin
@@ -153,3 +211,22 @@ class ZstdKryoKafkaCodec: BinaryKafkaCodec(BinarySerializers.ZstdKryo)
  */
 @BluetapeDelicateApi
 class ZstdForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.ZstdFory)
+
+/**
+ * Kafka codec backed by Zstd compression and the FastFory binary serializer.
+ *
+ * ```kotlin
+ * val codec = ZstdFastForyKafkaCodec()
+ * val bytes = codec.serialize("topic", null, "hello")
+ * val result = codec.deserialize("topic", null, bytes)
+ * // result == "hello"
+ * ```
+ *
+ * ## Security
+ *
+ * This codec uses `BinarySerializers.ZstdFastFory`, which delegates to the default
+ * Fory serializer and allows unregistered classes during deserialization. Use
+ * it only for trusted topics and brokers.
+ */
+@BluetapeDelicateApi
+class ZstdFastForyKafkaCodec: BinaryKafkaCodec(BinarySerializers.ZstdFastFory)

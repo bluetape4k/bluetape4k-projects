@@ -1,10 +1,10 @@
 package io.bluetape4k.rule.engines.kotlinscript
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.rule.api.Facts
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 

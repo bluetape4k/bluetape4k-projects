@@ -41,9 +41,11 @@ object VirtualThreads: KLogging() {
             }.onFailure { error ->
                 log.warn(error) { "Stopping VirtualThreadRuntime discovery after ServiceLoader.hasNext() failed." }
             }.getOrNull() ?: break
+
             if (!hasNext) {
                 break
             }
+
             val provider = runCatching {
                 iterator.next()
             }.onFailure { error ->

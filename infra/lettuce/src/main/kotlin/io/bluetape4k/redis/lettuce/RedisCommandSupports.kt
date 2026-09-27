@@ -46,16 +46,13 @@ object RedisCommandSupports: KLogging() {
         //       → 원자적 computeIfAbsent 로 변경하여 명령어별 최초 1회만 조회되도록 보장합니다.
         val perClient = cache.computeIfAbsent(redisClient) { ConcurrentHashMap() }
         return perClient.computeIfAbsent(cmd) {
-            val conn = redisClient.connect()
-            try {
+            redisClient.connect().use { conn ->
                 runCatching {
                     val result = conn.sync().commandInfo(cmd)
                     val supported = result.isNotEmpty()
                     log.debug { "RedisCommandSupports: command=$cmd, supported=$supported" }
                     supported
                 }.getOrDefault(false)
-            } finally {
-                conn.close()
             }
         }
     }
@@ -72,7 +69,8 @@ object RedisCommandSupports: KLogging() {
      *
      * @param redisClient Redis 서버에 연결된 클라이언트
      */
-    fun supportsHSetEx(redisClient: RedisClient): Boolean = supports(redisClient, "HSETEX")
+    fun supportsHSetEx(redisClient: RedisClient): Boolean =
+        supports(redisClient, "HSETEX")
 
     /**
      * `LMPOP` 명령어 지원 여부를 확인합니다. (Redis 7.0+)
@@ -86,7 +84,8 @@ object RedisCommandSupports: KLogging() {
      *
      * @param redisClient Redis 서버에 연결된 클라이언트
      */
-    fun supportsLMPop(redisClient: RedisClient): Boolean = supports(redisClient, "LMPOP")
+    fun supportsLMPop(redisClient: RedisClient): Boolean =
+        supports(redisClient, "LMPOP")
 
     /**
      * `WAITAOF` 명령어 지원 여부를 확인합니다. (Redis 7.2+)
@@ -100,7 +99,8 @@ object RedisCommandSupports: KLogging() {
      *
      * @param redisClient Redis 서버에 연결된 클라이언트
      */
-    fun supportsWaitAof(redisClient: RedisClient): Boolean = supports(redisClient, "WAITAOF")
+    fun supportsWaitAof(redisClient: RedisClient): Boolean =
+        supports(redisClient, "WAITAOF")
 
     /**
      * 캐시를 초기화합니다. 주로 테스트 격리 목적으로 사용합니다.

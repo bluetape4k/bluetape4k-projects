@@ -38,7 +38,7 @@ class GroovyAction(val script: String): Action {
         script.requireNotBlank("script")
     }
 
-    private val parsedScript by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+    private val parsedScript by lazy {
         GroovyShell(compilerConfig).parse(script)
     }
 

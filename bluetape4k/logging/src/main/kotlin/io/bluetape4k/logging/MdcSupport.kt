@@ -1,8 +1,7 @@
 package io.bluetape4k.logging
 
 import org.slf4j.MDC
-import java.util.Collections
-import java.util.LinkedHashMap
+import java.util.*
 
 /**
  * 단일 키-값을 MDC에 적용한 범위 안에서 블록을 실행합니다.

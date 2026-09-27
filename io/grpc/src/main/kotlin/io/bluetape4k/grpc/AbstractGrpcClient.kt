@@ -7,7 +7,7 @@ import io.grpc.ManagedChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import java.io.Closeable
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Base gRPC client that owns a [ManagedChannel] lifecycle.
@@ -55,7 +55,7 @@ abstract class AbstractGrpcClient(
             log.debug { "Shutdown GrpcClient channel. channel=$channel" }
             runCatching {
                 channel.shutdown()
-                if (!channel.awaitTermination(5, TimeUnit.SECONDS)) {
+                if (!channel.awaitTermination(5.seconds)) {
                     log.warn { "Channel did not terminate in time, forcing shutdownNow. channel=$channel" }
                     channel.shutdownNow()
                 }

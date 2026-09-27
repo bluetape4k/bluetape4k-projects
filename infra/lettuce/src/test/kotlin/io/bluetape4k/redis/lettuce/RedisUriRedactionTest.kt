@@ -2,15 +2,19 @@ package io.bluetape4k.redis.lettuce
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import java.net.URI
 
 class RedisUriRedactionTest {
 
+    companion object: KLogging()
+
     @Test
     fun `정상 URI는 호스트 포트와 안전한 옵션을 보존한다`() {
         "redis://localhost:6379/0?database=1".redactUriCredentials() shouldBeEqualTo
-            "redis://localhost:6379/0?database=1"
+                "redis://localhost:6379/0?database=1"
     }
 
     @Test
@@ -28,6 +32,7 @@ class RedisUriRedactionTest {
 
         val redacted = uri.redactUriCredentials()
 
+        log.debug { "redacted: $redacted" }
         redacted shouldBeEqualTo "redis://localhost:6379/0;password=<redacted>;tls=true" +
                 "?user=<redacted>&password=<redacted>&token=<redacted>&password=<redacted>"
         redacted shouldNotContain "path-secret"
@@ -39,7 +44,7 @@ class RedisUriRedactionTest {
     @Test
     fun `URI 확장은 동일한 공용 redaction 정책을 사용한다`() {
         URI("redis://cache-user:secret@localhost:6379/0?api_key=key-secret").toRedactedLogString() shouldBeEqualTo
-            "redis://<redacted>@localhost:6379/0?api_key=<redacted>"
+                "redis://<redacted>@localhost:6379/0?api_key=<redacted>"
     }
 
     @Test

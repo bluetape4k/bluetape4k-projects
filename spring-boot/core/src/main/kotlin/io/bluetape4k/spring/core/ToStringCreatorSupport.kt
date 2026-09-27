@@ -20,7 +20,8 @@ import org.springframework.core.style.ValueStyler
  * // creator.toString().contains("value") == true
  * ```
  */
-fun ToStringCreator.append(): ToStringCreatorAppendTokens = ToStringCreatorAppendTokens(this)
+fun ToStringCreator.append(): ToStringCreatorAppendTokens =
+    ToStringCreatorAppendTokens(this)
 
 /**
  * 기본 스타일로 [ToStringCreator]를 생성하고 본문을 적용합니다.
@@ -40,7 +41,7 @@ fun ToStringCreator.append(): ToStringCreatorAppendTokens = ToStringCreatorAppen
  */
 inline fun toStringCreatorOf(
     obj: Any,
-    body: ToStringCreator.() -> Unit,
+    body: ToStringCreator.() -> Unit = {},
 ): ToStringCreator = ToStringCreator(obj).apply(body)
 
 /**
@@ -62,7 +63,7 @@ inline fun toStringCreatorOf(
 inline fun toStringCreatorOf(
     obj: Any,
     valueStyler: ValueStyler = DefaultValueStyler(),
-    body: ToStringCreator.() -> Unit,
+    body: ToStringCreator.() -> Unit = {},
 ): ToStringCreator = ToStringCreator(obj, valueStyler).apply(body)
 
 /**
@@ -84,7 +85,7 @@ inline fun toStringCreatorOf(
 inline fun toStringCreatorOf(
     obj: Any,
     styler: ToStringStyler = DefaultToStringStyler(DefaultValueStyler()),
-    body: ToStringCreator.() -> Unit,
+    body: ToStringCreator.() -> Unit = {},
 ): ToStringCreator = ToStringCreator(obj, styler).apply(body)
 
 /**
@@ -101,9 +102,7 @@ inline fun toStringCreatorOf(
  * // creator.toString().contains("name") == true
  * ```
  */
-class ToStringCreatorAppendTokens(
-    private val creator: ToStringCreator,
-) {
+class ToStringCreatorAppendTokens(private val creator: ToStringCreator) {
     /**
      * Boolean 값을 필드로 추가합니다.
      *
@@ -117,10 +116,7 @@ class ToStringCreatorAppendTokens(
      * // creator.toString().contains("active") == true
      * ```
      */
-    operator fun set(
-        fieldName: String,
-        value: Boolean,
-    ): ToStringCreator = creator.append(fieldName, value)
+    operator fun set(fieldName: String, value: Boolean): ToStringCreator = creator.append(fieldName, value)
 
     /**
      * Byte 값을 필드로 추가합니다.
@@ -133,10 +129,7 @@ class ToStringCreatorAppendTokens(
      * // creator.toString().contains("grade") == true
      * ```
      */
-    operator fun set(
-        fieldName: String,
-        value: Byte,
-    ): ToStringCreator = creator.append(fieldName, value)
+    operator fun set(fieldName: String, value: Byte): ToStringCreator = creator.append(fieldName, value)
 
     /**
      * Char 값을 필드로 추가합니다.
@@ -149,10 +142,7 @@ class ToStringCreatorAppendTokens(
      * // creator.toString().contains("initial") == true
      * ```
      */
-    operator fun set(
-        fieldName: String,
-        value: Char,
-    ): ToStringCreator = creator.append(fieldName, value)
+    operator fun set(fieldName: String, value: Char): ToStringCreator = creator.append(fieldName, value)
 
     /**
      * Short 값을 필드로 추가합니다.
@@ -165,10 +155,7 @@ class ToStringCreatorAppendTokens(
      * // creator.toString().contains("count") == true
      * ```
      */
-    operator fun set(
-        fieldName: String,
-        value: Short,
-    ): ToStringCreator = creator.append(fieldName, value)
+    operator fun set(fieldName: String, value: Short): ToStringCreator = creator.append(fieldName, value)
 
     /**
      * Int 값을 필드로 추가합니다.
@@ -181,10 +168,7 @@ class ToStringCreatorAppendTokens(
      * // creator.toString().contains("age = 42") == true
      * ```
      */
-    operator fun set(
-        fieldName: String,
-        value: Int,
-    ): ToStringCreator = creator.append(fieldName, value)
+    operator fun set(fieldName: String, value: Int): ToStringCreator = creator.append(fieldName, value)
 
     /**
      * Long 값을 필드로 추가합니다.
@@ -197,10 +181,7 @@ class ToStringCreatorAppendTokens(
      * // creator.toString().contains("version") == true
      * ```
      */
-    operator fun set(
-        fieldName: String,
-        value: Long,
-    ): ToStringCreator = creator.append(fieldName, value)
+    operator fun set(fieldName: String, value: Long): ToStringCreator = creator.append(fieldName, value)
 
     /**
      * Float 값을 필드로 추가합니다.
@@ -213,10 +194,7 @@ class ToStringCreatorAppendTokens(
      * // creator.toString().contains("ratio") == true
      * ```
      */
-    operator fun set(
-        fieldName: String,
-        value: Float,
-    ): ToStringCreator = creator.append(fieldName, value)
+    operator fun set(fieldName: String, value: Float): ToStringCreator = creator.append(fieldName, value)
 
     /**
      * Double 값을 필드로 추가합니다.
@@ -229,10 +207,7 @@ class ToStringCreatorAppendTokens(
      * // creator.toString().contains("score") == true
      * ```
      */
-    operator fun set(
-        fieldName: String,
-        value: Double,
-    ): ToStringCreator = creator.append(fieldName, value)
+    operator fun set(fieldName: String, value: Double): ToStringCreator = creator.append(fieldName, value)
 
     /**
      * 임의 객체 값을 필드로 추가합니다.
@@ -246,8 +221,5 @@ class ToStringCreatorAppendTokens(
      * // creator.toString().contains("name") == true
      * ```
      */
-    operator fun set(
-        fieldName: String,
-        value: Any?,
-    ): ToStringCreator = creator.append(fieldName, value)
+    operator fun set(fieldName: String, value: Any?): ToStringCreator = creator.append(fieldName, value)
 }

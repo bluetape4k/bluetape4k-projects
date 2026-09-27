@@ -13,6 +13,7 @@ import org.springframework.data.cassandra.ReactiveResultSet
 import org.springframework.data.cassandra.ReactiveSession
 import reactor.core.publisher.Mono
 
+@Suppress("ReactiveStreamsUnusedPublisher")
 class ReactiveSessionCoroutinesTest {
 
     companion object: KLoggingChannel()

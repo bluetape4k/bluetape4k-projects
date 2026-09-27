@@ -6,8 +6,8 @@ import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.vertx.sqlclient.schema.PersonMapper
 import io.bluetape4k.vertx.sqlclient.schema.Person
+import io.bluetape4k.vertx.sqlclient.schema.PersonMapper
 import io.bluetape4k.vertx.sqlclient.schema.PersonSchema.person
 import io.bluetape4k.vertx.sqlclient.tests.testWithSuspendRollback
 import io.vertx.core.Vertx
@@ -17,14 +17,7 @@ import org.junit.jupiter.api.Test
 import org.mybatis.dynamic.sql.util.kotlin.elements.add
 import org.mybatis.dynamic.sql.util.kotlin.elements.constant
 import org.mybatis.dynamic.sql.util.kotlin.elements.max
-import org.mybatis.dynamic.sql.util.kotlin.model.countDistinct
-import org.mybatis.dynamic.sql.util.kotlin.model.countFrom
-import org.mybatis.dynamic.sql.util.kotlin.model.deleteFrom
-import org.mybatis.dynamic.sql.util.kotlin.model.insert
-import org.mybatis.dynamic.sql.util.kotlin.model.insertMultiple
-import org.mybatis.dynamic.sql.util.kotlin.model.insertInto
 import org.mybatis.dynamic.sql.util.kotlin.model.select
-import org.mybatis.dynamic.sql.util.kotlin.model.selectDistinct
 import org.mybatis.dynamic.sql.util.kotlin.model.update
 
 class H2SqlClientExtensionTest: AbstractSqlClientExtensionsTest() {

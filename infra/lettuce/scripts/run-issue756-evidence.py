@@ -17,7 +17,6 @@ import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-
 HERE = Path(__file__).resolve().parent
 REPOSITORY_ROOT = HERE.parents[2]
 BENCHMARK_CLASS = "io.bluetape4k.redis.lettuce.benchmark.LettuceCodecBenchmark"
@@ -358,8 +357,8 @@ def parse_preflight_stdout(stdout):
 def parse_benchmark_list(stdout):
     prefix = BENCHMARK_CLASS + "."
     names = [line.strip() for line in stdout.splitlines() if line.strip().startswith(prefix)]
-    promotion = [name for name in names if name[len(prefix) :] in EXPECTED_METHOD_SET]
-    diagnostics = [name for name in names if name[len(prefix) :].endswith("Diagnostic")]
+    promotion = [name for name in names if name[len(prefix):] in EXPECTED_METHOD_SET]
+    diagnostics = [name for name in names if name[len(prefix):].endswith("Diagnostic")]
     unexpected = sorted(set(names) - set(promotion) - set(diagnostics))
     expected_full = [prefix + method for method in EXPECTED_METHODS]
     if len(promotion) != 16 or set(promotion) != set(expected_full) or unexpected:
@@ -509,7 +508,7 @@ def build_pinned_classpath(environment=None):
         path.resolve()
         for path in REPOSITORY_ROOT.glob("io/jackson2/build/libs/*.jar")
         if path.is_file()
-        and not any(marker in path.name for marker in ("-sources", "-javadoc", "-all"))
+           and not any(marker in path.name for marker in ("-sources", "-javadoc", "-all"))
     ]
     if len(jackson_candidates) != 1:
         fail(

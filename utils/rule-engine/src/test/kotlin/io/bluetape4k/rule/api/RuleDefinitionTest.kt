@@ -1,16 +1,17 @@
 package io.bluetape4k.rule.api
 
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.DEFAULT_RULE_DESCRIPTION
 import io.bluetape4k.rule.DEFAULT_RULE_NAME
 import io.bluetape4k.rule.DEFAULT_RULE_PRIORITY
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
 class RuleDefinitionTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `기본값으로 RuleDefinition 생성`() {
@@ -18,8 +19,8 @@ class RuleDefinitionTest {
         def.name shouldBeEqualTo DEFAULT_RULE_NAME
         def.description shouldBeEqualTo DEFAULT_RULE_DESCRIPTION
         def.priority shouldBeEqualTo DEFAULT_RULE_PRIORITY
-        def.condition shouldBeEqualTo ""
-        def.actions.isEmpty().shouldBeTrue()
+        def.condition.shouldBeEmpty()
+        def.actions.shouldBeEmpty()
     }
 
     @Test
@@ -35,7 +36,7 @@ class RuleDefinitionTest {
         def.description shouldBeEqualTo "할인 규칙"
         def.priority shouldBeEqualTo 1
         def.condition shouldBeEqualTo "amount > 1000"
-        def.actions.size shouldBeEqualTo 2
+        def.actions shouldHaveSize 2
         def.actions[0] shouldBeEqualTo "discount = true"
     }
 
@@ -53,7 +54,7 @@ class RuleDefinitionTest {
     fun `RuleDefinition equals and hashCode`() {
         val d1 = RuleDefinition(name = "rule", condition = "x > 0")
         val d2 = RuleDefinition(name = "rule", condition = "x > 0")
-        (d1 == d2).shouldBeTrue()
-        (d1.hashCode() == d2.hashCode()).shouldBeTrue()
+        d1 shouldBeEqualTo d2
+        d1.hashCode() shouldBeEqualTo d2.hashCode()
     }
 }

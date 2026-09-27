@@ -7,6 +7,7 @@ import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldContentEqual
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.resilience4j.SuspendDecorators
@@ -111,10 +112,10 @@ internal class MultiKeyLeaseDocumentationTest {
     ): MultiKeyInspectResult = lease.inspect(keys, ownerToken)
 
     private fun acquireAction(result: MultiKeyAcquireResult): String = when (result) {
-        MultiKeyAcquireResult.Acquired -> "start"
+        MultiKeyAcquireResult.Acquired        -> "start"
         is MultiKeyAcquireResult.AlreadyOwned -> "recover"
         is MultiKeyAcquireResult.PartialOwnership -> "reconcile"
-        is MultiKeyAcquireResult.Conflicted -> "reject"
+        is MultiKeyAcquireResult.Conflicted   -> "reject"
     }
 
     private fun markerOrder(readme: String): List<String> = MARKER_PATTERN.findAll(readme)
@@ -150,7 +151,7 @@ internal class MultiKeyLeaseDocumentationTest {
         return Files.readString(moduleDirectory.resolve(name))
     }
 
-    private companion object {
+    private companion object: KLogging() {
         val REQUIRED_MARKERS: List<String> = listOf(
             "basic",
             "resilience",

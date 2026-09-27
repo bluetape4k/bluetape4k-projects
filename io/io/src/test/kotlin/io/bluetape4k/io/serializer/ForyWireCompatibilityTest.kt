@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertTimeoutPreemptively
@@ -38,7 +39,7 @@ class ForyWireCompatibilityTest {
         manifest.path("serializer").path("foryVersion").asText() shouldBeEqualTo FORY_OLD_VERSION
         manifest.path("serializer").path("foryKotlinVersion").asText() shouldBeEqualTo FORY_OLD_VERSION
         manifest.path("fixtureObject").path("class").asText() shouldBeEqualTo
-            ForyWireCompatibilityPayload::class.java.name
+                ForyWireCompatibilityPayload::class.java.name
         bytes.size shouldBeEqualTo manifest.path("fixture").path("size").asInt()
         bytes.sha256() shouldBeEqualTo manifest.path("fixture").path("sha256").asText()
 
@@ -84,7 +85,7 @@ class ForyWireCompatibilityTest {
             .digest(this)
             .joinToString("") { byte -> "%02x".format(byte) }
 
-    private companion object {
+    private companion object: KLogging() {
         const val FIXTURE_ROOT = "compat/issue-1639/fory-1.6.0"
         const val FORY_OLD_VERSION = "1.6.0"
 
@@ -104,7 +105,7 @@ value class ForyWireOwnerId(val value: String)
 data class ForyWireCompatibilityMetadata(
     val source: String = "issue-1639",
     val note: String? = null,
-) : Serializable {
+): Serializable {
     private companion object {
         const val serialVersionUID: Long = 1L
     }
@@ -117,7 +118,7 @@ data class ForyWireCompatibilityPayload(
     val tags: List<String> = listOf("kotlin", "metadata", "redis"),
     val owner: ForyWireOwnerId = ForyWireOwnerId("owner-1639"),
     val metadata: ForyWireCompatibilityMetadata = ForyWireCompatibilityMetadata(),
-) : Serializable {
+): Serializable {
     private companion object {
         const val serialVersionUID: Long = 1L
     }

@@ -21,6 +21,7 @@ import java.time.Duration
 import kotlin.test.Test
 
 class WebTestClientExtensionsTest {
+
     companion object: KLoggingChannel()
 
     private lateinit var server: MockWebServer
@@ -72,38 +73,36 @@ class WebTestClientExtensionsTest {
     inner class Get {
         @Test
         fun `httGet httpbin`() {
-            val response =
-                client
-                    .httpGet("/get")
-                    .expectStatus()
-                    .is2xxSuccessful
-                    .expectBody()
-                    .jsonPath("$.url")
-                    .isEqualTo("$baseUrl/get")
-                    .returnResult()
-                    .responseBody
-                    ?.toUtf8String()
+            val response = client
+                .httpGet("/get")
+                .expectStatus()
+                .is2xxSuccessful
+                .expectBody()
+                .jsonPath("$.url")
+                .isEqualTo("$baseUrl/get")
+                .returnResult()
+                .responseBody
+                .shouldNotBeNull()
+                .toUtf8String()
 
             log.debug { "response=$response" }
-            response.shouldNotBeNull() shouldContain "$baseUrl/get"
+            response shouldContain "$baseUrl/get"
         }
 
         @Test
-        fun `httGet httpbin anything`() =
-            runTest {
-                val response =
-                    client
-                        .httpGet("/anything")
-                        .expectStatus()
-                        .is2xxSuccessful
-                        .expectBody<String>()
-                        .returnResult()
-                        .responseBody
-                        .shouldNotBeNull()
+        fun `httGet httpbin anything`() = runTest {
+            val response = client
+                .httpGet("/anything")
+                .expectStatus()
+                .is2xxSuccessful
+                .expectBody<String>()
+                .returnResult()
+                .responseBody
+                .shouldNotBeNull()
 
-                log.debug { "response=$response" }
-                response shouldContain "$baseUrl/anything"
-            }
+            log.debug { "response=$response" }
+            response shouldContain "$baseUrl/anything"
+        }
 
         @Test
         fun `httGet httpbin not found`() {

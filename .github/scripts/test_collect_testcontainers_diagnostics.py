@@ -373,9 +373,10 @@ IllegalStateException: exception-secret
         raw_dir.mkdir(parents=True)
         raw_log = raw_dir / f"{CONTAINER_ID}.log"
         raw_log.write_text("token=secret\nKafkaServer started\n", encoding="utf-8")
-        image_digest = next(
-            digest for digest in diagnostics.ALLOWLIST if digest.startswith("confluentinc/cp-kafka@")
+        image_digest = (
+            "confluentinc/cp-kafka@sha256:bea85690affc276519dfc3c6bc21062d586b3ecd91867b21899782e113228cfc"
         )
+        self.assertIn(image_digest, diagnostics.ALLOWLIST)
         metadata = raw_dir / f"{CONTAINER_ID}.metadata"
         metadata.write_text(
             "\n".join(
@@ -661,6 +662,45 @@ IllegalStateException: exception-secret
         manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
         self.assertTrue(manifest["report_truncated"])
         self.assertEqual(len(manifest["sanitized_reports"]), 1)
+
+    def test_examples_workflow_collects_more_than_600_reports(self):
+        workflow_text = (REPO_ROOT / ".github" / "workflows" / "examples.yml").read_text(
+            encoding="utf-8"
+        )
+        cap_lines = [
+            line.strip()
+            for line in workflow_text.splitlines()
+            if line.strip().startswith("--max-report-files ")
+        ]
+        self.assertEqual(len(cap_lines), 1)
+        report_limit = int(cap_lines[0].split()[1])
+
+        reports = self.root / "examples" / "coroutines-demo" / "build" / "test-results" / "test"
+        reports.mkdir(parents=True)
+        for index in range(601):
+            (reports / f"TEST-{index:04}.xml").write_text("<testsuite/>", encoding="utf-8")
+        output_dir = self.root / "examples" / "build" / "testcontainers-diagnostics" / "workflow-cap"
+        destination = self.root / "examples" / "build" / "sanitized-test-reports"
+
+        result, stderr = self.run_main(
+            "--task-name",
+            "workflow-cap-task",
+            "--output-dir",
+            output_dir,
+            "--workflow-file",
+            self.workflow,
+            "--sanitized-report-dir",
+            destination,
+            "--report-path",
+            reports,
+            "--max-report-files",
+            str(report_limit),
+        )
+
+        manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(result, 0, stderr)
+        self.assertFalse(manifest["report_truncated"])
+        self.assertEqual(len(manifest["sanitized_reports"]), 601)
 
     def test_report_byte_cap_is_fail_closed(self):
         reports = self.root / "examples" / "coroutines-demo" / "build" / "test-results" / "test"

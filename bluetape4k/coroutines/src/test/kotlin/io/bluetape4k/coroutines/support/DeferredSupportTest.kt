@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -15,6 +16,8 @@ import java.util.concurrent.CancellationException
 import kotlin.time.Duration.Companion.milliseconds
 
 class DeferredSupportTest {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `zip은 두 deferred 결과를 결합한다`() = runTest {

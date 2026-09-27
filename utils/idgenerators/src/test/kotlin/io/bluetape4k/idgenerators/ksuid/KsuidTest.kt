@@ -2,6 +2,7 @@ package io.bluetape4k.idgenerators.ksuid
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.codec.encodeHexString
 import io.bluetape4k.idgenerators.snowflake.MAX_SEQUENCE
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.ConcurrentHashMap
 
 class KsuidTest {
+
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private const val TEST_COUNT = MAX_SEQUENCE * 4
@@ -32,12 +34,10 @@ class KsuidTest {
             val decoded = BytesBase62.decode(ksuid, expectedBytes = Ksuid.Seconds.TOTAL_BYTES)
             decoded.size shouldBeEqualTo Ksuid.Seconds.TOTAL_BYTES
 
-            val payloadHex =
-                decoded
-                    .copyOfRange(
-                        Ksuid.Seconds.TIMESTAMP_LEN,
-                        Ksuid.Seconds.TOTAL_BYTES
-                    ).encodeHexString()
+            val payloadHex = decoded
+                .copyOfRange(Ksuid.Seconds.TIMESTAMP_LEN, Ksuid.Seconds.TOTAL_BYTES)
+                .encodeHexString()
+            log.debug { "payloadHex: $payloadHex" }
             payloadHex.length shouldBeEqualTo Ksuid.Seconds.PAYLOAD_LEN * 2
         }
     }
@@ -54,7 +54,7 @@ class KsuidTest {
         val count = 100
         val ids = List(count) { Ksuid.Seconds.generate() }
 
-        ids.distinct().size shouldBeEqualTo count
+        ids.distinct() shouldHaveSize count
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -67,7 +67,8 @@ class KsuidTest {
             .add {
                 val ksuid = Ksuid.Seconds.generate()
                 idMaps.putIfAbsent(ksuid, 1).shouldBeNull()
-            }.run()
+            }
+            .run()
     }
 
     @EnabledForJreRange(min = JRE.JAVA_21)
@@ -80,19 +81,20 @@ class KsuidTest {
             .add {
                 val ksuid = Ksuid.Seconds.generate()
                 idMap.putIfAbsent(ksuid, 1).shouldBeNull()
-            }.run()
+            }
+            .run()
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `generate ksuid in coroutines`() =
-        runSuspendDefault {
-            val idMap = ConcurrentHashMap<String, Int>()
+    fun `generate ksuid in coroutines`() = runSuspendDefault {
+        val idMap = ConcurrentHashMap<String, Int>()
 
-            SuspendedJobTester()
-                .rounds(TEST_COUNT)
-                .add {
-                    val ksuid = Ksuid.Seconds.generate()
-                    idMap.putIfAbsent(ksuid, 1).shouldBeNull()
-                }.run()
-        }
+        SuspendedJobTester()
+            .rounds(TEST_COUNT)
+            .add {
+                val ksuid = Ksuid.Seconds.generate()
+                idMap.putIfAbsent(ksuid, 1).shouldBeNull()
+            }
+            .run()
+    }
 }

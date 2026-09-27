@@ -6,14 +6,16 @@ import org.junit.jupiter.api.Test
 
 class SkewnessTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-10
+    }
 
     @Test
     fun `대칭 분포는 skewness 가 0 에 가깝다`() {
         // 대칭 균등 분포
         val data = listOf(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
         val result = data.skewness()
-        result.shouldBeNear(0.0, 1e-10)
+        result.shouldBeNear(0.0, EPSILON)
     }
 
     @Test
@@ -28,14 +30,14 @@ class SkewnessTest {
     fun `Sequence skewness 가 동작한다`() {
         val data = sequenceOf(1.0, 2.0, 3.0, 4.0, 5.0)
         val result = data.skewness()
-        result.shouldBeNear(0.0, 1e-10)
+        result.shouldBeNear(0.0, EPSILON)
     }
 
     @Test
     fun `Int Iterable skewness 가 동작한다`() {
         val data = listOf(1, 2, 3, 4, 5)
         val result = data.skewness()
-        result.shouldBeNear(0.0, 1e-10)
+        result.shouldBeNear(0.0, EPSILON)
     }
 
     @Test
@@ -43,6 +45,6 @@ class SkewnessTest {
         val values = listOf(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0)
         val iterableResult = values.skewness()
         val sequenceResult = values.asSequence().skewness()
-        iterableResult.shouldBeNear(sequenceResult, 1e-10)
+        iterableResult.shouldBeNear(sequenceResult, EPSILON)
     }
 }

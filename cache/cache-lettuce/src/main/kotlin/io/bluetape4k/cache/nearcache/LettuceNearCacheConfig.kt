@@ -57,7 +57,8 @@ data class LettuceNearCacheConfig<K: Any, V: Any>(
      * ```
      */
     @Suppress("NOTHING_TO_INLINE")
-    inline fun redisKey(key: String): String = "${cacheName}:${key}"
+    inline fun redisKey(key: String): String =
+        "${cacheName}:${key.requireNotBlank("key")}"
 }
 
 /**

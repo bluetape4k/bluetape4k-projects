@@ -5,11 +5,14 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.jackson3.JacksonSerializer
 import io.bluetape4k.jackson3.deserialize
 import io.bluetape4k.json.JsonSerializer
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 import io.bluetape4k.json.deserialize as deserializeRaw
 
 class JacksonSerializerExtensionImportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `external caller can import concrete and raw ByteBuffer extensions together`() {
@@ -20,8 +23,10 @@ class JacksonSerializerExtensionImportTest {
         serializer.deserialize<List<ConsumerItem>>(ByteBuffer.wrap(wire)) shouldBeEqualTo expected
 
         val contract: JsonSerializer = serializer
-        val raw: Any? = contract.deserializeRaw<List<ConsumerItem>>(ByteBuffer.wrap(wire))
-        (raw as List<*>).first().shouldBeInstanceOf<Map<*, *>>()
+        val restored: Any? = contract.deserializeRaw<List<ConsumerItem>>(ByteBuffer.wrap(wire))
+
+        restored.shouldBeInstanceOf<List<*>>()
+        restored.first().shouldBeInstanceOf<Map<*, *>>()
     }
 }
 

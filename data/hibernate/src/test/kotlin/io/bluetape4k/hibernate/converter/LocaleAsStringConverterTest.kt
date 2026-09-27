@@ -1,12 +1,16 @@
 package io.bluetape4k.hibernate.converter
 
-import io.bluetape4k.hibernate.converters.LocaleAsStringConverter
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.hibernate.converters.LocaleAsStringConverter
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.util.*
 
 class LocaleAsStringConverterTest {
+
+    companion object: KLogging()
 
     private val converter = LocaleAsStringConverter()
 
@@ -14,19 +18,19 @@ class LocaleAsStringConverterTest {
     fun `locale는 language tag로 저장하고 복원한다`() {
         val locale = Locale.KOREA
 
-        val dbValue = converter.convertToDatabaseColumn(locale)
+        val dbValue = converter.convertToDatabaseColumn(locale).shouldNotBeNull()
         dbValue shouldBeEqualTo "ko-KR"
 
-        val restored = converter.convertToEntityAttribute(dbValue)
+        val restored = converter.convertToEntityAttribute(dbValue).shouldNotBeNull()
         restored shouldBeEqualTo locale
     }
 
     @Test
     fun `underscore legacy locale 문자열도 복원한다`() {
-        val restored = converter.convertToEntityAttribute("en_US")
+        val restored = converter.convertToEntityAttribute("en_US").shouldNotBeNull()
 
-        restored?.language shouldBeEqualTo "en"
-        restored?.country shouldBeEqualTo "US"
+        restored.language shouldBeEqualTo "en"
+        restored.country shouldBeEqualTo "US"
     }
 
     @Test

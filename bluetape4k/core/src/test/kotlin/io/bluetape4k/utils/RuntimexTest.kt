@@ -1,13 +1,14 @@
 package io.bluetape4k.utils
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.info
-import io.bluetape4k.logging.trace
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.info
+import io.bluetape4k.logging.trace
 import org.junit.jupiter.api.Test
 
 class RuntimexTest {
@@ -16,34 +17,33 @@ class RuntimexTest {
 
     @Test
     fun `컴퓨터 CPU Core 수를 얻습니다`() {
-        log.trace { "CPU Core = ${Runtimex.availableProcessors}" }
+        log.debug { "CPU Core = ${Runtimex.availableProcessors}" }
         Runtimex.availableProcessors shouldBeGreaterThan 1
     }
 
     @Test
     fun `가용 메모리 얻기`() {
-        log.trace { "Available Memory = ${Runtimex.availableMemory} bytes" }
+        log.debug { "Available Memory = ${Runtimex.availableMemory} bytes" }
         Runtimex.availableMemory shouldBeGreaterThan 0
     }
 
     @Test
     fun `가용 메모리 Percentage 계산`() {
-        log.trace { "Available Memory Percentage = ${Runtimex.availableMemoryPercent} %" }
+        log.debug { "Available Memory Percentage = ${Runtimex.availableMemoryPercent} %" }
         Runtimex.availableMemoryPercent shouldBeGreaterThan 0.0
     }
 
     @Test
     fun `Free 메모리 얻기`() {
-        log.trace { "Free Memory = ${Runtimex.freeMemory} bytes" }
+        log.debug { "Free Memory = ${Runtimex.freeMemory} bytes" }
         Runtimex.freeMemory shouldBeGreaterOrEqualTo 0
     }
 
     @Test
     fun `Free 메모리 Percentage 계산`() {
-        log.trace { "Free Memory Percentage = ${Runtimex.freeMemoryPercent} %" }
+        log.debug { "Free Memory Percentage = ${Runtimex.freeMemoryPercent} %" }
         Runtimex.freeMemoryPercent shouldBeGreaterOrEqualTo 0.0
     }
-
 
     @Test
     fun `add shutdown hook`() {
@@ -57,7 +57,7 @@ class RuntimexTest {
         val process = ProcessBuilder("bash", "-c", "ls").start()
         val result = Runtimex.run(process)
 
-        log.trace { "process result=$result" }
+        log.debug { "process result=$result" }
         result.out shouldContain "build.gradle.kts"
     }
 

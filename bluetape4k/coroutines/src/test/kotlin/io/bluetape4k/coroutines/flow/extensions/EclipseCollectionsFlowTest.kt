@@ -7,11 +7,14 @@ import io.bluetape4k.collections.eclipse.primitives.floatArrayListOf
 import io.bluetape4k.collections.eclipse.primitives.intArrayListOf
 import io.bluetape4k.collections.eclipse.primitives.longArrayListOf
 import io.bluetape4k.collections.eclipse.unifiedSetOf
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
 class EclipseCollectionsFlowTest {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `toFastList와 toUnifiedSet은 flow 요소를 수집한다`() = runTest {

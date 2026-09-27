@@ -1,10 +1,10 @@
 package io.bluetape4k.hibernate.converters
 
-import io.bluetape4k.tink.encrypt.TinkEncryptor
 import io.bluetape4k.tink.aead.TinkAead
 import io.bluetape4k.tink.daead.TinkDeterministicAead
 import io.bluetape4k.tink.encrypt.TinkAeadEncryptor
 import io.bluetape4k.tink.encrypt.TinkDaeadEncryptor
+import io.bluetape4k.tink.encrypt.TinkEncryptor
 import io.bluetape4k.tink.keyset.keysetHandleOf
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
@@ -53,13 +53,13 @@ object EncryptedStringConverterKeysets {
     internal fun requireAesEncryptor(): TinkEncryptor =
         aesEncryptor.get() ?: error(
             "AESStringConverter requires externally persisted key material. " +
-                "Call EncryptedStringConverterKeysets.configureAesKeyset(...) during application bootstrap."
+                    "Call EncryptedStringConverterKeysets.configureAesKeyset(...) during application bootstrap."
         )
 
     internal fun requireDeterministicEncryptor(): TinkEncryptor =
         deterministicEncryptor.get() ?: error(
             "DeterministicAESStringConverter requires externally persisted key material. " +
-                "Call EncryptedStringConverterKeysets.configureDeterministicKeyset(...) during application bootstrap."
+                    "Call EncryptedStringConverterKeysets.configureDeterministicKeyset(...) during application bootstrap."
         )
 
     internal fun resetForTesting() {

@@ -4,7 +4,6 @@ import io.smallrye.mutiny.Uni
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
 
 /**
  * 코루틴 스코프에서 `suspend` 블록을 실행하고 결과를 [Uni]로 감쌉니다.

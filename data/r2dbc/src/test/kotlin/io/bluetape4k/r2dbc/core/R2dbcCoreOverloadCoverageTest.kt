@@ -6,8 +6,6 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.r2dbc.AbstractR2dbcTest
 import io.bluetape4k.r2dbc.model.User
 import io.bluetape4k.r2dbc.query.Query
-import io.bluetape4k.r2dbc.support.bindNullable
-import kotlinx.coroutines.reactive.awaitSingle
 import org.junit.jupiter.api.Test
 import org.springframework.r2dbc.core.awaitOne
 import org.springframework.r2dbc.core.awaitRowsUpdated

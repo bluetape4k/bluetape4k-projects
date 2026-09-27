@@ -1,14 +1,14 @@
 package io.bluetape4k.rule.readers
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class HoconRuleReaderTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val reader = HoconRuleReader()
 

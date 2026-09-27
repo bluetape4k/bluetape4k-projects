@@ -1,9 +1,9 @@
 package io.bluetape4k.junit5
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtensionContext
 
@@ -28,7 +28,9 @@ class ExtensionContextSupportTest {
         context.store(Sample::class.java)
         context.store(Sample::class)
 
-        verify(exactly = 2) { context.getStore(any()) }
+        verify(exactly = 2) {
+            context.getStore(any())
+        }
     }
 
     class Sample

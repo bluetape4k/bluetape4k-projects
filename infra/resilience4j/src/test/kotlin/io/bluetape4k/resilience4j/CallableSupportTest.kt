@@ -2,14 +2,14 @@ package io.bluetape4k.resilience4j
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.util.concurrent.Callable
 
 class CallableSupportTest {
 
-    companion object: KLoggingChannel()
+    companion object: KLogging()
 
     @Test
     fun `andThen - 결과를 변환한다`() {

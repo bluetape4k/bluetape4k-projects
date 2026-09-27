@@ -14,9 +14,8 @@ object HazelcastServers {
         val config = ClientConfig().apply {
             networkConfig.addAddress(hazelcastServer.url)
         }
-        HazelcastClient.newHazelcastClient(config)
-            .also {
-                ShutdownQueue.register { it.shutdown() }
-            }
+        HazelcastClient.newHazelcastClient(config).also {
+            ShutdownQueue.register { it.shutdown() }
+        }
     }
 }

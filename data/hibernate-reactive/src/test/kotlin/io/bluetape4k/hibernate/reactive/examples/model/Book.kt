@@ -41,8 +41,8 @@ import java.time.LocalDate
 @Table(name = "books")
 @Access(AccessType.FIELD)
 class Book private constructor(
-    val isbn: String,
-    val title: String,
+    var isbn: String,
+    var title: String,
     @field:Past
     var published: LocalDate,
 ): AbstractValueObject() {
@@ -67,11 +67,8 @@ class Book private constructor(
 
     override fun equalProperties(other: Any): Boolean =
         other is Book && isbn == other.isbn && title == other.title && published.isEqual(other.published)
-
     override fun equals(other: Any?): Boolean = other != null && super.equals(other)
-
     override fun hashCode(): Int = if (id != 0L) id.hashCode() else hashOf(isbn, title, published)
-
     override fun buildStringHelper(): ToStringBuilder {
         return super.buildStringHelper()
             .add("id", id)

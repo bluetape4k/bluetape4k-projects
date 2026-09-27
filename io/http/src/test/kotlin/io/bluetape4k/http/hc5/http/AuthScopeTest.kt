@@ -1,15 +1,15 @@
 package io.bluetape4k.http.hc5.http
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.core5.http.HttpHost
 import org.junit.jupiter.api.Test
 
 class AuthScopeTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `authScopeOf(protocol, host, port) 기본 검증`() {

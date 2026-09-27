@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class FutureSupportTest {
 
@@ -73,7 +74,7 @@ class FutureSupportTest {
         (watcher.name == "future-wrapper").shouldBeFalse()
 
         future.complete("value")
-        completableFuture.get(1, TimeUnit.SECONDS) shouldBeEqualTo "value"
+        completableFuture.get(1.seconds) shouldBeEqualTo "value"
     }
 
     @Test
@@ -93,14 +94,14 @@ class FutureSupportTest {
     fun `cancel returns true when wrapped Future cancellation races with watcher cancellation`() {
         val watcherStarted = CountDownLatch(1)
         val wrapperCompletionObserved = CountDownLatch(1)
-        val future = object : Future<String> {
+        val future = object: Future<String> {
             private val cancelled = AtomicBoolean(false)
             private val getterThread = AtomicReference<Thread>()
 
             override fun cancel(mayInterruptIfRunning: Boolean): Boolean {
                 cancelled.set(true)
                 getterThread.get().interrupt()
-                wrapperCompletionObserved.await(1, TimeUnit.SECONDS).shouldBeTrue()
+                wrapperCompletionObserved.await(1.seconds).shouldBeTrue()
                 return true
             }
 
@@ -125,7 +126,7 @@ class FutureSupportTest {
             }
         }
         val completableFuture = future.asCompletableFuture()
-        watcherStarted.await(1, TimeUnit.SECONDS).shouldBeTrue()
+        watcherStarted.await(1.seconds).shouldBeTrue()
         completableFuture.whenComplete { _, _ -> wrapperCompletionObserved.countDown() }
 
         completableFuture.cancel(true).shouldBeTrue()
@@ -195,7 +196,7 @@ class FutureSupportTest {
             .workers(Runtimex.availableProcessors * 2)
             .rounds(Runtimex.availableProcessors * 2 * ITEM_COUNT / 4)
             .add {
-                val task = async(Dispatchers.Default) {
+                val task = this@runSuspendDefault.async(Dispatchers.Default) {
                     delay(Random.nextLong(DELAY_TIME).milliseconds)
                     counter.incrementAndGet()
                 }
@@ -216,7 +217,7 @@ class FutureSupportTest {
         private val value = AtomicReference<T>()
 
         fun awaitStarted() {
-            started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            started.await(1.seconds).shouldBeTrue()
         }
 
         fun complete(result: T) {

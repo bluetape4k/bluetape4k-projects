@@ -15,7 +15,18 @@
     </appender>
     <!-- formatter:on -->
 
-    <logger name="io.bluetape4k.hibernate" level="DEBUG"/>
+    <logger name="io.bluetape4k.hibernate.cache.lettuce" level="DEBUG"/>
+
+    <!-- HQL 실행 통계를 로그에 출력합니다.-->
+    <!-- eg. HHH000117: HQL: select generatedAlias0 from Article as generatedAlias0 order by generatedAlias0.addedAt desc, time: 1ms, rows: 2-->
+    <logger name="org.hibernate.stat" level="DEBUG"/>
+    <logger name="org.hibernate.engine.internal" level="INFO"/>
+
+    <!-- properties에 show_sql 을 사용하지 말고, org.hibernate.SQL을 사용하세요 -->
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+
+    <!-- 2nd Level Cache -->
+    <logger name="org.hibernate.cache" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="console"/>

@@ -1,10 +1,13 @@
 package io.bluetape4k.utils
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.math.BigInteger
 
 class BigIntegerPairTest {
+
+    companion object: KLogging()
 
     @Test
     fun `pair and unpair는 원래 값을 복원한다`() {

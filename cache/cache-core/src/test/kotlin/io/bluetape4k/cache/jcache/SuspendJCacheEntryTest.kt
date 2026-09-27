@@ -2,6 +2,7 @@ package io.bluetape4k.cache.jcache
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
@@ -35,8 +36,8 @@ class SuspendJCacheEntryTest {
         val e2 = SuspendJCacheEntry("k", 1)
         val e3 = e1.copy(entryValue = 2)
 
-        (e1 == e2).shouldBeEqualTo(true)
-        (e1 == e3).shouldBeEqualTo(false)
+        e1 shouldBeEqualTo e2
+        e1 shouldNotBeEqualTo e3
         e3.getValue() shouldBeEqualTo 2
     }
 }

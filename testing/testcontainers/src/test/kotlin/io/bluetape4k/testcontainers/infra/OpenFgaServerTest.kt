@@ -1,9 +1,9 @@
 package io.bluetape4k.testcontainers.infra
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContainAll
 import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.testcontainers.AbstractContainerTest

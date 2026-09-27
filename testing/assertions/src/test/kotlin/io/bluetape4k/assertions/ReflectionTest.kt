@@ -1,6 +1,5 @@
 package io.bluetape4k.assertions
 
-import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.Test
 import org.opentest4j.AssertionFailedError
 
@@ -122,8 +121,8 @@ class ReflectionTest {
     // ── sealed class hierarchy ────────────────────────────────────────────
 
     sealed class Shape
-    data class Circle(val radius: Double) : Shape()
-    data class Rectangle(val width: Double, val height: Double) : Shape()
+    data class Circle(val radius: Double): Shape()
+    data class Rectangle(val width: Double, val height: Double): Shape()
 
     @Test
     fun `shouldBeInstanceOf works with sealed class subtype`() {

@@ -2,6 +2,7 @@ package io.bluetape4k.okio.tink
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -57,10 +58,8 @@ class TinkEncryptSinkTest: AbstractTinkEncryptTest() {
         encryptSink.write(source, byteCount)
 
         source.size shouldBeEqualTo plainBytes.size.toLong() - byteCount
-        TinkEncryptors.AES256_GCM.decrypt(sink.readByteArray()) shouldBeEqualTo plainBytes.copyOfRange(
-            0,
-            byteCount.toInt()
-        )
+        TinkEncryptors.AES256_GCM.decrypt(sink.readByteArray()) shouldBeEqualTo
+                plainBytes.copyOfRange(0, byteCount.toInt())
     }
 
     @Test
@@ -115,6 +114,6 @@ class TinkEncryptSinkTest: AbstractTinkEncryptTest() {
         val totalEncryptedSize = output.size
 
         // 두 번째 write 후에도 데이터가 누적되어야 한다.
-        (totalEncryptedSize > encrypted1Size) shouldBeEqualTo true
+        totalEncryptedSize shouldBeGreaterThan encrypted1Size
     }
 }

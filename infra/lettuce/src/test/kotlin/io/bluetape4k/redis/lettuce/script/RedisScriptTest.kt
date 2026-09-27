@@ -6,13 +6,14 @@ import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.testcontainers.storage.RedisServer
-import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisFuture
 import io.lettuce.core.RedisNoScriptException
 import io.lettuce.core.ScriptOutputType
@@ -37,12 +38,14 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import kotlin.time.Duration.Companion.seconds
 
-@OptIn(ExperimentalLettuceCoroutinesApi::class)
-class RedisScriptTest : AbstractLettuceTest() {
+class RedisScriptTest: AbstractLettuceTest() {
 
-    companion object : KLogging() {
-        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+    companion object: KLogging() {
+        private val connection by lazy {
+            LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8)
+        }
     }
 
     private val setAndReturnScript = RedisScript(
@@ -356,7 +359,7 @@ class RedisScriptTest : AbstractLettuceTest() {
             commands.eval<String>(setAndReturnScript.source, ScriptOutputType.VALUE, keys, "value")
         } answers {
             fallbackEntered.countDown()
-            allowFallbackReturn.await(5, TimeUnit.SECONDS)
+            allowFallbackReturn.await(5.seconds)
             fallback
         }
 
@@ -370,11 +373,11 @@ class RedisScriptTest : AbstractLettuceTest() {
         val handoff = CompletableFuture.runAsync {
             evalsha.completeExceptionally(RedisNoScriptException("NOSCRIPT"))
         }
-        fallbackEntered.await(5, TimeUnit.SECONDS).shouldBeTrue()
+        fallbackEntered.await(5.seconds).shouldBeTrue()
 
         result.cancel(true).shouldBeTrue()
         allowFallbackReturn.countDown()
-        handoff.get(5, TimeUnit.SECONDS)
+        handoff.get(5.seconds)
 
         result.isCancelled.shouldBeTrue()
         fallback.isCancelled.shouldBeTrue()
@@ -597,7 +600,7 @@ class RedisScriptTest : AbstractLettuceTest() {
     private fun <T> failedRedisFuture(error: Throwable): RedisFuture<T> =
         TestRedisFuture<T>().apply { completeExceptionally(error) }
 
-    private class TestRedisFuture<T> : CompletableFuture<T>(), RedisFuture<T> {
+    private class TestRedisFuture<T>: CompletableFuture<T>(), RedisFuture<T> {
         override fun getError(): String? = if (isCompletedExceptionally) "completed exceptionally" else null
 
         override fun await(timeout: Long, unit: TimeUnit): Boolean = try {

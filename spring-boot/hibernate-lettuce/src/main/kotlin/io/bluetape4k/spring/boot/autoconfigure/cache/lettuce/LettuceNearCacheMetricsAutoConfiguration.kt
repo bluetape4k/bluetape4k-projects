@@ -1,6 +1,5 @@
 package io.bluetape4k.spring.boot.autoconfigure.cache.lettuce
 
-import io.bluetape4k.hibernate.cache.lettuce.LettuceNearCacheRegionFactory
 import io.micrometer.core.instrument.MeterRegistry
 import jakarta.persistence.EntityManagerFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration

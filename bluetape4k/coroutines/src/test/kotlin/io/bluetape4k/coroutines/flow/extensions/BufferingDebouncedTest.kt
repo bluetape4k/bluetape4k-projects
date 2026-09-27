@@ -65,8 +65,8 @@ class BufferingDebouncedTest: AbstractFlowTest() {
 
                 throw RuntimeException("Boom!")
 
-                delay(90.milliseconds)
-                emit(4)
+//                delay(90.milliseconds)
+//                emit(4)
             }.catch { }
 
         val buffered = source.bufferingDebounce(200.milliseconds)  // [1, 2], [3]

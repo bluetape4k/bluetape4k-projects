@@ -20,6 +20,5 @@ inline fun objectMeta(
 inline fun objectMeta(
     om: ObjectMeta,
     builder: ObjectMeta.Builder.() -> Unit,
-): ObjectMeta {
-    return ObjectMeta.builder(om).apply(builder).build()
-}
+): ObjectMeta =
+    ObjectMeta.builder(om).apply(builder).build()

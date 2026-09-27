@@ -1,7 +1,8 @@
 package io.bluetape4k.csv.coroutines
 
-import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.Test
 import java.io.StringWriter
 import java.io.Writer
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.seconds
 
@@ -120,15 +120,13 @@ class SuspendCsvRecordWriterTest {
                 override fun write(cbuf: CharArray, off: Int, len: Int) {
                     started.countDown()
                     try {
-                        Thread.sleep(TimeUnit.SECONDS.toMillis(10))
+                        Thread.sleep(10_000)
                     } catch (e: InterruptedException) {
                         interrupted.set(true)
                         throw e
                     }
                 }
-
                 override fun flush() = Unit
-
                 override fun close() = Unit
             }
 
@@ -137,11 +135,11 @@ class SuspendCsvRecordWriterTest {
                 writer.writeRow(listOf("slow"))
             }
 
-            started.await(1, TimeUnit.SECONDS) shouldBeEqualTo true
+            started.await(1.seconds).shouldBeTrue()
             withTimeout(2.seconds) {
                 job.cancelAndJoin()
             }
-            interrupted.get() shouldBeEqualTo true
+            interrupted.get().shouldBeTrue()
         }
     }
 

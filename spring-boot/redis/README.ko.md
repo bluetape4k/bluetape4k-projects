@@ -10,13 +10,13 @@ Spring Data Redis의 직렬화 계층을 고성능 바이너리 직렬화/압축
 
 ## 주요 기능
 
-| 클래스 / 함수                      | 설명                                                                  |
-|------------------------------------|-----------------------------------------------------------------------|
-| `RedisBinarySerializer`            | `BinarySerializer` 기반 `RedisSerializer<Any>` 구현                   |
-| `RedisCompressSerializer`          | `Compressor` 기반 압축 전용 `RedisSerializer<ByteArray>`              |
+| 클래스 / 함수                      | 설명                                                                           |
+|------------------------------------|--------------------------------------------------------------------------------|
+| `RedisBinarySerializer`            | `BinarySerializer` 기반 `RedisSerializer<Any>` 구현                            |
+| `RedisCompressSerializer`          | `Compressor` 기반 압축 전용 `RedisSerializer<ByteArray>`                       |
 | `RedisBinarySerializers`           | 직렬화(Jdk/Kryo/Fory/FastFory) × 압축(GZip/LZ4/Snappy/Zstd) 조합 싱글턴 팩토리 |
-| `redisSerializationContext {}`     | DSL 기반 `RedisSerializationContext` 빌더                             |
-| `redisSerializationContextOf(...)` | 키/값 Serializer를 직접 지정하는 편의 함수                            |
+| `redisSerializationContext {}`     | DSL 기반 `RedisSerializationContext` 빌더                                      |
+| `redisSerializationContextOf(...)` | 키/값 Serializer를 직접 지정하는 편의 함수                                     |
 
 ## 아키텍처 다이어그램
 
@@ -96,24 +96,24 @@ fun redisTemplate(factory: RedisConnectionFactory): RedisTemplate<String, Any> {
 
 JDK 역직렬화는 Redis에 저장된 값이 gadget chain 기반 RCE 위험에 노출될 수 있습니다. JDK serializer 상수는 deprecated 상태이며, 저장된 Redis 데이터가 완전히 신뢰 가능한 경우에만 사용하세요. 일반 Redis 객체 값에는 Kryo 또는 Fory를 권장합니다.
 
-| 상수                                | 직렬화 엔진 | 압축   | 상태                         |
-|-------------------------------------|-------------|--------|------------------------------|
-| `RedisBinarySerializers.Jdk`        | JDK         | 없음   | Deprecated; 신뢰 데이터 전용 |
-| `RedisBinarySerializers.Kryo`       | Kryo        | 없음   | 권장                         |
-| `RedisBinarySerializers.Fory`       | Fory        | 없음   | 권장                         |
-| `RedisBinarySerializers.FastFory`   | FastFory    | 없음   | 휘발성 캐시 전용             |
-| `RedisBinarySerializers.GzipJdk`    | JDK         | GZip   | Deprecated; 신뢰 데이터 전용 |
-| `RedisBinarySerializers.LZ4Jdk`     | JDK         | LZ4    | Deprecated; 신뢰 데이터 전용 |
-| `RedisBinarySerializers.SnappyJdk`  | JDK         | Snappy | Deprecated; 신뢰 데이터 전용 |
-| `RedisBinarySerializers.ZstdJdk`    | JDK         | Zstd   | Deprecated; 신뢰 데이터 전용 |
-| `RedisBinarySerializers.GzipKryo`   | Kryo        | GZip   | 권장                         |
-| `RedisBinarySerializers.LZ4Kryo`    | Kryo        | LZ4    | 권장                         |
-| `RedisBinarySerializers.SnappyKryo` | Kryo        | Snappy | 권장                         |
-| `RedisBinarySerializers.ZstdKryo`   | Kryo        | Zstd   | 권장                         |
-| `RedisBinarySerializers.GzipFory`   | Fory        | GZip   | 권장                         |
-| `RedisBinarySerializers.LZ4Fory`    | Fory        | LZ4    | 권장                         |
-| `RedisBinarySerializers.SnappyFory` | Fory        | Snappy | 권장                         |
-| `RedisBinarySerializers.ZstdFory`   | Fory        | Zstd   | 권장                         |
+| 상수                                    | 직렬화 엔진 | 압축   | 상태                         |
+|-----------------------------------------|-------------|--------|------------------------------|
+| `RedisBinarySerializers.Jdk`            | JDK         | 없음   | Deprecated; 신뢰 데이터 전용 |
+| `RedisBinarySerializers.Kryo`           | Kryo        | 없음   | 권장                         |
+| `RedisBinarySerializers.Fory`           | Fory        | 없음   | 권장                         |
+| `RedisBinarySerializers.FastFory`       | FastFory    | 없음   | 휘발성 캐시 전용             |
+| `RedisBinarySerializers.GzipJdk`        | JDK         | GZip   | Deprecated; 신뢰 데이터 전용 |
+| `RedisBinarySerializers.LZ4Jdk`         | JDK         | LZ4    | Deprecated; 신뢰 데이터 전용 |
+| `RedisBinarySerializers.SnappyJdk`      | JDK         | Snappy | Deprecated; 신뢰 데이터 전용 |
+| `RedisBinarySerializers.ZstdJdk`        | JDK         | Zstd   | Deprecated; 신뢰 데이터 전용 |
+| `RedisBinarySerializers.GzipKryo`       | Kryo        | GZip   | 권장                         |
+| `RedisBinarySerializers.LZ4Kryo`        | Kryo        | LZ4    | 권장                         |
+| `RedisBinarySerializers.SnappyKryo`     | Kryo        | Snappy | 권장                         |
+| `RedisBinarySerializers.ZstdKryo`       | Kryo        | Zstd   | 권장                         |
+| `RedisBinarySerializers.GzipFory`       | Fory        | GZip   | 권장                         |
+| `RedisBinarySerializers.LZ4Fory`        | Fory        | LZ4    | 권장                         |
+| `RedisBinarySerializers.SnappyFory`     | Fory        | Snappy | 권장                         |
+| `RedisBinarySerializers.ZstdFory`       | Fory        | Zstd   | 권장                         |
 | `RedisBinarySerializers.GzipFastFory`   | FastFory    | GZip   | 휘발성 캐시 전용             |
 | `RedisBinarySerializers.LZ4FastFory`    | FastFory    | LZ4    | 휘발성 캐시 전용             |
 | `RedisBinarySerializers.SnappyFastFory` | FastFory    | Snappy | 휘발성 캐시 전용             |

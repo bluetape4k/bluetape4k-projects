@@ -2,7 +2,7 @@ package io.bluetape4k.redis.redisson.codec
 
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import org.redisson.client.codec.BaseCodec
@@ -60,15 +60,15 @@ class FastForyCodec(
         ): FastForyCodec = FastForyCodec(fallbackCodec).also { it.runtime = runtime }
     }
 
-    private val fory by lazy { runtime.serializerFactory() }
+    private val fastFory by lazy { runtime.serializerFactory() }
 
     private val encoder: Encoder = Encoder { graph ->
         try {
-            val bytes = fory.serialize(graph)
+            val bytes = fastFory.serialize(graph)
             Unpooled.wrappedBuffer(bytes)
         } catch (e: RuntimeException) {
             // 직렬화 실패 시 fallback — 마이그레이션 기간에는 흔한 경로이므로 debug 레벨
-            log.debug(e) { "FastFory encode 실패, fallbackCodec[$fallbackCodec]으로 재시도. class=${graph.javaClass}" }
+            log.warn(e) { "FastFory encode 실패, fallbackCodec[$fallbackCodec]으로 재시도. class=${graph.javaClass}" }
             fallbackCodec.valueEncoder.encode(graph)
         }
     }
@@ -78,20 +78,20 @@ class FastForyCodec(
         if (directView == null) {
             val bytes = runtime.copiedBytesFactory(buf)
             try {
-                fory.deserialize<Any>(bytes)
+                fastFory.deserialize(bytes)
             } catch (e: RuntimeException) {
                 // 역직렬화 실패 시 fallback — 기존 Fory 포맷 데이터 읽기 경로
-                log.debug(e) { "FastFory decode 실패, fallbackCodec[$fallbackCodec]으로 재시도" }
+                log.warn(e) { "FastFory decode 실패, fallbackCodec[$fallbackCodec]으로 재시도" }
                 decodeWithFallbackBuffer(bytes, runtime.fallbackBufferFactory) { fallbackBuf ->
                     fallbackCodec.valueDecoder.decode(fallbackBuf, state)
                 }
             }
         } else {
             try {
-                fory.deserializeDirectWithLegacyNormalization(directView, buf.readableBytes())
+                fastFory.deserializeDirectWithLegacyNormalization(directView, buf.readableBytes())
             } catch (e: RuntimeException) {
                 // 역직렬화 실패 시 fallback — 기존 Fory 포맷 데이터 읽기 경로
-                log.debug(e) { "FastFory decode 실패, fallbackCodec[$fallbackCodec]으로 재시도" }
+                log.warn(e) { "FastFory decode 실패, fallbackCodec[$fallbackCodec]으로 재시도" }
                 val bytes = runtime.copiedBytesFactory(buf)
                 decodeWithFallbackBuffer(bytes, runtime.fallbackBufferFactory) { fallbackBuf ->
                     fallbackCodec.valueDecoder.decode(fallbackBuf, state)

@@ -22,18 +22,6 @@ import io.bluetape4k.junit5.observability.ContextPropagationTerminal
 import io.bluetape4k.junit5.observability.ContextRequestAlias
 import io.bluetape4k.junit5.observability.assertContextIsolation
 import io.bluetape4k.junit5.observability.assertContextPropagationConformance
-import io.opentelemetry.api.trace.Span
-import io.opentelemetry.api.trace.SpanContext
-import io.opentelemetry.api.trace.TraceFlags
-import io.opentelemetry.api.trace.TraceState
-import io.opentelemetry.context.Context
-import io.opentelemetry.context.propagation.ContextPropagators
-import io.opentelemetry.context.propagation.TextMapSetter
-import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
-import io.opentelemetry.sdk.OpenTelemetrySdk
-import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter
-import io.opentelemetry.sdk.trace.SdkTracerProvider
-import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.http.HttpStatusCode
@@ -47,8 +35,20 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.ktor.util.AttributeKey
 import io.ktor.util.pipeline.PipelinePhase
-import kotlinx.coroutines.CompletableDeferred
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.api.trace.SpanContext
+import io.opentelemetry.api.trace.TraceFlags
+import io.opentelemetry.api.trace.TraceState
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator
+import io.opentelemetry.context.Context
+import io.opentelemetry.context.propagation.ContextPropagators
+import io.opentelemetry.context.propagation.TextMapSetter
+import io.opentelemetry.sdk.OpenTelemetrySdk
+import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter
+import io.opentelemetry.sdk.trace.SdkTracerProvider
+import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.TimeoutCancellationException
@@ -391,7 +391,7 @@ private class TestTracing(
     val omitIsolationParentA: Boolean = false,
     val failureBeforeRequestA: Throwable? = null,
     val failureAfterRequestA: Throwable? = null,
-) : AutoCloseable {
+): AutoCloseable {
     val spanExporter: InMemorySpanExporter = InMemorySpanExporter.create()
     private val tracerProvider: SdkTracerProvider =
         SdkTracerProvider.builder()
@@ -433,7 +433,7 @@ private class TestTracing(
         val remaining = harness.deadline.remaining()
         check(
             tracerProvider.shutdown()
-                .join(remaining.inWholeNanoseconds, TimeUnit.NANOSECONDS)
+                .join(remaining)
                 .isSuccess,
         ) {
             "Test tracer provider shutdown failed"
@@ -505,10 +505,10 @@ private suspend fun io.ktor.server.routing.RoutingContext.runSingleRoute(
             ContextObservationPoint.BEFORE_TERMINAL,
         )
         when (scenario) {
-            ContextPropagationScenario.SUCCESS ->
+            ContextPropagationScenario.SUCCESS   ->
                 call.respond(HttpStatusCode.OK)
 
-            ContextPropagationScenario.FAILURE ->
+            ContextPropagationScenario.FAILURE   ->
                 error("synthetic Ktor handler failure")
 
             ContextPropagationScenario.CANCELLATION -> {
@@ -518,7 +518,7 @@ private suspend fun io.ktor.server.routing.RoutingContext.runSingleRoute(
                 yield()
             }
 
-            ContextPropagationScenario.DEADLINE ->
+            ContextPropagationScenario.DEADLINE  ->
                 withTimeout(semanticDeadline) {
                     awaitCancellation()
                 }
@@ -547,18 +547,16 @@ private suspend fun io.ktor.server.routing.RoutingContext.runIsolationRoute(
                 else -> error("Unexpected synthetic isolation parent")
             }
         call.attributes.put(requestAliasKey, alias)
-        val ownReady =
-            when (alias) {
-                ContextRequestAlias.REQUEST_A -> harness.readyA
-                ContextRequestAlias.REQUEST_B -> harness.readyB
-                else -> error("Unexpected isolation alias")
-            }
-        ownFinally =
-            when (alias) {
-                ContextRequestAlias.REQUEST_A -> harness.finallyA
-                ContextRequestAlias.REQUEST_B -> harness.finallyB
-                else -> error("Unexpected isolation alias")
-            }
+        val ownReady = when (alias) {
+            ContextRequestAlias.REQUEST_A -> harness.readyA
+            ContextRequestAlias.REQUEST_B -> harness.readyB
+            else                          -> error("Unexpected isolation alias")
+        }
+        ownFinally = when (alias) {
+            ContextRequestAlias.REQUEST_A -> harness.finallyA
+            ContextRequestAlias.REQUEST_B -> harness.finallyB
+            // else                          -> error("Unexpected isolation alias")
+        }
         harness.observations(alias) += Span.current().validTraceIdOrNull()
         harness.ledger.record(alias, KtorConformanceEvent.READY)
         ownReady.complete(Unit)
@@ -955,9 +953,9 @@ private fun terminalFor(
     scenario: ContextPropagationScenario,
 ): ContextPropagationTerminal =
     when (scenario) {
-        ContextPropagationScenario.SUCCESS -> ContextPropagationTerminal.SUCCESS
-        ContextPropagationScenario.FAILURE -> ContextPropagationTerminal.FAILURE
+        ContextPropagationScenario.SUCCESS   -> ContextPropagationTerminal.SUCCESS
+        ContextPropagationScenario.FAILURE   -> ContextPropagationTerminal.FAILURE
         ContextPropagationScenario.CANCELLATION -> ContextPropagationTerminal.CANCELLATION
-        ContextPropagationScenario.DEADLINE -> ContextPropagationTerminal.DEADLINE_EXCEEDED
+        ContextPropagationScenario.DEADLINE  -> ContextPropagationTerminal.DEADLINE_EXCEEDED
         ContextPropagationScenario.ISOLATION -> error("Isolation does not have a single terminal")
     }

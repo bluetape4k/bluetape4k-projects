@@ -1,14 +1,14 @@
 package io.bluetape4k.netty.buffer
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.netty.AbstractNettyTest
 import io.bluetape4k.netty.util.use
 import io.netty.buffer.ByteBufAllocator
 import io.netty.buffer.Unpooled
 import io.netty.util.AsciiString
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 /**
@@ -103,7 +103,6 @@ class ByteBufUtilAdditionalTest: AbstractNettyTest() {
             val sb = StringBuilder()
             buf.appendPrettyHexDumpTo(sb)
             val dump = sb.toString()
-            dump.shouldNotBeNull()
             dump.shouldNotBeEmpty()
         }
     }
@@ -112,8 +111,8 @@ class ByteBufUtilAdditionalTest: AbstractNettyTest() {
     fun `isText는 지정된 charset으로 텍스트 여부를 확인한다`() {
         val text = "Hello"
         Unpooled.copiedBuffer(text, Charsets.UTF_8).use { buf ->
-            buf.isText(charset = Charsets.UTF_8) shouldBeEqualTo true
-            buf.isText(charset = Charsets.US_ASCII) shouldBeEqualTo true
+            buf.isText(charset = Charsets.UTF_8).shouldBeTrue()
+            buf.isText(charset = Charsets.US_ASCII).shouldBeTrue()
         }
     }
 
@@ -151,6 +150,6 @@ class ByteBufUtilAdditionalTest: AbstractNettyTest() {
         val result = a.equals(0, b, 0, 3)
         a.release()
         b.release()
-        result shouldBeEqualTo true
+        result.shouldBeTrue()
     }
 }

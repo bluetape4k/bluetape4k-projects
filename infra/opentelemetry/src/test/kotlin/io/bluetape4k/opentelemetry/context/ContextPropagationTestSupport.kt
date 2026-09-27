@@ -1,5 +1,8 @@
 package io.bluetape4k.opentelemetry.context
 
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.awaitTermination
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.junit5.coroutines.DEFAULT_CANCELLATION_CONTRACT_TIMEOUT
 import io.bluetape4k.junit5.observability.ContextCleanupExpectation
 import io.bluetape4k.junit5.observability.ContextCleanupProbe
@@ -27,8 +30,8 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.async
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.supervisorScope
@@ -49,12 +52,12 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 internal val propagationMarkerKey: ContextKey<String> =
@@ -83,7 +86,7 @@ internal fun CountDownLatch.awaitOrFail(
     timeout: Duration = DEFAULT_CANCELLATION_CONTRACT_TIMEOUT,
 ) {
     try {
-        check(await(timeout.inWholeNanoseconds, TimeUnit.NANOSECONDS)) {
+        check(await(timeout)) {
             "Timed out waiting for test gate"
         }
     } catch (e: InterruptedException) {
@@ -93,7 +96,7 @@ internal fun CountDownLatch.awaitOrFail(
 }
 
 internal fun <T> Future<T>.getWithin(timeout: Duration): T =
-    get(timeout.inWholeNanoseconds, TimeUnit.NANOSECONDS)
+    get(timeout)
 
 internal fun <T> captureExecutorTerminal(
     future: Future<T>,
@@ -243,7 +246,7 @@ internal fun ExecutorService.shutdownAndAssertTermination() {
     var terminated = false
     try {
         shutdown()
-        terminated = awaitTermination(5, TimeUnit.SECONDS)
+        terminated = awaitTermination(5.seconds)
     } catch (e: InterruptedException) {
         interrupted = e
     } finally {
@@ -258,7 +261,7 @@ internal fun ExecutorService.shutdownAndAssertTermination() {
     }
     if (!terminated) {
         terminated = try {
-            awaitTermination(5, TimeUnit.SECONDS)
+            awaitTermination(5.seconds)
         } catch (e: InterruptedException) {
             interrupted = interrupted ?: e
             false
@@ -694,7 +697,7 @@ internal fun runExecutorScenario(
         entered.awaitOrFail(hangGuard)
         val thrown = when (scenario) {
             ContextPropagationScenario.SUCCESS,
-            ContextPropagationScenario.FAILURE -> captureExecutorTerminal(submitted, hangGuard)
+            ContextPropagationScenario.FAILURE   -> captureExecutorTerminal(submitted, hangGuard)
 
             ContextPropagationScenario.CANCELLATION -> {
                 check(submitted.cancel(true)) {
@@ -703,7 +706,7 @@ internal fun runExecutorScenario(
                 captureExecutorTerminal(submitted, hangGuard)
             }
 
-            ContextPropagationScenario.DEADLINE -> {
+            ContextPropagationScenario.DEADLINE  -> {
                 val timeout = try {
                     submitted.getWithin(semanticDeadline)
                     error("Executor deadline did not expire")
@@ -849,10 +852,10 @@ private suspend fun executeCoroutineTerminal(
             observeCoroutineBody(observations)
             started.complete(Unit)
             when (scenario) {
-                ContextPropagationScenario.SUCCESS -> Unit
-                ContextPropagationScenario.FAILURE -> error("synthetic failure")
+                ContextPropagationScenario.SUCCESS   -> Unit
+                ContextPropagationScenario.FAILURE   -> error("synthetic failure")
                 ContextPropagationScenario.CANCELLATION -> awaitCancellation()
-                ContextPropagationScenario.DEADLINE ->
+                ContextPropagationScenario.DEADLINE  ->
                     withTimeout(semanticDeadline) { awaitCancellation() }
 
                 ContextPropagationScenario.ISOLATION ->
@@ -931,7 +934,7 @@ private fun executeReactorScenario(
 
         when (scenario) {
             ContextPropagationScenario.SUCCESS,
-            ContextPropagationScenario.FAILURE -> observed
+            ContextPropagationScenario.FAILURE  -> observed
 
             ContextPropagationScenario.CANCELLATION,
             ContextPropagationScenario.DEADLINE -> observed.then(Mono.never())
@@ -1033,8 +1036,8 @@ private fun submitExecutorScenario(
                     observations += markerObservation(ContextObservationPoint.BEFORE_TERMINAL)
                     entered.countDown()
                     when (scenario) {
-                        ContextPropagationScenario.SUCCESS -> Unit
-                        ContextPropagationScenario.FAILURE -> error("synthetic failure")
+                        ContextPropagationScenario.SUCCESS  -> Unit
+                        ContextPropagationScenario.FAILURE  -> error("synthetic failure")
                         ContextPropagationScenario.CANCELLATION,
                         ContextPropagationScenario.DEADLINE -> awaitExecutorInterrupt(release)
 
@@ -1299,10 +1302,10 @@ private suspend fun <T> withCoroutineResources(
 
 private fun terminalFor(scenario: ContextPropagationScenario): ContextPropagationTerminal =
     when (scenario) {
-        ContextPropagationScenario.SUCCESS -> ContextPropagationTerminal.SUCCESS
-        ContextPropagationScenario.FAILURE -> ContextPropagationTerminal.FAILURE
+        ContextPropagationScenario.SUCCESS   -> ContextPropagationTerminal.SUCCESS
+        ContextPropagationScenario.FAILURE   -> ContextPropagationTerminal.FAILURE
         ContextPropagationScenario.CANCELLATION -> ContextPropagationTerminal.CANCELLATION
-        ContextPropagationScenario.DEADLINE -> ContextPropagationTerminal.DEADLINE_EXCEEDED
+        ContextPropagationScenario.DEADLINE  -> ContextPropagationTerminal.DEADLINE_EXCEEDED
         ContextPropagationScenario.ISOLATION ->
             error("Isolation uses coroutineIsolationExpectation")
     }
@@ -1322,17 +1325,17 @@ private fun terminalFor(
         SignalType.ON_ERROR -> when (scenario) {
             ContextPropagationScenario.FAILURE -> ContextPropagationTerminal.FAILURE
             ContextPropagationScenario.DEADLINE -> ContextPropagationTerminal.DEADLINE_EXCEEDED
-            else -> error("Unexpected Reactor error signal")
+            else                               -> error("Unexpected Reactor error signal")
         }
 
-        SignalType.CANCEL -> {
+        SignalType.CANCEL   -> {
             check(scenario == ContextPropagationScenario.CANCELLATION) {
                 "Unexpected Reactor cancellation signal"
             }
             ContextPropagationTerminal.CANCELLATION
         }
 
-        else -> error("Reactor terminal signal was not observed")
+        else                -> error("Reactor terminal signal was not observed")
     }
 
 private fun workerProbe(scheduler: Scheduler): String? =

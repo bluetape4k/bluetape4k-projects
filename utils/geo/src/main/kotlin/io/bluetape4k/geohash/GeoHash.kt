@@ -18,6 +18,9 @@ import kotlin.math.ceil
 class GeoHash internal constructor(): Comparable<GeoHash>, Serializable {
 
     companion object: KLogging() {
+
+        private const val serialVersionUID = 1L
+
         const val MAX_BIT_PRECISION = 64
         const val MAX_CHARACTER_PRECISION = 12
 

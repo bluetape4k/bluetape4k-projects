@@ -86,7 +86,7 @@ suspend inline fun <T: Any> Observation.observeSuspending(
 /**
  * Wraps [observeSuspending] in a [Result], returning failure for non-cancellation errors.
  *
- * ## Behaviour / Contract
+ * ## Behavior / Contract
  * - Returns `Result.success(value)` when the block completes normally.
  * - Returns `Result.failure(exception)` for non-cancellation exceptions.
  * - Rethrows [CancellationException] so structured cancellation is preserved.
@@ -150,7 +150,7 @@ suspend inline fun <T: Any> withObservationSuspending(
 /**
  * Wraps [withObservationSuspending] in a [Result], returning failure for non-cancellation errors.
  *
- * ## Behaviour / Contract
+ * ## Behavior / Contract
  * - Returns `Result.success(value)` when the block completes normally.
  * - Returns `Result.failure(exception)` for non-cancellation exceptions.
  * - Rethrows [CancellationException] so structured cancellation is preserved.

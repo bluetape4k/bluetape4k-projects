@@ -8,12 +8,17 @@ import io.bluetape4k.annotations.BluetapeDelicateApi
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.io.serializer.AbstractBinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.CompressableBinarySerializer
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toUtf8String
 import kotlinx.coroutines.CancellationException
 import org.apache.kafka.common.header.internals.RecordHeaders
@@ -28,7 +33,8 @@ import java.nio.ReadOnlyBufferException
 import java.util.stream.Stream
 
 class BinaryKafkaCodecBufferTest {
-    companion object {
+
+    companion object: KLogging() {
         @JvmStatic
         @OptIn(BluetapeDelicateApi::class)
         fun compressedCodecs(): Stream<Arguments> = Stream.of(
@@ -66,7 +72,7 @@ class BinaryKafkaCodecBufferTest {
         @Suppress("UNCHECKED_CAST")
         override fun <T: Any> deserializeFrom(source: ByteBuffer): T? {
             deserializeSource = source
-            return "decoded" as T
+            return "decoded" as? T
         }
     }
 
@@ -130,13 +136,20 @@ class BinaryKafkaCodecBufferTest {
     ) {
         val payload = "trusted-compressible-kafka-payload-".repeat(256)
         val standardWire = requireNotNull(codec.serialize("events", payload))
-        val source = ByteBuffer.allocateDirect(standardWire.size + 8).apply {
-            position(3)
-            put(standardWire)
-            flip()
-            position(3)
-            limit(3 + standardWire.size)
-        }.slice().asReadOnlyBuffer().apply { mark() }
+        val source = ByteBuffer
+            .allocateDirect(standardWire.size + 8)
+            .apply {
+                position(3)
+                put(standardWire)
+                flip()
+                position(3)
+                limit(3 + standardWire.size)
+            }
+            .slice()
+            .asReadOnlyBuffer()
+            .apply {
+                mark()
+            }
         val sourcePosition = source.position()
         val sourceLimit = source.limit()
 
@@ -146,17 +159,22 @@ class BinaryKafkaCodecBufferTest {
         source.limit() shouldBeEqualTo sourceLimit
         source.reset().position() shouldBeEqualTo sourcePosition
 
-        val target = ByteBuffer.allocateDirect(64 * 1024).apply {
-            position(7)
-            limit(capacity() - 11)
-        }
+        val target = ByteBuffer
+            .allocateDirect(64 * 1024)
+            .apply {
+                position(7)
+                limit(capacity() - 11)
+            }
         val targetStart = target.position()
         val targetLimit = target.limit()
         val written = codec.serializeTo("events", payload, target)
-        val bufferWire = target.duplicate().apply {
-            position(targetStart)
-            limit(targetStart + written)
-        }.let { view -> ByteArray(view.remaining()).also(view::get) }
+        val bufferWire = target.duplicate()
+            .apply {
+                position(targetStart)
+                limit(targetStart + written)
+            }.let { view ->
+                ByteArray(view.remaining()).also(view::get)
+            }
 
         written shouldBeGreaterThan 0
         target.position() shouldBeEqualTo targetStart + written
@@ -181,19 +199,27 @@ class BinaryKafkaCodecBufferTest {
     @Test
     fun `buffer serialization preserves headers and header opt out`() {
         val headers = RecordHeaders().add("trace-id", "trace-value".encodeToByteArray())
-        TestBinaryCodec(RecordingSerializer()).serializeTo(
-            "events", headers, "value", ByteBuffer.allocate(32),
-        )
+        TestBinaryCodec(RecordingSerializer())
+            .serializeTo(
+                "events",
+                headers, "value",
+                ByteBuffer.allocate(32),
+            )
 
-        headers.lastHeader("trace-id").value().toUtf8String() shouldBeEqualTo "trace-value"
-        headers.lastHeader(AbstractKafkaCodec.VALUE_TYPE_KEY).value().toUtf8String() shouldBeEqualTo
-            String::class.java.name
+        headers.lastHeader("trace-id")
+            .value().toUtf8String() shouldBeEqualTo "trace-value"
+        headers.lastHeader(KafkaCodec.VALUE_TYPE_KEY)
+            .value().toUtf8String() shouldBeEqualTo String::class.java.name
 
         val noHeader = RecordHeaders()
-        TestBinaryCodec(RecordingSerializer(), writeValueTypeHeader = false).serializeTo(
-            "events", noHeader, "value", ByteBuffer.allocate(32),
-        )
-        noHeader.lastHeader(AbstractKafkaCodec.VALUE_TYPE_KEY).shouldBeNull()
+        TestBinaryCodec(RecordingSerializer(), writeValueTypeHeader = false)
+            .serializeTo(
+                "events",
+                noHeader,
+                "value",
+                ByteBuffer.allocate(32),
+            )
+        noHeader.lastHeader(KafkaCodec.VALUE_TYPE_KEY).shouldBeNull()
     }
 
     @Test
@@ -206,24 +232,32 @@ class BinaryKafkaCodecBufferTest {
                 "events", headers, "value", ByteBuffer.allocate(32),
             )
         } shouldBeSameInstanceAs failure
-        headers.lastHeader(AbstractKafkaCodec.VALUE_TYPE_KEY).value().toUtf8String() shouldBeEqualTo
-            String::class.java.name
+
+        headers.lastHeader(KafkaCodec.VALUE_TYPE_KEY)
+            .value().toUtf8String() shouldBeEqualTo String::class.java.name
     }
 
     @Test
     fun `Kryo round trip preserves bounded caller state`() {
         val codec: BufferAwareKafkaCodec<Any?> = KryoKafkaCodec()
-        val target = ByteBuffer.allocateDirect(4096).order(ByteOrder.LITTLE_ENDIAN).apply {
-            position(5)
-            limit(capacity() - 7)
-        }
+        val target = ByteBuffer.allocateDirect(4096).order(ByteOrder.LITTLE_ENDIAN)
+            .apply {
+                position(5)
+                limit(capacity() - 7)
+            }
         val start = target.position()
         val targetLimit = target.limit()
         val written = codec.serializeTo("events", listOf("a", "b", "c"), target)
-        val source = target.duplicate().apply {
-            position(start)
-            limit(start + written)
-        }.slice().asReadOnlyBuffer().apply { mark() }
+        val source = target.duplicate()
+            .apply {
+                position(start)
+                limit(start + written)
+            }
+            .slice()
+            .asReadOnlyBuffer()
+            .apply {
+                mark()
+            }
         val sourcePosition = source.position()
         val sourceLimit = source.limit()
 
@@ -244,13 +278,15 @@ class BinaryKafkaCodecBufferTest {
         val wire = requireNotNull(codec.serialize("events", null, payload))
         val heap = ByteBuffer.wrap(wire)
         val direct = ByteBuffer.allocateDirect(wire.size).apply { put(wire).flip() }
-        val sliced = ByteBuffer.allocate(wire.size + 4).apply {
-            position(2)
-            put(wire)
-            flip()
-            position(2)
-            limit(2 + wire.size)
-        }.slice()
+        val sliced = ByteBuffer.allocate(wire.size + 4)
+            .apply {
+                position(2)
+                put(wire)
+                flip()
+                position(2)
+                limit(2 + wire.size)
+            }
+            .slice()
         val readOnly = ByteBuffer.wrap(wire).asReadOnlyBuffer()
 
         listOf(heap, direct, sliced, readOnly).forEach { source ->
@@ -273,8 +309,12 @@ class BinaryKafkaCodecBufferTest {
         val tooSmall = ByteBuffer.allocate(1).apply { position(1) }
         val readOnly = ByteBuffer.allocate(32).asReadOnlyBuffer().apply { position(4) }
 
-        assertFailsWith<BufferOverflowException> { codec.serializeTo("events", "value", tooSmall) }
-        assertFailsWith<ReadOnlyBufferException> { codec.serializeTo("events", "value", readOnly) }
+        assertFailsWith<BufferOverflowException> {
+            codec.serializeTo("events", "value", tooSmall)
+        }
+        assertFailsWith<ReadOnlyBufferException> {
+            codec.serializeTo("events", "value", readOnly)
+        }
 
         tooSmall.position() shouldBeEqualTo 1
         readOnly.position() shouldBeEqualTo 4
@@ -292,16 +332,18 @@ class BinaryKafkaCodecBufferTest {
                 RecordHeaders().add("trace-id", "secret-header".encodeToByteArray()),
                 ByteBuffer.allocate(17),
             ).shouldBeNull()
+
             val event = appender.list.single()
             event.level shouldBeEqualTo Level.WARN
             event.throwableProxy.shouldBeNull()
+
             val message = event.formattedMessage
-            message.contains("topic=events") shouldBeEqualTo true
-            message.contains("trace-id") shouldBeEqualTo true
-            message.contains("dataSize=17") shouldBeEqualTo true
-            message.contains("failureType=${IllegalArgumentException::class.java.name}") shouldBeEqualTo true
-            message.contains("secret-header") shouldBeEqualTo false
-            message.contains("secret-payload") shouldBeEqualTo false
+            message shouldContain "topic=events"
+            message shouldContain "trace-id"
+            message shouldContain "dataSize=17"
+            message shouldContain "failureType=${IllegalArgumentException::class.java.name}"
+            message shouldNotContain "secret-header"
+            message shouldNotContain "secret-payload"
         } finally {
             logger.detachAppender(appender)
             appender.stop()
@@ -314,7 +356,7 @@ class BinaryKafkaCodecBufferTest {
         val headers = RecordHeaders().apply {
             repeat(20) { index ->
                 val key = "key-${index.toString().padStart(2, '0')}-" +
-                    "K".repeat(80) + "\r\n\t\u0001KEY-TAIL"
+                        "K".repeat(80) + "\r\n\t\u0001KEY-TAIL"
                 add(key, "secret-header-value-$index".encodeToByteArray())
             }
         }
@@ -328,18 +370,19 @@ class BinaryKafkaCodecBufferTest {
             codec.deserializeFrom(topic, headers, ByteBuffer.allocate(17)).shouldBeNull()
 
             val event = appender.list.single()
-            val message = event.formattedMessage
             event.level shouldBeEqualTo Level.WARN
             event.throwableProxy.shouldBeNull()
-            (message.length <= 1600) shouldBeEqualTo true
-            message.none(Char::isISOControl) shouldBeEqualTo true
-            message.contains("TOPIC-TAIL") shouldBeEqualTo false
-            message.contains("key-15-") shouldBeEqualTo true
-            message.contains("key-16-") shouldBeEqualTo false
-            message.contains("KEY-TAIL") shouldBeEqualTo false
-            message.contains("secret-header-value") shouldBeEqualTo false
-            message.contains("secret-payload") shouldBeEqualTo false
-            message.contains("failureType=${IllegalArgumentException::class.java.name}") shouldBeEqualTo true
+
+            val message = event.formattedMessage
+            message.length shouldBeLessOrEqualTo 1600
+            message.none(Char::isISOControl).shouldBeTrue()
+            message shouldNotContain "TOPIC-TAIL"
+            message shouldContain "key-15-"
+            message shouldNotContain "key-16-"
+            message shouldNotContain "KEY-TAIL"
+            message shouldNotContain "secret-header-value"
+            message shouldNotContain "secret-payload"
+            message shouldContain "failureType=${IllegalArgumentException::class.java.name}"
         } finally {
             logger.detachAppender(appender)
             appender.stop()
@@ -355,6 +398,7 @@ class BinaryKafkaCodecBufferTest {
         assertFailsWith<CancellationException> {
             TestBinaryCodec(ThrowingSerializer(cancellation)).deserializeFrom("events", source)
         } shouldBeSameInstanceAs cancellation
+
         assertFailsWith<OutOfMemoryError> {
             TestBinaryCodec(ThrowingSerializer(fatal)).deserializeFrom("events", source)
         } shouldBeSameInstanceAs fatal

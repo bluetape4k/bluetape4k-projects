@@ -35,7 +35,7 @@ class LettuceCacheConfig<K: Any, V: Any>(
     /** Redis hash field 문자열을 JCache key로 복원하는 함수입니다. */
     val keyDecoder: ((String) -> K)? = null,
     /** 캐시 값을 바이트 배열로 직렬화/역직렬화하는 [LettuceBinaryCodec] 인스턴스입니다. */
-    val codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
+    val codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.default<Any>(),
     keyType: Class<K>,
     valueType: Class<V>,
 ): MutableConfiguration<K, V>() {
@@ -71,9 +71,9 @@ inline fun <reified K: Any, reified V: Any> lettuceCacheConfigOf(
     ttlSeconds: Long? = null,
     noinline keyCodec: ((K) -> String)? = null,
     noinline keyDecoder: ((String) -> K)? = null,
-    codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
+    codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.default<Any>(),
     lockLeaseSeconds: Long = LettuceCacheConfig.DEFAULT_LOCK_LEASE_SECONDS,
-): LettuceCacheConfig<K, V> = LettuceCacheConfig<K, V>(
+): LettuceCacheConfig<K, V> = LettuceCacheConfig(
     ttlSeconds = ttlSeconds,
     keyCodec = keyCodec,
     keyDecoder = keyDecoder,

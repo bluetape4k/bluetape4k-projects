@@ -1,7 +1,8 @@
 package io.bluetape4k.kafka.spring.listener
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import org.springframework.kafka.listener.MessageListener
 
@@ -15,6 +16,7 @@ class ListenerUtilsTest {
 
         val listenerType = listenerTypeOf(listener)
 
+        log.debug { "listener type=$listenerType" }
         listenerType.shouldNotBeNull()
     }
 }

@@ -23,6 +23,7 @@ MAX_REPORT_ENTRIES = 50_000
 MAX_ARCHIVED_METADATA_BYTES = 4_096
 ALLOWLIST = {
     "confluentinc/cp-kafka@sha256:a5040785528b0bce3b146febe9fcacdcf2b9b5acb450307f75170ef0e60ec130",
+    "confluentinc/cp-kafka@sha256:bea85690affc276519dfc3c6bc21062d586b3ecd91867b21899782e113228cfc",
     "redis@sha256:4e070415a5713188624f93815e62d6c6a1fcbb416d2e0b578ab3db627db3a93a",
 }
 SHA40 = re.compile(r"^[0-9a-fA-F]{40}$")

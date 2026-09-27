@@ -14,7 +14,8 @@ import org.springframework.beans.PropertyAccessorUtils
  * // name == "user.address"
  * ```
  */
-fun String.getPropertyName(): String = PropertyAccessorUtils.getPropertyName(this)
+fun String.getPropertyName(): String =
+    PropertyAccessorUtils.getPropertyName(this)
 
 /**
  * 프로퍼티 경로가 중첩 또는 인덱스 표현을 포함하는지 확인합니다.
@@ -28,7 +29,8 @@ fun String.getPropertyName(): String = PropertyAccessorUtils.getPropertyName(thi
  * // nested == true
  * ```
  */
-fun String.isNestedOrIndexedProperty(): Boolean = PropertyAccessorUtils.isNestedOrIndexedProperty(this)
+fun String.isNestedOrIndexedProperty(): Boolean =
+    PropertyAccessorUtils.isNestedOrIndexedProperty(this)
 
 /**
  * 첫 번째 중첩 구분자 인덱스를 반환합니다.
@@ -57,7 +59,8 @@ fun String.getFirstNestedPropertySeparatorIndex(): Int =
  * // idx == 12
  * ```
  */
-fun String.getLastNestedPropertySeparatorIndex(): Int = PropertyAccessorUtils.getLastNestedPropertySeparatorIndex(this)
+fun String.getLastNestedPropertySeparatorIndex(): Int =
+    PropertyAccessorUtils.getLastNestedPropertySeparatorIndex(this)
 
 /**
  * 등록 경로가 대상 [propertyPath]와 일치하는지 확인합니다.
@@ -71,7 +74,8 @@ fun String.getLastNestedPropertySeparatorIndex(): Int = PropertyAccessorUtils.ge
  * // matched == true
  * ```
  */
-fun String.matchesProperty(propertyPath: String): Boolean = PropertyAccessorUtils.matchesProperty(this, propertyPath)
+fun String.matchesProperty(propertyPath: String): Boolean =
+    PropertyAccessorUtils.matchesProperty(this, propertyPath)
 
 /**
  * 프로퍼티 경로를 정규화된 canonical 이름으로 변환합니다.
@@ -85,7 +89,8 @@ fun String.matchesProperty(propertyPath: String): Boolean = PropertyAccessorUtil
  * // canonical == "map[my.key]"
  * ```
  */
-fun String.canonicalPropertyName(): String = PropertyAccessorUtils.canonicalPropertyName(this)
+fun String.canonicalPropertyName(): String =
+    PropertyAccessorUtils.canonicalPropertyName(this)
 
 /**
  * 프로퍼티 경로 배열을 canonical 이름 배열로 변환합니다.
@@ -99,4 +104,5 @@ fun String.canonicalPropertyName(): String = PropertyAccessorUtils.canonicalProp
  * // names?.toList() == listOf("map[a]", "map[b]")
  * ```
  */
-fun Array<String>.canonicalPropertyNames(): Array<String>? = PropertyAccessorUtils.canonicalPropertyNames(this)
+fun Array<String>.canonicalPropertyNames(): Array<String>? =
+    PropertyAccessorUtils.canonicalPropertyNames(this)

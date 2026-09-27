@@ -50,7 +50,7 @@ class DoubleCounterExamples: AbstractOtelTest() {
                     span.setStatus(StatusCode.ERROR, "Error while calculating used space")
                 }
             }
-        log.debug { diskSpaceCounter }
+        log.debug { "diskSpaceCounter=$diskSpaceCounter" }
     }
 
     private suspend fun calculateSpaceUsedByFilesWithExtensionsAsync(

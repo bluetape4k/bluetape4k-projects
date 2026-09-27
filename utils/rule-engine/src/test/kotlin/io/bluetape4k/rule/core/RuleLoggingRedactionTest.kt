@@ -7,16 +7,16 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.junit5.output.InMemoryLogbackAppender
-import io.bluetape4k.rule.annotation.Action as ActionAnnotation
-import io.bluetape4k.rule.annotation.Condition as ConditionAnnotation
-import io.bluetape4k.rule.annotation.Fact as FactAnnotation
-import io.bluetape4k.rule.annotation.Rule as RuleAnnotation
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.ruleSetOf
 import io.bluetape4k.rule.api.suspendRuleSetOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
+import io.bluetape4k.rule.annotation.Action as ActionAnnotation
+import io.bluetape4k.rule.annotation.Condition as ConditionAnnotation
+import io.bluetape4k.rule.annotation.Fact as FactAnnotation
+import io.bluetape4k.rule.annotation.Rule as RuleAnnotation
 
 class RuleLoggingRedactionTest {
 

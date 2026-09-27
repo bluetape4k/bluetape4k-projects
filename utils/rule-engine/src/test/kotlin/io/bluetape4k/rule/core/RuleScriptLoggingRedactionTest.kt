@@ -5,6 +5,7 @@ import ch.qos.logback.classic.Logger
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.junit5.output.InMemoryLogbackAppender
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.engines.groovy.GroovyAction
 import io.bluetape4k.rule.engines.groovy.GroovyCondition
@@ -25,6 +26,8 @@ import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 
 class RuleScriptLoggingRedactionTest {
+
+    companion object: KLogging()
 
     @Test
     fun `all script engine definition logs summarize source`() {

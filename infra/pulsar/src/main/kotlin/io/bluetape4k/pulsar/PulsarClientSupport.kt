@@ -29,7 +29,7 @@ internal val log = KotlinLogging.logger {}
  * @param setup [ClientBuilder] 추가 설정 블록
  * @return 생성된 [PulsarClient] 인스턴스
  */
-fun pulsarClient(
+inline fun pulsarClient(
     serviceUrl: String = "",
     setup: ClientBuilder.() -> Unit = {},
 ): PulsarClient {
@@ -90,4 +90,5 @@ suspend inline fun <T> withPulsarClient(
 suspend inline fun <T> withPulsarClient(
     noinline setup: ClientBuilder.() -> Unit,
     crossinline block: suspend PulsarClient.() -> T,
-): T = withPulsarClient(serviceUrl = "", setup = setup, block = block)
+): T =
+    withPulsarClient(serviceUrl = "", setup = setup, block = block)

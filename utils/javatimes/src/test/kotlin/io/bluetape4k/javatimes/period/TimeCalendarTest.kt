@@ -1,25 +1,25 @@
 package io.bluetape4k.javatimes.period
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.javatimes.EmptyDuration
 import io.bluetape4k.javatimes.MaxPeriodTime
 import io.bluetape4k.javatimes.MinPeriodTime
 import io.bluetape4k.javatimes.nowZonedDateTime
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
 import java.time.Duration
 
 class TimeCalendarTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `Default calendar has correct offsets`() {
         val calendar = TimeCalendar.Default
         calendar.startOffset shouldBeEqualTo Duration.ZERO
-        (calendar.endOffset.isNegative).shouldBeTrue()
+        calendar.endOffset.isNegative.shouldBeTrue()
     }
 
     @Test

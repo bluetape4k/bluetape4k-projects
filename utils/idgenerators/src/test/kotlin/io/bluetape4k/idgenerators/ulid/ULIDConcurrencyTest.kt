@@ -7,10 +7,11 @@ import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentLinkedQueue
 
 class ULIDConcurrencyTest: AbstractULIDTest() {
+
     companion object: KLogging() {
         private const val NUM_WORKERS = 16
         private const val ROUNDS = 100
@@ -18,7 +19,8 @@ class ULIDConcurrencyTest: AbstractULIDTest() {
 
     @Nested
     inner class FactoryConcurrency {
-        @RepeatedTest(REPEAT_SIZE)
+
+        @Test
         fun `nextULID - 멀티스레드에서 모든 ULID가 고유하다`() {
             val ulids = ConcurrentLinkedQueue<ULID>()
 
@@ -34,7 +36,7 @@ class ULIDConcurrencyTest: AbstractULIDTest() {
             log.debug { "Factory: $expected unique ULIDs generated" }
         }
 
-        @RepeatedTest(REPEAT_SIZE)
+        @Test
         fun `randomULID - 멀티스레드에서 모든 문자열이 고유하다`() {
             val ulidStrings = ConcurrentLinkedQueue<String>()
 
@@ -52,7 +54,8 @@ class ULIDConcurrencyTest: AbstractULIDTest() {
 
     @Nested
     inner class MonotonicConcurrency {
-        @RepeatedTest(REPEAT_SIZE)
+
+        @Test
         fun `nextULID - 멀티스레드에서 동일 previous 기반 생성이 안전하다`() {
             val monotonic = ULID.monotonic()
             val previous = ULID.nextULID(timestamp = 1000L)
@@ -71,7 +74,8 @@ class ULIDConcurrencyTest: AbstractULIDTest() {
 
     @Nested
     inner class StatefulMonotonicConcurrency {
-        @RepeatedTest(REPEAT_SIZE)
+
+        @Test
         fun `nextULID - 멀티스레드에서 모든 ULID가 고유하다`() {
             val generator = ULID.statefulMonotonic()
             val ulids = ConcurrentLinkedQueue<ULID>()
@@ -88,7 +92,7 @@ class ULIDConcurrencyTest: AbstractULIDTest() {
             log.debug { "StatefulMonotonic: $expected unique ULIDs generated" }
         }
 
-        @RepeatedTest(REPEAT_SIZE)
+        @Test
         fun `nextULID - 동일 timestamp로 멀티스레드 생성 시 모든 ULID가 고유하다`() {
             val generator = ULID.statefulMonotonic()
             val fixedTimestamp = System.currentTimeMillis()
@@ -114,7 +118,7 @@ class ULIDConcurrencyTest: AbstractULIDTest() {
             }
         }
 
-        @RepeatedTest(REPEAT_SIZE)
+        @Test
         fun `nextULIDStrict - 멀티스레드에서 null이 아닌 결과는 모두 고유하다`() {
             val generator = ULID.statefulMonotonic()
             val ulids = ConcurrentLinkedQueue<ULID>()
@@ -131,7 +135,7 @@ class ULIDConcurrencyTest: AbstractULIDTest() {
             ulids.distinct().size shouldBeEqualTo ulids.size
         }
 
-        @RepeatedTest(REPEAT_SIZE)
+        @Test
         fun `randomULID - 멀티스레드에서 Factory 위임 메서드도 안전하다`() {
             val generator = ULID.statefulMonotonic()
             val ulidStrings = ConcurrentLinkedQueue<String>()

@@ -3,8 +3,8 @@ package io.bluetape4k.junit5.coroutines
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
@@ -53,7 +53,7 @@ class CancellationContractsTest {
     @Test
     fun `assertCancellationPropagates passes when operation rethrows cancellation`() = runTest {
         assertCancellationPropagates {
-            delay(Long.MAX_VALUE)
+            delay(timeMillis = Long.MAX_VALUE)
         }
     }
 
@@ -62,7 +62,7 @@ class CancellationContractsTest {
         assertFailsWith<AssertionError> {
             assertCancellationPropagates {
                 try {
-                    delay(Long.MAX_VALUE)
+                    delay(timeMillis = Long.MAX_VALUE)
                 } catch (e: CancellationException) {
                     // Swallowing cancellation must fail the contract.
                 }
@@ -75,7 +75,7 @@ class CancellationContractsTest {
         assertFailsWith<AssertionError> {
             assertCancellationPropagates {
                 try {
-                    delay(Long.MAX_VALUE)
+                    delay(timeMillis = Long.MAX_VALUE)
                 } catch (e: CancellationException) {
                     throw IllegalStateException("converted", e)
                 }
@@ -102,7 +102,7 @@ class CancellationContractsTest {
             resourceCancelled = { cancelled },
         ) {
             try {
-                delay(Long.MAX_VALUE)
+                delay(timeMillis = Long.MAX_VALUE)
             } finally {
                 cancelled = true
             }

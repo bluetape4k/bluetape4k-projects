@@ -1,13 +1,16 @@
 package io.bluetape4k.cache.memoizer.cache2k
 
 import io.bluetape4k.cache.memoizer.AsyncMemoizer
+import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.exceptions.BluetapeException
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
+import okio.withLock
 import org.cache2k.Cache
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * Cache2k Cache를 이용하여 [AsyncMemoizer]를 생성합니다.
@@ -52,11 +55,12 @@ class Cache2kAsyncMemoizer<T: Any, R: Any>(
     companion object: KLoggingChannel()
 
     private val inFlight = ConcurrentHashMap<T, CompletableFuture<R>>()
+    private val lock = ReentrantLock()
 
     override fun invoke(input: T): CompletableFuture<R> {
         // 1. 완료된 결과 캐시 hit
         if (cache.containsKey(input)) {
-            return CompletableFuture.completedFuture(cache[input])
+            return completableFutureOf(cache[input] as R)
         }
 
         // 2. in-flight 확인 또는 신규 등록
@@ -91,7 +95,9 @@ class Cache2kAsyncMemoizer<T: Any, R: Any>(
     }
 
     override fun clear() {
-        inFlight.clear()
-        cache.clear()
+        lock.withLock {
+            inFlight.clear()
+            cache.clear()
+        }
     }
 }

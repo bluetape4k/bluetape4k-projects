@@ -2,6 +2,7 @@ package io.bluetape4k.spring.tests
 
 import io.bluetape4k.assertions.should
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.reactive.asFlow
 import org.junit.jupiter.api.Test
 import org.springframework.web.reactive.function.client.WebClient
@@ -10,6 +11,11 @@ import java.nio.file.Path
 import kotlin.io.path.readText
 
 class WebClientReadmeExamplesTest {
+
+    companion object: KLogging() {
+        private val DOUBLE_RETRIEVE_PATTERN =
+            Regex("""http(?:Get|Post)\([^)]*\)\s*\.\s*retrieve\(\)""")
+    }
 
     @Test
     fun `README WebClient examples do not call retrieve twice`() {
@@ -60,9 +66,4 @@ class WebClientReadmeExamplesTest {
     private data class ReadmeUser(
         val name: String,
     )
-
-    companion object {
-        private val DOUBLE_RETRIEVE_PATTERN =
-            Regex("""http(?:Get|Post)\([^)]*\)\s*\.\s*retrieve\(\)""")
-    }
 }

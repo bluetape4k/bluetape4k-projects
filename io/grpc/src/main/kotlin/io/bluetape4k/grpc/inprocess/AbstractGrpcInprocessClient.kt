@@ -1,5 +1,6 @@
 package io.bluetape4k.grpc.inprocess
 
+import io.bluetape4k.grpc.awaitTermination
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.warn
@@ -10,7 +11,7 @@ import io.grpc.inprocess.InProcessChannelBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import java.io.Closeable
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * in-process gRPC 채널을 사용하는 테스트용 클라이언트 베이스 클래스입니다.
@@ -34,10 +35,14 @@ abstract class AbstractGrpcInprocessClient(
     constructor(host: String, port: Int): this(buildChannelByAddress(host, port))
 
     companion object: KLogging() {
+        private const val MIN_PORT = 1
+        private const val MAX_PORT = 65535
+
         @JvmStatic
         private fun buildChannelByName(name: String): ManagedChannel {
+            name.requireNotBlank("name")
             return InProcessChannelBuilder
-                .forName(name.requireNotBlank("name"))
+                .forName(name)
                 .usePlaintext()
                 .executor(Dispatchers.IO.asExecutor())
                 .build()
@@ -45,8 +50,10 @@ abstract class AbstractGrpcInprocessClient(
 
         @JvmStatic
         private fun buildChannelByAddress(host: String, port: Int): ManagedChannel {
+            host.requireNotBlank("host")
+            port.requireInRange(MIN_PORT, MAX_PORT, "port")
             return InProcessChannelBuilder
-                .forAddress(host.requireNotBlank("host"), port.requireInRange(1, 65535, "port"))
+                .forAddress(host, port)
                 .usePlaintext()
                 .executor(Dispatchers.IO.asExecutor())
                 .build()
@@ -58,7 +65,7 @@ abstract class AbstractGrpcInprocessClient(
             log.debug { "Close client's grpc channel... channel=$channel" }
             runCatching {
                 channel.shutdown()
-                if (!channel.awaitTermination(5, TimeUnit.SECONDS)) {
+                if (!channel.awaitTermination(5.seconds)) {
                     log.warn { "InProcess channel did not terminate in time, forcing shutdownNow. channel=$channel" }
                     channel.shutdownNow()
                 }

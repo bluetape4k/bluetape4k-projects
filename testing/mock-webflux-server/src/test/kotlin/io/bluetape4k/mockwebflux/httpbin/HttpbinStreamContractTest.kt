@@ -1,8 +1,8 @@
 package io.bluetape4k.mockwebflux.httpbin
 
-import io.bluetape4k.mockwebflux.AbstractMockWebfluxServerTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.mockwebflux.AbstractMockWebfluxServerTest
 import org.junit.jupiter.api.Test
 
 /**

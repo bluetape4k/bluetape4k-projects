@@ -2,6 +2,7 @@ package io.bluetape4k.csv
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
@@ -30,8 +31,8 @@ class NativeCsvRecordReaderTest {
             records.size shouldBeGreaterThan 100
             records.forEach { record ->
                 record.size shouldBeGreaterThan 1
-                record.getString(0)!!.shouldNotBeBlank()
-                record.getString(1)!!.shouldNotBeBlank()
+                record.getString(0).shouldNotBeBlank()
+                record.getString(1).shouldNotBeBlank()
             }
         }
     }
@@ -88,9 +89,5 @@ class NativeCsvRecordReaderTest {
         val records = reader.read(csv.byteInputStream(), skipHeaders = false).toList()
 
         records shouldHaveSize 2
-    }
-
-    private infix fun <T> Collection<T>.shouldHaveSize(expected: Int) {
-        this.size shouldBeEqualTo expected
     }
 }

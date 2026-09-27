@@ -63,15 +63,17 @@ class SuspendedFileChannelSinkTest: AbstractOkioTest() {
             StandardOpenOption.READ
         )
 
-        val readBuffer = ByteBuffer.allocate(readChannel.size().toInt())
-        readChannel.read(readBuffer, 0).get()
-        readBuffer.flip()
+        try {
+            val readBuffer = ByteBuffer.allocate(readChannel.size().toInt())
+            readChannel.read(readBuffer, 0).get()
+            readBuffer.flip()
 
-        val result = ByteArray(readBuffer.remaining())
-        readBuffer.get(result)
-        result.toUtf8String() shouldBeEqualTo message
-
-        readChannel.close()
+            val result = ByteArray(readBuffer.remaining())
+            readBuffer.get(result)
+            result.toUtf8String() shouldBeEqualTo message
+        } finally {
+            readChannel.close()
+        }
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -115,15 +117,17 @@ class SuspendedFileChannelSinkTest: AbstractOkioTest() {
             StandardOpenOption.READ
         )
 
-        val readBuffer = ByteBuffer.allocate(readChannel.size().toInt())
-        readChannel.read(readBuffer, 0).get()
-        readBuffer.flip()
+        try {
+            val readBuffer = ByteBuffer.allocate(readChannel.size().toInt())
+            readChannel.read(readBuffer, 0).get()
+            readBuffer.flip()
 
-        val result = ByteArray(readBuffer.remaining())
-        readBuffer.get(result)
-        result.toUtf8String() shouldBeEqualTo message
-
-        readChannel.close()
+            val result = ByteArray(readBuffer.remaining())
+            readBuffer.get(result)
+            result.toUtf8String() shouldBeEqualTo message
+        } finally {
+            readChannel.close()
+        }
     }
 
     @Test

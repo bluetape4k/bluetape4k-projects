@@ -20,7 +20,8 @@ import org.springframework.messaging.support.MessageBuilder
 inline fun <T: Any> message(
     payload: T,
     builder: MessageBuilder<T>.() -> Unit = {},
-): Message<T> = MessageBuilder.withPayload(payload).apply(builder).build()
+): Message<T> =
+    MessageBuilder.withPayload(payload).apply(builder).build()
 
 /**
  * [message]의 별칭으로 [Message]를 생성합니다.
@@ -37,7 +38,8 @@ inline fun <T: Any> message(
 inline fun <T: Any> messageOf(
     payload: T,
     builder: MessageBuilder<T>.() -> Unit = {},
-): Message<T> = message(payload, builder)
+): Message<T> =
+    MessageBuilder.withPayload(payload).apply(builder).build()
 
 /**
  * 초기 헤더 맵과 빌더 블록으로 [Message]를 생성합니다.
@@ -58,7 +60,7 @@ inline fun <T: Any> messageOf(
     headers: Map<String, Any?> = emptyMap(),
     builder: MessageBuilder<T>.() -> Unit = {},
 ): Message<T> =
-    message(payload) {
+    messageOf(payload) {
         headers.forEach { (name, value) ->
             setHeader(name, value)
         }

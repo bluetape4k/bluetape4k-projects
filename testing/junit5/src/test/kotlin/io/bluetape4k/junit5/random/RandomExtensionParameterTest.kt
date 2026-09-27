@@ -1,15 +1,16 @@
 package io.bluetape4k.junit5.random
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotBeNullOrBlank
+import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.junit5.model.DomainObject
 import io.bluetape4k.junit5.model.getDefaultSizeOfRandom
 import io.bluetape4k.junit5.model.shouldFullyPopulated
 import io.bluetape4k.junit5.model.shouldPartiallyPopulated
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.assertions.shouldNotBeNullOrBlank
-import io.bluetape4k.assertions.shouldNotContain
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.TestInstance
 import java.util.stream.Stream
@@ -58,14 +59,14 @@ class RandomExtensionParameterTest {
     fun `can inject a random list of default size`(@RandomValue(type = String::class) anyList: List<String>) {
         anyList.shouldNotBeNull()
         anyList.shouldNotBeEmpty()
-        anyList.size shouldBeEqualTo getDefaultSizeOfRandom()
+        anyList shouldHaveSize getDefaultSizeOfRandom()
     }
 
     @RepeatedTest(TEST_COUNT)
     fun `can inject a ramdom set`(@RandomValue(type = String::class) anySet: Set<String>) {
         anySet.shouldNotBeNull()
         anySet.shouldNotBeEmpty()
-        anySet.size shouldBeEqualTo getDefaultSizeOfRandom()
+        anySet shouldHaveSize getDefaultSizeOfRandom()
     }
 
     @RepeatedTest(TEST_COUNT)
@@ -85,9 +86,7 @@ class RandomExtensionParameterTest {
     fun `can inject random fully populated domain objects`(
         @RandomValue(size = 2, type = DomainObject::class) anyFullyPopulatedDomainObjects: List<DomainObject>,
     ) {
-        anyFullyPopulatedDomainObjects.shouldNotBeNull()
-        anyFullyPopulatedDomainObjects.shouldNotBeEmpty()
-        anyFullyPopulatedDomainObjects.size shouldBeEqualTo 2
+        anyFullyPopulatedDomainObjects shouldHaveSize 2
         anyFullyPopulatedDomainObjects.forEach {
             it.shouldFullyPopulated()
         }
@@ -98,9 +97,7 @@ class RandomExtensionParameterTest {
         @RandomValue(size = 2, type = DomainObject::class, excludes = ["wotsits", "id", "nestedDomainObject.address"])
         anyPartiallyPopulatedDomainObjects: List<DomainObject>,
     ) {
-        anyPartiallyPopulatedDomainObjects.shouldNotBeNull()
-        anyPartiallyPopulatedDomainObjects.shouldNotBeEmpty()
-        anyPartiallyPopulatedDomainObjects.size shouldBeEqualTo 2
+        anyPartiallyPopulatedDomainObjects shouldHaveSize 2
         anyPartiallyPopulatedDomainObjects.forEach {
             it.shouldPartiallyPopulated()
         }
@@ -111,10 +108,10 @@ class RandomExtensionParameterTest {
         @RandomValue anyString: String,
         @RandomValue anyNumber: Int,
     ) {
-        anyStrings.shouldNotContain(anyString)
+        anyStrings shouldNotContain anyString
         anyStrings.add(anyString)
 
-        anyNumbers.shouldNotContain(anyNumber)
+        anyNumbers shouldNotContain anyNumber
         anyNumbers.add(anyNumber)
     }
 }

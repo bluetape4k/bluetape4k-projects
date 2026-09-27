@@ -45,7 +45,7 @@ object Jackson: KLogging() {
      *
      * @deprecated legacy permissive typing 경로이므로 접근 시 [UnsupportedOperationException]이 발생합니다.
      * 신뢰된 패키지 allowlist를 사용하는 [createTypedJsonMapper]("com.example.") 를 사용하세요.
-    */
+     */
     @Deprecated(
         "legacy permissive typing은 모든 타입을 허용하여 RCE 취약점을 야기할 수 있습니다. " +
                 "createTypedJsonMapper(\"com.example.\") 를 사용하세요.",

@@ -36,9 +36,8 @@ val noopTraceProvider: TracerProvider = TracerProvider.noop()
  */
 inline fun sdkTracerProvider(
     builder: SdkTracerProviderBuilder.() -> Unit,
-): SdkTracerProvider {
-    return SdkTracerProvider.builder().apply(builder).build()
-}
+): SdkTracerProvider =
+    SdkTracerProvider.builder().apply(builder).build()
 
 
 /**
@@ -71,6 +70,5 @@ inline fun sdkTracerProvider(
 inline fun Tracer.startSpan(
     spanName: String,
     builder: SpanBuilder.() -> Unit,
-): Span {
-    return spanBuilder(spanName).apply(builder).startSpan()
-}
+): Span =
+    spanBuilder(spanName).apply(builder).startSpan()

@@ -2,29 +2,23 @@
 
 English | [한국어](./README.ko.md)
 
-`bluetape4k-kafka4` is the Kafka 4.x line of the bluetape4k Kafka utilities.
-It keeps the same Kotlin-first API shape as `bluetape4k-kafka`, but is compiled
-against Kafka 4.2.x, Spring Kafka 4.x, Spring Boot 4, and Jackson 3.
+`bluetape4k-kafka4` is the Kafka 4.x line of the bluetape4k Kafka utilities. It keeps the same Kotlin-first API shape as `bluetape4k-kafka`, but is compiled against Kafka 4.2.x, Spring Kafka 4.x, Spring Boot 4, and Jackson 3.
 
 ## Compatibility
 
-| Module | Kafka | Spring Kafka | Spring Boot | Jackson | Notes |
-|---|---:|---:|---:|---:|---|
-| `bluetape4k-kafka` | 3.9.x | 3.3.x | 3.x | Jackson 2 | Existing Kafka 3 line |
-| `bluetape4k-kafka4` | 4.2.x | 4.0.x | 4.x | Jackson 3 | Kafka 4 line, KRaft-only embedded tests |
+| Module              | Kafka | Spring Kafka | Spring Boot |   Jackson | Notes                                   |
+|---------------------|------:|-------------:|------------:|----------:|-----------------------------------------|
+| `bluetape4k-kafka`  | 3.9.x |        3.3.x |         3.x | Jackson 2 | Existing Kafka 3 line                   |
+| `bluetape4k-kafka4` | 4.2.x |        4.0.x |         4.x | Jackson 3 | Kafka 4 line, KRaft-only embedded tests |
 
-Do not put both modules on the same runtime classpath unless you intentionally
-manage the duplicate `io.bluetape4k.kafka` API package boundary. Choose one line
-per application.
+Do not put both modules on the same runtime classpath unless you intentionally manage the duplicate `io.bluetape4k.kafka` API package boundary. Choose one line per application.
 
 ## Features
 
 - Coroutine wrappers for Kafka producer and consumer operations.
-- Spring Kafka extensions for `KafkaTemplate`, producer factories, listener
-  containers, and test utilities.
+- Spring Kafka extensions for `KafkaTemplate`, producer factories, listener containers, and test utilities.
 - Kafka Streams helpers and test coverage compiled against Kafka 4.
-- Codecs for string, byte array, Jackson 3 JSON, Kryo, Fory, and compressed
-  payloads with LZ4, Snappy, or Zstd.
+- Codecs for string, byte array, Jackson 3 JSON, Kryo, Fory, and compressed payloads with LZ4, Snappy, or Zstd.
 - Embedded Kafka test support through Spring Kafka 4's KRaft-only broker.
 
 ## Dependency
@@ -51,10 +45,7 @@ dependencies {
 
 ![Dependency Boundary diagram](../../docs/images/readme-diagrams/infra-kafka4-diagram-01.png)
 
-`infra/kafka4/build.gradle.kts` also aligns all `org.apache.kafka` artifacts to
-the Kafka 4 version used by this module. This prevents the root dependency
-management from pulling Kafka 3 artifacts into the Kafka 4 test/runtime
-classpath.
+`infra/kafka4/build.gradle.kts` also aligns all `org.apache.kafka` artifacts to the Kafka 4 version used by this module. This prevents the root dependency management from pulling Kafka 3 artifacts into the Kafka 4 test/runtime classpath.
 
 ## Producer
 
@@ -105,9 +96,7 @@ class EventPublisher(
 }
 ```
 
-Spring Kafka 4 uses non-null key/value generic boundaries more strictly than the
-Kafka 3 line. Prefer non-null value types in templates and factories unless your
-application has an explicit tombstone/null-value contract.
+Spring Kafka 4 uses non-null key/value generic boundaries more strictly than the Kafka 3 line. Prefer non-null value types in templates and factories unless your application has an explicit tombstone/null-value contract.
 
 ## Jackson 3 Codec
 
@@ -127,26 +116,23 @@ The Jackson codec uses `bluetape4k-jackson3` and `tools.jackson.*` APIs.
 
 Available codecs:
 
-| Codec | Description |
-|---|---|
-| `KafkaCodecs.String` | UTF-8 string serialization |
-| `KafkaCodecs.ByteArray` | Raw byte array passthrough |
-| `KafkaCodecs.Jackson` | Jackson 3 JSON serialization |
-| `KafkaCodecs.Kryo` | Kryo binary serialization |
-| `KafkaCodecs.Fory` | Fory binary serialization for trusted inputs |
-| `KafkaCodecs.Lz4Kryo` | LZ4 compression + Kryo serialization |
-| `KafkaCodecs.Lz4Fory` | LZ4 compression + Fory serialization for trusted inputs |
-| `KafkaCodecs.SnappyKryo` | Snappy compression + Kryo serialization |
+| Codec                    | Description                                                |
+|--------------------------|------------------------------------------------------------|
+| `KafkaCodecs.String`     | UTF-8 string serialization                                 |
+| `KafkaCodecs.ByteArray`  | Raw byte array passthrough                                 |
+| `KafkaCodecs.Jackson`    | Jackson 3 JSON serialization                               |
+| `KafkaCodecs.Kryo`       | Kryo binary serialization                                  |
+| `KafkaCodecs.Fory`       | Fory binary serialization for trusted inputs               |
+| `KafkaCodecs.Lz4Kryo`    | LZ4 compression + Kryo serialization                       |
+| `KafkaCodecs.Lz4Fory`    | LZ4 compression + Fory serialization for trusted inputs    |
+| `KafkaCodecs.SnappyKryo` | Snappy compression + Kryo serialization                    |
 | `KafkaCodecs.SnappyFory` | Snappy compression + Fory serialization for trusted inputs |
-| `KafkaCodecs.ZstdKryo` | Zstd compression + Kryo serialization |
-| `KafkaCodecs.ZstdFory` | Zstd compression + Fory serialization for trusted inputs |
+| `KafkaCodecs.ZstdKryo`   | Zstd compression + Kryo serialization                      |
+| `KafkaCodecs.ZstdFory`   | Zstd compression + Fory serialization for trusted inputs   |
 
 ### Caller-owned ByteBuffer API
 
-Kafka's standard `Serializer` and `Deserializer` interfaces remain `ByteArray`-based. Binary codecs additionally
-implement `BufferAwareKafkaCodec`, an opt-in API for callers that already own reusable buffers. This removes an
-extra Kafka-layer array conversion but is not a zero-copy Kafka boundary; the backing `BinarySerializer` may still
-use an allocating compatibility fallback.
+Kafka's standard `Serializer` and `Deserializer` interfaces remain `ByteArray`-based. Binary codecs additionally implement `BufferAwareKafkaCodec`, an opt-in API for callers that already own reusable buffers. This removes an extra Kafka-layer array conversion but is not a zero-copy Kafka boundary; the backing `BinarySerializer` may still use an allocating compatibility fallback.
 
 ```kotlin
 val codec: BufferAwareKafkaCodec<Any?> = KafkaCodecs.Kryo
@@ -166,51 +152,37 @@ Object decoded = codec.deserializeFrom("events", target.asReadOnlyBuffer());
 
 Buffer serialization requires non-null data. Kafka tombstones must use the standard `serialize` methods.
 
-Successful output advances `position` by `written` without widening `limit`. Input reads only the initial remaining
-range and preserves source state. Ordinary decode exceptions produce a sanitized, bounded WARN with the failure type
-but no throwable attachment, then return `null`; cancellation and fatal errors propagate. Keep buffers caller-owned
-and thread-confined during a call.
+Successful output advances `position` by `written` without widening `limit`. Input reads only the initial remaining range and preserves source state. Ordinary decode exceptions produce a sanitized, bounded WARN with the failure type but no throwable attachment, then return `null`; cancellation and fatal errors propagate. Keep buffers caller-owned and thread-confined during a call.
 
-Poison WARN metadata caps topic at 128 characters, header keys at 16 entries and 64 characters each, and failure type
-at 256 characters. Control characters are neutralized to prevent log injection. Payloads, exception messages, header
-values, and stack traces are never logged.
+Poison WARN metadata caps topic at 128 characters, header keys at 16 entries and 64 characters each, and failure type at 256 characters. Control characters are neutralized to prevent log injection. Payloads, exception messages, header values, and stack traces are never logged.
 
 Allocation claims are limited to measured Kryo codec directions in the
-[issue #758 report](../../docs/benchmarks/2026-07-19-kafka-bytebuffer-codec-allocation.md). Throughput was measured
-for diagnostics only and does not support a throughput claim; broker costs were not measured.
+[issue #758 report](../../docs/benchmarks/2026-07-19-kafka-bytebuffer-codec-allocation.md). Throughput was measured for diagnostics only and does not support a throughput claim; broker costs were not measured.
 
 ### Security: Fory Trust Boundary
 
-Fory-backed Kafka codecs are marked with `@BluetapeDelicateApi`. They use the
-default `ForyBinarySerializer`, which allows unregistered classes during
-deserialization. Opt in only for trusted topics and brokers. For shared or
-external inputs, prefer a custom codec backed by `ForyBinarySerializer.secureFory(...)`
+Fory-backed Kafka codecs are marked with `@BluetapeDelicateApi`. They use the default `ForyBinarySerializer`, which allows unregistered classes during deserialization. Opt in only for trusted topics and brokers. For shared or external inputs, prefer a custom codec backed by `ForyBinarySerializer.secureFory(...)`
 with explicit class registration.
 
 The same trust boundary applies if you subclass `BinaryKafkaCodec` directly with
-`BinarySerializers.Fory`, `LZ4Fory`, `SnappyFory`, or `ZstdFory`; those lower-level
-serializers do not add a Kafka-specific opt-in marker by themselves.
+`BinarySerializers.Fory`, `LZ4Fory`, `SnappyFory`, or `ZstdFory`; those lower-level serializers do not add a Kafka-specific opt-in marker by themselves.
 
 ### Poison-pill Policy
 
 `AbstractKafkaCodec.deserialize` exposes a documented poison-pill policy:
 
-| Throwable type        | Behavior                                         |
-|-----------------------|--------------------------------------------------|
-| Generic `Exception`   | WARN log + return `null` (consumer loop continues) |
-| `CancellationException` | **Rethrown** — coroutine cancellation is preserved |
-| `Error` (OOM, StackOverflow, …) | **Propagated** — JVM corruption is not hidden |
+| Throwable type                  | Behavior                                           |
+|---------------------------------|----------------------------------------------------|
+| Generic `Exception`             | WARN log + return `null` (consumer loop continues) |
+| `CancellationException`         | **Rethrown** — coroutine cancellation is preserved |
+| `Error` (OOM, StackOverflow, …) | **Propagated** — JVM corruption is not hidden      |
 
 For permanent loss prevention, combine with Spring-Kafka's
-`ErrorHandlingDeserializer` and `DeadLetterPublishingRecoverer` to route
-poisoned records to a DLQ topic.
+`ErrorHandlingDeserializer` and `DeadLetterPublishingRecoverer` to route poisoned records to a DLQ topic.
 
 ### Performance: Opt-out of Value-Type Header
 
-By default, `AbstractKafkaCodec` writes the Java FQN of the value type to every
-record header (`bluetape4k.kafka.codec.value.type`). This enables polymorphic
-deserialization but adds bandwidth and storage overhead for high-throughput topics.
-It also widens the class-loading attack surface described below.
+By default, `AbstractKafkaCodec` writes the Java FQN of the value type to every record header (`bluetape4k.kafka.codec.value.type`). This enables polymorphic deserialization but adds bandwidth and storage overhead for high-throughput topics. It also widens the class-loading attack surface described below.
 
 If your consumer already knows the value type statically, disable the header:
 
@@ -219,7 +191,7 @@ import io.bluetape4k.annotations.BluetapeDelicateApi
 
 // Fory/Kryo codecs do not need the value-type header
 @OptIn(BluetapeDelicateApi::class)
-class NoHeaderForyCodec : ForyKafkaCodec() {
+class NoHeaderForyCodec: ForyKafkaCodec() {
     override val writeValueTypeHeader = false
 }
 ```
@@ -229,19 +201,17 @@ class NoHeaderForyCodec : ForyKafkaCodec() {
 > `doDeserialize` causes it to fall back to `LinkedHashMap` (silent type corruption).
 > Use `ForyKafkaCodec` or `KryoKafkaCodec` when you want to disable the header.
 
-| `writeValueTypeHeader` | Effect |
-|------------------------|--------|
-| `true` (default) | FQN written to every record header — polymorphic deserialization works |
-| `false` | Header omitted — no bandwidth overhead, smaller attack surface. Consumer must know the type statically. |
+| `writeValueTypeHeader` | Effect                                                                                                  |
+|------------------------|---------------------------------------------------------------------------------------------------------|
+| `true` (default)       | FQN written to every record header — polymorphic deserialization works                                  |
+| `false`                | Header omitted — no bandwidth overhead, smaller attack surface. Consumer must know the type statically. |
 
 ### Security: Class Loading Allowlist
 
 Trust profile: `AllowListedTypes` by default. Use
 `UnsafeLegacyCompatibility` only through `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE`.
 
-`AbstractKafkaCodec` loads the deserialization target class from the Kafka
-header `bluetape4k.kafka.codec.value.type`. If that header can be set by an
-attacker (untrusted broker or external network), arbitrary class loading (RCE)
+`AbstractKafkaCodec` loads the deserialization target class from the Kafka header `bluetape4k.kafka.codec.value.type`. If that header can be set by an attacker (untrusted broker or external network), arbitrary class loading (RCE)
 is possible.
 
 Override `allowedTypePackages` to restrict which packages may be loaded:
@@ -255,10 +225,10 @@ class SecureJacksonCodec : JacksonKafkaCodec() {
 }
 ```
 
-| `allowedTypePackages` value | Effect |
-|-----------------------------|--------|
-| `emptySet()` (default) | **Deny all** — no class is loaded from the type header. Safe default for untrusted or shared topics. |
-| Non-empty set | Only classes whose FQN equals or starts with a listed prefix are allowed; others → poison-pill `null`. |
+| `allowedTypePackages` value                 | Effect                                                                                                                   |
+|---------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| `emptySet()` (default)                      | **Deny all** — no class is loaded from the type header. Safe default for untrusted or shared topics.                     |
+| Non-empty set                               | Only classes whose FQN equals or starts with a listed prefix are allowed; others → poison-pill `null`.                   |
 | `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE` | Bypass all checks — restores pre-1.8.0 allow-all behavior. Use only in fully trusted, internally controlled deployments. |
 
 Legacy migration example:
@@ -271,8 +241,7 @@ class LegacyTrustedJacksonCodec : JacksonKafkaCodec() {
 
 ## Embedded Kafka Tests
 
-Spring Kafka 4 embedded brokers are KRaft-only. Do not use `kraft = true`; that
-flag belonged to the Spring Kafka 3 transition period.
+Spring Kafka 4 embedded brokers are KRaft-only. Do not use `kraft = true`; that flag belonged to the Spring Kafka 3 transition period.
 
 ```kotlin
 import org.springframework.kafka.test.context.EmbeddedKafka

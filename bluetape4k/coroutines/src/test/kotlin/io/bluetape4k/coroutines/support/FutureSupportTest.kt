@@ -6,16 +6,16 @@ import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.future.future
 import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
 import java.util.concurrent.FutureTask
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
@@ -41,12 +41,12 @@ class FutureSupportTest {
                     // MultithreadingTester가 제공하는 worker에서 실제 blocking FutureTask를
                     // 실행해 Future.get 계약을 검증한다. runTest 가상 시간은 이 경계를 우회한다.
                     Thread.sleep(Random.nextLong(10))
-                    log.trace { "counter=${counter.get()}" }
+                    log.debug { "counter=${counter.get()}" }
                     counter.incrementAndGet()
                 }
                 task.run()
                 val result = task.get()
-                log.trace { "result=$result" }
+                log.debug { "result=$result" }
             }
             .run()
 
@@ -61,13 +61,13 @@ class FutureSupportTest {
             .workers(16)
             .rounds(16 * ITEM_COUNT / 4)
             .add {
-                val task = future(Dispatchers.Default, start = CoroutineStart.DEFAULT) {
+                val task = this@runSuspendDefault.future(Dispatchers.Default, start = CoroutineStart.DEFAULT) {
                     delay(Random.nextLong(10).milliseconds)
-                    log.trace { "counter=${counter.get()}" }
+                    log.debug { "counter=${counter.get()}" }
                     counter.incrementAndGet()
                 }
-                val result = task.await()
-                log.trace { "result=$result" }
+                val result = task.awaitUntil()
+                log.debug { "result=$result" }
             }
             .run()
 
@@ -80,7 +80,11 @@ class FutureSupportTest {
         cancelled.cancel(true)
 
         assertFailsWith<CancellationException> {
-            cancelled.await()
+            cancelled.awaitSuspending()
+        }
+
+        assertFailsWith<CancellationException> {
+            cancelled.awaitUntil()
         }
     }
 
@@ -91,7 +95,7 @@ class FutureSupportTest {
         val task = FutureTask { "never" }
 
         val job = launch(Dispatchers.IO) {
-            task.awaitSuspending<String>()
+            task.awaitUntil<String>()
         }
 
         // Give the wrapper's virtual thread time to start and block on task.get().
@@ -100,5 +104,27 @@ class FutureSupportTest {
         job.join()
 
         task.isCancelled shouldBeEqualTo true
+    }
+
+    @Test
+    fun `awaitUntilOrNull 시간 제한이 0이면 Future를 취소한다`() = runSuspendDefault {
+        val task = FutureTask { "never" }
+        val result = task.awaitUntilOrNull(0.milliseconds)
+
+        result shouldBeEqualTo null
+        task.isCancelled shouldBeEqualTo true
+    }
+
+    @Test
+    fun `awaitAllUntilOrNull 시간 제한이 0이면 미완료 Future들을 취소한다`() = runSuspendDefault {
+        val task = FutureTask { "never" }
+        val completion = CompletableFuture<String>()
+        val futures = listOf<Future<String>>(task, completion)
+
+        val result = futures.awaitAllUntilOrNull(0.milliseconds)
+
+        result shouldBeEqualTo null
+        task.isCancelled shouldBeEqualTo true
+        completion.isCancelled shouldBeEqualTo true
     }
 }

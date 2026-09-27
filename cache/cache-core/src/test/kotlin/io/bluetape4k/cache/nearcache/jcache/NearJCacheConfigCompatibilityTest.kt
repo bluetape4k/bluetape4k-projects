@@ -3,8 +3,8 @@ package io.bluetape4k.cache.nearcache.jcache
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheManagementMXBean
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationMXBean
+import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheManagementMXBean
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheStatisticsMXBean
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
@@ -494,14 +494,15 @@ class NearJCacheConfigCompatibilityTest {
 
     private fun deserializeAsCurrent(bytes: ByteArray): NearJCacheConfig<String, String> =
         MappingObjectInputStream(ByteArrayInputStream(bytes)).use { input ->
+            @Suppress("UNCHECKED_CAST")
             input.readObject() as NearJCacheConfig<String, String>
         }
 
-    private class MappingObjectInputStream(input: ByteArrayInputStream) : ObjectInputStream(input) {
+    private class MappingObjectInputStream(input: ByteArrayInputStream): ObjectInputStream(input) {
         override fun resolveClass(desc: ObjectStreamClass): Class<*> = super.resolveClass(desc)
     }
 
-    private class LegacyObjectOutputStream(output: ByteArrayOutputStream) : ObjectOutputStream(output) {
+    private class LegacyObjectOutputStream(output: ByteArrayOutputStream): ObjectOutputStream(output) {
         override fun writeClassDescriptor(desc: ObjectStreamClass) {
             if (desc.name != LegacyNearJCacheConfig::class.java.name) {
                 super.writeClassDescriptor(desc)
@@ -529,13 +530,13 @@ class NearJCacheConfigCompatibilityTest {
         val frontCacheConfiguration: MutableConfiguration<String, String>,
         val isSynchronous: Boolean,
         val syncRemoteTimeout: Long,
-    ) : Serializable {
+    ): Serializable {
         companion object {
             private const val serialVersionUID: Long = 1L
         }
     }
 
-    private class SerializableCacheManagerFactory : Factory<CacheManager>, Serializable {
+    private class SerializableCacheManagerFactory: Factory<CacheManager>, Serializable {
         override fun create(): CacheManager = error("fixture factory must not be invoked")
 
         companion object {

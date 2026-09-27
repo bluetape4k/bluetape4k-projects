@@ -11,7 +11,8 @@ import java.util.*
  */
 inline fun publishOptions(
     builder: PublishOptions.Builder.() -> Unit,
-): PublishOptions = PublishOptions.builder().apply(builder).build()
+): PublishOptions =
+    PublishOptions.builder().apply(builder).build()
 
 /**
  * [Properties] 기반으로 [PublishOptions]를 생성합니다.
@@ -23,4 +24,5 @@ inline fun publishOptions(
 inline fun publishOptionsOf(
     properties: Properties,
     builder: PublishOptions.Builder.() -> Unit = {},
-): PublishOptions = PublishOptions.Builder(properties).apply(builder).build()
+): PublishOptions =
+    PublishOptions.Builder(properties).apply(builder).build()

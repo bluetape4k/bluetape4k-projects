@@ -30,14 +30,15 @@ inline fun natsServiceOf(
     version: String,
     vararg serviceEndpoints: ServiceEndpoint,
     builder: ServiceBuilder.() -> Unit = {},
-): Service = natsService {
-    connection(nc)
-    name(name)
-    version(version)
+): Service =
+    natsService {
+        connection(nc)
+        name(name)
+        version(version)
 
-    serviceEndpoints.forEach { serviceEndpoint ->
-        addServiceEndpoint(serviceEndpoint)
+        serviceEndpoints.forEach { serviceEndpoint ->
+            addServiceEndpoint(serviceEndpoint)
+        }
+
+        builder()
     }
-
-    builder()
-}

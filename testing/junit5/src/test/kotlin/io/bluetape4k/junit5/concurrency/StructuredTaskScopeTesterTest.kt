@@ -1,22 +1,24 @@
 package io.bluetape4k.junit5.concurrency
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
-import kotlinx.atomicfu.atomic
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import kotlinx.atomicfu.atomic
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
-import io.bluetape4k.assertions.assertFailsWith
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.measureTimeMillis
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @EnabledForJreRange(min = JRE.JAVA_21)
 class StructuredTaskScopeTesterTest {
+
     companion object: KLogging() {
         private const val REPEAT_SIZE = 5
     }
@@ -96,7 +98,7 @@ class StructuredTaskScopeTesterTest {
 
         StructuredTaskScopeTester()
             .rounds(3)
-            .withTimeout(2_000.milliseconds)
+            .withTimeout(2.seconds)
             .add(block)
             .run()
 
@@ -153,7 +155,7 @@ class StructuredTaskScopeTesterTest {
         override fun invoke() {
             Thread.sleep(1)
             counter.incrementAndGet()
-            log.trace { "Execution count: $count" }
+            log.debug { "Execution count: $count" }
         }
     }
 }

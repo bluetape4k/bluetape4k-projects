@@ -1,30 +1,30 @@
 package io.bluetape4k.redis.lettuce.lock
 
-import io.bluetape4k.junit5.concurrency.MultithreadingTester
-import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.redis.lettuce.AbstractLettuceTest
-import io.bluetape4k.redis.lettuce.LettuceClients
-import io.bluetape4k.redis.lettuce.LettuceTestUtils
-import io.lettuce.core.ExperimentalLettuceCoroutinesApi
-import io.lettuce.core.codec.StringCodec
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.redis.lettuce.AbstractLettuceTest
+import io.bluetape4k.redis.lettuce.LettuceClients
+import io.bluetape4k.redis.lettuce.LettuceTestUtils
+import io.lettuce.core.codec.StringCodec
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.atomic.AtomicInteger
 
-@OptIn(ExperimentalLettuceCoroutinesApi::class)
 class LettuceLockTest: AbstractLettuceTest() {
 
     companion object: KLogging() {
-        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+        private val connection by lazy {
+            LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8)
+        }
     }
 
     private lateinit var lock: LettuceLock

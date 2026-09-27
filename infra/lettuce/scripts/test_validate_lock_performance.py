@@ -10,7 +10,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-
 SCRIPT = Path(__file__).with_name("validate-lock-performance.py")
 SPEC = importlib.util.spec_from_file_location("validate_lock_performance", SCRIPT)
 validator = importlib.util.module_from_spec(SPEC)
@@ -171,7 +170,8 @@ class ValidatorTest(unittest.TestCase):
         self.assert_invalid(lambda report: report["scheduler"].update(missed=1), "SCHEDULER")
         self.assert_invalid(lambda report: report["scheduler"].update(watchdogTickDispatch=257), "SCHEDULER")
         self.assert_invalid(lambda report: report["scheduler"].update(watchdogMissed=1), "SCHEDULER")
-        self.assert_invalid(lambda report: report["scheduler"].update(redisCompletionSafetyMarginMillis=999), "SCHEDULER")
+        self.assert_invalid(lambda report: report["scheduler"].update(redisCompletionSafetyMarginMillis=999),
+                            "SCHEDULER")
 
     def test_rejects_incomplete_cleanup(self):
         self.assert_invalid(lambda report: report["cleanup"].update(redisStateEntries=1), "CLEANUP")

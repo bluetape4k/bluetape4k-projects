@@ -17,7 +17,7 @@ import java.time.Duration
 class VertxFutureRateLimiterSupportTest: AbstractVertxFutureTest() {
 
     companion object: KLoggingChannel() {
-        private const val RATE_LIMIT = 10
+        private const val RATE_LIMIT = 3
     }
 
     private fun noWaitConfig() = RateLimiterConfig {

@@ -6,7 +6,7 @@ import io.bluetape4k.testcontainers.aws.MiniStackServer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 
-abstract class AbstractMiniStackServiceTest : AbstractContainerTest() {
+abstract class AbstractMiniStackServiceTest: AbstractContainerTest() {
 
     companion object: KLogging()
 
@@ -19,7 +19,7 @@ abstract class AbstractMiniStackServiceTest : AbstractContainerTest() {
 
     @AfterAll
     fun afterAll() {
-        if(this::miniStack.isInitialized && miniStack.isRunning) {
+        if (this::miniStack.isInitialized && miniStack.isRunning) {
             miniStack.close()
         }
     }

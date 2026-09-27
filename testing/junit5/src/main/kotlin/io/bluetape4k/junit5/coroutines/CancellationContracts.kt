@@ -4,7 +4,6 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
@@ -89,12 +88,12 @@ suspend fun <T> assertCancellationPropagates(
 
     coroutineScope {
         val job = launch(start = CoroutineStart.UNDISPATCHED) {
-            try {
-                outcome = Result.success(operation())
+            outcome = try {
+                Result.success(operation())
             } catch (e: CancellationException) {
-                outcome = Result.failure(e)
+                Result.failure(e)
             } catch (e: Throwable) {
-                outcome = Result.failure(e)
+                Result.failure(e)
             }
         }
 
@@ -177,12 +176,12 @@ suspend fun <T> assertResourceCancelledOnCoroutineCancellation(
 
     coroutineScope {
         val job = launch(start = CoroutineStart.UNDISPATCHED) {
-            try {
-                outcome = Result.success(operation())
+            outcome = try {
+                Result.success(operation())
             } catch (e: CancellationException) {
-                outcome = Result.failure(e)
+                Result.failure(e)
             } catch (e: Throwable) {
-                outcome = Result.failure(e)
+                Result.failure(e)
             }
         }
 

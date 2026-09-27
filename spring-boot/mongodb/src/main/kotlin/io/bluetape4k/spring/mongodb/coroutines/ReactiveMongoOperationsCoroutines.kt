@@ -44,7 +44,8 @@ import org.springframework.data.mongodb.core.upsert
  * users.collect { println(it) }
  * ```
  */
-inline fun <reified T: Any> ReactiveMongoOperations.findAsFlow(query: Query): Flow<T> = find<T>(query).asFlow()
+inline fun <reified T: Any> ReactiveMongoOperations.findAsFlow(query: Query): Flow<T> =
+    find<T>(query).asFlow()
 
 /**
  * [Query] 조건에 맞는 문서를 지정한 컬렉션에서 [Flow]로 반환합니다.
@@ -71,7 +72,8 @@ inline fun <reified T: Any> ReactiveMongoOperations.findAsFlow(
  * val allUsers: Flow<User> = mongoOps.findAllAsFlow<User>()
  * ```
  */
-inline fun <reified T: Any> ReactiveMongoOperations.findAllAsFlow(): Flow<T> = findAll<T>().asFlow()
+inline fun <reified T: Any> ReactiveMongoOperations.findAllAsFlow(): Flow<T> =
+    findAll<T>().asFlow()
 
 // ====================================================
 // 조회 - Suspend (단건)
@@ -174,7 +176,8 @@ suspend inline fun <reified T: Any> ReactiveMongoOperations.existsSuspending(que
  * val saved: User = mongoOps.insertSuspending(User(name = "Alice", age = 30))
  * ```
  */
-suspend fun <T: Any> ReactiveMongoOperations.insertSuspending(entity: T): T = insert(entity).awaitSingle()
+suspend fun <T: Any> ReactiveMongoOperations.insertSuspending(entity: T): T =
+    insert(entity).awaitSingle()
 
 /**
  * 여러 엔티티를 삽입하고 저장된 엔티티를 [Flow]로 반환합니다.
@@ -186,7 +189,8 @@ suspend fun <T: Any> ReactiveMongoOperations.insertSuspending(entity: T): T = in
  * val savedUsers: Flow<User> = mongoOps.insertAllAsFlow(listOf(user1, user2))
  * ```
  */
-fun <T: Any> ReactiveMongoOperations.insertAllAsFlow(entities: Collection<T>): Flow<T> = insertAll(entities).asFlow()
+fun <T: Any> ReactiveMongoOperations.insertAllAsFlow(entities: Collection<T>): Flow<T> =
+    insertAll(entities).asFlow()
 
 /**
  * 엔티티를 저장합니다 (삽입 또는 업데이트).
@@ -198,7 +202,8 @@ fun <T: Any> ReactiveMongoOperations.insertAllAsFlow(entities: Collection<T>): F
  * val saved: User = mongoOps.saveSuspending(user)
  * ```
  */
-suspend fun <T: Any> ReactiveMongoOperations.saveSuspending(entity: T): T = save(entity).awaitSingle()
+suspend fun <T: Any> ReactiveMongoOperations.saveSuspending(entity: T): T =
+    save(entity).awaitSingle()
 
 // ====================================================
 // 쓰기 - Update/Upsert
@@ -220,7 +225,8 @@ suspend fun <T: Any> ReactiveMongoOperations.saveSuspending(entity: T): T = save
 suspend inline fun <reified T: Any> ReactiveMongoOperations.updateFirstSuspending(
     query: Query,
     update: UpdateDefinition,
-): UpdateResult = updateFirst<T>(query, update).awaitSingle()
+): UpdateResult =
+    updateFirst<T>(query, update).awaitSingle()
 
 /**
  * [Query] 조건에 맞는 모든 문서를 업데이트합니다.
@@ -238,7 +244,8 @@ suspend inline fun <reified T: Any> ReactiveMongoOperations.updateFirstSuspendin
 suspend inline fun <reified T: Any> ReactiveMongoOperations.updateMultiSuspending(
     query: Query,
     update: UpdateDefinition,
-): UpdateResult = updateMulti<T>(query, update).awaitSingle()
+): UpdateResult =
+    updateMulti<T>(query, update).awaitSingle()
 
 /**
  * [Query] 조건에 맞는 문서를 업데이트하거나, 없으면 삽입합니다.
@@ -288,7 +295,8 @@ suspend inline fun <reified T: Any> ReactiveMongoOperations.removeSuspending(que
  * val result: DeleteResult = mongoOps.removeSuspending(user)
  * ```
  */
-suspend fun <T: Any> ReactiveMongoOperations.removeSuspending(entity: T): DeleteResult = remove(entity).awaitSingle()
+suspend fun <T: Any> ReactiveMongoOperations.removeSuspending(entity: T): DeleteResult =
+    remove(entity).awaitSingle()
 
 // ====================================================
 // 조회 + 수정/삭제 (Atomic)
@@ -405,7 +413,8 @@ inline fun <reified O: Any> ReactiveMongoOperations.aggregateAsFlow(aggregation:
  * events.collect { event -> processEvent(event) }
  * ```
  */
-inline fun <reified T: Any> ReactiveMongoOperations.tailAsFlow(query: Query): Flow<T> = tail<T>(query).asFlow()
+inline fun <reified T: Any> ReactiveMongoOperations.tailAsFlow(query: Query): Flow<T> =
+    tail<T>(query).asFlow()
 
 // ====================================================
 // 컬렉션 관리

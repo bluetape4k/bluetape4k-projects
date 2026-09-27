@@ -9,8 +9,7 @@ English | [한국어](./README.ko.md)
 
 ## Package / Import Stability
 
-The cache folder reorganization moved this module under `cache/cache-hazelcast/`,
-but the Gradle project name, Maven artifact ID, and Kotlin packages remain stable:
+The cache folder reorganization moved this module under `cache/cache-hazelcast/`, but the Gradle project name, Maven artifact ID, and Kotlin packages remain stable:
 
 - Gradle project: `:bluetape4k-cache-hazelcast`
 - Maven artifact: `io.github.bluetape4k:bluetape4k-cache-hazelcast`
@@ -77,33 +76,24 @@ dependencies {
 ## JCache-Based NearCache (`nearcache.jcache` package)
 
 `NearJCache<K,V>` and
-`SuspendNearJCache<K,V>` directly implement the JCache interface with a Caffeine(front) + Hazelcast IMap(back) structure.
+`SuspendNearJCache<K,V>` directly implement the JCache interface with a Caffeine (front) + Hazelcast IMap (back) structure.
 
-The class and runtime diagrams above include the JCache adapters and the listener-related caveat, including why
-factory-created `SuspendNearJCache` uses `withoutListener(front, back)` for the Hazelcast client case.
+The class and runtime diagrams above include the JCache adapters and the listener-related caveat, including why factory-created `SuspendNearJCache` uses `withoutListener(front, back)` for the Hazelcast client case.
 
 ## Near-Cache Capability
 
 Hazelcast IMap native near caches are fully supported by the shared
 `NearCacheOperations` / `SuspendNearCacheOperations` conformance suites.
 
-Hazelcast JCache near-cache factories are intentionally listener-free because
-Hazelcast distributes JCache listener configuration through serialization and
-the current listener captures non-serializable front-cache state. Factory-created
-JCache near caches, including `HazelcastCaches.nearJCache(...)` and
-`HazelcastNearJCache(...)`, support read-through and write-through, but peer
-front-cache propagation is not promised. Direct listener-backed construction is
-unsupported and covered by explicit tests.
+Hazelcast JCache near-cache factories are intentionally listener-free because Hazelcast distributes JCache listener configuration through serialization and the current listener captures non-serializable front-cache state. Factory-created JCache near caches, including `HazelcastCaches.nearJCache(...)` and
+`HazelcastNearJCache(...)`, support read-through and write-through, but peer front-cache propagation is not promised. Direct listener-backed construction is unsupported and covered by explicit tests.
 
-The factory-created wrapper owns only its front cache for lifecycle purposes.
-Calling `close()` does not close the supplied Hazelcast instance or back cache.
-Cleanup failures are propagated with the first failure as primary and later
-failures as suppressed; a successful close is idempotent. If construction fails
-after front creation, rollback follows the same exception policy.
+The factory-created wrapper owns only its front cache for lifecycle purposes. Calling `close()` does not close the supplied Hazelcast instance or back cache. Cleanup failures are propagated with the first failure as primary and later failures as suppressed; a successful close is idempotent. If construction fails after front creation, rollback follows the same exception policy.
 
 See the full [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md).
 
 <!-- issue-1369-bulk-policy:start -->
+
 ## Bounded bulk front residency
 
 <!-- contract: default-bypass; bounded-all-or-nothing; single-key-get-unchanged; repeated-back-read; legacy-safe-default -->
@@ -115,28 +105,20 @@ val cache = HazelcastCaches.nearJCache<String, User>(hazelcastInstance) {
 }
 ```
 
-`BulkFrontPopulationPolicy.BypassFront` is the safe default for new config and
-a restored legacy stream. It returns every hit but can cause repeated back reads
-on repeated `getAll` calls. `BulkFrontPopulationPolicy.PopulateIfAtMost(n)`
-stores all bulk back hits only when `backValues.size <= n`; it never stores a
-partial oversized batch. This entry count is not resident byte size or a back
-query size limit. Single-key `get()` population is unchanged.
+`BulkFrontPopulationPolicy.BypassFront` is the safe default for new config and a restored legacy stream. It returns every hit but can cause repeated back reads on repeated `getAll` calls. `BulkFrontPopulationPolicy.PopulateIfAtMost(n)`
+stores all bulk back hits only when `backValues.size <= n`; it never stores a partial oversized batch. This entry count is not resident byte size or a back query size limit. Single-key `get()` population is unchanged.
 
 The configuration MXBean reports `BYPASS_FRONT` or `POPULATE_IF_AT_MOST` and
-`bulkFrontPopulationMaximumEntryCount`; `0` means not applicable for bypass.
-Choose a bound only after reviewing Caffeine capacity and local heap budget.
+`bulkFrontPopulationMaximumEntryCount`; `0` means not applicable for bypass. Choose a bound only after reviewing Caffeine capacity and local heap budget.
 <!-- issue-1369-bulk-policy:end -->
 
 <!-- nearjcache-clear-authority-contract -->
+
 ### #1368 Hazelcast NearJCache clear authority
 
-`HazelcastCaches.nearJCache` defaults to `NearJCacheClearAuthority.DENY` and does
-not infer Hazelcast namespace ownership. `clear()`, `clearAllCache()`, and no-arg
+`HazelcastCaches.nearJCache` defaults to `NearJCacheClearAuthority.DENY` and does not infer Hazelcast namespace ownership. `clear()`, `clearAllCache()`, and no-arg
 `removeAll()` raise `SecurityException`; an exclusive owner must opt in with
-`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE`. Key-scoped `removeAll(keys)` is
-safe for a shared namespace. Listener-free factory creation does not change this
-authority, and `close()` closes only the wrapper front, not the Hazelcast back or
-instance.
+`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE`. Key-scoped `removeAll(keys)` is safe for a shared namespace. Listener-free factory creation does not change this authority, and `close()` closes only the wrapper front, not the Hazelcast back or instance.
 
 ```kotlin
 val shared = HazelcastCaches.nearJCache<String, User>(hazelcastInstance)
@@ -147,6 +129,7 @@ val owner = HazelcastCaches.nearJCache<String, User>(
 ) { cacheName = "users-owner" }
 owner.clear()
 ```
+
 <!-- /nearjcache-clear-authority-contract -->
 
 ## Class Structure

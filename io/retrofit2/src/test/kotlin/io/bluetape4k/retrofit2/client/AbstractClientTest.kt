@@ -8,6 +8,7 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.http.okhttp3.mock.baseUrl
 import io.bluetape4k.http.okhttp3.mock.enqueueBody
 import io.bluetape4k.io.compressor.Compressors
+import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -163,27 +164,28 @@ abstract class AbstractClientTest: AbstractRetrofitTest() {
 
     @Test
     fun `parse response missing length`() {
-        server.enqueue(MockResponse().setChunkedBody("foo", 1))
+        val body = Fakers.randomString(1024)
+        server.enqueue(MockResponse().setChunkedBody(body, 1))
 
         val response = api.post("testing").execute()
 
         response.code() shouldBeEqualTo 200
         response.message() shouldBeEqualTo "OK"
-        response.body() shouldBeEqualTo "foo"
+        response.body() shouldBeEqualTo body
     }
-
 
     @Test
     fun `response length not provided`() {
-        server.enqueue(MockResponse().setBody("test"))
+        val body = Fakers.randomString(1024)
+        server.enqueue(MockResponse().setBody(body))
 
         val response = api.post("").execute()
-        response.body()?.length shouldBeEqualTo 4
+        response.body()?.length shouldBeEqualTo body.length
     }
 
     @Test
     fun `contentType with charset`() {
-        val expected = "AAAAAAA"
+        val expected = Fakers.randomString(1024)
         server.enqueue(MockResponse().setBody(expected))
 
         val response = api.postWithContentType("foo", "text/plain; charset=utf-8").execute()
@@ -195,7 +197,7 @@ abstract class AbstractClientTest: AbstractRetrofitTest() {
     fun `content type defaults to request charset`() {
         server.enqueueBody("foo", "content-type: text/plain; charset=utf-8")
 
-        val expectedBody = "안녕하세요-àáâãäåèéêë"
+        val expectedBody = Fakers.randomString(1024)
         api.postWithContentType(expectedBody, "text/plain; charset=utf-8").execute()
 
         server.takeRequest().body.readUtf8() shouldBeEqualTo expectedBody
@@ -203,7 +205,7 @@ abstract class AbstractClientTest: AbstractRetrofitTest() {
 
     @Test
     fun `default collection format`() {
-        server.enqueue(MockResponse().setBody("body"))
+        server.enqueue(MockResponse().setBody(Fakers.randomString(1024)))
 
         val response = api.get(listOf("bar", "baz")).execute()
 
@@ -215,7 +217,7 @@ abstract class AbstractClientTest: AbstractRetrofitTest() {
 
     @Test
     fun `headers with null params`() {
-        server.enqueue(MockResponse().setBody("body"))
+        server.enqueue(MockResponse().setBody(Fakers.randomString(1024)))
 
         val response = api.getWithHeaders(null).execute()
 
@@ -231,7 +233,7 @@ abstract class AbstractClientTest: AbstractRetrofitTest() {
 
     @Test
     fun `can support Gzip`() {
-        val responseData = "Compressed Data"
+        val responseData = Fakers.randomString(1024)
         server.enqueue(
             MockResponse()
                 .addHeader("Content-Encoding", "gzip")
@@ -244,7 +246,7 @@ abstract class AbstractClientTest: AbstractRetrofitTest() {
 
     @Test
     open fun `can support Deflate`() {
-        val responseData = "Compressed Data"
+        val responseData = Fakers.randomString(1024)
         val compressed = deflate(responseData)
         log.debug { "compresed=${compressed.toUtf8String()}" }
         server.enqueue(
@@ -260,7 +262,7 @@ abstract class AbstractClientTest: AbstractRetrofitTest() {
 
     @Test
     fun `can except case insensitive header`() {
-        val responseData = "Compressed Data"
+        val responseData = Fakers.randomString(1024)
         server.enqueue(
             MockResponse()
                 .addHeader("content-encoding", "gzip")

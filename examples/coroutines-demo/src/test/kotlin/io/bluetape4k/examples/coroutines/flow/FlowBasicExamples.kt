@@ -1,6 +1,7 @@
 package io.bluetape4k.examples.coroutines.flow
 
 import io.bluetape4k.coroutines.flow.extensions.log
+import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
@@ -31,7 +32,7 @@ class FlowBasicExamples {
 
     @BeforeEach
     fun setup() {
-        sequence = 0L
+        sequencer.value = 0L
     }
 
     /**
@@ -48,7 +49,7 @@ class FlowBasicExamples {
         }
         advanceTimeBy(100.milliseconds)
         for (elem in channel) {
-            log.debug { "receive=$elem" }
+            log.debug { "received item=$elem" }
         }
     }
 
@@ -63,17 +64,22 @@ class FlowBasicExamples {
                 log.debug { "emit $x" }
                 emit(x)
             }
-        }
+        }.log("cold flow")
+
         advanceTimeBy(100.milliseconds) // 의미없다
+        flow.collect { elem ->
+            log.debug { "collect=$elem" }
+        }
+
         flow.collect { elem ->
             log.debug { "collect=$elem" }
         }
     }
 
     private fun makeFlow() = flow {
-        for (i in 1..3) {
+        repeat(3) {
             delay(1000.milliseconds)
-            emit(i)
+            emit(it + 1)
         }
     }
 
@@ -91,6 +97,7 @@ class FlowBasicExamples {
         }
 
         advanceTimeBy(1000.milliseconds)
+        log.debug { "" }
         log.debug { "Collect flow at seconds ..." }
         flow.collect { value ->
             log.debug { "👀#2 collect $value" }
@@ -104,16 +111,18 @@ class FlowBasicExamples {
     fun `flow {} 는 빌더이므로 collect 시마다 새로 flow를 생성합니다`() = runTest {
         coroutineScope {
             val flow = makeFlow().log("#1")
+
             launch {
                 flow.collect { value ->
                     log.debug { "👀#1 collect $value" }
                 }
-            }
+            }.log("job 1")
+
             launch {
                 flow.collect { value ->
                     log.debug { "👀#2 collect $value" }
                 }
-            }
+            }.log("job 2")
         }
     }
 }

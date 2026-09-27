@@ -1,12 +1,12 @@
 package io.bluetape4k.spring.beans
 
-import java.lang.reflect.AnnotatedElement
-import java.lang.reflect.Method
 import org.springframework.beans.PropertyAccessorFactory
 import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.core.annotation.AnnotationUtils
 import org.springframework.util.ReflectionUtils
 import org.springframework.util.StringValueResolver
+import java.lang.reflect.AnnotatedElement
+import java.lang.reflect.Method
 
 /**
  * 지정한 애너테이션 타입의 merged annotation 을 찾습니다.
@@ -19,7 +19,7 @@ import org.springframework.util.StringValueResolver
  * val mapping = method.findMergedAnnotationOrNull<RequestMapping>()
  * ```
  */
-inline fun <reified A : Annotation> AnnotatedElement.findMergedAnnotationOrNull(): A? =
+inline fun <reified A: Annotation> AnnotatedElement.findMergedAnnotationOrNull(): A? =
     AnnotatedElementUtils.findMergedAnnotation(this, A::class.java)
 
 /**
@@ -35,7 +35,7 @@ inline fun <reified A : Annotation> AnnotatedElement.findMergedAnnotationOrNull(
  * }
  * ```
  */
-inline fun <reified A : Annotation> AnnotatedElement.hasMergedAnnotation(): Boolean =
+inline fun <reified A: Annotation> AnnotatedElement.hasMergedAnnotation(): Boolean =
     AnnotatedElementUtils.hasAnnotation(this, A::class.java)
 
 /**
@@ -49,7 +49,7 @@ inline fun <reified A : Annotation> AnnotatedElement.hasMergedAnnotation(): Bool
  * val mapping = method.getMergedAnnotation<RequestMapping>()
  * ```
  */
-inline fun <reified A : Annotation> AnnotatedElement.getMergedAnnotation(): A? =
+inline fun <reified A: Annotation> AnnotatedElement.getMergedAnnotation(): A? =
     AnnotatedElementUtils.getMergedAnnotation(this, A::class.java)
 
 /**
@@ -63,7 +63,7 @@ inline fun <reified A : Annotation> AnnotatedElement.getMergedAnnotation(): A? =
  * val mappings = method.findAllMergedAnnotations<RequestMapping>()
  * ```
  */
-inline fun <reified A : Annotation> AnnotatedElement.findAllMergedAnnotations(): Set<A> =
+inline fun <reified A: Annotation> AnnotatedElement.findAllMergedAnnotations(): Set<A> =
     AnnotatedElementUtils.findAllMergedAnnotations(this, A::class.java)
 
 /**
@@ -77,7 +77,7 @@ inline fun <reified A : Annotation> AnnotatedElement.findAllMergedAnnotations():
  * val annotation = element.findAnnotationOrNull<MyAnnotation>()
  * ```
  */
-inline fun <reified A : Annotation> AnnotatedElement.findAnnotationOrNull(): A? =
+inline fun <reified A: Annotation> AnnotatedElement.findAnnotationOrNull(): A? =
     AnnotationUtils.findAnnotation(this, A::class.java)
 
 /**
@@ -91,7 +91,7 @@ inline fun <reified A : Annotation> AnnotatedElement.findAnnotationOrNull(): A? 
  * val annotation = method.findAnnotationOrNull<MyAnnotation>()
  * ```
  */
-inline fun <reified A : Annotation> Method.findAnnotationOrNull(): A? =
+inline fun <reified A: Annotation> Method.findAnnotationOrNull(): A? =
     AnnotationUtils.findAnnotation(this, A::class.java)
 
 /**
@@ -105,7 +105,7 @@ inline fun <reified A : Annotation> Method.findAnnotationOrNull(): A? =
  * val annotation = beanClass.findAnnotationOrNull<MyAnnotation>()
  * ```
  */
-inline fun <reified A : Annotation> Class<*>.findAnnotationOrNull(): A? =
+inline fun <reified A: Annotation> Class<*>.findAnnotationOrNull(): A? =
     AnnotationUtils.findAnnotation(this, A::class.java)
 
 /**
@@ -119,7 +119,7 @@ inline fun <reified A : Annotation> Class<*>.findAnnotationOrNull(): A? =
  * val annotation = element.getAnnotationOrNull<MyAnnotation>()
  * ```
  */
-inline fun <reified A : Annotation> AnnotatedElement.getAnnotationOrNull(): A? =
+inline fun <reified A: Annotation> AnnotatedElement.getAnnotationOrNull(): A? =
     AnnotationUtils.getAnnotation(this, A::class.java)
 
 /**
@@ -133,7 +133,7 @@ inline fun <reified A : Annotation> AnnotatedElement.getAnnotationOrNull(): A? =
  * val annotation = method.getAnnotationOrNull<MyAnnotation>()
  * ```
  */
-inline fun <reified A : Annotation> Method.getAnnotationOrNull(): A? =
+inline fun <reified A: Annotation> Method.getAnnotationOrNull(): A? =
     AnnotationUtils.getAnnotation(this, A::class.java)
 
 /**

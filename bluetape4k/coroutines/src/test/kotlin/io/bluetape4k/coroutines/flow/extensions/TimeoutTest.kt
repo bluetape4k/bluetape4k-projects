@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
@@ -27,7 +28,9 @@ class TimeoutTest: AbstractFlowTest() {
                 emit(2)
                 delay(60.milliseconds)
                 emit(3)
-            }.timeout(50.milliseconds).toList()
+            }
+                .timeout(50.milliseconds)
+                .toList()
         }
 
         error.timeout shouldBeEqualTo 50.milliseconds
@@ -53,7 +56,7 @@ class TimeoutTest: AbstractFlowTest() {
             },
         ).toList()
 
-        cleaned shouldBeEqualTo true
+        cleaned.shouldBeTrue()
         fallbackSubscriptions shouldBeEqualTo 1
         result shouldBeEqualTo listOf(1, 9, 10)
     }
@@ -74,14 +77,22 @@ class TimeoutTest: AbstractFlowTest() {
 
     @Test
     fun `caller cancellation is not converted to timeout`() = runTest {
-        val job = launch { flow<Int> { awaitCancellation() }.timeout(1.hours).collect() }
+        val job = launch {
+            flow<Int> { awaitCancellation() }
+                .timeout(1.hours)
+                .collect()
+        }
         job.cancelAndJoin()
-        job.isCancelled shouldBeEqualTo true
+        job.isCancelled.shouldBeTrue()
     }
 
     @Test
     fun `invalid timeout is rejected`() = runTest {
-        assertFailsWith<IllegalArgumentException> { flowOf(1).timeout(Duration.ZERO).toList() }
+        assertFailsWith<IllegalArgumentException> {
+            flowOf(1)
+                .timeout(Duration.ZERO)
+                .toList()
+        }
     }
 
     @Test

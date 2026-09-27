@@ -3,7 +3,7 @@ package io.bluetape4k.protobuf.serializers
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.io.serializer.BinarySerializationException
 import io.bluetape4k.io.serializer.BinarySerializers
@@ -18,6 +18,7 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
 class ProtobufSerializerTest {
+
     companion object: KLogging() {
         private const val REPEAT_SIZE = 5
     }
@@ -35,37 +36,34 @@ class ProtobufSerializerTest {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `serialize proto message`() {
-        val message =
-            testMessage {
-                id = Fakers.random.nextLong()
-                name = Fakers.randomString(1024, 2048, true)
-            }
+        val message = testMessage {
+            id = Fakers.random.nextLong()
+            name = Fakers.randomString(1024, 2048, true)
+        }
 
         val bytes = serializer.serialize(message)
         log.debug { "bytes size=${bytes.size}" }
 
-        val actual = serializer.deserialize<TestMessage>(bytes)!!
+        val actual = serializer.deserialize<TestMessage>(bytes).shouldNotBeNull()
         actual shouldBeEqualTo message
     }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `serialize proto nested message`() {
-        val message =
-            testMessage {
-                id = Fakers.random.nextLong()
-                name = Fakers.randomString(1024, 2048, true)
-            }
-        val nestedMessage =
-            nestedMessage {
-                id = Fakers.random.nextLong()
-                name = Fakers.randomString(1024, 2048, true)
-                nested = message
-            }
+        val message = testMessage {
+            id = Fakers.random.nextLong()
+            name = Fakers.randomString(1024, 2048, true)
+        }
+        val nestedMessage = nestedMessage {
+            id = Fakers.random.nextLong()
+            name = Fakers.randomString(1024, 2048, true)
+            nested = message
+        }
 
         val bytes = serializer.serialize(nestedMessage)
         log.debug { "bytes size=${bytes.size}" }
 
-        val actual = serializer.deserialize<NestedMessage>(bytes)!!
+        val actual = serializer.deserialize<NestedMessage>(bytes).shouldNotBeNull()
         actual shouldBeEqualTo nestedMessage
         actual.nested shouldBeEqualTo message
     }
@@ -93,6 +91,11 @@ class ProtobufSerializerTest {
         assertFailsWith<BinarySerializationException> {
             serializer.deserialize<SimpleData>(bytes)
         }
+
+        val bytes2 = BinarySerializers.FastFory.serialize(origin)
+        assertFailsWith<BinarySerializationException> {
+            serializer.deserialize<SimpleData>(bytes2)
+        }
     }
 
     @Test
@@ -101,8 +104,7 @@ class ProtobufSerializerTest {
         val trustedInternalSerializer = ProtobufSerializer.trustedInternalProtobuf()
 
         val bytes = trustedInternalSerializer.serialize(origin)
-        bytes.shouldNotBeNull()
-        (bytes.isNotEmpty()).shouldBeTrue()
+        bytes.shouldNotBeEmpty()
 
         val actual = trustedInternalSerializer.deserialize<SimpleData>(bytes)
         actual shouldBeEqualTo origin
@@ -110,13 +112,11 @@ class ProtobufSerializerTest {
 
     @Test
     fun `serialize - 직렬화된 바이트 배열은 비어있지 않다`() {
-        val message =
-            testMessage {
-                id = 42L
-                name = "test"
-            }
+        val message = testMessage {
+            id = 42L
+            name = "test"
+        }
         val bytes = serializer.serialize(message)
-        bytes.shouldNotBeNull()
-        (bytes.isNotEmpty()).shouldBeTrue()
+        bytes.shouldNotBeEmpty()
     }
 }

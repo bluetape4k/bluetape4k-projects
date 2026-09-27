@@ -19,7 +19,7 @@ class TurnstileExampleTest {
     }
 
     sealed class E {
-        data object Coin: E();
+        data object Coin: E()
         data object Push: E()
     }
 

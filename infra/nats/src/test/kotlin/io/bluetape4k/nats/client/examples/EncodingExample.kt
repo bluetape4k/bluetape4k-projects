@@ -1,5 +1,6 @@
 package io.bluetape4k.nats.client.examples
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.jackson3.Jackson
@@ -11,13 +12,12 @@ import io.bluetape4k.nats.client.api.streamConfiguration
 import io.bluetape4k.nats.client.tryPurgeStream
 import io.nats.client.JetStream
 import io.nats.client.api.StorageType
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Nested
-import tools.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import tools.jackson.module.kotlin.readValue
 import java.io.Serializable
 import java.time.Duration
 

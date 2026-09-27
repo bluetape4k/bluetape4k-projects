@@ -1,10 +1,11 @@
 package io.bluetape4k.kafka
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.testcontainers.mq.KafkaServer
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.mq.KafkaServer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -13,12 +14,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import java.util.Properties
+import java.util.*
 
 /**
  * [ConsumerSupport] 및 Consumer 관련 유틸리티 함수에 대한 테스트 클래스입니다.
  */
 class ConsumerSupportTest: AbstractKafkaTest() {
+
     companion object: KLoggingChannel()
 
     private lateinit var producer: org.apache.kafka.clients.producer.Producer<String, String>
@@ -28,16 +30,15 @@ class ConsumerSupportTest: AbstractKafkaTest() {
     @BeforeEach
     fun setup() {
         producer = KafkaServer.Launcher.createStringProducer()
-        consumer =
-            consumerOf<String, String>(
-                mapOf(
-                    "bootstrap.servers" to KafkaServer.Launcher.kafka.bootstrapServers,
-                    "group.id" to testGroupId,
-                    "key.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
-                    "value.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
-                    "auto.offset.reset" to "earliest",
-                ),
-            )
+        consumer = consumerOf(
+            mapOf(
+                "bootstrap.servers" to KafkaServer.Launcher.kafka.bootstrapServers,
+                "group.id" to testGroupId,
+                "key.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
+                "value.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
+                "auto.offset.reset" to "earliest",
+            ),
+        )
         consumer.subscribe(listOf(TEST_TOPIC_NAME))
     }
 
@@ -49,16 +50,15 @@ class ConsumerSupportTest: AbstractKafkaTest() {
 
     @RepeatedTest(REPEAT_SIZE)
     fun `consumerOf로 Consumer 생성`() {
-        val customConsumer =
-            consumerOf<String, String>(
-                mapOf(
-                    "bootstrap.servers" to KafkaServer.Launcher.kafka.bootstrapServers,
-                    "group.id" to "$testGroupId-custom",
-                    "key.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
-                    "value.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
-                    "auto.offset.reset" to "earliest",
-                ),
-            )
+        val customConsumer = consumerOf<String, String>(
+            mapOf(
+                "bootstrap.servers" to KafkaServer.Launcher.kafka.bootstrapServers,
+                "group.id" to "$testGroupId-custom",
+                "key.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
+                "value.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
+                "auto.offset.reset" to "earliest",
+            ),
+        )
 
         customConsumer.shouldNotBeNull()
         customConsumer.close()
@@ -68,9 +68,10 @@ class ConsumerSupportTest: AbstractKafkaTest() {
     fun `Consumer는 토픽에서 메시지를 수신`() {
         // 메시지 전송
         val key = "test-key"
-        val value = "test-value-${System.currentTimeMillis()}"
+        val value = "test-value-${Base58.randomString(8)}"
         val record = ProducerRecord(TEST_TOPIC_NAME, key, value)
-        producer.send(record).get()
+        val result = producer.send(record).get()
+        log.debug { "seond result: $result" }
         producer.flush()
 
         // 메시지 수신
@@ -87,6 +88,7 @@ class ConsumerSupportTest: AbstractKafkaTest() {
             }
         }
 
+        log.debug { "receivedRecord: $receivedRecord" }
         receivedRecord.shouldNotBeNull()
         receivedRecord.key() shouldBeEqualTo key
         receivedRecord.value() shouldBeEqualTo value
@@ -96,7 +98,8 @@ class ConsumerSupportTest: AbstractKafkaTest() {
     @Test
     fun `Consumer 구독 목록 확인`() {
         val subscription = consumer.subscription()
-        subscription.shouldNotBeEmpty()
+
+        subscription.forEach { log.debug { "subscription: $it" } }
         subscription shouldBeEqualTo setOf(TEST_TOPIC_NAME)
     }
 
@@ -107,10 +110,11 @@ class ConsumerSupportTest: AbstractKafkaTest() {
 
         // 메시지 전송
         repeat(messageCount) { i ->
-            val value = "message-$i-${System.currentTimeMillis()}"
+            val value = "message-$i-${Base58.randomString(8)}"
             sentMessages.add(value)
             val record = ProducerRecord(TEST_TOPIC_NAME, "key-$i", value)
-            producer.send(record).get()
+            val result = producer.send(record).get()
+            log.debug { "result: $result" }
         }
         producer.flush()
 
@@ -127,6 +131,7 @@ class ConsumerSupportTest: AbstractKafkaTest() {
             }
         }
 
+        receivedMessages.forEach { log.debug { "receivedMessages: $it" } }
         receivedMessages.size shouldBeEqualTo messageCount
     }
 
@@ -152,16 +157,15 @@ class ConsumerSupportTest: AbstractKafkaTest() {
 
     @Test
     fun `Consumer는 정상적으로 종료`() {
-        val testConsumer =
-            consumerOf<String, String>(
-                mapOf(
-                    "bootstrap.servers" to KafkaServer.Launcher.kafka.bootstrapServers,
-                    "group.id" to "$testGroupId-close-test",
-                    "key.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
-                    "value.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
-                    "auto.offset.reset" to "earliest",
-                ),
-            )
+        val testConsumer = consumerOf<String, String>(
+            mapOf(
+                "bootstrap.servers" to KafkaServer.Launcher.kafka.bootstrapServers,
+                "group.id" to "$testGroupId-close-test",
+                "key.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
+                "value.deserializer" to org.apache.kafka.common.serialization.StringDeserializer::class.java,
+                "auto.offset.reset" to "earliest",
+            ),
+        )
         testConsumer.shouldNotBeNull()
         testConsumer.close()
     }

@@ -54,9 +54,8 @@ class SpelCondition private constructor(
             beanResolver?.run { context.setBeanResolver(this) }
             compiledExpr.getValue(context, Boolean::class.java) ?: false
         } catch (e: Exception) {
-            log.warn {
-                "Fail to evaluate SpEL expression. ${expression.toRuleSourceLogContext()}, " +
-                        "exceptionType=${e.javaClass.name}, factCount=${facts.size}"
+            log.warn(e) {
+                "Fail to evaluate SpEL expression. ${expression.toRuleSourceLogContext()}, factCount=${facts.size}"
             }
             false
         }

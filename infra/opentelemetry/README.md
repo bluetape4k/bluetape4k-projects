@@ -12,8 +12,8 @@ English | [한국어](./README.ko.md)
 - **Flow tracing**: `Flow.traced()` / `Flow.tracedCollect()` — 1 collect = 1 Span
 - **Span management**: `use` pattern for automatic resource cleanup
 - **DSL support**: DSLs for configuring Attributes, TracerProvider, and MeterProvider
-- **Legacy WebFlux tracing helper**: `createTracingWebFilter()` targets the
-  older Spring WebFlux API and is retained for migration reference only
+- **Legacy WebFlux tracing
+  helper**: `createTracingWebFilter()` targets the older Spring WebFlux API and is retained for migration reference only
 - **Spring Boot Starter support**: Auto-configured OpenTelemetry SDK
 
 ## Architecture Diagrams
@@ -156,10 +156,9 @@ tracer.spanBuilder("recommended").useSpanSuspending(Dispatchers.IO) { span ->
 }
 ```
 
-### 3-A. Tracer.withSpan() — Single-Call DSL
+### 3-A. Tracer.withSpan () — Single-Call DSL
 
-`Tracer.withSpan()` wraps a block in a single Span, starts it, sets status, and ends it automatically.
-Both suspend and blocking variants are provided.
+`Tracer.withSpan()` wraps a block in a single Span, starts it, sets status, and ends it automatically. Both suspend and blocking variants are provided.
 
 ```kotlin
 import io.bluetape4k.opentelemetry.trace.withSpan
@@ -189,6 +188,7 @@ tracer.withSpan("parent") {
 ```
 
 **Span lifecycle contracts:**
+
 - Normal completion → `StatusCode.OK`, span ended
 - `CancellationException` → `StatusCode.UNSET`, span ended, exception rethrown
 - Any other `Throwable` → `StatusCode.ERROR` + redacted `exception` event, span ended, exception rethrown
@@ -225,13 +225,14 @@ flowOf(42).tracedCollect(tracer, "collect-span") { item ->
 ```
 
 **Contracts:**
+
 - Normal completion → `StatusCode.OK`
 - `CancellationException` (timeout, `take()`, cancellation) → `StatusCode.UNSET`
 - Other exception → `StatusCode.ERROR` + redacted `exception` event, exception rethrown
 - Raw exception messages are not exported by default; explicit `recordException` calls are opt-in.
 - `traced()` vs `tracedCollect()`:
-  - `traced()` — returns a new Flow; OTel context active in the **producer** coroutine
-  - `tracedCollect()` — terminal operator; OTel context active in **both producer and consumer** (action) coroutines
+    - `traced()` — returns a new Flow; OTel context active in the **producer** coroutine
+    - `tracedCollect()` — terminal operator; OTel context active in **both producer and consumer** (action) coroutines
 
 ### 4. Attributes Management
 
@@ -370,15 +371,19 @@ class TracingConfig(private val openTelemetry: OpenTelemetry) {
 ```
 
 **Operational constraints:**
+
 - Call `createTracingWebFilter()` exactly once per `ApplicationContext`. It registers a global Reactor `Hooks.onEachOperator`. Multiple calls nest the hook and cause unpredictable behavior.
 - In tests, call `Hooks.resetOnEachOperator()` in `@AfterAll` to prevent hook leakage between test classes.
-- Sensitive headers (`Authorization`, etc.) are **not** captured by default. To allow specific headers, set the environment variable `OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST`. **Never add headers containing PII.**
+- Sensitive headers (`Authorization`, etc.) are
+  **not** captured by default. To allow specific headers, set the environment variable `OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST`.
+  **Never add headers containing PII.**
 
 ## Testing Strategy
 
 ### CI Test Configuration Note
 
-On Linux CI environments (GitHub Actions), Reactor Netty uses **io_uring** as its native transport. When multiple test methods run sequentially and share the same Spring application context, a race condition can occur during io_uring event loop reinitialization:
+On Linux CI environments (GitHub Actions), Reactor Netty uses
+**io_uring** as its native transport. When multiple test methods run sequentially and share the same Spring application context, a race condition can occur during io_uring event loop reinitialization:
 
 ```
 io.netty.channel.ChannelException: eventfd_write(...) failed: Bad file descriptor
@@ -396,7 +401,8 @@ tasks {
 }
 ```
 
-This forces Reactor Netty to use NIO instead of io_uring during tests. It has **no effect on production**, since the application runs in a separate JVM without this flag.
+This forces Reactor Netty to use NIO instead of io_uring during tests. It has **no effect on
+production**, since the application runs in a separate JVM without this flag.
 
 ### Unit Tests
 

@@ -7,8 +7,7 @@ import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import java.time.Duration
 import java.time.ZonedDateTime
-import java.util.Collections
-import java.util.Comparator
+import java.util.*
 import java.util.function.Predicate
 import java.util.function.UnaryOperator
 
@@ -129,5 +128,7 @@ open class TimePeriodChain private constructor(
 
 private class TimePeriodChainStorage {
     val mutable: MutableList<ITimePeriod> = mutableListOf()
-    val guarded: MutableList<ITimePeriod> = Collections.unmodifiableList(mutable)
+
+    @Suppress("KotlinConstantConditions")
+    val guarded: MutableList<ITimePeriod> = Collections.unmodifiableList(mutable) as MutableList<ITimePeriod>
 }

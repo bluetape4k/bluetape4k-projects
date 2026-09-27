@@ -1,16 +1,15 @@
 package io.bluetape4k.cache.nearcache
 
-import io.bluetape4k.cache.HazelcastServers
-import io.bluetape4k.cache.HazelcastServers.hazelcastClient
-import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.KLogging
-import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.cache.HazelcastServers.hazelcastClient
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
@@ -25,13 +24,14 @@ import kotlin.time.Duration.Companion.seconds
  */
 class HazelcastSuspendNearCacheTest: AbstractHazelcastNearCacheTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private lateinit var cache: HazelcastSuspendNearCache<String>
 
     @BeforeEach
     fun createCache() {
         if (::cache.isInitialized) runSuspendIO { cache.close() }
+
         cache = HazelcastSuspendNearCache(
             hazelcastInstance = hazelcastClient,
             config = HazelcastNearCacheConfig(cacheName = "test-suspend-cache-" + Base58.randomString(6)),
@@ -39,10 +39,10 @@ class HazelcastSuspendNearCacheTest: AbstractHazelcastNearCacheTest() {
     }
 
     @AfterEach
-    fun tearDown() = runTest {
+    fun tearDown() = runSuspendIO {
         if (::cache.isInitialized) {
             runCatching { cache.clearAll() }
-            runCatching { runSuspendIO { cache.close() } }
+            runCatching { cache.close() }
         }
     }
 
@@ -74,6 +74,7 @@ class HazelcastSuspendNearCacheTest: AbstractHazelcastNearCacheTest() {
     fun `putAll and getAll`() = runTest {
         val data = mapOf("a" to "1", "b" to "2", "c" to "3")
         cache.putAll(data)
+
         val result = cache.getAll(setOf("a", "b", "c", "x"))
         result["a"] shouldBeEqualTo "1"
         result["b"] shouldBeEqualTo "2"
@@ -85,6 +86,7 @@ class HazelcastSuspendNearCacheTest: AbstractHazelcastNearCacheTest() {
     fun `remove - front + IMap 삭제`() = runTest {
         cache.put("key1", "value1")
         cache.get("key1").shouldNotBeNull()
+
         cache.remove("key1")
         cache.get("key1").shouldBeNull()
     }
@@ -93,16 +95,18 @@ class HazelcastSuspendNearCacheTest: AbstractHazelcastNearCacheTest() {
     fun `removeAll - 여러 키 삭제`() = runTest {
         cache.putAll(mapOf("a" to "1", "b" to "2", "c" to "3"))
         cache.removeAll(setOf("a", "b"))
+
         cache.get("a").shouldBeNull()
         cache.get("b").shouldBeNull()
         cache.get("c") shouldBeEqualTo "3"
     }
 
     @Test
-    fun `containsKey`() = runTest {
+    fun `containsKey - check contains key`() = runTest {
         cache.put("keyX", "valX")
         cache.containsKey("keyX").shouldBeTrue()
         cache.containsKey("nonexistent").shouldBeFalse()
+
         cache.remove("keyX")
         cache.containsKey("keyX").shouldBeFalse()
     }
@@ -111,6 +115,7 @@ class HazelcastSuspendNearCacheTest: AbstractHazelcastNearCacheTest() {
     fun `putIfAbsent - 캐시 값 없으면 추가, 있으면 기존 값 반환`() = runTest {
         cache.putIfAbsent("key", "first").shouldBeNull()
         cache.get("key") shouldBeEqualTo "first"
+
         cache.putIfAbsent("key", "second") shouldBeEqualTo "first"
         cache.get("key") shouldBeEqualTo "first"
     }
@@ -119,6 +124,7 @@ class HazelcastSuspendNearCacheTest: AbstractHazelcastNearCacheTest() {
     fun `replace - 키가 존재할 때만 교체`() = runTest {
         cache.replace("noKey", "val").shouldBeFalse()
         cache.put("key", "old")
+
         cache.replace("key", "new").shouldBeTrue()
         cache.get("key") shouldBeEqualTo "new"
     }
@@ -126,23 +132,27 @@ class HazelcastSuspendNearCacheTest: AbstractHazelcastNearCacheTest() {
     @Test
     fun `replace(key, oldValue, newValue) - 값이 일치할 때만 교체`() = runTest {
         cache.put("k", "old")
+
         cache.replace("k", "wrong", "new").shouldBeFalse()
         cache.replace("k", "old", "new").shouldBeTrue()
+
         cache.get("k") shouldBeEqualTo "new"
     }
 
     @Test
-    fun `getAndRemove`() = runTest {
+    fun `getAndRemove - get and remove cache item`() = runTest {
         cache.put("key", "value")
         cache.getAndRemove("key") shouldBeEqualTo "value"
+
         cache.get("key").shouldBeNull()
         cache.getAndRemove("key").shouldBeNull()
     }
 
     @Test
-    fun `getAndReplace`() = runTest {
+    fun `getAndReplace - get and replace cache item`() = runTest {
         cache.getAndReplace("missing", "val").shouldBeNull()
         cache.put("key", "old")
+
         cache.getAndReplace("key", "new") shouldBeEqualTo "old"
         cache.get("key") shouldBeEqualTo "new"
     }
@@ -151,7 +161,9 @@ class HazelcastSuspendNearCacheTest: AbstractHazelcastNearCacheTest() {
     fun `clearLocal - 로컬만 초기화, IMap 유지`() = runTest {
         cache.put("k1", "v1")
         cache.put("k2", "v2")
+
         cache.clearLocal()
+
         cache.localCacheSize() shouldBeEqualTo 0L
         cache.containsKey("k1").shouldBeTrue()
     }
@@ -160,7 +172,9 @@ class HazelcastSuspendNearCacheTest: AbstractHazelcastNearCacheTest() {
     fun `clearAll - 로컬 + IMap 초기화`() = runTest {
         cache.put("k1", "v1")
         cache.put("k2", "v2")
+
         cache.clearAll()
+
         cache.localCacheSize() shouldBeEqualTo 0L
         cache.get("k1").shouldBeNull()
         cache.get("k2").shouldBeNull()
@@ -171,7 +185,9 @@ class HazelcastSuspendNearCacheTest: AbstractHazelcastNearCacheTest() {
         cache.put("s1", "v1")
         cache.put("s2", "v2")
         cache.put("s3", "v3")
+
         cache.backCacheSize() shouldBeEqualTo 3
+
         cache.remove("s2")
         cache.backCacheSize() shouldBeEqualTo 2
     }
@@ -213,6 +229,7 @@ class HazelcastSuspendNearCacheTest: AbstractHazelcastNearCacheTest() {
         // removeAll이 front + back 모두에서 삭제했는지 IMap을 직접 조회해 검증한다.
         cache.putAll(mapOf("x1" to "v1", "x2" to "v2", "x3" to "v3"))
         cache.removeAll(setOf("x1", "x2"))
+
         cache.backCacheSize() shouldBeEqualTo 1L
         cache.get("x3") shouldBeEqualTo "v3"
     }
@@ -224,6 +241,7 @@ class HazelcastSuspendNearCacheTest: AbstractHazelcastNearCacheTest() {
         cache.putAll(data)
         // front cache를 비워 IMap getAll 경로를 강제로 타도록 한다.
         cache.clearLocal()
+
         val result = cache.getAll(setOf("g1", "g2", "g3", "missing"))
         result["g1"] shouldBeEqualTo "v1"
         result["g2"] shouldBeEqualTo "v2"

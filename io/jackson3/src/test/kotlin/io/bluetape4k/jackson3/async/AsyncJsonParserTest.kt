@@ -14,6 +14,7 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.support.toUtf8String
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
+import tools.jackson.core.exc.StreamReadException
 import tools.jackson.module.kotlin.treeToValue
 import java.io.Serializable
 import java.util.concurrent.atomic.AtomicInteger
@@ -204,7 +205,7 @@ class AsyncJsonParserTest {
 
         parser.consume("""{"key":""".toByteArray())
 
-        assertFailsWith<tools.jackson.core.exc.StreamReadException> {
+        assertFailsWith<StreamReadException> {
             parser.endOfInput()
         }
     }

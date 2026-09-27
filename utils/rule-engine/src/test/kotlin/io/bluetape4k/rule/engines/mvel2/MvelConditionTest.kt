@@ -1,15 +1,15 @@
 package io.bluetape4k.rule.engines.mvel2
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.rule.api.Facts
 import org.junit.jupiter.api.Test
 
 class MvelConditionTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `숫자 비교 MVEL 표현식 평가`() {
@@ -57,8 +57,7 @@ class MvelConditionTest {
         val expr = "amount > 1000"
         val c1 = MvelCondition(expr)
         val c2 = MvelCondition(expr)
-        (c1 == c2).shouldBeTrue()
-        (c1.hashCode() == c2.hashCode()).shouldBeTrue()
+        c1 shouldBeEqualTo c2
     }
 
     @Test

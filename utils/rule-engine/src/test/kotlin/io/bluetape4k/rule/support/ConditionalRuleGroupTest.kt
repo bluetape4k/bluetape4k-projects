@@ -1,11 +1,10 @@
 package io.bluetape4k.rule.support
 
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.core.rule
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class ConditionalRuleGroupTest {
@@ -35,8 +34,8 @@ class ConditionalRuleGroupTest {
         val facts = Facts.empty()
         group.evaluate(facts).shouldBeTrue()
         group.execute(facts)
-        facts.get<Boolean>("gate").shouldNotBeNull().shouldBeTrue()
-        facts.get<Boolean>("follow").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("gate").shouldBeTrue()
+        facts.get<Boolean>("follow").shouldBeTrue()
     }
 
     @Test

@@ -14,6 +14,10 @@ import java.util.concurrent.TimeUnit
 /** 신뢰된 로컬 NetCDF 파일의 path/identity 경계를 한 곳에서 검증합니다. */
 internal object NetCdfFileGuard {
 
+    private const val FIRST_PRINTABLE_CODE = 0x20
+    private const val DELETE_CONTROL_CHARACTER = '\u007f'
+    private const val NULL_CONTROL_CHARACTER = '\u0000'
+
     /** 등록 레코드의 globalAttrs에 저장하는 identity fingerprint key입니다. */
     const val FINGERPRINT_ATTRIBUTE: String = "__bluetape4k_source_fingerprint"
 
@@ -38,7 +42,8 @@ internal object NetCdfFileGuard {
     }
 
     /** open 전후 stat을 비교하는 generic helper입니다. */
-    fun <T : AutoCloseable> openVerified(
+    @Suppress("TooGenericExceptionCaught", "ThrowsCount")
+    fun <T: AutoCloseable> openVerified(
         fileId: Long,
         filePath: String,
         expectedFingerprint: String?,
@@ -82,17 +87,25 @@ internal object NetCdfFileGuard {
         return opened
     }
 
+    @Suppress("TooGenericExceptionCaught", "ThrowsCount")
     private fun parseLocalPath(filePath: String): Path {
         if (filePath.isBlank()) {
             throw IllegalArgumentException("filePath must not be blank")
         }
-        if (filePath.any { it.code < 0x20 || it == '\u007f' || it == '\u0000' }) {
+        if (filePath.any {
+                it.code < FIRST_PRINTABLE_CODE ||
+                    it == DELETE_CONTROL_CHARACTER ||
+                    it == NULL_CONTROL_CHARACTER
+            }) {
             throw NetCdfException.FileOpen(filePath, IllegalArgumentException("path contains control characters"))
         }
         try {
             val uri = URI(filePath)
             if (uri.scheme != null) {
-                throw NetCdfException.FileOpen(filePath, IllegalArgumentException("remote or URI paths are not allowed"))
+                throw NetCdfException.FileOpen(
+                    filePath,
+                    IllegalArgumentException("remote or URI paths are not allowed")
+                )
             }
         } catch (e: NetCdfException) {
             throw e
@@ -107,6 +120,7 @@ internal object NetCdfFileGuard {
         return path
     }
 
+    @Suppress("CyclomaticComplexMethod", "LongMethod", "TooGenericExceptionCaught", "ThrowsCount")
     private fun capture(path: Path, fileId: Long, expectedFingerprint: String?): Identity {
         val absolute = try {
             path.toAbsolutePath().normalize()

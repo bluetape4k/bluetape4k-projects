@@ -3,10 +3,12 @@ package io.bluetape4k.tink.aead
 import com.google.crypto.tink.Aead
 import com.google.crypto.tink.KeysetHandle
 import com.google.crypto.tink.RegistryConfiguration
+import io.bluetape4k.codec.decodeBase64ByteArray
+import io.bluetape4k.codec.encodeBase64String
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.tink.EMPTY_BYTES
 import io.bluetape4k.tink.aeadKeysetHandle
-import java.util.*
 
 /**
  * Google Tink [Aead] 프리미티브를 Kotlin 관용적으로 래핑한 AEAD 암호화 클래스입니다.
@@ -60,7 +62,7 @@ class TinkAead(keysetHandle: KeysetHandle = aeadKeysetHandle()) {
      */
     fun encrypt(plaintext: String, associatedData: ByteArray = EMPTY_BYTES): String {
         val cipherBytes = encrypt(plaintext.toByteArray(Charsets.UTF_8), associatedData)
-        return Base64.getEncoder().encodeToString(cipherBytes)
+        return cipherBytes.encodeBase64String()
     }
 
     /**
@@ -72,7 +74,7 @@ class TinkAead(keysetHandle: KeysetHandle = aeadKeysetHandle()) {
      * @throws com.google.crypto.tink.shaded.protobuf.GeneralSecurityException 복호화 실패 또는 인증 실패 시
      */
     fun decrypt(ciphertext: String, associatedData: ByteArray = EMPTY_BYTES): String {
-        val cipherBytes = Base64.getDecoder().decode(ciphertext)
-        return decrypt(cipherBytes, associatedData).toString(Charsets.UTF_8)
+        val cipherBytes = ciphertext.decodeBase64ByteArray()
+        return decrypt(cipherBytes, associatedData).toUtf8String()
     }
 }

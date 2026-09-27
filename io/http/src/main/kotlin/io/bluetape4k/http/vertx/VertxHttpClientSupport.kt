@@ -1,7 +1,7 @@
 package io.bluetape4k.http.vertx
 
-import io.bluetape4k.vertx.defaultVertx
 import io.bluetape4k.vertx.currentVertx
+import io.bluetape4k.vertx.defaultVertx
 import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpClient
@@ -11,6 +11,7 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 private val defaultVertxHttpClientLock = ReentrantLock()
+
 @Volatile
 private var defaultVertxHttpClientRef: HttpClient? = null
 

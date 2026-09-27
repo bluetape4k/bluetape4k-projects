@@ -9,7 +9,9 @@ import java.math.BigInteger
 
 class BigFractionSupportTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-10
+    }
 
     // ----- bigFractionOf 팩토리 -----
 
@@ -30,7 +32,7 @@ class BigFractionSupportTest {
     @Test
     fun `bigFractionOf Double 로 생성한다`() {
         val f = bigFractionOf(0.5)
-        f.toDouble().shouldBeNear(0.5, 1e-10)
+        f.toDouble().shouldBeNear(0.5, EPSILON)
     }
 
     @Test

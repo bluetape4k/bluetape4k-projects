@@ -8,7 +8,6 @@ import io.bluetape4k.testcontainers.storage.RedisServer
 import io.bluetape4k.utils.ShutdownQueue
 import io.lettuce.core.ClientOptions
 import io.lettuce.core.RedisClient
-import io.lettuce.core.codec.StringCodec
 import io.lettuce.core.protocol.ProtocolVersion
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
@@ -61,7 +60,7 @@ import java.util.concurrent.atomic.AtomicLong
 @Fork(1)
 open class NearCacheBenchmark {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     /** putAll 묶음 크기 */
     @Param("100")
@@ -197,7 +196,7 @@ open class NearCacheBenchmark {
 @Fork(1)
 open class NearCacheRemoveBenchmark {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Param("512", "4096", "16384")
     var payloadSize: Int = 512

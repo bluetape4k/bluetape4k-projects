@@ -2,10 +2,13 @@ package io.bluetape4k.redis.lettuce.codec
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.io.serializer.JdkBinarySerializer
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 
 class LettuceBinaryCodecSizeTest {
+
+    companion object: KLogging()
 
     private val codec = LettuceBinaryCodec<Any>(JdkBinarySerializer())
 

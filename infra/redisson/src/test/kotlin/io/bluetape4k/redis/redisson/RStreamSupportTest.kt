@@ -2,8 +2,9 @@ package io.bluetape4k.redis.redisson
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
@@ -51,7 +52,7 @@ class RStreamSupportTest {
             .endId(StreamMessageId.MAX)
             .count(10)
         val range = stream.range(rangeArgs)
-        range[id]!! shouldBeEqualTo mapOf("k1" to "v1", "k2" to "v2")
+        range[id] shouldBeEqualTo mapOf("k1" to "v1", "k2" to "v2")
     }
 
     @Test
@@ -66,8 +67,9 @@ class RStreamSupportTest {
             .startId(StreamMessageId.MIN)
             .endId(StreamMessageId.MAX)
             .count(10)
+
         val range = stream.range(rangeArgs)
-        range[id]!! shouldBeEqualTo entries
+        range[id] shouldBeEqualTo entries
     }
 
     @Test
@@ -165,7 +167,7 @@ class RStreamSupportTest {
             ids = listOf(id1)
         ).await()
 
-        (id1 in claimed.keys) shouldBeEqualTo true
+        claimed.keys shouldContain id1
     }
 
     @Test
@@ -187,6 +189,6 @@ class RStreamSupportTest {
             ids = listOf(id1, id2)
         ).await()
 
-        claimedIds.size.shouldBeGreaterOrEqualTo(1)
+        claimedIds.shouldNotBeEmpty()
     }
 }

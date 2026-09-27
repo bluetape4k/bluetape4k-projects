@@ -1,6 +1,5 @@
 package io.bluetape4k.nats.service.examples
 
-import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.nats.AbstractNatsTest
@@ -105,11 +104,11 @@ class ServiceExample: AbstractNatsTest() {
             // ----------------------------------------------------------------------------------------------------
             val subject = "echo"
             var request = randomText()
-            for (x in 1..9) {  // run ping a few times to see it hit different services
+            repeat(10) {  // run ping a few times to see it hit different services
                 request = randomText()
                 val reply = nc.requestAsync(subject, request)
                 val response = reply.get().data?.toUtf8String()
-                log.debug { "$x. Called $subject with [$request] Received: $response" }
+                log.debug { "$it. Called $subject with [$request] Received: $response" }
             }
 
             // sort subjects are formed this way because the endpoints have groups
@@ -239,5 +238,5 @@ class ServiceExample: AbstractNatsTest() {
     }
 
     fun randomText(): String =
-        System.currentTimeMillis().toHexString() + Base58.randomString(8)
+        System.currentTimeMillis().toHexString() + faker.lorem().sentence()
 }

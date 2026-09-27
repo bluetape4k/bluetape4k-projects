@@ -61,7 +61,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
         context["value"] = 10
 
         val flow = conditionalFlow("test-conditional") {
-            condition { ctx -> (ctx.get<Int>("value") ?: 0) > 5 }
+            condition { ctx -> (ctx["value"] ?: 0) > 5 }
             then(setCtxWork("big-value", "result", "big"))
             otherwise(setCtxWork("small-value", "result", "small"))
         }
@@ -76,7 +76,7 @@ class WorkflowDslTest: AbstractWorkflowTest() {
 
         val flow = repeatFlow("test-repeat") {
             execute(countAndSetWork("count-step", counter, "count"))
-            until { report -> (report.context.get<Int>("count") ?: 0) >= 3 }
+            until { report -> (report.context["count"] ?: 0) >= 3 }
             maxIterations(10)
         }
 

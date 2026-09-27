@@ -4,6 +4,11 @@ import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.dataformat.javaprop.JavaPropsFactory
 import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.encodeBase64String
 import io.bluetape4k.jackson.text.AbstractJacksonTextTest
 import io.bluetape4k.jackson.text.Box
 import io.bluetape4k.jackson.text.Container
@@ -14,11 +19,9 @@ import io.bluetape4k.jackson.text.Point
 import io.bluetape4k.jackson.text.Points
 import io.bluetape4k.jackson.text.Rectangle
 import io.bluetape4k.jackson.text.getNode
+import io.bluetape4k.jackson.writeAsString
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -87,24 +90,17 @@ class PropertiesExample: AbstractJacksonTextTest() {
                 Gender.MALE,
                 byteArrayOf(1, 2, 3, 4)
             )
-            val output = propsMapper.writeValueAsString(input)
-            log.debug { "output=\n$output\n----------" }
-
-            val expected = """
-            |firstName=${input.firstName}
-            |lastName=${input.lastName}
-            |verified=false
-            |gender=MALE
-            |userImage=AQIDBA==
-            |
-            """.trimMargin()
-
-            output shouldBeEqualTo expected
+            val output = propsMapper.writeAsString(input)
+            output.shouldNotBeEmpty()
+            log.debug { "output=:\n$output\n----------" }
 
             val props = propsMapper.writeValueAsProperties(input)
             props.size shouldBeEqualTo 5
+            props["firstName"] shouldBeEqualTo input.firstName
+            props["lastName"] shouldBeEqualTo input.lastName
             props["verified"] shouldBeEqualTo "false"
             props["gender"] shouldBeEqualTo "MALE"
+            props["userImage"] shouldBeEqualTo input.userImage.encodeBase64String()
         }
 
         @Test

@@ -42,7 +42,8 @@ class RepeatFlowTest: AbstractFlowTest() {
         repeatFlow(4) {
             if (it == 2) throw RuntimeException("Boom!")
             else result++
-        }.log("repeat")
+        }
+            .log("repeat")
             .test {
                 awaitItem() shouldBeEqualTo 42
                 awaitItem() shouldBeEqualTo 43

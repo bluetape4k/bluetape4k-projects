@@ -1,10 +1,13 @@
 package io.bluetape4k.tink.keyset
 
+import io.bluetape4k.codec.decodeBase64ByteArray
+import io.bluetape4k.codec.encodeBase64String
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.tink.EMPTY_BYTES
 import io.bluetape4k.tink.daead.TinkDeterministicAead
 import java.time.Duration
-import java.util.*
 
 /**
  * versioned keyset 저장소를 사용하는 Deterministic AEAD 래퍼입니다.
@@ -36,10 +39,8 @@ class VersionedTinkDaead(
     }
 
     fun encryptDeterministically(plaintext: String, associatedData: ByteArray = EMPTY_BYTES): String =
-        Base64.getEncoder().encodeToString(
-            encryptDeterministically(plaintext.toByteArray(Charsets.UTF_8), associatedData)
-        )
+        encryptDeterministically(plaintext.toUtf8Bytes(), associatedData).encodeBase64String()
 
     fun decryptDeterministically(payload: String, associatedData: ByteArray = EMPTY_BYTES): String =
-        decryptDeterministically(Base64.getDecoder().decode(payload), associatedData).toString(Charsets.UTF_8)
+        decryptDeterministically(payload.decodeBase64ByteArray(), associatedData).toUtf8String()
 }

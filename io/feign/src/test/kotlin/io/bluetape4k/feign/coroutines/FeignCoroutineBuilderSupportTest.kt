@@ -57,14 +57,12 @@ class FeignCoroutineBuilderSupportTest: AbstractFeignTest() {
     @Test
     fun `coroutineFeignBuilder creates a valid builder`() {
         val builder = coroutineFeignBuilder<Any> { }
-
         builder.shouldNotBeNull()
     }
 
     @Test
     fun `coroutineFeignBuilderOf creates builder with default settings`() {
         val builder = coroutineFeignBuilderOf<Any>()
-
         builder.shouldNotBeNull()
     }
 
@@ -82,7 +80,6 @@ class FeignCoroutineBuilderSupportTest: AbstractFeignTest() {
             .client(server.baseUrl)
 
         val result = api.getItem(42)
-
         result shouldBeEqualTo expected
     }
 
@@ -100,7 +97,6 @@ class FeignCoroutineBuilderSupportTest: AbstractFeignTest() {
             .client(server.baseUrl)
 
         val result = api.listItems()
-
         result shouldBeEqualTo expected
     }
 
@@ -109,7 +105,6 @@ class FeignCoroutineBuilderSupportTest: AbstractFeignTest() {
         val builder = coroutineFeignBuilderOf<Any>(
             asyncClient = feign.DefaultAsyncClient(ApacheHttp5Client(), VirtualThreadExecutor),
         )
-
         builder.shouldNotBeNull()
     }
 

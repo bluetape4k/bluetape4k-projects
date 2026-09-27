@@ -4,6 +4,7 @@ import co.elastic.clients.elasticsearch._types.SortOrder
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.elasticsearch.AbstractElasticsearchTest
@@ -16,14 +17,15 @@ import io.bluetape4k.elasticsearch.coroutines.indexSuspending
 import io.bluetape4k.elasticsearch.coroutines.searchAsFlow
 import io.bluetape4k.elasticsearch.coroutines.searchSuspending
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.io.Serializable
 import java.util.*
 import kotlin.time.Duration.Companion.seconds
 
@@ -62,7 +64,7 @@ class ProductIndexExample: AbstractElasticsearchTest() {
         val price: Double,
         val inStock: Boolean,
         val tags: List<String> = emptyList(),
-    )
+    ): Serializable
 
     private lateinit var indexName: String
 
@@ -100,26 +102,28 @@ class ProductIndexExample: AbstractElasticsearchTest() {
         )
 
         // 색인
-        val indexResponse = asyncClient.indexSuspending<Product> {
+        val indexRes = asyncClient.indexSuspending<Product> {
             index(indexName)
             id(product.id)
             document(product)
         }
-        indexResponse.shouldNotBeNull()
+        log.debug { "indexRes: $indexRes" }
+        indexRes.shouldNotBeNull()
 
         // 검색 가능 상태로 refresh
-        asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        val refreshRes = asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        log.debug { "refreshRes: $refreshRes" }
 
         // 조회
-        val getResponse = asyncClient.getSuspending(
+        val getRes = asyncClient.getSuspending<Product>(
             index = indexName,
             id = product.id,
-            clazz = Product::class,
         )
+        log.debug { "getRes: $getRes" }
 
         // 검증
-        getResponse.found().shouldBeTrue()
-        val retrieved = getResponse.source()
+        getRes.found().shouldBeTrue()
+        val retrieved = getRes.source()
         retrieved.shouldNotBeNull()
         retrieved.name shouldBeEqualTo product.name
         retrieved.category shouldBeEqualTo product.category
@@ -142,40 +146,43 @@ class ProductIndexExample: AbstractElasticsearchTest() {
         val totalProducts = 100
 
         // bulk 색인
-        val operations = (0 until totalProducts).map { i ->
-            val product = Product(
-                id = "product-$i",
-                name = "상품 $i",
-                category = CATEGORIES[i % CATEGORIES.size],
-                price = 10.0 + (i % 90),
-                inStock = i % 3 != 0,
-                tags = listOf("tag-${i % 10}"),
-            )
-            BulkOperation.of { op ->
-                op.index<Product> { idx ->
-                    idx.index(indexName)
-                        .id(product.id)
-                        .document(product)
+        val builOperations = List(totalProducts) { it }
+            .map { i ->
+                val product = Product(
+                    id = "product-$i",
+                    name = "상품 $i",
+                    category = CATEGORIES[i % CATEGORIES.size],
+                    price = 10.0 + (i % 90),
+                    inStock = i % 3 != 0,
+                    tags = listOf("tag-${i % 10}"),
+                )
+                BulkOperation.of { op ->
+                    op.index { idx ->
+                        idx.index(indexName).id(product.id).document(product)
+                    }
                 }
             }
-        }
 
-        operations.asFlow()
+        builOperations.asFlow()
             .bulkAsFlow(client = asyncClient, indexName = indexName, chunkSize = 20)
-            .collect()
+            .collect {
+                log.debug { "Bulk operation: $it" }
+            }
 
         // 검색 가능 상태로 refresh
-        asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        val refreshRes = asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        log.debug { "refreshRes: $refreshRes" }
 
         // match_all 검색으로 전체 수량 확인
-        val searchResponse = asyncClient.searchSuspending(clazz = Product::class) {
+        val searchRes = asyncClient.searchSuspending<Product> {
             index(listOf(indexName))
             query { q -> q.matchAll { it } }
             size(1)
             trackTotalHits { t -> t.enabled(true) }
         }
+        log.debug { "searchRes=$searchRes" }
 
-        val totalHits = searchResponse.hits().total()?.value() ?: 0L
+        val totalHits = searchRes.hits().total()?.value() ?: 0L
         totalHits shouldBeEqualTo totalProducts.toLong()
     }
 
@@ -200,35 +207,38 @@ class ProductIndexExample: AbstractElasticsearchTest() {
             Product("c1", "티셔츠", "Clothing", 25.0, false, listOf("fashion")),
         )
 
-        val operations = products.map { product ->
+        val bulkOperations = products.map { product ->
             BulkOperation.of { op ->
-                op.index<Product> { idx ->
-                    idx.index(indexName)
-                        .id(product.id)
-                        .document(product)
+                op.index { idx ->
+                    idx.index(indexName).id(product.id).document(product)
                 }
             }
         }
 
-        operations.asFlow()
+        bulkOperations.asFlow()
             .bulkAsFlow(client = asyncClient, indexName = indexName)
-            .collect()
+            .collect {
+                log.debug { "BulkOperation: $it" }
+            }
 
-        asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        val refreshRes = asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        log.debug { "refreshRes: $refreshRes" }
 
         // category.keyword 로 정확히 일치하는 상품만 조회
-        val searchResponse = asyncClient.searchSuspending(clazz = Product::class) {
+        val searchRes = asyncClient.searchSuspending<Product> {
             index(listOf(indexName))
             query { q ->
                 q.term { t -> t.field("category.keyword").value(targetCategory) }
             }
             size(10)
         }
+        log.debug { "search response $searchRes" }
 
-        val hits = searchResponse.hits().hits()
+        val hits = searchRes.hits().hits()
         hits.size shouldBeEqualTo 2  // Electronics 상품은 2건
 
         hits.forEach { hit ->
+            log.debug { "hit: $hit" }
             val source = hit.source()
             source.shouldNotBeNull()
             source.category shouldBeEqualTo targetCategory
@@ -258,24 +268,24 @@ class ProductIndexExample: AbstractElasticsearchTest() {
             Product("p5", "고가 상품", "Electronics", 200.0, true),
         )
 
-        val operations = products.map { product ->
+        val bulkOperations = products.map { product ->
             BulkOperation.of { op ->
-                op.index<Product> { idx ->
-                    idx.index(indexName)
-                        .id(product.id)
-                        .document(product)
+                op.index { idx ->
+                    idx.index(indexName).id(product.id).document(product)
                 }
             }
         }
 
-        operations.asFlow()
+        bulkOperations.asFlow()
             .bulkAsFlow(client = asyncClient, indexName = indexName)
-            .collect()
+            .collect {
+                log.debug { "BulkOperation: $it" }
+            }
 
         asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
 
         // 가격 범위 검색: 10.0 이상 50.0 이하
-        val searchResponse = asyncClient.searchSuspending(clazz = Product::class) {
+        val searchRes = asyncClient.searchSuspending<Product> {
             index(listOf(indexName))
             query { q ->
                 q.range { r ->
@@ -286,15 +296,16 @@ class ProductIndexExample: AbstractElasticsearchTest() {
             }
             size(10)
         }
+        log.debug { "searchResponse: $searchRes" }
 
-        val hits = searchResponse.hits().hits()
+        val hits = searchRes.hits().hits()
         hits.size shouldBeEqualTo 3  // 15.0, 30.0, 45.0 — 범위 내 3건
+        hits.forEach { log.debug { "hit:$it" } }
 
         hits.forEach { hit ->
-            val source = hit.source()
-            source.shouldNotBeNull()
+            val source = hit.source().shouldNotBeNull()
             source.price shouldBeGreaterOrEqualTo minPrice
-            source.price.shouldBeLessOrEqualTo(maxPrice)
+            source.price shouldBeLessOrEqualTo maxPrice
         }
     }
 
@@ -313,28 +324,32 @@ class ProductIndexExample: AbstractElasticsearchTest() {
         val totalProducts = 200
 
         // 대량 상품 색인
-        val operations = (0 until totalProducts).map { i ->
-            val product = Product(
-                id = "stream-product-$i",
-                name = "스트리밍 상품 $i",
-                category = CATEGORIES[i % CATEGORIES.size],
-                price = 1.0 + i,
-                inStock = true,
-            )
-            BulkOperation.of { op ->
-                op.index<Product> { idx ->
-                    idx.index(indexName)
-                        .id(product.id)
-                        .document(product)
+        val bulkOperations = List(totalProducts) { it }
+            .map { i ->
+                val product = Product(
+                    id = "stream-product-$i",
+                    name = "스트리밍 상품 $i",
+                    category = CATEGORIES[i % CATEGORIES.size],
+                    price = 1.0 + i,
+                    inStock = true,
+                )
+                BulkOperation.of { op ->
+                    op.index<Product> { idx ->
+                        idx.index(indexName)
+                            .id(product.id)
+                            .document(product)
+                    }
                 }
             }
-        }
 
-        operations.asFlow()
+        bulkOperations.asFlow()
             .bulkAsFlow(client = asyncClient, indexName = indexName, chunkSize = 50)
-            .collect()
+            .collect {
+                log.debug { "BulkOperation: $it" }
+            }
 
-        asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        val refreshRes = asyncClient.indices().refresh { it.index(listOf(indexName)) }.await()
+        log.debug { "refreshRes: $refreshRes" }
 
         // searchAsFlow 로 전체 상품 스트리밍
         val streamedCount = asyncClient.searchAsFlow<Product>(
@@ -348,16 +363,5 @@ class ProductIndexExample: AbstractElasticsearchTest() {
         }.count()
 
         streamedCount shouldBeEqualTo totalProducts
-    }
-
-    // -------------------------------------------------------------------------
-    // 헬퍼 함수
-    // -------------------------------------------------------------------------
-
-    /**
-     * Double 값이 [max] 이하임을 검증하는 헬퍼 확장함수입니다.
-     */
-    private fun Double.shouldBeLessOrEqualTo(max: Double) {
-        (this <= max).shouldBeTrue()
     }
 }

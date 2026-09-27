@@ -19,6 +19,9 @@ dependencies {
     compileOnly(bt4k.httpclient5)
     compileOnly(libs.httpclient5.cache)
 
+    // geohash
+    compileOnly(bt4k.fory.kotlin)
+
     // geoip2: MaxMind GeoIP2
     compileOnly(bt4k.maxmind.geoip2)
 

@@ -2,12 +2,13 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationFailureClassification
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationProtocolException
+import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.lock.internal.DISTRIBUTED_LOCK_SCRIPT
 import io.bluetape4k.redis.lettuce.lock.internal.DefaultLockCommandExecutor
 import io.bluetape4k.redis.lettuce.lock.internal.DistributedLockClient
@@ -34,6 +35,17 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 internal class LockFailureTest {
 
+    private companion object: KLogging() {
+        val OWNER = LockOwnerId.from("failure-owner")
+        val REQUEST = LockRequestId.from("failure-request")
+        val LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(3))
+        val KEYS = deriveDistributedLockKeys(
+            "failure-resource",
+            LockConfig(hashTag = "failure"),
+            StringCodec.UTF8,
+        )
+    }
+
     @Test
     fun `unknown arity oversized and secret-bearing replies fail closed without disclosure`() {
         val secret = "customer-42-lock-secret"
@@ -50,7 +62,7 @@ internal class LockFailureTest {
                 decodeAcquire(raw, KEYS, OWNER, REQUEST)
             }
             failure.classification shouldBeEqualTo CoordinationFailureClassification.INTEGRITY
-            failure.message.orEmpty().contains(secret).shouldBeFalse()
+            failure.message shouldNotContain secret
         }
     }
 
@@ -70,6 +82,7 @@ internal class LockFailureTest {
                 *arguments,
             )
         } throws RedisNoScriptException("NOSCRIPT") andThen response
+
         every {
             sync.eval<List<String>>(
                 DISTRIBUTED_LOCK_SCRIPT.source,
@@ -113,10 +126,12 @@ internal class LockFailureTest {
             harness.client.tryAcquire(OWNER, REQUEST, LEASE) shouldBeEqualTo expected
             harness.executor.calls shouldBeEqualTo listOf(DistributedLockOperation.ACQUIRE)
         }
+
         timeoutHarness().use { harness ->
             harness.client.tryAcquireAsync(OWNER, REQUEST, LEASE).get() shouldBeEqualTo expected
             harness.executor.calls shouldBeEqualTo listOf(DistributedLockOperation.ACQUIRE)
         }
+
         timeoutHarness().use { harness ->
             harness.client.tryAcquireSuspending(OWNER, REQUEST, LEASE) shouldBeEqualTo expected
             harness.executor.calls shouldBeEqualTo listOf(DistributedLockOperation.ACQUIRE)
@@ -133,13 +148,15 @@ internal class LockFailureTest {
             LockRecoveryAction.RECONCILE_REQUEST,
         ).toString()
 
+        log.debug { "rendered:$rendered" }
         rendered shouldNotContain "customer-owner-secret"
         rendered shouldNotContain "customer-request-secret"
+
         LockDimensions::class.java.declaredFields
             .filterNot { it.isSynthetic }
             .map { it.name }
             .sorted() shouldBeEqualTo
-            listOf("failureKind", "leasePolicy", "objectKind", "operation", "outcome")
+                listOf("failureKind", "leasePolicy", "objectKind", "operation", "outcome")
     }
 
     @Test
@@ -159,9 +176,14 @@ internal class LockFailureTest {
             acquireBackendResult<ReadLockHandle>(OWNER, REQUEST, timeout),
             acquireBackendResult<WriteLockHandle>(OWNER, REQUEST, connection),
             acquireBackendResult<MultiLockHandle>(OWNER, REQUEST, timeout),
-        ).forEach { it shouldBeEqualTo expected }
-        acquireBackendResult<LockHandle>(OWNER, REQUEST, command) shouldBeEqualTo
-            LockAcquireResult.BackendFailure(command)
+        ).forEach {
+            it shouldBeEqualTo expected
+        }
+        acquireBackendResult<LockHandle>(
+            OWNER,
+            REQUEST,
+            command
+        ) shouldBeEqualTo LockAcquireResult.BackendFailure(command)
     }
 
     private fun timeoutHarness(): TimeoutHarness {
@@ -213,16 +235,5 @@ internal class LockFailureTest {
             calls += operation
             throw RedisCommandTimeoutException("post-dispatch timeout")
         }
-    }
-
-    private companion object {
-        val OWNER = LockOwnerId.from("failure-owner")
-        val REQUEST = LockRequestId.from("failure-request")
-        val LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(3))
-        val KEYS = deriveDistributedLockKeys(
-            "failure-resource",
-            LockConfig(hashTag = "failure"),
-            StringCodec.UTF8,
-        )
     }
 }

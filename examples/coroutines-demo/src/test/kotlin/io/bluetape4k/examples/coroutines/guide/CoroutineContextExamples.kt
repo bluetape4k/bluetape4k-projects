@@ -16,6 +16,7 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
@@ -88,7 +89,7 @@ class CoroutineContextExamples {
         }
     }
 
-    // @Disabled("발표용 코드입니다")
+    @Disabled("발표용 코드입니다")
     @Nested
     inner class Basic {
         private val jobSize = 10_000
@@ -98,8 +99,8 @@ class CoroutineContextExamples {
             val jobs = List(jobSize) {
                 launch(Dispatchers.IO) {
                     advanceTimeBy(1000.milliseconds)
-                    print(".")
-                }
+                    log.debug { "..." }
+                }.log("Job $it")
             }
             jobs.joinAll()
         }
@@ -110,8 +111,8 @@ class CoroutineContextExamples {
                 val jobs = List(jobSize) {
                     launch(Dispatchers.IO) {
                         advanceTimeBy(1000.milliseconds)
-                        print(".")
-                    }
+                        log.debug { "..." }
+                    }.log("Job $it")
                 }
                 jobs.joinAll()
             }

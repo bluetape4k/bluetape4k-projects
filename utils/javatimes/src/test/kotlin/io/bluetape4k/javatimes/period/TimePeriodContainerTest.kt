@@ -1,9 +1,8 @@
 package io.bluetape4k.javatimes.period
 
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.javatimes.zonedDateTimeOf
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
 
 class TimePeriodContainerTest: AbstractPeriodTest() {
@@ -34,7 +33,7 @@ class TimePeriodContainerTest: AbstractPeriodTest() {
         val container = TimePeriodContainer(period1, period2)
 
         val container2 = TimePeriodContainer(period1, period2, container)
-        container2.size shouldBeEqualTo 2
+        container2 shouldHaveSize 2
 
         container2.add(period1)
         container2 shouldHaveSize 2

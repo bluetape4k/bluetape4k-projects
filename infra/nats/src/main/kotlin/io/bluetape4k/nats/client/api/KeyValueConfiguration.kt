@@ -12,7 +12,7 @@ inline fun keyValueConfiguration(
     builder: KeyValueConfiguration.Builder.() -> Unit = {},
 ): KeyValueConfiguration {
     name.requireNotBlank("name")
-    
+
     return KeyValueConfiguration.builder(name).apply(builder).build()
 }
 
@@ -22,9 +22,8 @@ inline fun keyValueConfiguration(
 inline fun keyValueConfiguration(
     kvConfig: KeyValueConfiguration? = null,
     builder: KeyValueConfiguration.Builder.() -> Unit,
-): KeyValueConfiguration {
-    return KeyValueConfiguration.builder(kvConfig).apply(builder).build()
-}
+): KeyValueConfiguration =
+    KeyValueConfiguration.builder(kvConfig).apply(builder).build()
 
 /**
  * 최대 버킷 크기와 복제 개수를 포함한 기본 [KeyValueConfiguration]을 생성합니다.

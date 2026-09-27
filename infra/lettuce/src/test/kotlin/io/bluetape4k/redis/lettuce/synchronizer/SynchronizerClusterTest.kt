@@ -4,8 +4,11 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.redis.lettuce.synchronizer.internal.deriveLatchKeys
 import io.bluetape4k.redis.lettuce.synchronizer.internal.deriveSemaphoreKeys
+import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.testcontainers.storage.RedisClusterServer
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
 import io.lettuce.core.cluster.api.async.RedisAdvancedClusterAsyncCommands
@@ -17,9 +20,12 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
-import java.nio.charset.StandardCharsets
 
 class SynchronizerClusterTest {
+
+    private companion object: KLoggingChannel() {
+        const val SECRET = "secret-synchronizer"
+    }
 
     @Test
     fun `custom codec split slots fail every public family before dispatch`() {
@@ -35,8 +41,10 @@ class SynchronizerClusterTest {
             { LettucePermitExpirableSemaphore.create(it, SECRET) },
             { LettuceCountDownLatch.create(it, SECRET) },
         ).forEach { factory ->
-            val failure = assertFailsWith<IllegalArgumentException> { factory(connection) }
-            failure.message.orEmpty() shouldNotContain SECRET
+            val failure = assertFailsWith<IllegalArgumentException> {
+                factory(connection)
+            }
+            failure.message shouldNotContain SECRET
         }
 
         verify { sync wasNot Called }
@@ -54,12 +62,14 @@ class SynchronizerClusterTest {
                 val semaphoreKeys = deriveSemaphoreKeys(semaphoreName, SemaphoreConfig(), connection.codec)
                 val latchKeys = deriveLatchKeys(latchName, LatchConfig(), connection.codec)
                 connection.sync().del(*(semaphoreKeys.all + latchKeys.all).toTypedArray())
+
                 try {
                     LettuceDistributedSemaphore.create(connection, semaphoreName).use { semaphore ->
-                        semaphore.trySetPermits(1)
-                            .shouldBeInstanceOf<SemaphoreInitializationResult.Initialized>()
-                        semaphore.tryAcquire(SemaphoreOwnerId.random(), SemaphoreRequestId.random())
-                            .shouldBeInstanceOf<PermitAcquireResult.Acquired<PermitHandle>>()
+                        semaphore.trySetPermits(1).shouldBeInstanceOf<SemaphoreInitializationResult.Initialized>()
+                        semaphore.tryAcquire(
+                            SemaphoreOwnerId.random(),
+                            SemaphoreRequestId.random()
+                        ).shouldBeInstanceOf<PermitAcquireResult.Acquired<PermitHandle>>()
                     }
                     LettuceCountDownLatch.create(connection, latchName).use { latch ->
                         latch.trySetCount(1, LatchRequestId.random())
@@ -79,14 +89,14 @@ class SynchronizerClusterTest {
             val slot = if (key.endsWith(":available") || key.endsWith(":count")) "one" else "two"
             return encode("wire:{$slot}:$key")
         }
-        override fun encodeValue(value: String): ByteBuffer = encode(value)
-        private fun encode(value: String) = ByteBuffer.wrap(value.toByteArray(StandardCharsets.UTF_8))
-        private fun decode(bytes: ByteBuffer): String =
-            bytes.duplicate().let { copy -> ByteArray(copy.remaining()).also(copy::get) }
-                .toString(StandardCharsets.UTF_8)
-    }
 
-    private companion object {
-        const val SECRET = "secret-synchronizer"
+        override fun encodeValue(value: String): ByteBuffer = encode(value)
+        private fun encode(value: String) = ByteBuffer.wrap(value.toUtf8Bytes())
+        private fun decode(bytes: ByteBuffer): String =
+            bytes.duplicate()
+                .let { copy ->
+                    ByteArray(copy.remaining()).also(copy::get)
+                }
+                .toUtf8String()
     }
 }

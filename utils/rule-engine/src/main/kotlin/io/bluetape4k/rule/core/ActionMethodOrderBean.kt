@@ -1,7 +1,7 @@
 package io.bluetape4k.rule.core
 
+import io.bluetape4k.support.hashOf
 import java.lang.reflect.Method
-import java.util.*
 
 /**
  * Action 메서드와 실행 순서 정보를 가지는 클래스입니다. ([RuleProxy]에서 사용)
@@ -37,5 +37,5 @@ class ActionMethodOrderBean(
         return method == other.method && order == other.order
     }
 
-    override fun hashCode(): Int = Objects.hash(method, order)
+    override fun hashCode(): Int = hashOf(method, order)
 }

@@ -2,13 +2,18 @@ package io.bluetape4k.io
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.io.Reader
 import java.io.StringReader
 
 class BoundedLineReaderSupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `LF CRLF CR empty line and final line without newline are preserved`() {
@@ -45,7 +50,7 @@ class BoundedLineReaderSupportTest {
         }
 
         failure.maxLineChars shouldBeEqualTo 3
-        failure.message.orEmpty().contains("abcd").shouldBeEqualTo(false)
+        failure.message shouldNotContain "abcd"
     }
 
     @Test
@@ -77,7 +82,7 @@ class BoundedLineReaderSupportTest {
 
         bounded.readLine() shouldBeEqualTo "first"
         bounded.readLine() shouldBeEqualTo "second"
-        bounded.readLine() shouldBeEqualTo null
+        bounded.readLine().shouldBeNull()
     }
 
     @Test
@@ -136,7 +141,7 @@ class BoundedLineReaderSupportTest {
         source: String,
         bulkZeroCount: Int = 0,
         private val readFailure: IOException? = null,
-    ) : Reader() {
+    ): Reader() {
         private val source = source.toCharArray()
         private var position = 0
         private var remainingBulkZeroCount = bulkZeroCount
@@ -160,7 +165,7 @@ class BoundedLineReaderSupportTest {
                     0
                 }
                 position >= source.size -> -1
-                else -> {
+                else                    -> {
                     val count = minOf(len, source.size - position)
                     source.copyInto(cbuf, off, position, position + count)
                     position += count
@@ -185,7 +190,7 @@ class BoundedLineReaderSupportTest {
         }
     }
 
-    private class GeneratedReader : Reader() {
+    private class GeneratedReader: Reader() {
         var charsRead: Int = 0
             private set
 

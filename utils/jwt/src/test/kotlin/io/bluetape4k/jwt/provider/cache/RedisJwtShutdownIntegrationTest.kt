@@ -19,7 +19,7 @@ import org.redisson.Redisson
 import org.redisson.api.RedissonClient
 import org.testcontainers.containers.Network
 import java.time.Duration
-import java.util.UUID
+import java.util.*
 
 @Execution(ExecutionMode.SAME_THREAD)
 class RedisJwtShutdownIntegrationTest {

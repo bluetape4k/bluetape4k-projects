@@ -1,7 +1,6 @@
 package io.bluetape4k.spring.cassandra.async
 
 import com.datastax.oss.driver.api.core.CqlSession
-import com.datastax.oss.driver.api.core.uuid.Uuids
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
@@ -57,9 +56,6 @@ class AsyncCassandraOperationsCoroutinesTest(
         }
     }
 
-    private fun newUser(): User =
-        User(Uuids.timeBased().toString(), faker.name().firstName(), faker.name().lastName())
-
     @BeforeEach
     fun beforeEach() {
         runBlocking {
@@ -72,6 +68,7 @@ class AsyncCassandraOperationsCoroutinesTest(
     fun `insertSuspending - 엔티티 저장`() = runSuspendIO {
         val user = newUser()
         val saved = operations.insertSuspending(user)
+
         saved shouldBeEqualTo user
         operations.selectOneByIdSuspending<User>(user.id) shouldBeEqualTo user
     }

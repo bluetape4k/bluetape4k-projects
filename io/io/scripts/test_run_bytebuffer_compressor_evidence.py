@@ -186,7 +186,8 @@ class JmhValidationTest(unittest.TestCase):
                 records,
                 require_matrix=True,
                 expected_profile="canonical",
-                expected_authority={"jdk": "22", "vmName": "OpenJDK 64-Bit Server VM", "vmVersion": "21.0.8+9", "jvmExecutable": "/java"},
+                expected_authority={"jdk": "22", "vmName": "OpenJDK 64-Bit Server VM", "vmVersion": "21.0.8+9",
+                                    "jvmExecutable": "/java"},
             )
 
 
@@ -222,28 +223,32 @@ class ComparisonTest(unittest.TestCase):
     def test_both_run_throughput_regressions_require_design_review(self):
         records = matrix()
         for row in records:
-            if row["params"] == {"compressorName": "lz4", "payloadSize": row["params"]["payloadSize"], "storagePath": "heap"}:
+            if row["params"] == {"compressorName": "lz4", "payloadSize": row["params"]["payloadSize"],
+                                 "storagePath": "heap"}:
                 if row["benchmark"].endswith("compressCallerOwned"):
                     row["primaryMetric"] = metric(7_500, 10, "ops/s")
         rows = evidence.comparison_rows(list(self.two_runs(records, copy.deepcopy(records))))
-        verdicts = {row["verdict"] for row in rows if row["codec"] == "lz4" and row["storage"] == "heap" and row["operation"] == "compress"}
+        verdicts = {row["verdict"] for row in rows if
+                    row["codec"] == "lz4" and row["storage"] == "heap" and row["operation"] == "compress"}
         self.assertEqual({"design-review-required"}, verdicts)
 
     def test_one_run_throughput_regression_does_not_block_allocation_claim(self):
         first_records = matrix()
         for row in first_records:
-            if row["params"]["compressorName"] == "lz4" and row["params"]["storagePath"] == "heap" and row["benchmark"].endswith("compressCallerOwned"):
+            if row["params"]["compressorName"] == "lz4" and row["params"]["storagePath"] == "heap" and row[
+                "benchmark"].endswith("compressCallerOwned"):
                 row["primaryMetric"] = metric(7_500, 10, "ops/s")
         rows = evidence.comparison_rows(list(self.two_runs(first_records, matrix())))
-        verdicts = {row["verdict"] for row in rows if row["codec"] == "lz4" and row["storage"] == "heap" and row["operation"] == "compress"}
+        verdicts = {row["verdict"] for row in rows if
+                    row["codec"] == "lz4" and row["storage"] == "heap" and row["operation"] == "compress"}
         self.assertEqual({"accepted"}, verdicts)
 
     def test_one_payload_regression_in_both_runs_requires_design_review(self):
         records = matrix()
         for row in records:
             if (
-                row["params"] == {"compressorName": "lz4", "payloadSize": "medium", "storagePath": "heap"}
-                and row["benchmark"].endswith("decompressCallerOwned")
+                    row["params"] == {"compressorName": "lz4", "payloadSize": "medium", "storagePath": "heap"}
+                    and row["benchmark"].endswith("decompressCallerOwned")
             ):
                 row["primaryMetric"] = metric(7_500, 10, "ops/s")
         rows = evidence.comparison_rows(list(self.two_runs(records, copy.deepcopy(records))))
@@ -256,11 +261,13 @@ class ComparisonTest(unittest.TestCase):
     def test_five_percent_gate_without_payload_scaling_is_not_demonstrated(self):
         records = matrix()
         for row in records:
-            if row["params"]["compressorName"] == "lz4" and row["params"]["storagePath"] == "heap" and row["benchmark"].endswith("compressCallerOwned"):
+            if row["params"]["compressorName"] == "lz4" and row["params"]["storagePath"] == "heap" and row[
+                "benchmark"].endswith("compressCallerOwned"):
                 baseline = evidence.PAYLOAD_BYTES[row["params"]["payloadSize"]] + 1_000.0
                 row["secondaryMetrics"]["gc.alloc.rate.norm"] = metric(baseline * 0.90)
         rows = evidence.comparison_rows(list(self.two_runs(records, copy.deepcopy(records))))
-        verdicts = {row["verdict"] for row in rows if row["codec"] == "lz4" and row["storage"] == "heap" and row["operation"] == "compress"}
+        verdicts = {row["verdict"] for row in rows if
+                    row["codec"] == "lz4" and row["storage"] == "heap" and row["operation"] == "compress"}
         self.assertEqual({"not-demonstrated"}, verdicts)
 
     def test_extra_file_and_source_hash_drift_are_rejected(self):

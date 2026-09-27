@@ -3,6 +3,7 @@ package io.bluetape4k.feign.clients
 import feign.kotlin.CoroutineFeign
 import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.coroutines.flow.async
 import io.bluetape4k.feign.coroutines.client
 import io.bluetape4k.feign.services.HttpbinService
 import io.bluetape4k.feign.services.Post
@@ -10,9 +11,8 @@ import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.toList
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import kotlin.math.absoluteValue
@@ -46,16 +46,11 @@ abstract class AbstractHttpbinCoroutineTest: AbstractHttpbinTest() {
     fun `get post by postId`() = runSuspendIO {
         val postIds = List(ITEM_SIZE) { Random.nextInt(1, 100) }.distinct()
 
-        val deferred = postIds.map { postId ->
-            async(Dispatchers.IO) {
-                postId to client.getPost(postId)
-            }
-        }
-
-        val responses = deferred.awaitAll()
-        responses.map { it.first } shouldContainSame postIds
-        responses.forEach { (postId, response) ->
-            response.verify("GET", "/anything/posts/$postId")
+        val responses = postIds.asFlow()
+            .async { client.getPost(it) }
+            .toList()
+        responses.forEachIndexed { index, response ->
+            response.verify("GET", "/anything/posts/${postIds[index]}")
         }
     }
 
@@ -63,17 +58,13 @@ abstract class AbstractHttpbinCoroutineTest: AbstractHttpbinTest() {
     fun `get user's posts`() = runSuspendIO {
         val userIds = List(ITEM_SIZE) { Random.nextInt(1, 100) }.distinct()
 
-        val deferred = userIds.map { userId ->
-            async {
-                userId to client.getUserPosts(userId)
-            }
-        }
-        val userPosts = deferred.awaitAll()
+        val responses = userIds.asFlow()
+            .async { client.getUserPosts(it) }
+            .toList()
 
-        userPosts.map { it.first } shouldContainSame userIds
-        userPosts.forEach { (userId, response) ->
+        responses.forEachIndexed { index, response ->
             response.verify("GET", "/anything/posts")
-            response.verifyQuery("userId", userId)
+            response.verifyQuery("userId", userIds[index])
         }
     }
 
@@ -81,17 +72,12 @@ abstract class AbstractHttpbinCoroutineTest: AbstractHttpbinTest() {
     open fun `get post's comments`() = runSuspendIO {
         val postIds = List(ITEM_SIZE) { Random.nextInt(1, 20) }.distinct()
 
-        val deferred = postIds.map { postId ->
-            async {
-                postId to client.getPostComments(postId)
-            }
-        }
+        val responses = postIds.asFlow()
+            .async { client.getPostComments(it) }
+            .toList()
 
-        val postComments = deferred.awaitAll()
-
-        postComments.map { it.first } shouldContainSame postIds
-        postComments.forEach { (postId, response) ->
-            response.verify("GET", "/anything/post/$postId/comments")
+        responses.forEachIndexed { index, response ->
+            response.verify("GET", "/anything/post/${postIds[index]}/comments")
         }
     }
 
@@ -104,36 +90,27 @@ abstract class AbstractHttpbinCoroutineTest: AbstractHttpbinTest() {
     fun `get albums by userId`() = runSuspendIO {
         val userIds = List(ITEM_SIZE) { Random.nextInt(1, 100) }.distinct()
 
-        val deferred = userIds.map { userId ->
-            async {
-                userId to client.getAlbumsByUserId(userId)
-            }
-        }
+        val responses = userIds.asFlow()
+            .async { client.getAlbumsByUserId(it) }
+            .toList()
 
-        val userAlbums = deferred.awaitAll()
-
-        userAlbums.map { it.first } shouldContainSame userIds
-        userAlbums.forEach { (userId, response) ->
+        responses.forEachIndexed { index, response ->
             response.verify("GET", "/anything/albums")
-            response.verifyQuery("userId", userId)
+            response.verifyQuery("userId", userIds[index])
         }
     }
 
     @Test
-    fun `create new post`(
-        @RandomValue(type = Post::class, size = ITEM_SIZE) posts: List<Post>,
-    ) = runSuspendIO {
+    fun `create new post`(@RandomValue(type = Post::class, size = ITEM_SIZE) posts: List<Post>) = runSuspendIO {
         val requestPosts = posts.map { post -> post.copy(userId = post.userId.absoluteValue) }
-        val deferred = requestPosts.map { post ->
-            async {
-                client.createPost(post)
-            }
-        }
 
-        val newPosts = deferred.awaitAll()
-        newPosts.forEachIndexed { idx, response ->
+        val responses = requestPosts.asFlow()
+            .async { client.createPost(it) }
+            .toList()
+
+        responses.forEachIndexed { index, response ->
             response.verify("POST", "/anything/posts")
-            response.verifyJsonPost(requestPosts[idx])
+            response.verifyJsonPost(requestPosts[index])
         }
     }
 
@@ -141,8 +118,8 @@ abstract class AbstractHttpbinCoroutineTest: AbstractHttpbinTest() {
     fun `update exists post`() = runSuspendIO {
         val postIds = List(ITEM_SIZE) { Random.nextInt(1, 100) }.distinct()
 
-        val deferred = postIds.map { postId ->
-            async {
+        val responses = postIds.asFlow()
+            .async { postId ->
                 val post = Post(
                     userId = postId,
                     id = postId,
@@ -151,11 +128,9 @@ abstract class AbstractHttpbinCoroutineTest: AbstractHttpbinTest() {
                 )
                 post to client.updatePost(post, postId)
             }
-        }
-
-        val updated = deferred.awaitAll()
-        updated.map { it.first.id } shouldContainSame postIds
-        updated.forEach { (post, response) ->
+            .toList()
+        responses.map { it.first.id } shouldContainSame postIds
+        responses.forEach { (post, response) ->
             response.verify("PUT", "/anything/posts/${post.id}")
             response.verifyJsonPost(post)
         }

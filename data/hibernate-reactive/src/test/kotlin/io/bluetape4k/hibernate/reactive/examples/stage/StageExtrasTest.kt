@@ -5,9 +5,9 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.reactive.examples.model.Author
-import io.bluetape4k.hibernate.reactive.examples.model.Book
 import io.bluetape4k.hibernate.reactive.stage.asStageSessionFactory
 import io.bluetape4k.hibernate.reactive.stage.createQueryAs
 import io.bluetape4k.hibernate.reactive.stage.createSelectionQueryAs
@@ -40,18 +40,11 @@ class StageExtrasTest: AbstractStageTest() {
 
     companion object: KLoggingChannel()
 
-    private val author1 = Author(faker.name().name())
-    private val author2 = Author(faker.name().name())
-    private val book1 = Book(
-        faker.numerify("#-#####-###-#"),
-        faker.book().title(),
-        LocalDate.of(1985, Month.APRIL, 1)
-    )
-    private val book2 = Book(
-        faker.numerify("#-#####-###-#"),
-        faker.book().title(),
-        LocalDate.of(2005, Month.OCTOBER, 1)
-    )
+    private val author1 = newAuthor()
+    private val author2 = newAuthor()
+
+    private val book1 = newBook(LocalDate.of(1985, Month.APRIL, 1))
+    private val book2 = newBook(LocalDate.of(2005, Month.OCTOBER, 1))
 
     @BeforeAll
     fun beforeAll() {
@@ -72,7 +65,7 @@ class StageExtrasTest: AbstractStageTest() {
     @Test
     fun `asStageSessionFactory 는 유효한 SessionFactory 를 반환한다`() = runSuspendIO {
         sf.shouldNotBeNull()
-        sf.isOpen shouldBeEqualTo true
+        sf.isOpen.shouldBeTrue()
 
         val count = sf.withSessionSuspending { session ->
             session.createSelectionQueryAs<Long>("select count(a) from Author a")
@@ -128,13 +121,12 @@ class StageExtrasTest: AbstractStageTest() {
      */
     @Test
     fun `withStatelessTransactionSuspending 에서 getAs 로 엔티티를 조회한다`() = runSuspendIO {
-        val found = sf.withStatelessTransactionSuspending { session ->
+        val author = sf.withStatelessTransactionSuspending { session ->
             session.getAs<Author>(author1.id).await()
         }
 
-        found.shouldNotBeNull()
-        found.id shouldBeEqualTo author1.id
-        found.name shouldBeEqualTo author1.name
+        author.id shouldBeEqualTo author1.id
+        author.name shouldBeEqualTo author1.name
     }
 
     /**
@@ -146,6 +138,7 @@ class StageExtrasTest: AbstractStageTest() {
             session.createSelectionQueryAs<Long>("select count(b) from Book b")
                 .singleResult
                 .await()
+                .shouldNotBeNull()
         }
 
         count shouldBeGreaterOrEqualTo 2L
@@ -156,12 +149,13 @@ class StageExtrasTest: AbstractStageTest() {
      */
     @Test
     fun `존재하지 않는 id 로 findAs 를 호출하면 null 이 반환된다`() = runSuspendIO {
-        val nonExistentId = Long.MAX_VALUE
-        val result = sf.withSessionSuspending { session ->
+        val nonExistentId = Long.MIN_VALUE
+
+        val author = sf.withSessionSuspending { session ->
             session.find(Author::class.java, nonExistentId).await()
         }
 
-        result.shouldBeNull()
+        author.shouldBeNull()
     }
 
     /**
@@ -172,8 +166,10 @@ class StageExtrasTest: AbstractStageTest() {
         val (authorCount, bookCount) = sf.withStatelessTransactionSuspending { session ->
             val ac = session.createSelectionQueryAs<Long>("select count(a) from Author a")
                 .singleResult.await()
+
             val bc = session.createSelectionQueryAs<Long>("select count(b) from Book b")
                 .singleResult.await()
+
             ac to bc
         }
 

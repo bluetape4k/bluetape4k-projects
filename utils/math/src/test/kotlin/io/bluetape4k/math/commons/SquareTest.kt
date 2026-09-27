@@ -9,19 +9,22 @@ import java.math.BigInteger
 
 class SquareTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-10
+        private const val EPSILON_FLOAT = 1e-5f
+    }
 
     @Test
     fun `Double square 가 동작한다`() {
-        3.0.square().shouldBeNear(9.0, 1e-10)
-        (-4.0).square().shouldBeNear(16.0, 1e-10)
-        0.0.square().shouldBeNear(0.0, 1e-10)
+        3.0.square().shouldBeNear(9.0, EPSILON)
+        (-4.0).square().shouldBeNear(16.0, EPSILON)
+        0.0.square().shouldBeNear(0.0, EPSILON)
     }
 
     @Test
     fun `Float square 가 동작한다`() {
-        3.0f.square().shouldBeNear(9.0f, 1e-5f)
-        (-4.0f).square().shouldBeNear(16.0f, 1e-5f)
+        3.0f.square().shouldBeNear(9.0f, EPSILON_FLOAT)
+        (-4.0f).square().shouldBeNear(16.0f, EPSILON_FLOAT)
     }
 
     @Test

@@ -1,9 +1,12 @@
 package io.bluetape4k.kafka.codec
 
 import io.bluetape4k.annotations.BluetapeDelicateApi
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Nested
 
 class KafkaCodecTest {
+
+    companion object: KLogging()
 
     @Nested
     inner class JacksonCodecTest: AbstractKafkaCodecTest() {
@@ -24,6 +27,12 @@ class KafkaCodecTest {
     }
 
     @Nested
+    @OptIn(BluetapeDelicateApi::class)
+    inner class FastForyKafkaCodecTest: AbstractKafkaCodecTest() {
+        override val codec: KafkaCodec<Any?> = KafkaCodecs.FastFory
+    }
+
+    @Nested
     inner class Lz4KryoKafkaCodecTest: AbstractKafkaCodecTest() {
         override val codec: KafkaCodec<Any?> = KafkaCodecs.Lz4Kryo
     }
@@ -32,6 +41,12 @@ class KafkaCodecTest {
     @OptIn(BluetapeDelicateApi::class)
     inner class Lz4ForyKafkaCodecTest: AbstractKafkaCodecTest() {
         override val codec: KafkaCodec<Any?> = KafkaCodecs.Lz4Fory
+    }
+
+    @Nested
+    @OptIn(BluetapeDelicateApi::class)
+    inner class Lz4FastForyKafkaCodecTest: AbstractKafkaCodecTest() {
+        override val codec: KafkaCodec<Any?> = KafkaCodecs.Lz4FastFory
     }
 
     @Nested
@@ -46,6 +61,13 @@ class KafkaCodecTest {
     }
 
     @Nested
+    @OptIn(BluetapeDelicateApi::class)
+    inner class SnappyFastForyKafkaCodecTest: AbstractKafkaCodecTest() {
+        override val codec: KafkaCodec<Any?> = KafkaCodecs.SnappyFastFory
+    }
+
+
+    @Nested
     inner class ZstdKryoKafkaCodecTest: AbstractKafkaCodecTest() {
         override val codec: KafkaCodec<Any?> = KafkaCodecs.ZstdKryo
     }
@@ -54,5 +76,11 @@ class KafkaCodecTest {
     @OptIn(BluetapeDelicateApi::class)
     inner class ZstdForyKafkaCodecTest: AbstractKafkaCodecTest() {
         override val codec: KafkaCodec<Any?> = KafkaCodecs.ZstdFory
+    }
+
+    @Nested
+    @OptIn(BluetapeDelicateApi::class)
+    inner class ZstdFastForyKafkaCodecTest: AbstractKafkaCodecTest() {
+        override val codec: KafkaCodec<Any?> = KafkaCodecs.ZstdFastFory
     }
 }

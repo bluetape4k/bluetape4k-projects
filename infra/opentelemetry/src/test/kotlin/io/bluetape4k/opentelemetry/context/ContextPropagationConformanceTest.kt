@@ -1,6 +1,10 @@
 package io.bluetape4k.opentelemetry.context
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.fail
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
@@ -10,6 +14,8 @@ import io.bluetape4k.junit5.observability.ContextPropagationScenario
 import io.bluetape4k.junit5.observability.ContextPropagationTerminal
 import io.bluetape4k.junit5.observability.assertContextIsolation
 import io.bluetape4k.junit5.observability.assertContextPropagationConformance
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.opentelemetry.AbstractOtelTest
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.TimeoutCancellationException
@@ -39,7 +45,9 @@ import kotlin.time.Duration
     unit = TimeUnit.SECONDS,
     threadMode = Timeout.ThreadMode.SAME_THREAD,
 )
-class ContextPropagationConformanceTest {
+class ContextPropagationConformanceTest: AbstractOtelTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `coroutine success propagates and restores context`() = runTest {
@@ -120,7 +128,7 @@ class ContextPropagationConformanceTest {
 
         cancelledParent.join()
 
-        check(attempted == listOf("child-A", "child-B"))
+        attempted shouldBeEqualTo listOf("child-A", "child-B")
     }
 
     @Test
@@ -130,7 +138,7 @@ class ContextPropagationConformanceTest {
             withTimeout(Duration.ZERO) {
                 awaitCancellation()
             }
-            error("Expected deadline")
+            fail("Expected deadline")
         } catch (e: TimeoutCancellationException) {
             e
         }
@@ -145,7 +153,7 @@ class ContextPropagationConformanceTest {
                 }
             }
 
-            (thrown === primary).shouldBeTrue()
+            thrown shouldBe primary
         }
     }
 
@@ -176,11 +184,9 @@ class ContextPropagationConformanceTest {
             )
         }
 
-        (thrown === primary).shouldBeTrue()
-        check(thrown.suppressed.toList() == listOf(cleanupFailureA, cleanupFailureB)) {
-            "Unexpected cleanup suppression order: ${thrown.suppressed.map { it.javaClass.simpleName }}"
-        }
-        check(attempted == listOf("primary", "failure-A", "failure-B"))
+        thrown shouldBe primary
+        thrown.suppressed.toList() shouldBeEqualTo listOf(cleanupFailureA, cleanupFailureB)
+        attempted shouldBeEqualTo listOf("primary", "failure-A", "failure-B")
     }
 
     @Test
@@ -268,8 +274,8 @@ class ContextPropagationConformanceTest {
         recordReactorIsolationFailure(failure, readyA, firstFailure)
         sharedTerminated.awaitOrFail()
 
-        (firstFailure.get() === failure).shouldBeTrue()
-        (sharedFailure.get() === failure).shouldBeTrue()
+        firstFailure.get() shouldBe failure
+        sharedFailure.get() shouldBe failure
     }
 
     @Test
@@ -308,8 +314,8 @@ class ContextPropagationConformanceTest {
                 ) {}
             }
 
-            (thrown === interruption).shouldBeTrue()
-            check(attempted == listOf("interrupted", "remaining"))
+            thrown shouldBe interruption
+            attempted shouldBeEqualTo listOf("interrupted", "remaining")
             interruptibleCleanupCompleted.get().shouldBeTrue()
             Thread.currentThread().isInterrupted.shouldBeTrue()
         } finally {
@@ -390,7 +396,7 @@ class ContextPropagationConformanceTest {
                 executor.shutdownAndAssertTermination()
             }
             executor.shutdownNowCalled.shouldBeTrue()
-            check(executor.awaitCalls == 1)
+            executor.awaitCalls shouldBeEqualTo 1
             Thread.currentThread().isInterrupted.shouldBeTrue()
         } finally {
             Thread.interrupted()
@@ -428,7 +434,7 @@ class ContextPropagationConformanceTest {
                 }
             }
 
-            (thrown === interruption).shouldBeTrue()
+            thrown shouldBe interruption
             Thread.currentThread().isInterrupted.shouldBeTrue()
         } finally {
             Thread.interrupted()
@@ -444,7 +450,7 @@ class ContextPropagationConformanceTest {
 
         val captured = captureExecutorTerminal(future, DEFAULT_CANCELLATION_CONTRACT_TIMEOUT)
 
-        (captured === failure).shouldBeTrue()
+        captured shouldBe failure
     }
 
     @Test
@@ -458,7 +464,7 @@ class ContextPropagationConformanceTest {
             captureExecutorTerminal(future, DEFAULT_CANCELLATION_CONTRACT_TIMEOUT)
         }
 
-        (thrown === fatal).shouldBeTrue()
+        thrown shouldBe fatal
     }
 
     @Test
@@ -470,7 +476,7 @@ class ContextPropagationConformanceTest {
 
         val captured = captureExecutorTerminal(future, DEFAULT_CANCELLATION_CONTRACT_TIMEOUT)
 
-        (captured === cancellation).shouldBeTrue()
+        captured shouldBe cancellation
     }
 
     @Test
@@ -481,7 +487,7 @@ class ContextPropagationConformanceTest {
             captureExecutorTerminal(future, Duration.ZERO)
         }
 
-        failure.cause shouldBeInstanceOf TimeoutException::class
+        failure.cause.shouldBeInstanceOf<TimeoutException>()
     }
 
     @Test
@@ -503,8 +509,8 @@ class ContextPropagationConformanceTest {
                 }
             }
 
-            (thrown === primary).shouldBeTrue()
-            (thrown.suppressed.single() === cancelFailure).shouldBeTrue()
+            thrown shouldBe primary
+            thrown.suppressed.single() shouldBe cancelFailure
             shutdownExecuted.shouldBeTrue()
             Thread.currentThread().isInterrupted.shouldBeTrue()
         } finally {
@@ -524,12 +530,12 @@ class ContextPropagationConformanceTest {
                 cancel = { throw cancelFailure },
                 shutdown = { throw shutdownFailure },
             ) {
-                Unit
+                // No op.
             }
         }
 
-        (thrown === cancelFailure).shouldBeTrue()
-        (thrown.suppressed.single() === shutdownFailure).shouldBeTrue()
+        thrown shouldBe cancelFailure
+        thrown.suppressed.single() shouldBe shutdownFailure
     }
 
     @Test
@@ -549,8 +555,8 @@ class ContextPropagationConformanceTest {
                 }
             }
 
-            (thrown === primary).shouldBeTrue()
-            thrown.suppressed.isEmpty().shouldBeTrue()
+            thrown shouldBe primary
+            thrown.suppressed.shouldBeEmpty()
             Thread.currentThread().isInterrupted.shouldBeTrue()
         } finally {
             Thread.interrupted()
@@ -575,8 +581,8 @@ class ContextPropagationConformanceTest {
                 }
             }
 
-            (thrown === primary).shouldBeTrue()
-            (thrown.suppressed.single() === repeatedCleanup).shouldBeTrue()
+            thrown shouldBe primary
+            thrown.suppressed.single() shouldBe repeatedCleanup
             Thread.currentThread().isInterrupted.shouldBeTrue()
         } finally {
             Thread.interrupted()

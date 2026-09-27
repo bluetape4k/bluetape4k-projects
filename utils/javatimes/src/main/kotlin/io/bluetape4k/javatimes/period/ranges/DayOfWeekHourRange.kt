@@ -2,7 +2,13 @@ package io.bluetape4k.javatimes.period.ranges
 
 import io.bluetape4k.ToStringBuilder
 import io.bluetape4k.support.hashOf
+import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requireInRange
+import io.bluetape4k.support.requireLe
 import java.time.DayOfWeek
+
+private const val FIRST_HOUR_OF_DAY = 0
+private const val LAST_HOUR_OF_DAY = 23
 
 /**
  * 특정 요일의 하루 동안의 시간 간격
@@ -21,11 +27,10 @@ open class DayOfWeekHourRange(
 ): HourRangeInDay(startHourOfDay, endHourOfDay) {
 
     init {
-        require(startHourOfDay in 0..23) { "startHourOfDay[$startHourOfDay must be 0..23" }
-        require(endHourOfDay in 0..23) { "endHourOfDay[$endHourOfDay must be 0..23" }
-        require(startHourOfDay <= endHourOfDay) {
-            "startHourOfDay[$startHourOfDay must be less than or equals endDayOfHour[$endHourOfDay]"
-        }
+        startHourOfDay.requireInRange(FIRST_HOUR_OF_DAY, LAST_HOUR_OF_DAY, "startHourOfDay")
+        endHourOfDay.requireInRange(FIRST_HOUR_OF_DAY, LAST_HOUR_OF_DAY, "endHourOfDay")
+        startHourOfDay.requireLe(endHourOfDay, "startHourOfDay")
+        endHourOfDay.requireGe(startHourOfDay, "endHourOfDay")
     }
 
     override fun hashCode(): Int = hashOf(super.hashCode(), dayOfWeek)

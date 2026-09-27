@@ -20,6 +20,7 @@ import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.ConcurrentHashMap
 
 class KsuidGeneratorTest {
+
     companion object: KLoggingChannel() {
         private const val REPEAT_SIZE = 5
         private const val ID_SIZE = 100
@@ -97,7 +98,7 @@ class KsuidGeneratorTest {
 
         @EnabledForJreRange(min = JRE.JAVA_21)
         @RepeatedTest(REPEAT_SIZE)
-        fun `Virtual Thread 환경에서 중복 없이 KSUID를 생성한다`() {
+        fun `Virtual Thread 환경에서 중복 없이 KSUID를 생성한다 (Seconds)`() {
             val gen = KsuidGenerator()
             val idMap = ConcurrentHashMap<String, Int>()
 
@@ -109,10 +110,39 @@ class KsuidGeneratorTest {
                 }.run()
         }
 
+        @EnabledForJreRange(min = JRE.JAVA_21)
         @RepeatedTest(REPEAT_SIZE)
-        fun `Coroutine 환경에서 중복 없이 KSUID를 생성한다`() =
+        fun `Virtual Thread 환경에서 중복 없이 KSUID를 생성한다 (Millis)`() {
+            val gen = KsuidGenerator(Ksuid.Millis)
+            val idMap = ConcurrentHashMap<String, Int>()
+
+            StructuredTaskScopeTester()
+                .rounds(CONCURRENCY_COUNT)
+                .add {
+                    val id = gen.nextId()
+                    idMap.putIfAbsent(id, 1).shouldBeNull()
+                }.run()
+        }
+
+        @RepeatedTest(REPEAT_SIZE)
+        fun `Coroutine 환경에서 중복 없이 KSUID를 생성한다 (Seconds)`() =
             runSuspendDefault {
                 val gen = KsuidGenerator()
+                val idMap = ConcurrentHashMap<String, Int>()
+
+                SuspendedJobTester()
+                    .workers(Runtimex.availableProcessors)
+                    .rounds(CONCURRENCY_COUNT)
+                    .add {
+                        val id = gen.nextId()
+                        idMap.putIfAbsent(id, 1).shouldBeNull()
+                    }.run()
+            }
+
+        @RepeatedTest(REPEAT_SIZE)
+        fun `Coroutine 환경에서 중복 없이 KSUID를 생성한다 (Millis)`() =
+            runSuspendDefault {
+                val gen = KsuidGenerator(Ksuid.Millis)
                 val idMap = ConcurrentHashMap<String, Int>()
 
                 SuspendedJobTester()

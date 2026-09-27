@@ -2,9 +2,13 @@ package io.bluetape4k.redis.lettuce.codec
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.json.JsonSerializer
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.toUtf8Bytes
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.PooledByteBufAllocator
 import io.netty.buffer.Unpooled
@@ -17,6 +21,14 @@ import java.nio.ByteOrder
 import java.nio.ReadOnlyBufferException
 
 class LettuceJsonCodecBufferContractTest {
+
+    private companion object: KLogging() {
+        const val PREFIX: Int = 0x5A
+        const val PREFIX_SECRET: String = "P!"
+        const val SUFFIX_SECRET: String = "S!"
+        const val VALUE: String = "json-contract"
+        val JSON_WIRE: ByteArray = "\"value\"".encodeToByteArray()
+    }
 
     @Test
     fun `built in JSON target encoding uses the stream path and preserves caller state`() {
@@ -37,7 +49,8 @@ class LettuceJsonCodecBufferContractTest {
                 target.writerIndex() shouldBeEqualTo start + JSON_WIRE.size
                 target.readerIndex() shouldBeEqualTo 0
                 target.refCnt() shouldBeEqualTo referenceCount
-                target.bytes(0, target.writerIndex()).contentEquals(byteArrayOf(PREFIX.toByte()) + JSON_WIRE).shouldBeTrue()
+                target.bytes(0, target.writerIndex()) shouldBeEqualTo byteArrayOf(PREFIX.toByte()) + JSON_WIRE
+
                 target.resetReaderIndex()
                 target.resetWriterIndex()
                 target.readerIndex() shouldBeEqualTo 0
@@ -57,10 +70,7 @@ class LettuceJsonCodecBufferContractTest {
         val target = Unpooled.buffer(1, 64)
         try {
             codec.encodeValue(VALUE, target)
-
-            target.bytes(0, target.writerIndex())
-                .contentEquals(codec.encodeValue(VALUE).remainingBytes())
-                .shouldBeTrue()
+            target.bytes(0, target.writerIndex()) shouldBeEqualTo codec.encodeValue(VALUE).remainingBytes()
         } finally {
             target.release()
         }
@@ -94,6 +104,7 @@ class LettuceJsonCodecBufferContractTest {
             target.readerIndex() shouldBeEqualTo 3
             target.writerIndex() shouldBeEqualTo 7
             target.refCnt() shouldBeEqualTo referenceCount
+
             target.resetReaderIndex()
             target.resetWriterIndex()
             target.readerIndex() shouldBeEqualTo 3
@@ -205,7 +216,7 @@ class LettuceJsonCodecBufferContractTest {
             }
 
             target.writerIndex() shouldBeEqualTo 0
-            (failure.message?.contains(secret) == false).shouldBeTrue()
+            failure.message shouldNotContain secret
         } finally {
             target.release()
         }
@@ -229,15 +240,18 @@ class LettuceJsonCodecBufferContractTest {
                     view.capacity() shouldBeEqualTo JSON_WIRE.size
                     view.order() shouldBeEqualTo ByteOrder.LITTLE_ENDIAN
                     view.isReadOnly.shouldBeTrue()
-                    (!view.hasArray()).shouldBeTrue()
+                    view.hasArray().shouldBeFalse()
+
                     assertFailsWith<UnsupportedOperationException> { view.array() }
                     assertFailsWith<UnsupportedOperationException> { view.arrayOffset() }
                     assertFailsWith<ReadOnlyBufferException> { view.put(0, 0x33.toByte()) }
+
                     view.clear()
-                    view.remainingBytes().contentEquals(JSON_WIRE).shouldBeTrue()
+                    view.remainingBytes() shouldBeEqualTo JSON_WIRE
                     VALUE
                 }
             }
+
             val start = source.position()
             val limit = source.limit()
             val order = source.order()
@@ -253,7 +267,10 @@ class LettuceJsonCodecBufferContractTest {
                 source.reset()
                 source.position() shouldBeEqualTo start
                 retainedViews.single().capacity() shouldBeEqualTo JSON_WIRE.size
-                assertFailsWith<IndexOutOfBoundsException> { retainedViews.single().get(JSON_WIRE.size) }
+
+                assertFailsWith<IndexOutOfBoundsException> {
+                    retainedViews.single().get(JSON_WIRE.size)
+                }
             } catch (failure: Throwable) {
                 throw AssertionError("JSON decode source fixture failed: $name", failure)
             }
@@ -287,10 +304,13 @@ class LettuceJsonCodecBufferContractTest {
         source.reset()
         source.position() shouldBeEqualTo start
         retainedView.capacity() shouldBeEqualTo JSON_WIRE.size
-        retainedView.remainingBytes().contentEquals(JSON_WIRE).shouldBeTrue()
-        assertFailsWith<IndexOutOfBoundsException> { retainedView.get(JSON_WIRE.size) }
-        (actual.message?.contains(PREFIX_SECRET) == false).shouldBeTrue()
-        (actual.message?.contains(SUFFIX_SECRET) == false).shouldBeTrue()
+        retainedView.remainingBytes() shouldBeEqualTo JSON_WIRE
+
+        assertFailsWith<IndexOutOfBoundsException> {
+            retainedView.get(JSON_WIRE.size)
+        }
+        actual.message shouldNotContain PREFIX_SECRET
+        actual.message shouldNotContain SUFFIX_SECRET
     }
 
     @Test
@@ -304,7 +324,8 @@ class LettuceJsonCodecBufferContractTest {
             override fun <T: Any> deserialize(bytes: ByteArray?, clazz: Class<T>): T? {
                 arrayCalls++
                 clazz shouldBeEqualTo String::class.java
-                bytes?.contentEquals(JSON_WIRE).shouldBeTrue()
+                bytes shouldBeEqualTo JSON_WIRE
+
                 return VALUE as T
             }
         }
@@ -371,9 +392,9 @@ class LettuceJsonCodecBufferContractTest {
     )
 
     private fun configuredJsonSource(source: ByteBuffer): ByteBuffer = source.apply {
-        put(PREFIX_SECRET.encodeToByteArray())
+        put(PREFIX_SECRET.toUtf8Bytes())
         put(JSON_WIRE)
-        put(SUFFIX_SECRET.encodeToByteArray())
+        put(SUFFIX_SECRET.toUtf8Bytes())
         position(PREFIX_SECRET.length)
         limit(PREFIX_SECRET.length + JSON_WIRE.size)
         order(ByteOrder.LITTLE_ENDIAN)
@@ -386,11 +407,4 @@ class LettuceJsonCodecBufferContractTest {
     private fun ByteBuffer.remainingBytes(): ByteArray =
         ByteArray(remaining()).also { bytes -> duplicate().get(bytes) }
 
-    private companion object {
-        const val PREFIX: Int = 0x5A
-        const val PREFIX_SECRET: String = "P!"
-        const val SUFFIX_SECRET: String = "S!"
-        const val VALUE: String = "json-contract"
-        val JSON_WIRE: ByteArray = "\"value\"".encodeToByteArray()
-    }
 }

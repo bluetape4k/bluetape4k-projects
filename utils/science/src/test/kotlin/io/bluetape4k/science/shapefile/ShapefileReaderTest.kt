@@ -1,9 +1,6 @@
 package io.bluetape4k.science.shapefile
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.bluetape4k.science.coords.BoundingBox
-import kotlinx.coroutines.test.runTest
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
@@ -11,8 +8,11 @@ import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.science.coords.BoundingBox
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import java.io.File
 
 class ShapefileReaderTest {
@@ -20,8 +20,7 @@ class ShapefileReaderTest {
     companion object: KLogging()
 
     private fun testResource(path: String): File {
-        val url = javaClass.classLoader.getResource(path)
-            ?: error("테스트 리소스를 찾을 수 없습니다: $path")
+        val url = javaClass.classLoader.getResource(path) ?: error("테스트 리소스를 찾을 수 없습니다: $path")
         return File(url.file)
     }
 

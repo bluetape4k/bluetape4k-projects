@@ -1,6 +1,6 @@
 package io.bluetape4k.spring.data
 
-import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.logging.KLogging
@@ -89,6 +89,6 @@ class ExampleMatcherSupportTest: AbstractSpringTest() {
     fun `buildExampleMatcher의 매칭 모드는 MatchMode ANY가 아니라 ALL이다`() {
         val matcher = User::class.buildExampleMatcher("name")
 
-        matcher.isAllMatching shouldBeEqualTo true
+        matcher.isAllMatching.shouldBeTrue()
     }
 }

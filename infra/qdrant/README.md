@@ -35,11 +35,11 @@ Use `PointIdFactory.id(1L)` or `PointIdFactory.id(uuid)` for numeric and UUID ID
 
 ## Execution contract
 
-| API | Behavior |
-| --- | --- |
-| `querySuspending`, `upsertSuspending`, `deleteSuspending` | Await future callbacks and propagate the original failure |
-| `scrollAsFlow` | Independent collection, page limit 1..1000, consume a page before requesting the next |
-| `upsertBatches` | Bound item count and the entire serialized protobuf request; one request at a time |
+| API                                                       | Behavior                                                                              |
+|-----------------------------------------------------------|---------------------------------------------------------------------------------------|
+| `querySuspending`, `upsertSuspending`, `deleteSuspending` | Await future callbacks and propagate the original failure                             |
+| `scrollAsFlow`                                            | Independent collection, page limit 1..1000, consume a page before requesting the next |
+| `upsertBatches`                                           | Bound item count and the entire serialized protobuf request; one request at a time    |
 
 Each RPC receives the supplied `Duration`. Use `withTimeout` to bound the entire collection. Cancellation cancels the pending future but cannot undo writes already applied by the server. Clients and channels are never closed automatically.
 

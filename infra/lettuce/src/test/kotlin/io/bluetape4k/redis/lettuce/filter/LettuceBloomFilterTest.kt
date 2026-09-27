@@ -1,20 +1,23 @@
 package io.bluetape4k.redis.lettuce.filter
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.codec.StringCodec
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class LettuceBloomFilterTest: AbstractLettuceTest() {
 
     companion object: KLogging() {
-        private val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
+        private val connection by lazy {
+            LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8)
+        }
     }
 
     private lateinit var bloomFilter: LettuceBloomFilter
@@ -59,16 +62,18 @@ class LettuceBloomFilterTest: AbstractLettuceTest() {
             bloomFilter.filterName,
             BloomFilterOptions(expectedInsertions = 9999L, falseProbability = 0.5),
         )
-        assertFailsWith<IllegalStateException> { other.tryInit() }
+        assertFailsWith<IllegalStateException> {
+            other.tryInit()
+        }
     }
 
     @Test
     fun `다량 원소 추가 후 false positive rate 검증`() {
         val count = 500
-        (1..count).forEach { bloomFilter.add("element-$it") }
-        (1..count).forEach { bloomFilter.contains("element-$it").shouldBeTrue() }
+        repeat(count) { bloomFilter.add("element-$it") }
+        repeat(count) { bloomFilter.contains("element-$it").shouldBeTrue() }
 
         val falsePositives = (count + 1..count + 1000).count { bloomFilter.contains("element-$it") }
-        require(falsePositives < 50) { "false positive rate too high: $falsePositives/1000" }
+        falsePositives shouldBeLessThan 50
     }
 }

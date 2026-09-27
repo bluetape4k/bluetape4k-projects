@@ -101,10 +101,11 @@ class JvmReleaseContractTest(unittest.TestCase):
         release_version = base_version()
         for relative in ("testing/testcontainers/README.md", "testing/testcontainers/README.ko.md"):
             source = read(relative)
-            self.assertIn(f"`bluetape4k/mock-web-server` | `{release_version}`", source)
-            self.assertIn(f"`bluetape4k/mock-webflux-server` | `{release_version}`", source)
-            self.assertNotIn("`bluetape4k/mock-web-server` | `1.13.0`", source)
-            self.assertNotIn("`bluetape4k/mock-webflux-server` | `1.13.0`", source)
+            for image in ("mock-web-server", "mock-webflux-server"):
+                # 표 정렬 공백과 무관하게 이미지와 바로 다음 버전 셀을 검증한다.
+                image_cell = rf"`bluetape4k/{image}`[ \t]*\|[ \t]*"
+                self.assertRegex(source, image_cell + rf"`{re.escape(release_version)}`")
+                self.assertNotRegex(source, image_cell + r"`1\.13\.0`")
 
     def test_jdk_baseline_is_25_in_both_http_readmes(self) -> None:
         for relative in HTTP_READMES:

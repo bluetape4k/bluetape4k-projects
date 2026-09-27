@@ -1,12 +1,13 @@
 package io.bluetape4k.javatimes.interval
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.javatimes.nowZonedDateTime
 import io.bluetape4k.javatimes.startOf
 import io.bluetape4k.javatimes.temporalAmount
-import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeLessOrEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.trace
 import org.junit.jupiter.api.Nested
@@ -132,7 +133,7 @@ class TemporalIntervalWindowedTest {
                 log.trace { "current=$current, next=$next" }
                 (current in interval).shouldBeTrue()
                 (next in interval).shouldBeTrue()
-                (current < next).shouldBeTrue()
+                next shouldBeGreaterThan current
             }
         }
     }

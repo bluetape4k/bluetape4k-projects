@@ -2,11 +2,13 @@ package io.bluetape4k.jackson3
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.jackson3.binary.CborJacksonSerializer
 import io.bluetape4k.jackson3.binary.IonJacksonSerializer
 import io.bluetape4k.jackson3.binary.SmileJacksonSerializer
@@ -61,7 +63,7 @@ class JacksonSerializerOutputStreamTest {
 
             val nullTarget = RecordingOutputStream()
             serializer.serializeJsonToStream(null, nullTarget) shouldBeEqualTo 0
-            nullTarget.toByteArray() shouldBeEqualTo byteArrayOf()
+            nullTarget.toByteArray().shouldBeEmpty()
             nullTarget.flushCount shouldBeEqualTo 0
             nullTarget.closeCount shouldBeEqualTo 0
         }
@@ -104,7 +106,7 @@ class JacksonSerializerOutputStreamTest {
         json shouldContain "\n"
         json shouldContain "\"display_name\""
         json shouldContain "\"ALPHA\""
-        (!json.contains("optional_value")).shouldBeTrue()
+        json shouldNotContain "optional_value"
     }
 
     @Test

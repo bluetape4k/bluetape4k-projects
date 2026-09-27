@@ -52,7 +52,7 @@ class BingAddressFinder: GeocodeAddressFinder {
                 latitude = geocode.latitude.toDouble(),
                 longitude = geocode.longitude.toDouble(),
             )
-            log.debug { "location=$location" }
+            log.debug { "Bing location=$location" }
             location.toBingAddress()
         }.onFailure { e ->
             log.warn(e) { "Bing reverse geocode failed for $geocode" }
@@ -75,7 +75,7 @@ class BingAddressFinder: GeocodeAddressFinder {
             latitude = geocode.latitude.toDouble(),
             longitude = geocode.longitude.toDouble(),
         )
-        log.debug { "location=$location" }
+        log.debug { "Bing location=$location" }
         return location.toBingAddress()
     }
 }

@@ -47,10 +47,12 @@ inline fun <reified T: Any> DeleteTableSpec.from(): ReactiveDeleteOperation.Reac
 private class DeleteTableSpecImpl(
     private val client: io.bluetape4k.r2dbc.R2dbcClient,
 ): DeleteTableSpec {
+
     override fun from(table: String): DeleteValueSpec = DeleteValueSpecImpl(client, table)
 
     override fun <T: Any> from(type: Class<T>): ReactiveDeleteOperation.ReactiveDelete =
         client.entityTemplate.delete(type)
+
 }
 
 /**
@@ -102,6 +104,7 @@ private class DeleteValueSpecImpl(
     private val client: io.bluetape4k.r2dbc.R2dbcClient,
     private val table: String,
 ): DeleteValueSpec {
+
     companion object: KLogging()
 
     init {
@@ -113,11 +116,10 @@ private class DeleteValueSpecImpl(
         whereParameters: Map<String, Any?>?,
     ): DatabaseClient.GenericExecuteSpec {
         val sql = "DELETE FROM $table"
-        val sqlToDelete =
-            when (where) {
-                null -> sql
-                else -> "$sql WHERE $where"
-            }
+        val sqlToDelete = when (where) {
+            null -> sql
+            else -> "$sql WHERE $where"
+        }
         log.debug { "Delete SQL=$sqlToDelete" }
 
         return client.databaseClient

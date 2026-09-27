@@ -5,7 +5,7 @@ import io.bluetape4k.logging.KLogging
 import tools.jackson.dataformat.cbor.CBORMapper
 
 /**
- * 이전 CBOR 직렬화기 이름을 유지하는 deprecated 래퍼입니다.
+ * 이전 CBOR 직렬화기 이름을 유지하기 위한 deprecated 래퍼입니다.
  *
  * ## 동작/계약
  * - 실제 직렬화 경로는 [CborJacksonSerializer]와 동일합니다.

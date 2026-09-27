@@ -1,14 +1,14 @@
 package io.bluetape4k.io.serializer
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import java.io.Serializable
 
 /**
@@ -17,24 +17,24 @@ import java.io.Serializable
  */
 class FastForyCompatibilityTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     data class TestDomain(
         val id: Long,
         val name: String,
         val value: Double,
-    ) : Serializable
+    ): Serializable
 
     data class DomainWithNullable(
         val id: Long,
         val name: String?,
         val tags: List<String>?,
-    ) : Serializable
+    ): Serializable
 
     data class Nested(
         val inner: TestDomain,
         val label: String,
-    ) : Serializable
+    ): Serializable
 
     private val sample = TestDomain(id = 1L, name = "bluetape4k", value = 3.14)
 
@@ -49,7 +49,7 @@ class FastForyCompatibilityTest {
 
         val restored = serializer.deserialize<TestDomain>(bytes)
         log.debug { "restored=$restored" }
-        restored.shouldNotBeNull() shouldBeEqualTo sample
+        restored shouldBeEqualTo sample
     }
 
     @Test
@@ -61,7 +61,7 @@ class FastForyCompatibilityTest {
 
         val restored = serializer.deserialize<TestDomain>(bytes)
         log.debug { "LZ4FastFory restored=$restored" }
-        restored.shouldNotBeNull() shouldBeEqualTo sample
+        restored shouldBeEqualTo sample
     }
 
     @Test
@@ -73,7 +73,7 @@ class FastForyCompatibilityTest {
 
         val restored = serializer.deserialize<TestDomain>(bytes)
         log.debug { "ZstdFastFory restored=$restored" }
-        restored.shouldNotBeNull() shouldBeEqualTo sample
+        restored shouldBeEqualTo sample
     }
 
     @Test
@@ -106,7 +106,7 @@ class FastForyCompatibilityTest {
         val bytes = BinarySerializers.FastFory.serialize(obj)
         val restored = BinarySerializers.FastFory.deserialize<DomainWithNullable>(bytes)
         restored.shouldNotBeNull() shouldBeEqualTo obj
-        restored.tags!!.shouldNotBeNull()
+        restored.tags.shouldNotBeNull()
     }
 
     @Test
@@ -115,7 +115,7 @@ class FastForyCompatibilityTest {
         val bytes = BinarySerializers.FastFory.serialize(obj)
         val restored = BinarySerializers.FastFory.deserialize<DomainWithNullable>(bytes)
         restored.shouldNotBeNull()
-        restored.tags!!.shouldContainSame(obj.tags!!)
+        restored.tags.shouldNotBeNull() shouldContainSame obj.tags
     }
 
     @Test

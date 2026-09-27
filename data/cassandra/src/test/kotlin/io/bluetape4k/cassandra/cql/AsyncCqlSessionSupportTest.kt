@@ -18,16 +18,14 @@ class AsyncCqlSessionSupportTest: AbstractCassandraTest() {
     }
 
     @BeforeEach
-    fun setup() {
-        runSuspendIO {
-            if (initialized.compareAndSet(expect = false, update = true)) {
-                session.executeSuspending("DROP TABLE IF EXISTS user")
-                session.executeSuspending("CREATE TABLE IF NOT EXISTS user (id text PRIMARY KEY, username text);")
-            }
-
-            session.executeSuspending("TRUNCATE user")
-            session.executeSuspending("INSERT INTO user (id, username) VALUES ('WHITE', 'Walter')")
+    fun setup() = runSuspendIO {
+        if (initialized.compareAndSet(expect = false, update = true)) {
+            session.executeSuspending("DROP TABLE IF EXISTS user")
+            session.executeSuspending("CREATE TABLE IF NOT EXISTS user (id text PRIMARY KEY, username text);")
         }
+
+        session.executeSuspending("TRUNCATE user")
+        session.executeSuspending("INSERT INTO user (id, username) VALUES ('WHITE', 'Walter')")
     }
 
     @Test

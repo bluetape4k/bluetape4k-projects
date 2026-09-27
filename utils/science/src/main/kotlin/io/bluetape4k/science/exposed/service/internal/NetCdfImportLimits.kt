@@ -34,7 +34,7 @@ internal fun checkedProduct(vararg factors: Long): Long {
     return try {
         factors.fold(1L) { acc, factor -> Math.multiplyExact(acc, factor) }
     } catch (e: ArithmeticException) {
-        throw NetCdfException.ResourceLimitExceeded("long-product", Long.MAX_VALUE, Long.MAX_VALUE,)
+        throw NetCdfException.ResourceLimitExceeded("long-product", Long.MAX_VALUE, Long.MAX_VALUE)
     }
 }
 

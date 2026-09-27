@@ -57,7 +57,8 @@ object LettuceCaches: KLogging() {
         cacheName: String,
         ttlSeconds: Long? = null,
         codec: LettuceBinaryCodec<V> = LettuceBinaryCodecs.default<V>(),
-    ): JCache<K, V> = LettuceJCaching.getOrCreate(redisClient, cacheName, ttlSeconds, codec)
+    ): JCache<K, V> =
+        LettuceJCaching.getOrCreate(redisClient, cacheName, ttlSeconds, codec)
 
     // -------------------------------------------------------------------------
     // SuspendJCache
@@ -107,7 +108,12 @@ object LettuceCaches: KLogging() {
         block: NearJCacheConfigBuilder<K, V>.() -> Unit,
     ): NearJCache<K, V> {
         val config = nearJCacheConfig(block)
-        return nearJCache(redisClient, config, NearJCacheClearAuthority.DENY, codec)
+        return nearJCache(
+            redisClient,
+            config,
+            NearJCacheClearAuthority.DENY,
+            codec
+        )
     }
 
     /**
@@ -143,7 +149,13 @@ object LettuceCaches: KLogging() {
         redisClient: RedisClient,
         config: NearJCacheConfig<K, V>,
         codec: LettuceBinaryCodec<V> = LettuceBinaryCodecs.default<V>(),
-    ): NearJCache<K, V> = nearJCache(redisClient, config, NearJCacheClearAuthority.DENY, codec)
+    ): NearJCache<K, V> =
+        nearJCache(
+            redisClient,
+            config,
+            NearJCacheClearAuthority.DENY,
+            codec
+        )
 
     /**
      * [NearJCacheClearAuthority]를 명시하는 Lettuce [NearJCache] 설정 factory입니다.
@@ -229,7 +241,8 @@ object LettuceCaches: KLogging() {
     fun <V: Any> nearCache(
         redisClient: RedisClient,
         config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
-    ): NearCacheOperations<V> = LettuceNearCache(redisClient, config = config)
+    ): NearCacheOperations<V> =
+        LettuceNearCache(redisClient, config = config)
 
     /**
      * [LettuceNearCacheConfig]를 이용해 [LettuceNearCache]`<V>`를 생성합니다.
@@ -242,7 +255,8 @@ object LettuceCaches: KLogging() {
         redisClient: RedisClient,
         codec: RedisCodec<String, V>,
         config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
-    ): NearCacheOperations<V> = LettuceNearCache(redisClient, codec, config)
+    ): NearCacheOperations<V> =
+        LettuceNearCache(redisClient, codec, config)
 
     /**
      * DSL 빌더를 이용해 [LettuceNearCache]`<V>`를 생성합니다.

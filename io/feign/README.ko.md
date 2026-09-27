@@ -108,12 +108,12 @@ val user = api.getUser(URI("https://api.github.com"), "octocat")
 
 ### 3. 다양한 HTTP 전송 계층
 
-| 클라이언트                  | 특성                 | 용도            |
-|------------------------|--------------------|---------------|
-| ApacheHttp5Client      | 안정적, 풍부한 설정        | 동기 API 호출     |
-| AsyncApacheHttp5Client | 비동기, Coroutines 통합 | 고성능 비동기 통신    |
-| VertxHttpClient        | 이벤트 루프 기반, 경량      | Vert.x 생태계 통합 |
-| AsyncVertxHttpClient   | Vert.x 비동기 클라이언트   | Vert.x 비동기 통신 |
+| 클라이언트             | 특성                     | 용도               |
+|------------------------|--------------------------|--------------------|
+| ApacheHttp5Client      | 안정적, 풍부한 설정      | 동기 API 호출      |
+| AsyncApacheHttp5Client | 비동기, Coroutines 통합  | 고성능 비동기 통신 |
+| VertxHttpClient        | 이벤트 루프 기반, 경량   | Vert.x 생태계 통합 |
+| AsyncVertxHttpClient   | Vert.x 비동기 클라이언트 | Vert.x 비동기 통신 |
 
 전송 계층 계약:
 

@@ -109,7 +109,7 @@ class SubjectCancellationTest {
             }
         }
 
-        ex shouldBeInstanceOf CancellationException::class
+        ex.shouldBeInstanceOf<CancellationException>()
     }
 
     /**

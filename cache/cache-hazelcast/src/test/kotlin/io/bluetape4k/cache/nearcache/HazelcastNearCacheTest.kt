@@ -1,13 +1,13 @@
 package io.bluetape4k.cache.nearcache
 
-import io.bluetape4k.cache.HazelcastServers
-import io.bluetape4k.cache.HazelcastServers.hazelcastClient
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.cache.HazelcastServers
+import io.bluetape4k.cache.HazelcastServers.hazelcastClient
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
@@ -160,7 +160,9 @@ class HazelcastNearCacheTest: AbstractHazelcastNearCacheTest() {
     fun `clearAll - 로컬 + IMap 초기화`() {
         cache.put("k1", "v1")
         cache.put("k2", "v2")
+
         cache.clearAll()
+
         cache.localCacheSize() shouldBeEqualTo 0L
         cache.get("k1").shouldBeNull()
         cache.get("k2").shouldBeNull()
@@ -172,6 +174,7 @@ class HazelcastNearCacheTest: AbstractHazelcastNearCacheTest() {
         cache.put("s2", "v2")
         cache.put("s3", "v3")
         cache.backCacheSize() shouldBeEqualTo 3
+
         cache.remove("s2")
         cache.backCacheSize() shouldBeEqualTo 2
     }
@@ -213,6 +216,7 @@ class HazelcastNearCacheTest: AbstractHazelcastNearCacheTest() {
         // removeAll이 front + back 모두에서 삭제했는지 IMap을 직접 조회해 검증한다.
         cache.putAll(mapOf("x1" to "v1", "x2" to "v2", "x3" to "v3"))
         cache.removeAll(setOf("x1", "x2"))
+
         cache.backCacheSize() shouldBeEqualTo 1L
         cache.get("x3") shouldBeEqualTo "v3"
     }

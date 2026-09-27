@@ -7,6 +7,7 @@ import io.bluetape4k.kafka.logback.exporter.DefaultKafkaExporter
 import io.bluetape4k.kafka.logback.exporter.KafkaExporter
 import io.bluetape4k.kafka.logback.keyprovider.HostnameKafkaKeyProvider
 import io.bluetape4k.kafka.logback.keyprovider.KafkaKeyProvider
+import io.bluetape4k.logging.KLogging
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -19,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 abstract class AbstractKafkaAppender<E: Any>: UnsynchronizedAppenderBase<E>(), AppenderAttachable<E> {
 
-    companion object {
+    companion object: KLogging() {
         const val DEFAULT_BOOTSTRAP_SERVERS = "localhost:9093"
         const val DEFAULT_ACKS = "1"
     }

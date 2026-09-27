@@ -8,6 +8,7 @@ import io.bluetape4k.testcontainers.mq.KafkaServer
 abstract class AbstractKafkaTest {
 
     companion object: KLoggingChannel() {
+
         const val TEST_TOPIC_NAME = "$LibraryName.kafka.test-topic.1"
         const val REPEAT_SIZE = 3
 

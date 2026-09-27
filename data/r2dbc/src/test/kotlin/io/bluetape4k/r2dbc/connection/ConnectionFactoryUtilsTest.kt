@@ -5,11 +5,15 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.r2dbc.spi.ConnectionFactories
 import org.junit.jupiter.api.Test
 import org.springframework.transaction.NoTransactionException
 
 class ConnectionFactoryUtilsTest {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `connection coroutine bridge는 획득 반납과 target unwrap을 지원한다`() = runSuspendIO {
@@ -32,6 +36,7 @@ class ConnectionFactoryUtilsTest {
         val failure = assertFailsWith<NoTransactionException> {
             factory.currentAndAwait()
         }
+        log.debug { "failure message: ${failure.message}" }
         failure.message shouldBeEqualTo "No transaction in context"
     }
 }

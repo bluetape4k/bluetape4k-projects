@@ -18,7 +18,7 @@ class NearCacheResilienceConfigBuilderTest {
 
         config.retryMaxAttempts shouldBeEqualTo 3
         config.retryWaitDuration shouldBeEqualTo Duration.ofMillis(500)
-        config.retryExponentialBackoff shouldBeEqualTo true
+        config.retryExponentialBackoff.shouldBeTrue()
         config.getFailureStrategy shouldBeEqualTo GetFailureStrategy.RETURN_FRONT_OR_NULL
     }
 

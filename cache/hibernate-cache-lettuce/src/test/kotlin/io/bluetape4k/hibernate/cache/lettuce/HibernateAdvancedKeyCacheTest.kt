@@ -1,16 +1,22 @@
 package io.bluetape4k.hibernate.cache.lettuce
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cache.nearcache.LettuceNearCache
 import io.bluetape4k.cache.nearcache.LettuceNearCacheConfig
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.hibernate.cache.lettuce.model.CompositePerson
 import io.bluetape4k.hibernate.cache.lettuce.model.CompositePersonId
 import io.bluetape4k.hibernate.cache.lettuce.model.NaturalUser
 import io.bluetape4k.hibernate.cache.lettuce.model.Person
+import io.bluetape4k.hibernate.findAs
+import io.bluetape4k.hibernate.getServiceOrNull
+import io.bluetape4k.logging.KLogging
 import io.lettuce.core.RedisClient
 import io.lettuce.core.codec.StringCodec
 import org.hibernate.KeyType
@@ -18,12 +24,13 @@ import org.hibernate.cache.internal.BasicCacheKeyImplementation
 import org.hibernate.cache.internal.NaturalIdCacheKey
 import org.hibernate.cache.spi.RegionFactory
 import org.hibernate.engine.spi.SharedSessionContractImplementor
-import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.Serializable
 
 class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
+
+    companion object: KLogging()
 
     @BeforeEach
     fun clearCacheAndData() {
@@ -57,17 +64,16 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
         repeat(2) {
             sessionFactory.openSession().use { session ->
                 session.beginTransaction()
-                session.find(CompositePerson::class.java, id).shouldNotBeNull()
+                session.findAs<CompositePerson>(id).shouldNotBeNull()
                 session.transaction.commit()
             }
         }
 
-        val regionFactory = (sessionFactory as SessionFactoryImplementor).serviceRegistry
-            .getService(org.hibernate.cache.spi.RegionFactory::class.java) as LettuceNearCacheRegionFactory
+        val regionFactory = sessionFactory.getServiceOrNull<RegionFactory>() as LettuceNearCacheRegionFactory
         val regionName = regionFactory.getCaches().keys.first { it.contains("CompositePerson") }
         val redisKeys = redisKeys("$regionName:*")
 
-        redisKeys.size shouldBeGreaterThan 0
+        redisKeys.shouldNotBeEmpty()
         redisKeys.any { it.contains("hck2:") }.shouldBeTrue()
     }
 
@@ -89,11 +95,7 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
         repeat(2) {
             sessionFactory.openSession().use { session ->
                 session.beginTransaction()
-                session.find(
-                    NaturalUser::class.java,
-                    "natural@example.com",
-                    KeyType.NATURAL
-                ).shouldNotBeNull()
+                session.findAs<NaturalUser>("natural@example.com", KeyType.NATURAL).shouldNotBeNull()
                 session.transaction.commit()
             }
         }
@@ -101,18 +103,18 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
         sessionFactory.statistics.naturalIdCachePutCount shouldBeGreaterThan 0L
         sessionFactory.statistics.naturalIdCacheHitCount shouldBeGreaterThan 0L
 
-        val regionFactory = (sessionFactory as SessionFactoryImplementor).serviceRegistry
-            .getService(org.hibernate.cache.spi.RegionFactory::class.java) as LettuceNearCacheRegionFactory
-        val regionName =
-            regionFactory.getCaches().keys.first { it.contains("##NaturalId") || it.contains("NaturalUser") }
-        val redisKeys = redisKeys("$regionName:*")
+        val regionFactory = sessionFactory.getServiceOrNull<RegionFactory>() as LettuceNearCacheRegionFactory
 
+        val regionName = regionFactory.getCaches().keys
+            .first { it.contains("##NaturalId") || it.contains("NaturalUser") }
+
+        val redisKeys = redisKeys("$regionName:*")
         redisKeys.any { key -> key.contains("hck2:") }.shouldBeTrue()
     }
 
     @Test
     fun `natural-id delimiter value와 composite arity는 같은 cache key로 충돌하지 않는다`() {
-        withStorageAccess("natural-id-collision-${System.nanoTime()}") { cacheName, storageAccess, session ->
+        withStorageAccess("natural-id-collision-${Base58.randomString(8)}") { cacheName, storageAccess, session ->
             val singleValueKey = NaturalIdCacheKey("alpha, beta", "NaturalEntity", null, 1)
             val compositeValueKey = NaturalIdCacheKey(arrayOf("alpha", "beta"), "NaturalEntity", null, 2)
 
@@ -121,13 +123,14 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
 
             storageAccess.getFromCache(singleValueKey, session) shouldBeEqualTo "single-value"
             storageAccess.getFromCache(compositeValueKey, session) shouldBeEqualTo "composite-value"
+
             redisKeys("$cacheName:*").size shouldBeEqualTo 2
         }
     }
 
     @Test
     fun `scalar identifier와 object array identifier는 같은 cache key로 충돌하지 않는다`() {
-        withStorageAccess("array-scalar-collision-${System.nanoTime()}") { cacheName, storageAccess, session ->
+        withStorageAccess("array-scalar-collision-${Base58.randomString(8)}") { cacheName, storageAccess, session ->
             val scalarKey = BasicCacheKeyImplementation("[1, 2]" as Serializable, "ArrayEntity", 1)
             val arrayKey = BasicCacheKeyImplementation(arrayOf(1, 2) as Serializable, "ArrayEntity", 2)
 
@@ -136,13 +139,14 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
 
             storageAccess.getFromCache(scalarKey, session) shouldBeEqualTo "scalar-id"
             storageAccess.getFromCache(arrayKey, session) shouldBeEqualTo "array-id"
+
             redisKeys("$cacheName:*").size shouldBeEqualTo 2
         }
     }
 
     @Test
     fun `same toString custom identifiers는 같은 cache key로 충돌하지 않는다`() {
-        withStorageAccess("custom-id-collision-${System.nanoTime()}") { cacheName, storageAccess, session ->
+        withStorageAccess("custom-id-collision-${Base58.randomString(8)}") { cacheName, storageAccess, session ->
             val firstKey = BasicCacheKeyImplementation(OpaqueIdentifier("first"), "OpaqueEntity", 1)
             val secondKey = BasicCacheKeyImplementation(OpaqueIdentifier("second"), "OpaqueEntity", 2)
 
@@ -151,13 +155,14 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
 
             storageAccess.getFromCache(firstKey, session) shouldBeEqualTo "first-id"
             storageAccess.getFromCache(secondKey, session) shouldBeEqualTo "second-id"
+
             redisKeys("$cacheName:*").size shouldBeEqualTo 2
         }
     }
 
     @Test
     fun `nested graph serialization failure는 cache key를 fail-closed 처리한다`() {
-        withStorageAccess("broken-serializable-id-${System.nanoTime()}") { cacheName, storageAccess, session ->
+        withStorageAccess("broken-serializable-id-${Base58.randomString(8)}") { cacheName, storageAccess, session ->
             val firstKey = BrokenSerializableIdentifier("first")
             val secondKey = BrokenSerializableIdentifier("second")
 
@@ -173,7 +178,7 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
 
     @Test
     fun `동일 textual representation의 비직렬화 식별자는 cache key를 fail-closed 처리한다`() {
-        withStorageAccess("non-serializable-id-${System.nanoTime()}") { cacheName, storageAccess, session ->
+        withStorageAccess("non-serializable-id-${Base58.randomString(8)}") { cacheName, storageAccess, session ->
             val firstKey = NonSerializableIdentifier("first")
             val secondKey = NonSerializableIdentifier("second")
 
@@ -182,7 +187,8 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
 
             storageAccess.getFromCache(firstKey, session).shouldBeNull()
             storageAccess.getFromCache(secondKey, session).shouldBeNull()
-            storageAccess.contains(firstKey) shouldBeEqualTo false
+
+            storageAccess.contains(firstKey).shouldBeFalse()
             redisKeys("$cacheName:*").size shouldBeEqualTo 0
         }
     }
@@ -266,6 +272,9 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
     ): Serializable {
         private val nestedState: Any = Any()
 
+        override fun equals(other: Any?): Boolean =
+            other is BrokenSerializableIdentifier && other.value == value
+
         override fun hashCode(): Int = 0
 
         override fun toString(): String = "same-text"
@@ -275,9 +284,7 @@ class HibernateAdvancedKeyCacheTest: AbstractHibernateNearCacheTest() {
         }
     }
 
-    private class NonSerializableIdentifier(
-        private val value: String,
-    ) {
+    private class NonSerializableIdentifier(private val value: String) {
         override fun toString(): String = "same-text"
     }
 }

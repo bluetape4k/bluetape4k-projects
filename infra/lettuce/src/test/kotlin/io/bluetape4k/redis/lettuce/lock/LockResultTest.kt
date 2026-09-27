@@ -2,19 +2,24 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.io.lookup
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InvalidObjectException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
-import java.io.ObjectStreamClass
 import java.io.Serializable
 import java.time.Duration
 
 class LockResultTest {
+
+    companion object: KLogging()
 
     @Test
     fun `operation results expose typed handles and stable singleton states`() {
@@ -25,9 +30,9 @@ class LockResultTest {
         val negative: LockAcquireResult<LockHandle> = LockAcquireResult.TimedOut
         val downgrade: DowngradeResult = DowngradeResult.Downgraded(read)
 
-        (acquired as LockAcquireResult.Acquired).handle shouldBeEqualTo handle
-        negative shouldBeSameInstanceAs LockAcquireResult.TimedOut
-        (downgrade as DowngradeResult.Downgraded).handle shouldBeEqualTo read
+        acquired.shouldBeInstanceOf<LockAcquireResult.Acquired<*>>().handle shouldBeEqualTo handle
+        negative.shouldBeInstanceOf<LockAcquireResult.TimedOut>()
+        downgrade.shouldBeInstanceOf<DowngradeResult.Downgraded>().handle shouldBeEqualTo read
     }
 
     @Test
@@ -49,7 +54,8 @@ class LockResultTest {
             LockRequestId.from("request-secret"),
             LockRecoveryAction.RECONCILE_REQUEST,
         )
-
+        log.debug { "result=$result" }
+        result.recoveryAction shouldBeEqualTo LockRecoveryAction.RECONCILE_REQUEST
         result.toString() shouldNotContain "owner-secret"
         result.toString() shouldNotContain "request-secret"
     }
@@ -59,7 +65,8 @@ class LockResultTest {
         val handle = lockHandle()
         val backend = LockBackendFailure(LockBackendFailureKind.TIMEOUT, LockRecoveryAction.RECONCILE_REQUEST)
         val integrity = LockIntegrityFailure(LockIntegrityFailureKind.INVALID_GENERATION)
-        val samples = listOf<Serializable>(
+
+        val samples = listOf(
             backend,
             integrity,
             LockAcquireResult.Acquired(handle),
@@ -118,8 +125,9 @@ class LockResultTest {
 
         samples.forEach { original ->
             javaRoundTrip(original) shouldBeEqualTo original
-            ObjectStreamClass.lookup(original.javaClass).serialVersionUID shouldBeEqualTo 1L
+            original::class.lookup().serialVersionUID shouldBeEqualTo 1L
         }
+
         listOf(
             LockAcquireResult.TimedOut,
             LockInspectResult.OwnershipLost,
@@ -134,9 +142,12 @@ class LockResultTest {
 
     @Test
     fun `deserialization revalidates result payloads without echoing values`() {
-        val invalid = LockAcquireResult.Contended(1).withField("remainingTtlMillis", -1L)
-        val error = assertFailsWith<InvalidObjectException> { javaRoundTrip(invalid) }
+        val invalid = LockAcquireResult.Contended(1)
+            .withField("remainingTtlMillis", -1L)
 
+        val error = assertFailsWith<InvalidObjectException> {
+            javaRoundTrip(invalid)
+        }
         error.message shouldBeEqualTo "Invalid serialized LockAcquireResult.Contended."
         error.message shouldNotContain "-1"
     }

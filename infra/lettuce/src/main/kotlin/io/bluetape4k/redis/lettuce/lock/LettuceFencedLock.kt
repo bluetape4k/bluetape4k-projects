@@ -15,7 +15,7 @@ import java.util.concurrent.ScheduledExecutorService
  */
 class LettuceFencedLock internal constructor(
     private val client: FencedLockClient,
-) : AutoCloseable {
+): AutoCloseable {
 
     /** Explicitly initializes this epoch's persistent fencing counter. This operation is safe to retry. */
     fun bootstrapFencing(): FencedBootstrapResult =

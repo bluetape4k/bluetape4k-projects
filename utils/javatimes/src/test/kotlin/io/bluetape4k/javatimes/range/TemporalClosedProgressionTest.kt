@@ -1,16 +1,16 @@
 package io.bluetape4k.javatimes.range
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.LocalDateTime
 
 class TemporalClosedProgressionTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val start = LocalDateTime.of(2024, 1, 1, 0, 0, 0)
     private val end = LocalDateTime.of(2024, 1, 5, 0, 0, 0)
@@ -40,14 +40,14 @@ class TemporalClosedProgressionTest {
     @Test
     fun `progression is not empty for valid range`() {
         val progression = TemporalClosedProgression.fromClosedRange(start, end, stepOneDay)
-        progression.isEmpty().shouldBeFalse()
+        progression.shouldNotBeEmpty()
     }
 
     @Test
     fun `single element progression when start equals end`() {
         val progression = TemporalClosedProgression.fromClosedRange(start, start, stepOneDay)
         val items = progression.toList()
-        items.size shouldBeEqualTo 1
+        items shouldHaveSize 1
         items[0] shouldBeEqualTo start
     }
 
@@ -75,7 +75,7 @@ class TemporalClosedProgressionTest {
     fun `toString contains first and last`() {
         val progression = TemporalClosedProgression.fromClosedRange(start, end, stepOneDay)
         val str = progression.toString()
-        str.isNotEmpty().shouldBeTrue()
+        str.shouldNotBeEmpty()
     }
 
     @Test
@@ -85,7 +85,7 @@ class TemporalClosedProgressionTest {
         val step = Duration.ofHours(1)
         val progression = TemporalClosedProgression.fromClosedRange(s, e, step)
         val items = progression.toList()
-        items.size shouldBeEqualTo 5
+        items shouldHaveSize 5
         items[0] shouldBeEqualTo s
         items[4] shouldBeEqualTo e
     }
@@ -97,7 +97,7 @@ class TemporalClosedProgressionTest {
         val step = Duration.ofMinutes(1)
         val progression = TemporalClosedProgression.fromClosedRange(s, e, step)
         val items = progression.toList()
-        items.size shouldBeEqualTo 4
+        items shouldHaveSize 4
     }
 
     @Test
@@ -108,6 +108,6 @@ class TemporalClosedProgressionTest {
         val progression = TemporalClosedProgression.fromClosedRange(s, e, step)
         val items = progression.toList()
         // 1,3,5,7,9 = 5 items
-        items.size shouldBeEqualTo 5
+        items shouldHaveSize 5
     }
 }

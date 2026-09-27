@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
@@ -111,7 +112,7 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
         reader.claim<String>("author") shouldBeEqualTo "debop"
     }
 
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `compose jwt in multit-hreading`() {
         val customData = randomString(1024)
         val now = Date()
@@ -141,11 +142,11 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
         uniqueJwts.forEach { jwt ->
             log.trace { "jwt=$jwt" }
         }
-        uniqueJwts.size shouldBeEqualTo 1
+        uniqueJwts shouldHaveSize 1
     }
 
     @EnabledForJreRange(min = JRE.JAVA_21)
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `compose jwt in virtual threads`() {
         val customData = randomString(1024)
         val now = Date()
@@ -174,17 +175,16 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
         uniqueJwts.forEach { jwt ->
             log.trace { "jwt=$jwt" }
         }
-        uniqueJwts.size shouldBeEqualTo 1
+        uniqueJwts shouldHaveSize 1
     }
 
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `compose jwt in coroutines`() = runSuspendDefault {
         val customData = randomString(1024)
         val now = Date()
         val jwts = ConcurrentLinkedQueue<String>()
 
         SuspendedJobTester()
-            .workers(16)
             .rounds(16 * 32)
             .add {
                 withContext(Dispatchers.Default) {
@@ -209,10 +209,10 @@ abstract class AbstractJwtProviderTest: AbstractJwtTest() {
         uniqueJwts.forEach { jwt ->
             log.trace { "jwt=$jwt" }
         }
-        uniqueJwts.size shouldBeEqualTo 1
+        uniqueJwts shouldHaveSize 1
     }
 
-    @RepeatedTest(REPEAT_SIZE)
+    @Test
     fun `삭제된 KeyChain으로 구성된 jwt는 parsing이 실패해야 한다`() {
         Assumptions.assumeTrue { provider is DefaultJwtProvider }
 

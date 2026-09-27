@@ -1,11 +1,15 @@
 package io.bluetape4k.ktor.core
 
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.get
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.Job
 import org.junit.jupiter.api.Assertions.assertTimeout
 import org.junit.jupiter.api.Test
@@ -13,10 +17,12 @@ import java.time.Duration
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 class ApplicationResourceRegistryTest {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `registry starts open with an empty report`() {
@@ -88,6 +94,7 @@ class ApplicationResourceRegistryTest {
         val resourceFailure = assertFailsWith<IllegalArgumentException> {
             registry.register(resource)
         }
+
         registry.register(action)
         val actionFailure = assertFailsWith<IllegalArgumentException> {
             registry.register(action)
@@ -120,7 +127,7 @@ class ApplicationResourceRegistryTest {
     @Test
     fun `early close failure is isolated and reported with the early phase`() {
         val registry = ApplicationResourceRegistry()
-        val registration = registry.register { throw IllegalStateException("credential-secret") }
+        val registration = registry.register { error("credential-secret") }
 
         registration.close()
 
@@ -145,9 +152,10 @@ class ApplicationResourceRegistryTest {
         val registry = ApplicationResourceRegistry()
         registry.close()
 
-        registry.register { throw IllegalStateException("credential-secret") }
+        registry.register { error("credential-secret") }
 
         val report = registry.closeReport
+
         report.state shouldBeEqualTo ApplicationResourceRegistryState.CLOSED
         report.attempted shouldBeEqualTo 1
         report.inFlight shouldBeEqualTo 0
@@ -166,12 +174,14 @@ class ApplicationResourceRegistryTest {
         val closed = mutableListOf<String>()
         val registry = ApplicationResourceRegistry()
         registry.register { closed += "first" }
-        val failing = registry.register { throw IllegalStateException("credential-secret") }
+
+        val failing = registry.register { error("credential-secret") }
         registry.register { closed += "last" }
 
         registry.close()
 
         closed shouldBeEqualTo listOf("last", "first")
+
         val report = registry.closeReport
         report.state shouldBeEqualTo ApplicationResourceRegistryState.CLOSED
         report.attempted shouldBeEqualTo 3
@@ -192,24 +202,26 @@ class ApplicationResourceRegistryTest {
         val started = CountDownLatch(1)
         val release = CountDownLatch(1)
         val registry = ApplicationResourceRegistry()
+
         registry.register {
             started.countDown()
-            release.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            release.await(5.seconds).shouldBeTrue()
         }
         val executor = Executors.newSingleThreadExecutor()
+
         try {
             val closeFuture = executor.submit { registry.close() }
-            started.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            started.await(5.seconds).shouldBeTrue()
 
             val report = registry.closeReport
             report.state shouldBeEqualTo ApplicationResourceRegistryState.DRAINING
             report.attempted shouldBeEqualTo 1
             report.inFlight shouldBeEqualTo 1
             report.closed shouldBeEqualTo 0
-            report.failures shouldBeEqualTo emptyList()
+            report.failures.shouldBeEmpty()
 
             release.countDown()
-            closeFuture.get(5, TimeUnit.SECONDS)
+            closeFuture.get(5.seconds)
         } finally {
             release.countDown()
             executor.shutdownNow()
@@ -220,6 +232,7 @@ class ApplicationResourceRegistryTest {
     fun `reentrant close and late registration do not deadlock`() {
         val closed = mutableListOf<String>()
         val registry = ApplicationResourceRegistry()
+
         registry.register {
             closed += "shutdown"
             registry.close()
@@ -236,6 +249,7 @@ class ApplicationResourceRegistryTest {
     fun `fatal failure is sanitized after remaining resources are closed`() {
         val closed = mutableListOf<String>()
         val registry = ApplicationResourceRegistry()
+
         registry.register { closed += "first" }
         registry.register { throw AssertionError("credential-secret") }
         registry.register { closed += "last" }
@@ -243,8 +257,8 @@ class ApplicationResourceRegistryTest {
         val marker = assertFailsWith<Error> { registry.close() }
 
         closed shouldBeEqualTo listOf("last", "first")
-        marker.message.orEmpty() shouldNotContain "credential-secret"
-        marker.cause shouldBeEqualTo null
+        marker.message shouldNotContain "credential-secret"
+        marker.cause.shouldBeNull()
         registry.closeReport.failures.single().fatal.shouldBeTrue()
     }
 
@@ -264,6 +278,7 @@ class ApplicationResourceRegistryTest {
         val registry = ApplicationResourceRegistry()
         val caller = Thread.currentThread()
         var closer: Thread? = null
+
         registry.register { closer = Thread.currentThread() }
 
         assertTimeout(Duration.ofSeconds(1)) {
@@ -286,21 +301,21 @@ class ApplicationResourceRegistryTest {
             try {
                 val futures = registrations.map { registration ->
                     executor.submit {
-                        barrier.await(5, TimeUnit.SECONDS)
+                        barrier.await(5.seconds)
                         registration.close()
                     }
                 }
                 val closeFuture = executor.submit {
-                    barrier.await(5, TimeUnit.SECONDS)
+                    barrier.await(5.seconds)
                     registry.close()
                 }
-                futures.forEach { it.get(5, TimeUnit.SECONDS) }
-                closeFuture.get(5, TimeUnit.SECONDS)
+                futures.forEach { it.get(5.seconds) }
+                closeFuture.get(5.seconds)
             } finally {
                 executor.shutdownNow()
             }
 
-            closeCounts.forEach { it.get() shouldBeEqualTo 1 }
+            closeCounts.all { it.get() == 1 }.shouldBeTrue()
             registry.closeReport.closed shouldBeEqualTo closeCounts.size
             registry.closeReport.inFlight shouldBeEqualTo 0
         }
@@ -313,19 +328,24 @@ class ApplicationResourceRegistryTest {
         val registry = ApplicationResourceRegistry()
         val resource = AutoCloseable {
             closeStarted.countDown()
-            allowClose.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            allowClose.await(5.seconds).shouldBeTrue()
         }
         registry.register(resource)
         val executor = Executors.newSingleThreadExecutor()
         try {
             val closeFuture = executor.submit { registry.close() }
-            closeStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            closeStarted.await(5.seconds).shouldBeTrue()
 
             registry.closeReport.state shouldBeEqualTo ApplicationResourceRegistryState.DRAINING
-            assertFailsWith<IllegalArgumentException> { registry.register(resource) }
+
+            assertFailsWith<IllegalArgumentException> {
+                registry.register(resource)
+            }
             allowClose.countDown()
-            closeFuture.get(5, TimeUnit.SECONDS)
-            assertFailsWith<IllegalArgumentException> { registry.register(resource) }
+            closeFuture.get(5.seconds)
+            assertFailsWith<IllegalArgumentException> {
+                registry.register(resource)
+            }
         } finally {
             allowClose.countDown()
             executor.shutdownNow()
@@ -333,10 +353,10 @@ class ApplicationResourceRegistryTest {
 
         registry.closeReport.state shouldBeEqualTo ApplicationResourceRegistryState.CLOSED
         registry.closeReport.inFlight shouldBeEqualTo 0
-        registry.closeReport.failures.isEmpty().shouldBeTrue()
+        registry.closeReport.failures.shouldBeEmpty()
         registry.closeReport.closed shouldBeEqualTo 1
-        registry.closeReport.attempted.shouldBeEqualTo(1)
-        registry.closeReport.failures.any { it.fatal }.shouldBeFalse()
+        registry.closeReport.attempted shouldBeEqualTo 1
+        registry.closeReport.failures.none { it.fatal }.shouldBeTrue()
     }
 
     @Test
@@ -345,15 +365,17 @@ class ApplicationResourceRegistryTest {
         val allowClose = CountDownLatch(1)
         val registry = ApplicationResourceRegistry()
         registry.close()
+
         val executor = Executors.newSingleThreadExecutor()
+
         try {
             val registration = executor.submit {
                 registry.register {
                     closeStarted.countDown()
-                    allowClose.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                    allowClose.await(5.seconds).shouldBeTrue()
                 }
             }
-            closeStarted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            closeStarted.await(5.seconds).shouldBeTrue()
 
             registry.closeReport shouldBeEqualTo ApplicationResourceCloseReport(
                 state = ApplicationResourceRegistryState.CLOSED,
@@ -364,7 +386,7 @@ class ApplicationResourceRegistryTest {
             )
 
             allowClose.countDown()
-            registration.get(5, TimeUnit.SECONDS)
+            registration.get(5.seconds)
         } finally {
             allowClose.countDown()
             executor.shutdownNow()
@@ -376,7 +398,7 @@ class ApplicationResourceRegistryTest {
 
     private class NamedResource(
         private val name: String,
-    ) : AutoCloseable {
+    ): AutoCloseable {
         override fun close() = Unit
 
         override fun toString(): String = name

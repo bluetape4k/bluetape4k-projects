@@ -68,16 +68,16 @@ class MessageBuilderSupportTest: AbstractSpringTest() {
     }
 
     @Test
-    fun `message로 다양한 페이로드 타입을 생성할 수 있다`() {
-        val intMsg = message(42)
+    fun `messageOf 로 다양한 페이로드 타입을 생성할 수 있다`() {
+        val intMsg = messageOf(42)
         intMsg.payload shouldBeEqualTo 42
 
-        val listMsg = message(listOf(1, 2, 3))
+        val listMsg = messageOf(listOf(1, 2, 3))
         listMsg.payload shouldBeEqualTo listOf(1, 2, 3)
 
         data class Dto(val id: Long, val name: String)
 
-        val dtoMsg = message(Dto(1L, "test"))
+        val dtoMsg = messageOf(Dto(1L, "test"))
         dtoMsg.payload shouldBeEqualTo Dto(1L, "test")
     }
 }

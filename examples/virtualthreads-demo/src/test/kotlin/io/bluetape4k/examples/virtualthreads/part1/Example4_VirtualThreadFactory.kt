@@ -1,5 +1,8 @@
 package io.bluetape4k.examples.virtualthreads.part1
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
 import io.bluetape4k.concurrent.virtualthread.VT
 import io.bluetape4k.examples.virtualthreads.AbstractVirtualThreadTest
 import io.bluetape4k.junit5.coroutines.runSuspendTest
@@ -8,11 +11,9 @@ import io.bluetape4k.logging.debug
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class Example4_VirtualThreadFactory: AbstractVirtualThreadTest() {
 
@@ -43,7 +44,7 @@ class Example4_VirtualThreadFactory: AbstractVirtualThreadTest() {
 
         try {
             // A started virtual thread may already be WAITING/TIMED_WAITING, so assert the lifecycle contract instead.
-            entered.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            entered.await(1.seconds).shouldBeTrue()
             thread.isAlive.shouldBeTrue()
         } finally {
             release.countDown()

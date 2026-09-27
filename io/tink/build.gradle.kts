@@ -3,14 +3,16 @@ configurations {
 }
 
 dependencies {
+    // Google Tink - 현대적 AEAD 암호화 (AES-GCM, ChaCha20-Poly1305, AES-SIV, HMAC)
+    api(bt4k.tink)
+
     api(project(":bluetape4k-core"))
-    compileOnly(libs.lettuce.core)
-    compileOnly(bt4k.redisson)
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
 
-    // Google Tink - 현대적 AEAD 암호화 (AES-GCM, ChaCha20-Poly1305, AES-SIV, HMAC)
-    api(bt4k.tink)
+    // Redis
+    compileOnly(libs.lettuce.core)
+    compileOnly(bt4k.redisson)
 
     // Coroutines
     testImplementation(project(":bluetape4k-coroutines"))

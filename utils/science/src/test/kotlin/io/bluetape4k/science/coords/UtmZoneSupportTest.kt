@@ -1,10 +1,13 @@
 package io.bluetape4k.science.coords
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import org.junit.jupiter.api.Test
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
@@ -44,8 +47,8 @@ class UtmZoneSupportTest {
 
     @Test
     fun `UTM_LATITUDE_BANDS에 I와 O가 없다`() {
-        UTM_LATITUDE_BANDS.containsKey('I').let { require(!it) { "I가 포함되어 있으면 안됩니다" } }
-        UTM_LATITUDE_BANDS.containsKey('O').let { require(!it) { "O가 포함되어 있으면 안됩니다" } }
+        UTM_LATITUDE_BANDS.containsKey('I').shouldBeFalse()
+        UTM_LATITUDE_BANDS.containsKey('O').shouldBeFalse()
     }
 
     @Test
@@ -81,14 +84,14 @@ class UtmZoneSupportTest {
         val bbox = zone.boundingBox()
         // Band X: 72°N ~ 84°N → 높이 12도
         val height = bbox.maxLat - bbox.minLat
-        require(height == 12.0) { "Band X 높이는 12도여야 합니다. 실제: $height" }
+        height shouldBeEqualTo 12.0
     }
 
     @Test
     fun `Band X의 BoundingBox가 84도 북위를 포함한다`() {
         val zone = UtmZone(32, 'X')
         val bbox = zone.boundingBox()
-        require(bbox.maxLat == 84.0) { "Band X maxLat은 84°N이어야 합니다. 실제: ${bbox.maxLat}" }
+        bbox.maxLat shouldBeEqualTo 84.0
     }
 
     @Test
@@ -96,7 +99,7 @@ class UtmZoneSupportTest {
         val zone = UtmZone(52, 'S')
         val bbox = zone.boundingBox()
         val height = bbox.maxLat - bbox.minLat
-        require(height == 8.0) { "일반 Band 높이는 8도여야 합니다. 실제: $height" }
+        height shouldBeEqualTo 8.0
     }
 
     @Test
@@ -123,8 +126,9 @@ class UtmZoneSupportTest {
         val zone = UtmZone(52, 'S')
         val cellBbox = zone.cellBoundingBox(size = 1.0, row = 0, col = 0)
         val utmBbox = zone.boundingBox()
+
         // 첫 번째 셀은 UTM Zone의 북서쪽 모서리에 위치해야 함
-        (cellBbox.maxLat <= utmBbox.maxLat).let { require(it) }
-        (cellBbox.minLon >= utmBbox.minLon).let { require(it) }
+        cellBbox.maxLat shouldBeLessOrEqualTo utmBbox.maxLat
+        cellBbox.minLon shouldBeGreaterOrEqualTo utmBbox.minLon
     }
 }

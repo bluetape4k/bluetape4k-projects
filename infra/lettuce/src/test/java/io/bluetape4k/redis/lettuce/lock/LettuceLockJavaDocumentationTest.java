@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static io.bluetape4k.concurrent.CompletableFutureSupportKt.completableFutureOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class LettuceLockJavaDocumentationTest {
@@ -28,14 +29,14 @@ class LettuceLockJavaDocumentationTest {
      */
     @SuppressWarnings("unused")
     static void compileFactories(
-        StatefulRedisConnection<String, String> standalone,
-        StatefulRedisClusterConnection<String, String> cluster,
-        LockConfig lockConfig,
-        FairLockConfig fairConfig,
-        FencedLockConfig fencedConfig,
-        ReadWriteLockConfig readWriteConfig,
-        SpinLockConfig spinConfig,
-        MultiLockConfig multiConfig
+            StatefulRedisConnection<String, String> standalone,
+            StatefulRedisClusterConnection<String, String> cluster,
+            LockConfig lockConfig,
+            FairLockConfig fairConfig,
+            FencedLockConfig fencedConfig,
+            ReadWriteLockConfig readWriteConfig,
+            SpinLockConfig spinConfig,
+            MultiLockConfig multiConfig
     ) {
         LettuceDistributedLock.create(standalone, "orders");
         LettuceDistributedLock.create(standalone, "orders", lockConfig);
@@ -79,10 +80,10 @@ class LettuceLockJavaDocumentationTest {
      */
     @SuppressWarnings({"unused", "ConstantValue"})
     static void compileLifecycle(
-        LettuceDistributedLock distributed,
-        LettuceFencedLock fenced,
-        LettuceReadWriteLock readWrite,
-        LettuceMultiLock multi
+            LettuceDistributedLock distributed,
+            LettuceFencedLock fenced,
+            LettuceReadWriteLock readWrite,
+            LettuceMultiLock multi
     ) {
         LockOwnerId ownerId = LockOwnerId.random();
         LockRequestId requestId = LockRequestId.random();
@@ -97,7 +98,7 @@ class LettuceLockJavaDocumentationTest {
             distributed.release(handle);
         } else if (result instanceof LockAcquireResult.Ambiguous ambiguous) {
             LockReconcileResult<LockHandle> reconciled =
-                distributed.reconcile(ambiguous.getOwnerId(), ambiguous.getRequestId());
+                    distributed.reconcile(ambiguous.getOwnerId(), ambiguous.getRequestId());
             if (reconciled instanceof LockReconcileResult.Owned<?> owned) {
                 distributed.release((LockHandle) owned.getHandle());
             }
@@ -108,7 +109,7 @@ class LettuceLockJavaDocumentationTest {
         }
 
         CompletableFuture<LockAcquireResult<LockHandle>> async =
-            distributed.acquireAsync(ownerId, requestId, Duration.ofSeconds(2), lease);
+                distributed.acquireAsync(ownerId, requestId, Duration.ofSeconds(2), lease);
         async.thenCompose(acquired -> {
             CompletableFuture<?> completion;
             if (acquired instanceof LockAcquireResult.Acquired<?> success) {
@@ -117,16 +118,17 @@ class LettuceLockJavaDocumentationTest {
                 completion = distributed.releaseAsync((LockHandle) reentered.getHandle());
             } else if (acquired instanceof LockAcquireResult.Ambiguous ambiguous) {
                 completion = distributed.reconcileAsync(ambiguous.getOwnerId(), ambiguous.getRequestId())
-                    .thenCompose(reconciled -> {
-                        if (reconciled instanceof LockReconcileResult.Owned<?> owned) {
-                            return distributed.releaseAsync((LockHandle) owned.getHandle());
-                        }
-                        return CompletableFuture.completedFuture(null);
-                    });
+                        .thenCompose(reconciled -> {
+                            if (reconciled instanceof LockReconcileResult.Owned<?> owned) {
+                                return distributed.releaseAsync((LockHandle) owned.getHandle());
+                            }
+                            return completableFutureOf(null);
+                        });
             } else {
-                completion = CompletableFuture.completedFuture(null);
+                completion = completableFutureOf(null);
             }
-            return completion.thenAccept(ignored -> {});
+            return completion.thenAccept(ignored -> {
+            });
         });
 
         LockAcquireResult<FencedLockHandle> fencedResult = fenced.tryAcquire(ownerId, requestId, lease);

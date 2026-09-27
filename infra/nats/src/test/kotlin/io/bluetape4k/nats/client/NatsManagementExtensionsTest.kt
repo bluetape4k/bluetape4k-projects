@@ -1,7 +1,14 @@
 package io.bluetape4k.nats.client
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.nats.AbstractNatsTest
 import io.bluetape4k.nats.client.api.keyValueConfiguration
 import io.bluetape4k.nats.client.api.streamConfiguration
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -13,15 +20,20 @@ import io.nats.client.ObjectStoreManagement
 import io.nats.client.api.KeyValueStatus
 import io.nats.client.api.StreamConfiguration
 import io.nats.client.api.StreamInfo
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.assertFailsWith
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.IOException
 
-class JetStreamManagementExtensionsTest {
+class JetStreamManagementExtensionsTest: AbstractNatsTest() {
+
+    companion object: KLogging()
+
     private val jetStreamManagement = mockk<JetStreamManagement>()
+
+    @BeforeEach
+    fun beforeEach() {
+        clearMocks(jetStreamManagement)
+    }
 
     @Test
     fun `forcedDeleteStream returns false when stream is missing`() {
@@ -74,10 +86,9 @@ class JetStreamManagementExtensionsTest {
         val unexpected = IOException("socket closed")
         every { jetStreamManagement.deleteConsumer("orders", "consumer-a") } throws unexpected
 
-        val thrown =
-            assertFailsWith<IOException> {
-                jetStreamManagement.forcedDeleteConsumer("orders", "consumer-a")
-            }
+        val thrown = assertFailsWith<IOException> {
+            jetStreamManagement.forcedDeleteConsumer("orders", "consumer-a")
+        }
 
         thrown shouldBeEqualTo unexpected
     }
@@ -228,10 +239,9 @@ class KeyValueManagementExtensionsTest {
         val unexpected = mockJetStreamException(99999)
         every { keyValueManagement.delete("events") } throws unexpected
 
-        val thrown =
-            assertFailsWith<JetStreamApiException> {
-                keyValueManagement.forcedDelete("events")
-            }
+        val thrown = assertFailsWith<JetStreamApiException> {
+            keyValueManagement.forcedDelete("events")
+        }
 
         thrown shouldBeEqualTo unexpected
     }
@@ -260,8 +270,16 @@ class KeyValueManagementExtensionsTest {
     }
 }
 
-class ObjectStreamManagementExtensionsTest {
+class ObjectStreamManagementExtensionsTest: AbstractNatsTest() {
+
+    companion object: KLogging()
+
     private val objectStoreManagement = mockk<ObjectStoreManagement>()
+
+    @BeforeEach
+    fun beforeEach() {
+        clearMocks(objectStoreManagement)
+    }
 
     @Test
     fun `tryDelete ignores not-found exception`() {

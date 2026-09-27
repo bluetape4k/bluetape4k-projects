@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.http.AbstractHttpTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.support.toUtf8String
 import org.junit.jupiter.api.Test
 import java.net.URI
 import java.net.http.HttpRequest
@@ -42,8 +43,13 @@ class JdkHttpClientSupportTest: AbstractHttpTest() {
     fun `jdkHttpClientOf 로 GET 요청 상태코드 200`() {
         val client = jdkHttpClientOf()
         val request = HttpRequest.newBuilder(URI.create("$httpbinBaseUrl/get")).GET().build()
-        val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+
+        val response: HttpResponse<ByteArray?> = client
+            .send(request, HttpResponse.BodyHandlers.ofByteArray())
+            .shouldNotBeNull()
+
         log.debug { "GET $httpbinBaseUrl/get status=${response.statusCode()}" }
+        log.debug { "response body=${response.body()?.toUtf8String()}" }
         response.statusCode() shouldBeEqualTo 200
     }
 }

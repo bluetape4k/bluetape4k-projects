@@ -1,14 +1,14 @@
 package io.bluetape4k.rule.core
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.ruleSetOf
 import io.bluetape4k.rule.exception.InvalidRuleDefinitionException
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.rule.annotation.Action as ActionAnnotation
 import io.bluetape4k.rule.annotation.Condition as ConditionAnnotation
 import io.bluetape4k.rule.annotation.Fact as FactAnnotation
@@ -119,7 +119,7 @@ class RuleProxyTest {
         val facts = Facts.of("age" to 20)
         rule.evaluate(facts).shouldBeTrue()
         rule.execute(facts)
-        facts.get<Boolean>("allowed").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("allowed").shouldBeTrue()
     }
 
     @Test
@@ -129,7 +129,7 @@ class RuleProxyTest {
         val facts = Facts.of("score" to 80)
         rule.evaluate(facts).shouldBeTrue()
         rule.execute(facts)
-        facts.get<Boolean>("passed").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("passed").shouldBeTrue()
     }
 
     @Test
@@ -144,8 +144,8 @@ class RuleProxyTest {
 
         val facts = Facts.empty()
         rule.execute(facts)
-        facts.get<Boolean>("first").shouldNotBeNull().shouldBeTrue()
-        facts.get<Boolean>("second").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("first").shouldBeTrue()
+        facts.get<Boolean>("second").shouldBeTrue()
     }
 
     @Test
@@ -163,7 +163,7 @@ class RuleProxyTest {
             action { }
         }
         val result = RuleProxy.asRule(original)
-        (result === original).shouldBeTrue()
+        result shouldBe original
     }
 
     @Test
@@ -172,15 +172,16 @@ class RuleProxyTest {
         val annotatedRule = AgeCheckRule().asRule()
 
         val facts = Facts.of("age" to 25)
-        engine.fire(ruleSetOf(annotatedRule), facts); facts.get<Boolean>("allowed").shouldNotBeNull().shouldBeTrue()
+        engine.fire(ruleSetOf(annotatedRule), facts)
+        facts.get<Boolean>("allowed").shouldBeTrue()
     }
 
     @Test
     fun `Proxy Rule의 equals와 hashCode 동작`() {
         val rule1 = AgeCheckRule().asRule()
         val rule2 = AgeCheckRule().asRule()
-        (rule1 == rule2).shouldBeTrue()
-        (rule1.hashCode() == rule2.hashCode()).shouldBeTrue()
+        rule1 shouldBeEqualTo rule2
+        rule1.hashCode() shouldBeEqualTo rule2.hashCode()
     }
 
     @Test

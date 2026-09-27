@@ -7,7 +7,6 @@ import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.GenericServer
 import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.exposeCustomPorts
-import io.bluetape4k.testcontainers.storage.RedisClusterServer.Launcher.RedissonLib.getRedissonConfig
 import io.bluetape4k.utils.ShutdownQueue
 import io.lettuce.core.RedisURI
 import io.lettuce.core.cluster.ClusterClientOptions
@@ -297,7 +296,7 @@ class RedisClusterServer private constructor(
                         .setNatMapper { redisURI ->
                             val port = requireNotNull(redisCluster.mappedPorts[redisURI.port]) {
                                 "Redis Cluster NAT 매핑 실패: port ${redisURI.port}에 대한 매핑 포트를 찾을 수 없습니다. " +
-                                    "mappedPorts=${redisCluster.mappedPorts}"
+                                        "mappedPorts=${redisCluster.mappedPorts}"
                             }
                             org.redisson.misc.RedisURI("redis", "localhost", port)
                         }

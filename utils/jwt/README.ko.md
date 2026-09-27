@@ -166,16 +166,11 @@ try {
 }
 ```
 
-parser 캐시는 프로세스 전역에서 Provider를 키로 사용합니다. 운영 진단에서는 Provider
-생성·종료 횟수와 함께 `jwtParserCache.size`를 관찰하세요. Provider를 반복해서 생성·파싱·
-종료해도 캐시 크기와 힙에 남는 객체가 계속 증가하지 않아야 합니다.
+parser 캐시는 프로세스 전역에서 Provider를 키로 사용합니다. 운영 진단에서는 Provider 생성·종료 횟수와 함께 `jwtParserCache.size`를 관찰하세요. Provider를 반복해서 생성·파싱· 종료해도 캐시 크기와 힙에 남는 객체가 계속 증가하지 않아야 합니다.
 
 Cache Provider는 delegate를 빌려 사용하므로 회전 타이머를 소유한 원래 delegate를 별도로 닫아야 합니다. 백그라운드 작업이 없는 구현체도 기본 `close()` 구현을 사용할 수 있으며, 이 구현은 Provider parser 캐시 엔트리를 정리합니다.
 
-Redis 기반 Provider를 사용할 때 `RedissonClient`와 delegate의 소유자는
-애플리케이션입니다. `RedissonJwtProvider`는 delegate와 cache를 빌려 쓰므로
-wrapper, delegate의 회전 작업, Repository의 refresh 작업, 애플리케이션이
-소유한 client 순서로 각각 닫으세요.
+Redis 기반 Provider를 사용할 때 `RedissonClient`와 delegate의 소유자는 애플리케이션입니다. `RedissonJwtProvider`는 delegate와 cache를 빌려 쓰므로 wrapper, delegate의 회전 작업, Repository의 refresh 작업, 애플리케이션이 소유한 client 순서로 각각 닫으세요.
 
 ```kotlin
 val repository = RedisKeyChainRepository(redissonClient)
@@ -192,10 +187,7 @@ try {
 }
 ```
 
-JWT 모듈의 Redis shutdown 통합 테스트는 하나의 Testcontainers network에서
-Redis와 ToxiProxy를 함께 실행합니다. Proxy를 비활성화했다가 다시 활성화하여
-bounded failure와 recovery를 검증하고, 주입받은 delegate/client의 소유권과
-종료 순서를 명시적으로 유지합니다.
+JWT 모듈의 Redis shutdown 통합 테스트는 하나의 Testcontainers network에서 Redis와 ToxiProxy를 함께 실행합니다. Proxy를 비활성화했다가 다시 활성화하여 bounded failure와 recovery를 검증하고, 주입받은 delegate/client의 소유권과 종료 순서를 명시적으로 유지합니다.
 
 ### 압축 사용
 

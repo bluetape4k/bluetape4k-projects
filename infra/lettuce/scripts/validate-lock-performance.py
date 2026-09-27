@@ -8,7 +8,6 @@ import re
 import sys
 from pathlib import Path
 
-
 SCHEMA_VERSION = 1
 EXPECTED_TAG = "coordination-lock-performance"
 STATE_FIELDS = ("runtimeTasks", "watchdogs", "waiters", "queueEntries", "requestHolds")
@@ -141,14 +140,14 @@ def validate_metadata(report):
         "metadata",
     )
     for field in (
-        "redisImage",
-        "redisVersion",
-        "javaVersion",
-        "kotlinVersion",
-        "lettuceVersion",
-        "osName",
-        "osVersion",
-        "osArch",
+            "redisImage",
+            "redisVersion",
+            "javaVersion",
+            "kotlinVersion",
+            "lettuceVersion",
+            "osName",
+            "osVersion",
+            "osArch",
     ):
         if not isinstance(metadata[field], str) or not metadata[field]:
             fail("SCHEMA", f"metadata.{field} must be non-empty")
@@ -196,7 +195,8 @@ def validate_command_and_rate_bounds(report):
         fail("COMMAND_BUDGET", "measured workload must issue exactly one script command per attempt")
 
     fair = require_mapping(report["fairCleanup"], "fairCleanup", "FAIR_CLEANUP")
-    require_keys(fair, ("configuredBatchCap", "observedBatch", "remainingAfterFirstPass"), "fairCleanup", "FAIR_CLEANUP")
+    require_keys(fair, ("configuredBatchCap", "observedBatch", "remainingAfterFirstPass"), "fairCleanup",
+                 "FAIR_CLEANUP")
     if fair["configuredBatchCap"] != 64 or fair["observedBatch"] != 64 or fair["remainingAfterFirstPass"] != 1:
         fail("FAIR_CLEANUP", "fair cleanup must remove exactly the default 64-item batch")
 
@@ -246,10 +246,14 @@ def validate_latency_and_responsiveness(report):
         "latency",
         "LATENCY",
     )
-    wait50 = require_number(latency["hotLockWaitP50Millis"], "latency.hotLockWaitP50Millis", positive=True, reason="LATENCY")
-    wait95 = require_number(latency["hotLockWaitP95Millis"], "latency.hotLockWaitP95Millis", positive=True, reason="LATENCY")
-    command50 = require_number(latency["redisCommandP50Millis"], "latency.redisCommandP50Millis", positive=True, reason="LATENCY")
-    command95 = require_number(latency["redisCommandP95Millis"], "latency.redisCommandP95Millis", positive=True, reason="LATENCY")
+    wait50 = require_number(latency["hotLockWaitP50Millis"], "latency.hotLockWaitP50Millis", positive=True,
+                            reason="LATENCY")
+    wait95 = require_number(latency["hotLockWaitP95Millis"], "latency.hotLockWaitP95Millis", positive=True,
+                            reason="LATENCY")
+    command50 = require_number(latency["redisCommandP50Millis"], "latency.redisCommandP50Millis", positive=True,
+                               reason="LATENCY")
+    command95 = require_number(latency["redisCommandP95Millis"], "latency.redisCommandP95Millis", positive=True,
+                               reason="LATENCY")
     if wait50 > wait95 or command50 > command95:
         fail("LATENCY", "p50 must not exceed p95")
 

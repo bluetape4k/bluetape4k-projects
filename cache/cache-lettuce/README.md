@@ -6,8 +6,7 @@ English | [한국어](./README.ko.md)
 
 ## Package / Import Stability
 
-The cache folder reorganization moved this module under `cache/cache-lettuce/`,
-but the Gradle project name, Maven artifact ID, and Kotlin packages remain stable:
+The cache folder reorganization moved this module under `cache/cache-lettuce/`, but the Gradle project name, Maven artifact ID, and Kotlin packages remain stable:
 
 - Gradle project: `:bluetape4k-cache-lettuce`
 - Maven artifact: `io.github.bluetape4k:bluetape4k-cache-lettuce`
@@ -44,34 +43,21 @@ dependencies {
 
 ## Redis URI Logging
 
-The provider redacts Redis URI user information, query and semicolon options before logging. Host, port, path,
-and non-sensitive options remain available for diagnostics; credential values, including percent-encoded values,
-are replaced with `<redacted>`. Malformed or ambiguous URIs are logged as `<redacted-uri>`.
+The provider redacts Redis URI user information, query and semicolon options before logging. Host, port, path, and non-sensitive options remain available for diagnostics; credential values, including percent-encoded values, are replaced with `<redacted>`. Malformed or ambiguous URIs are logged as `<redacted-uri>`.
 
-This boundary covers URI logging in the Lettuce provider. It is separate from the JDBC/R2DBC URL policy tracked
-by [bluetape4k-leader#892](https://github.com/bluetape4k/bluetape4k-leader/issues/892).
+This boundary covers URI logging in the Lettuce provider. It is separate from the JDBC/R2DBC URL policy tracked by [bluetape4k-leader#892](https://github.com/bluetape4k/bluetape4k-leader/issues/892).
 
 ## Near-Cache Capability
 
-Lettuce native and JCache near-cache variants are fully supported by the shared
-conformance suites. Native `LettuceNearCache` and `LettuceSuspendNearCache` use
-Redis RESP3 `CLIENT TRACKING` plus explicit write-through. JCache variants
-register cache-entry listeners and support peer front-cache propagation.
+Lettuce native and JCache near-cache variants are fully supported by the shared conformance suites. Native `LettuceNearCache` and `LettuceSuspendNearCache` use Redis RESP3 `CLIENT TRACKING` plus explicit write-through. JCache variants register cache-entry listeners and support peer front-cache propagation.
 
 For a JCache near cache configured with `isSynchronous=true`, `put`, `putAll`,
-`putIfAbsent`, `remove`, and `replace` wait for the Lettuce write-through with
-the bounded `syncRemoteTimeout`. Lettuce may dispatch the write's listener inline
-on the write worker; `NearJCache` uses an operation-scoped key/type/value match to
-reconcile that self-event directly to the front cache so the callback does not
-reacquire the caller-held mutation gate. Non-matching peer or external events
-still use the gate, and asynchronous mode keeps its existing ordering. JCache
-events do not carry an operation ID, so an external event with the same
-key/type/value cannot be distinguished from the active self-event. A provider that completes after an observed timeout remains serialized
-by the near cache's back-write barrier.
+`putIfAbsent`, `remove`, and `replace` wait for the Lettuce write-through with the bounded `syncRemoteTimeout`. Lettuce may dispatch the write's listener inline on the write worker; `NearJCache` uses an operation-scoped key/type/value match to reconcile that self-event directly to the front cache so the callback does not reacquire the caller-held mutation gate. Non-matching peer or external events still use the gate, and asynchronous mode keeps its existing ordering. JCache events do not carry an operation ID, so an external event with the same key/type/value cannot be distinguished from the active self-event. A provider that completes after an observed timeout remains serialized by the near cache's back-write barrier.
 
 See the full [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md).
 
 <!-- issue-1369-bulk-policy:start -->
+
 ## Bounded bulk front residency
 
 <!-- contract: default-bypass; bounded-all-or-nothing; single-key-get-unchanged; repeated-back-read; legacy-safe-default -->
@@ -83,27 +69,20 @@ val cache = LettuceCaches.nearJCache<String, User>(redisClient) {
 }
 ```
 
-`BulkFrontPopulationPolicy.BypassFront` is the safe default for new config and
-a restored legacy stream. It returns every hit but can cause repeated back reads
-on repeated `getAll` calls. `BulkFrontPopulationPolicy.PopulateIfAtMost(n)`
-stores all bulk back hits only when `backValues.size <= n`; it never stores a
-partial oversized batch. This entry count is not resident byte size or a back
-query size limit. Single-key `get()` population is unchanged.
+`BulkFrontPopulationPolicy.BypassFront` is the safe default for new config and a restored legacy stream. It returns every hit but can cause repeated back reads on repeated `getAll` calls. `BulkFrontPopulationPolicy.PopulateIfAtMost(n)`
+stores all bulk back hits only when `backValues.size <= n`; it never stores a partial oversized batch. This entry count is not resident byte size or a back query size limit. Single-key `get()` population is unchanged.
 
 The configuration MXBean reports `BYPASS_FRONT` or `POPULATE_IF_AT_MOST` and
-`bulkFrontPopulationMaximumEntryCount`; `0` means not applicable for bypass.
-Choose a bound only after reviewing Caffeine capacity and local heap budget.
+`bulkFrontPopulationMaximumEntryCount`; `0` means not applicable for bypass. Choose a bound only after reviewing Caffeine capacity and local heap budget.
 <!-- issue-1369-bulk-policy:end -->
 
 <!-- nearjcache-clear-authority-contract -->
+
 ### #1368 Lettuce NearJCache clear authority
 
-`LettuceCaches.nearJCache` defaults to `NearJCacheClearAuthority.DENY` and does
-not infer Redis namespace ownership. `clear()`, `clearAllCache()`, and no-arg
+`LettuceCaches.nearJCache` defaults to `NearJCacheClearAuthority.DENY` and does not infer Redis namespace ownership. `clear()`, `clearAllCache()`, and no-arg
 `removeAll()` therefore raise `SecurityException`; use the explicit
-`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE` overload only for an exclusive
-owner. Key-scoped `removeAll(keys)` remains the shared-namespace path. The
-wrapper `close()` closes its front but not the Redis back cache or client.
+`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE` overload only for an exclusive owner. Key-scoped `removeAll(keys)` remains the shared-namespace path. The wrapper `close()` closes its front but not the Redis back cache or client.
 
 ```kotlin
 val shared = LettuceCaches.nearJCache<String, User>(redisClient) {
@@ -116,24 +95,18 @@ val owner = LettuceCaches.nearJCache<String, User>(
 ) { cacheName = "users-owner" }
 owner.clear()
 ```
+
 <!-- /nearjcache-clear-authority-contract -->
 
 ## JCache EntryProcessor Atomicity
 
-`LettuceJCache` supports JCache `EntryProcessor` operations. All mutating
-operations for the same cache name share a Redis distributed lock, so an
-`invoke` read-modify-write sequence remains atomic across independent Lettuce
-connections and cache instances.
+`LettuceJCache` supports JCache `EntryProcessor` operations. All mutating operations for the same cache name share a Redis distributed lock, so an
+`invoke` read-modify-write sequence remains atomic across independent Lettuce connections and cache instances.
 
-- `invokeAll` creates an independent atomic section for each key. Successful
-  values and `EntryProcessorException` failures are preserved per key through
+- `invokeAll` creates an independent atomic section for each key. Successful values and `EntryProcessorException` failures are preserved per key through
   `EntryProcessorResult`.
-- If a processor throws, its entry is not committed. A successful mutation
-  refreshes the configured cache hash TTL and dispatches the corresponding
-  cache-entry listener event.
-- The default lock lease is one minute and the default acquisition wait is five
-  minutes. Set `LettuceCacheConfig.lockLeaseSeconds` for processors that need a
-  longer lease:
+- If a processor throws, its entry is not committed. A successful mutation refreshes the configured cache hash TTL and dispatches the corresponding cache-entry listener event.
+- The default lock lease is one minute and the default acquisition wait is five minutes. Set `LettuceCacheConfig.lockLeaseSeconds` for processors that need a longer lease:
 
   ```kotlin
   val sessions = LettuceJCaching.getOrCreate<String, String>(
@@ -143,9 +116,7 @@ connections and cache instances.
   )
   ```
 
-- If a processor outlives its lease, its `entry.commit()` is rejected. The
-  ownership check and the value/TTL write are committed as one Redis
-  transaction, so a later lock owner cannot be overwritten by a stale result.
+- If a processor outlives its lease, its `entry.commit()` is rejected. The ownership check and the value/TTL write are committed as one Redis transaction, so a later lock owner cannot be overwritten by a stale result.
 
 ## Factory (`LettuceCaches`)
 
@@ -203,14 +174,14 @@ Redis keys are namespaced through the configured cache name and key prefix so mu
 
 `LettuceNearCache` (L1=Caffeine, L2=Redis RESP3) JMH benchmark results (Apple M4 Pro / GraalVM 21 / 2026-04-27):
 
-| Benchmark | payloadSize=512 | payloadSize=4096 | payloadSize=16384 |
-|-----------|:--------------:|:----------------:|:-----------------:|
-| **l1Hit** | **65,560 ops/ms** | **63,458 ops/ms** | **64,580 ops/ms** |
-| l2Hit (incl. clearLocal) | 4.07 ops/ms | 4.13 ops/ms | 3.93 ops/ms |
-| l2Miss | 3.96 ops/ms | 3.92 ops/ms | 4.21 ops/ms |
-| putSingle | 2.12 ops/ms | 2.08 ops/ms | 2.01 ops/ms |
-| putAll (×100) | 1.04 ops/ms | 0.93 ops/ms | 0.41 ops/ms |
-| removeSingle | 4.21 ops/ms | 4.24 ops/ms | 4.16 ops/ms |
+| Benchmark                |  payloadSize=512  | payloadSize=4096  | payloadSize=16384 |
+|--------------------------|:-----------------:|:-----------------:|:-----------------:|
+| **l1Hit**                | **65,560 ops/ms** | **63,458 ops/ms** | **64,580 ops/ms** |
+| l2Hit (incl. clearLocal) |    4.07 ops/ms    |    4.13 ops/ms    |    3.93 ops/ms    |
+| l2Miss                   |    3.96 ops/ms    |    3.92 ops/ms    |    4.21 ops/ms    |
+| putSingle                |    2.12 ops/ms    |    2.08 ops/ms    |    2.01 ops/ms    |
+| putAll (×100)            |    1.04 ops/ms    |    0.93 ops/ms    |    0.41 ops/ms    |
+| removeSingle             |    4.21 ops/ms    |    4.24 ops/ms    |    4.16 ops/ms    |
 
 ![Lettuce Near Cache Throughput chart](../../docs/images/readme-charts/cache-lettuce-near-cache-throughput-chart-01.png)
 
@@ -233,11 +204,12 @@ Both sync and suspend NearCache variants execute compare-and-set via a shared Lu
 
 ### `remove` / `removeAll` / `clearBack` — non-blocking delete
 
-Bulk deletes issue `UNLINK` instead of `DEL`. Large keys are evicted on a background thread in Redis, so the client roundtrip is O(1) regardless of value size. Semantics are otherwise identical to `DEL`.
+Bulk deletes issue `UNLINK` instead of `DEL`. Large keys are evicted on a background thread in Redis, so the client roundtrip is O (1) regardless of value size. Semantics are otherwise identical to `DEL`.
 
 ### `LettuceJCache.close()` — JCache spec compliance
 
-`close()` releases resources (listeners, executors, connection handles) but does **not** delete data. Previously `close()` also ran `clear()`, which violated the JSR-107 contract. If you need data removal on shutdown, call `clear()` explicitly before `close()`.
+`close()` releases resources (listeners, executors, connection handles) but does
+**not** delete data. Previously `close()` also ran `clear()`, which violated the JSR-107 contract. If you need data removal on shutdown, call `clear()` explicitly before `close()`.
 
 `LettuceSuspendJCache.close()` follows the same contract through its wrapped `LettuceJCache`. Suspend cache managers also protect close cleanup from caller cancellation: remaining cache wrappers are closed in a non-cancellable cleanup section. If an individual cache close explicitly throws `CancellationException`, the manager finishes the remaining cleanup first and then rethrows it.
 
@@ -257,7 +229,7 @@ val memoizer = suspendMap.suspendMemoizer<Int, Int> { key ->
 
 ### `LettuceJCache.putAll` — existence check batching
 
-When `CacheEntryListener` is registered, CREATED/UPDATED event classification used to cost `N × HEXISTS` roundtrips. It now uses a single `HMGET` to fetch the existence bitmap in one shot — O(1) roundtrips regardless of entry count.
+When `CacheEntryListener` is registered, CREATED/UPDATED event classification used to cost `N × HEXISTS` roundtrips. It now uses a single `HMGET` to fetch the existence bitmap in one shot — O (1) roundtrips regardless of entry count.
 
 ### `LettuceAsyncMemoizer` — in-flight race fix
 

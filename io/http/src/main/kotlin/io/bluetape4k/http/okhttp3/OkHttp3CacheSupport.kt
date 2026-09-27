@@ -21,7 +21,7 @@ data class OkHttp3CacheMetrics(
     val hitCount: Int,
     val networkCount: Int,
     val hitRate: Double,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }

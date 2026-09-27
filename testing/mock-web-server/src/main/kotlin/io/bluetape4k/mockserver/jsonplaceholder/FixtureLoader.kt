@@ -14,7 +14,7 @@ import tools.jackson.databind.json.JsonMapper
  */
 @Component
 class FixtureLoader(private val jsonMapper: JsonMapper) {
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 지정된 경로의 JSON 파일을 리스트로 역직렬화한다.

@@ -21,6 +21,5 @@ inline fun objectStoreConfiguration(
 inline fun objectStoreConfiguration(
     osc: ObjectStoreConfiguration? = null,
     builder: ObjectStoreConfiguration.Builder.() -> Unit,
-): ObjectStoreConfiguration {
-    return ObjectStoreConfiguration.builder(osc).apply(builder).build()
-}
+): ObjectStoreConfiguration =
+    ObjectStoreConfiguration.builder(osc).apply(builder).build()

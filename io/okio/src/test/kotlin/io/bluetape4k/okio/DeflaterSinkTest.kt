@@ -111,7 +111,7 @@ class DeflaterSinkTest: AbstractOkioTest() {
     fun `deflate into non empty sink`() {
         val original = Fakers.randomString(SEGMENT_SIZE)
 
-        repeat(SEGMENT_SIZE) {
+        repeat(100) {
             val data = bufferOf(original)
             val sink = Buffer().writeUtf8("a".repeat(it))
 

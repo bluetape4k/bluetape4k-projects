@@ -1,5 +1,6 @@
 package io.bluetape4k.jdbc.sql
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
@@ -8,18 +9,22 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import java.sql.ResultSet
 import java.sql.SQLException
-import io.bluetape4k.assertions.assertFailsWith
 
 class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
+
+    companion object: KLogging()
+
     // ─── iterator ────────────────────────────────────────────────────────────
 
     @Test
     fun `iterator hasNext repeated 호출은 row를 건너뛰지 않는다`() {
-        val ids =
-            dataSource.runQuery("SELECT id FROM Actors ORDER BY id") { rs ->
+        val ids = dataSource
+            .runQuery("SELECT id FROM Actors ORDER BY id") { rs ->
                 val iterator = rs.iterator { it.getInt("id") }
 
                 iterator.hasNext().shouldBeTrue()
@@ -33,8 +38,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `iterator next는 hasNext 없이도 첫 row를 읽는다`() {
-        val firstId =
-            dataSource.runQuery("SELECT id FROM Actors ORDER BY id") { rs ->
+        val firstId = dataSource
+            .runQuery("SELECT id FROM Actors ORDER BY id") { rs ->
                 rs.iterator { it.getInt("id") }.next()
             }
 
@@ -54,11 +59,14 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `map - 모든 행을 리스트로 변환한다`() {
-        val firstnames =
-            dataSource.runQuery("SELECT firstname FROM Actors ORDER BY id") { rs ->
+        val firstnames = dataSource
+            .runQuery("SELECT firstname FROM Actors ORDER BY id") { rs ->
                 rs.map { getString("firstname") }
             }
 
+        firstnames.forEach {
+            log.debug { "firstname=$it" }
+        }
         firstnames.shouldNotBeEmpty()
         firstnames.first() shouldBeEqualTo "Sunghyouk"
     }
@@ -67,8 +75,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `sequence - 모든 행을 Sequence 로 변환한다`() {
-        val count =
-            dataSource.runQuery("SELECT id FROM Actors") { rs ->
+        val count = dataSource
+            .runQuery("SELECT id FROM Actors") { rs ->
                 rs.sequence { it.getInt("id") }.count()
             }
 
@@ -79,8 +87,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `columnNames - 컬럼 이름 목록 반환`() {
-        val names =
-            dataSource.runQuery("SELECT id, firstname, lastname FROM Actors LIMIT 1") { rs ->
+        val names = dataSource
+            .runQuery("SELECT id, firstname, lastname FROM Actors LIMIT 1") { rs ->
                 rs.next()
                 rs.columnNames
             }
@@ -92,8 +100,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `columnLabels - 별칭을 포함한 컬럼 레이블 목록 반환`() {
-        val labels =
-            dataSource.runQuery("SELECT id AS actor_id, firstname AS actor_name FROM Actors LIMIT 1") { rs ->
+        val labels = dataSource
+            .runQuery("SELECT id AS actor_id, firstname AS actor_name FROM Actors LIMIT 1") { rs ->
                 rs.next()
                 rs.columnLabels
             }
@@ -103,17 +111,18 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `ResultSet get 연산자는 인덱스와 레이블을 통해 null을 보존한다`() {
-        dataSource.runQuery("SELECT NULL AS nullable_value FROM Actors LIMIT 1") { rs ->
-            rs.next()
-            rs[1].shouldBeNull()
-            rs["nullable_value"].shouldBeNull()
-        }
+        dataSource
+            .runQuery("SELECT NULL AS nullable_value FROM Actors LIMIT 1") { rs ->
+                rs.next()
+                rs[1].shouldBeNull()
+                rs["nullable_value"].shouldBeNull()
+            }
     }
 
     @Test
     fun `columnCount - 컬럼 수 반환`() {
-        val count =
-            dataSource.runQuery("SELECT id, firstname, lastname FROM Actors LIMIT 1") { rs ->
+        val count = dataSource
+            .runQuery("SELECT id, firstname, lastname FROM Actors LIMIT 1") { rs ->
                 rs.next()
                 rs.columnCount
             }
@@ -125,8 +134,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `singleInt - 단일 Int 값 반환`() {
-        val count =
-            dataSource.runQuery("SELECT COUNT(*) FROM Actors") { rs ->
+        val count = dataSource
+            .runQuery("SELECT COUNT(*) FROM Actors") { rs ->
                 rs.singleInt()
             }
 
@@ -135,8 +144,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `singleLong - 단일 Long 값 반환`() {
-        val count =
-            dataSource.runQuery("SELECT COUNT(*) FROM Actors") { rs ->
+        val count = dataSource
+            .runQuery("SELECT COUNT(*) FROM Actors") { rs ->
                 rs.singleLong()
             }
 
@@ -145,8 +154,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `singleDouble - 단일 Double 값 반환`() {
-        val value =
-            dataSource.runQuery("SELECT CAST(COUNT(*) AS DOUBLE) FROM Actors") { rs ->
+        val value = dataSource
+            .runQuery("SELECT CAST(COUNT(*) AS DOUBLE) FROM Actors") { rs ->
                 rs.singleDouble()
             }
 
@@ -155,8 +164,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `singleString - 단일 String 값 반환`() {
-        val name =
-            dataSource.runQuery("SELECT firstname FROM Actors ORDER BY id LIMIT 1") { rs ->
+        val name = dataSource
+            .runQuery("SELECT firstname FROM Actors ORDER BY id LIMIT 1") { rs ->
                 rs.singleString()
             }
 
@@ -165,8 +174,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `singleBigDecimal - 단일 BigDecimal 값 반환`() {
-        val value =
-            dataSource.runQuery("SELECT CAST(12.50 AS DECIMAL(10, 2)) FROM Actors LIMIT 1") { rs ->
+        val value = dataSource
+            .runQuery("SELECT CAST(12.50 AS DECIMAL(10, 2)) FROM Actors LIMIT 1") { rs ->
                 rs.singleBigDecimal()
             }
 
@@ -176,9 +185,10 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
     @Test
     fun `singleInt - 빈 ResultSet 에서 IllegalStateException 발생`() {
         assertFailsWith<IllegalStateException> {
-            dataSource.runQuery("SELECT id FROM Actors WHERE 1 = 0") { rs ->
-                rs.singleInt()
-            }
+            dataSource
+                .runQuery("SELECT id FROM Actors WHERE 1 = 0") { rs ->
+                    rs.singleInt()
+                }
         }
     }
 
@@ -186,8 +196,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `isEmpty - 결과가 없으면 true 반환`() {
-        val empty =
-            dataSource.runQuery("SELECT id FROM Actors WHERE 1 = 0") { rs ->
+        val empty = dataSource
+            .runQuery("SELECT id FROM Actors WHERE 1 = 0") { rs ->
                 rs.isEmptyByMovingCursor()
             }
 
@@ -196,8 +206,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `isNotEmpty - 결과가 있으면 true 반환`() {
-        val notEmpty =
-            dataSource.runQuery("SELECT id FROM Actors") { rs ->
+        val notEmpty = dataSource
+            .runQuery("SELECT id FROM Actors") { rs ->
                 rs.isNotEmptyByMovingCursor()
             }
 
@@ -206,8 +216,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `isNotEmptyByMovingCursor positions cursor on first row`() {
-        val firstId =
-            dataSource.runQuery("SELECT id FROM Actors ORDER BY id") { rs ->
+        val firstId = dataSource
+            .runQuery("SELECT id FROM Actors ORDER BY id") { rs ->
                 rs.isNotEmptyByMovingCursor().shouldBeTrue()
                 rs.getInt("id")
             }
@@ -217,8 +227,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `isNotEmptyByMovingCursor consumes first row before normal iteration`() {
-        val remainingIds =
-            dataSource.runQuery("SELECT id FROM Actors ORDER BY id") { rs ->
+        val remainingIds = dataSource
+            .runQuery("SELECT id FROM Actors ORDER BY id") { rs ->
                 rs.isNotEmptyByMovingCursor().shouldBeTrue()
                 rs.toList { it.getInt("id") }
             }
@@ -230,8 +240,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `count - 전체 행 수 반환`() {
-        val count =
-            dataSource.runQuery("SELECT id FROM Actors") { rs ->
+        val count = dataSource
+            .runQuery("SELECT id FROM Actors") { rs ->
                 rs.count()
             }
 
@@ -240,8 +250,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `count - 조건부 행 수 반환`() {
-        val count =
-            dataSource.runQuery("SELECT id FROM Actors") { rs ->
+        val count = dataSource
+            .runQuery("SELECT id FROM Actors") { rs ->
                 rs.count { it.getInt("id") > 0 }
             }
 
@@ -252,8 +262,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `firstOrNull - 조건을 만족하는 첫 번째 행 반환`() {
-        val firstname =
-            dataSource.runQuery("SELECT * FROM Actors ORDER BY id") { rs ->
+        val firstname = dataSource
+            .runQuery("SELECT * FROM Actors ORDER BY id") { rs ->
                 rs.firstOrNull(
                     predicate = { it.getInt("id") == 1 },
                     mapper = { it.getString("firstname") }
@@ -265,8 +275,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `firstOrNull - 조건을 만족하는 행이 없으면 null 반환`() {
-        val result =
-            dataSource.runQuery("SELECT * FROM Actors") { rs ->
+        val result = dataSource
+            .runQuery("SELECT * FROM Actors") { rs ->
                 rs.firstOrNull(
                     predicate = { it.getInt("id") < 0 },
                     mapper = { it.getString("firstname") }
@@ -278,13 +288,13 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `first - 조건을 만족하는 첫 번째 행 반환`() {
-        val firstname =
-            dataSource.runQuery("SELECT * FROM Actors ORDER BY id") { rs ->
+        val firstname = dataSource
+            .runQuery("SELECT * FROM Actors ORDER BY id") { rs ->
                 rs.first(
                     predicate = { it.getInt("id") == 1 },
                     mapper = { it.getString("firstname") }
                 )
-            }
+            }.shouldNotBeNull()
 
         firstname shouldBeEqualTo "Sunghyouk"
     }
@@ -292,19 +302,20 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
     @Test
     fun `first - 조건을 만족하는 행이 없으면 예외 발생`() {
         assertFailsWith<NoSuchElementException> {
-            dataSource.runQuery("SELECT * FROM Actors") { rs ->
-                rs.first(
-                    predicate = { it.getInt("id") < 0 },
-                    mapper = { it.getString("firstname") }
-                )
-            }
+            dataSource
+                .runQuery("SELECT * FROM Actors") { rs ->
+                    rs.first(
+                        predicate = { it.getInt("id") < 0 },
+                        mapper = { it.getString("firstname") }
+                    )
+                }
         }
     }
 
     @Test
     fun `ResultSet iterator - mapper 없이 현재 ResultSet을 순회한다`() {
-        val ids =
-            dataSource.runQuery("SELECT id FROM Actors ORDER BY id LIMIT 2") { rs ->
+        val ids = dataSource
+            .runQuery("SELECT id FROM Actors ORDER BY id LIMIT 2") { rs ->
                 val iterator = rs.iterator()
                 buildList {
                     while (iterator.hasNext()) {
@@ -318,8 +329,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `mapAsSequence - ResultSet을 지연 Sequence로 변환한다`() {
-        val ids =
-            dataSource.runQuery("SELECT id FROM Actors ORDER BY id LIMIT 2") { rs ->
+        val ids = dataSource
+            .runQuery("SELECT id FROM Actors ORDER BY id LIMIT 2") { rs ->
                 rs.mapAsSequence { getInt("id") }.toList()
             }
 
@@ -328,8 +339,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `emptyResultToNull - 정상 결과와 SQLException을 각각 처리한다`() {
-        val value =
-            dataSource.runQuery("SELECT id FROM Actors LIMIT 1") { rs ->
+        val value = dataSource
+            .runQuery("SELECT id FROM Actors LIMIT 1") { rs ->
                 rs.emptyResultToNull { resultSet ->
                     resultSet.next()
                     resultSet.getInt(1)
@@ -337,8 +348,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
             }
         value shouldBeEqualTo 1
 
-        val empty =
-            dataSource.runQuery("SELECT id FROM Actors LIMIT 1") { rs ->
+        val empty = dataSource
+            .runQuery("SELECT id FROM Actors LIMIT 1") { rs ->
                 rs.emptyResultToNull<Int> { throw SQLException("synthetic failure") }
             }
         empty.shouldBeNull()
@@ -347,10 +358,11 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
     @Test
     @Suppress("DEPRECATION")
     fun `deprecated cursor helpers and moveToPrevious preserve their contracts`() {
-        dataSource.runQuery("SELECT id FROM Actors ORDER BY id LIMIT 2") { rs ->
-            rs.isNotEmpty().shouldBeTrue()
-            rs.isEmpty().shouldBeFalse()
-        }
+        dataSource
+            .runQuery("SELECT id FROM Actors ORDER BY id LIMIT 2") { rs ->
+                rs.isNotEmpty().shouldBeTrue()
+                rs.isEmpty().shouldBeFalse()
+            }
 
         val scrollableResultSet = java.lang.reflect.Proxy.newProxyInstance(
             ResultSet::class.java.classLoader,
@@ -429,8 +441,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `filterMap - 조건을 만족하는 행만 매핑하여 반환`() {
-        val ids =
-            dataSource.runQuery("SELECT id FROM Actors") { rs ->
+        val ids = dataSource
+            .runQuery("SELECT id FROM Actors") { rs ->
                 rs.filterMap(
                     predicate = { it.getInt("id") > 0 },
                     mapper = { it.getInt("id") }
@@ -445,8 +457,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `all - 모든 행이 조건을 만족하면 true 반환`() {
-        val result =
-            dataSource.runQuery("SELECT id FROM Actors") { rs ->
+        val result = dataSource
+            .runQuery("SELECT id FROM Actors") { rs ->
                 rs.all { it.getInt("id") > 0 }
             }
 
@@ -455,8 +467,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `all - 하나라도 조건을 만족하지 않으면 false 반환`() {
-        val result =
-            dataSource.runQuery("SELECT id FROM Actors") { rs ->
+        val result = dataSource
+            .runQuery("SELECT id FROM Actors") { rs ->
                 rs.all { it.getInt("id") > 999 }
             }
 
@@ -465,8 +477,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `any - 하나라도 조건을 만족하면 true 반환`() {
-        val result =
-            dataSource.runQuery("SELECT id FROM Actors") { rs ->
+        val result = dataSource
+            .runQuery("SELECT id FROM Actors") { rs ->
                 rs.any { it.getInt("id") == 1 }
             }
 
@@ -475,8 +487,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `none - 조건을 만족하는 행이 없으면 true 반환`() {
-        val result =
-            dataSource.runQuery("SELECT id FROM Actors") { rs ->
+        val result = dataSource
+            .runQuery("SELECT id FROM Actors") { rs ->
                 rs.none { it.getInt("id") < 0 }
             }
 
@@ -487,13 +499,13 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `forEach - 모든 행에 대해 작업 수행`() {
-        val collected = mutableListOf<Int>()
+        val ids = mutableListOf<Int>()
         dataSource.runQuery("SELECT id FROM Actors ORDER BY id") { rs ->
-            rs.forEach { collected.add(it.getInt("id")) }
+            rs.forEach { ids.add(it.getInt("id")) }
         }
 
-        collected.shouldNotBeEmpty()
-        collected.first() shouldBeEqualTo 1
+        log.debug { "ids=$ids" }
+        ids shouldBeEqualTo listOf(1, 2, 3, 4, 5)
     }
 
     @Test
@@ -503,16 +515,16 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
             rs.forEachIndexed { idx, _ -> indices.add(idx) }
         }
 
-        indices.shouldNotBeEmpty()
-        indices.first() shouldBeEqualTo 0
+        log.debug { "indices=$indices" }
+        indices shouldBeEqualTo listOf(0, 1, 2, 3, 4)
     }
 
     // ─── getXxxOrNull helpers ─────────────────────────────────────────────────
 
     @Test
     fun `getIntOrNull - SQL NULL 인 경우 null 반환`() {
-        val value =
-            dataSource.runQuery("SELECT NULL AS val FROM Actors LIMIT 1") { rs ->
+        val value = dataSource
+            .runQuery("SELECT NULL AS val FROM Actors LIMIT 1") { rs ->
                 rs.next()
                 rs.getIntOrNull(1)
             }
@@ -522,8 +534,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `getStringOrNull - SQL NULL 인 경우 null 반환`() {
-        val value =
-            dataSource.runQuery("SELECT NULL AS val FROM Actors LIMIT 1") { rs ->
+        val value = dataSource
+            .runQuery("SELECT NULL AS val FROM Actors LIMIT 1") { rs ->
                 rs.next()
                 rs.getStringOrNull(1)
             }
@@ -533,8 +545,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `getLongOrNull - 정상 값을 반환한다`() {
-        val value =
-            dataSource.runQuery("SELECT CAST(id AS BIGINT) FROM Actors ORDER BY id LIMIT 1") { rs ->
+        val value = dataSource
+            .runQuery("SELECT CAST(id AS BIGINT) FROM Actors ORDER BY id LIMIT 1") { rs ->
                 rs.next()
                 rs.getLongOrNull(1)
             }
@@ -545,8 +557,8 @@ class ResultSetExtensionsTest: AbstractJdbcSqlTest() {
 
     @Test
     fun `getBooleanOrNull - SQL NULL 인 경우 null 반환`() {
-        val value =
-            dataSource.runQuery("SELECT NULL AS val FROM Actors LIMIT 1") { rs ->
+        val value = dataSource
+            .runQuery("SELECT NULL AS val FROM Actors LIMIT 1") { rs ->
                 rs.next()
                 rs.getBooleanOrNull(1)
             }

@@ -25,6 +25,7 @@ class PatriciaTrieTest {
         }
 
         val map = trie.prefixMap("Al")
+
         map.size shouldBeEqualTo 8
         map.firstKey() shouldBeEqualTo "Alabama"
         map.lastKey() shouldBeEqualTo "Alliese"
@@ -33,5 +34,4 @@ class PatriciaTrieTest {
         trie["Xavier"].shouldNotBeNull()
         map["Xavier"].shouldBeNull()
     }
-
 }

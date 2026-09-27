@@ -5,6 +5,8 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.get
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
@@ -25,8 +27,11 @@ import java.time.Duration
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class LockCancellationTest: AbstractLettuceTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `future cancellation before dispatch removes the scheduled attempt`() {
@@ -98,7 +103,7 @@ class LockCancellationTest: AbstractLettuceTest() {
     @Test
     fun `post-dispatch cancellation reconciles the authoritative Redis mutation`() {
         val connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
-        val name = "cancel-${randomName().substringAfter(':')}"
+        val name = "cancel-${randomName().substringAfterLast(':')}"
         val keys = deriveDistributedLockKeys(name, LockConfig(), StringCodec.UTF8)
         val commands = connection.sync()
         commands.del(*keys.all)
@@ -123,7 +128,7 @@ class LockCancellationTest: AbstractLettuceTest() {
                 request,
                 LeasePolicy.Fixed(Duration.ofSeconds(30)),
             )
-            executor.applied.get(5, TimeUnit.SECONDS)
+            executor.applied.get(5.seconds)
             pending.cancel(false).shouldBeTrue()
 
             val reconciled = lock.reconcile(owner, request)
@@ -149,6 +154,7 @@ class LockCancellationTest: AbstractLettuceTest() {
         val owner = LockOwnerId.from("suspend-owner")
         val request = LockRequestId.from("suspend-request")
         val observed = CompletableDeferred<Throwable>()
+
         val pending = async {
             try {
                 lock.acquire(

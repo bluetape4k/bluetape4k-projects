@@ -74,7 +74,7 @@ class LettuceNearCacheRegionFactory: RegionFactoryTemplate() {
         // ShutdownQueue 등록을 client 완전 초기화(redisClient 필드 할당) 이후로 배치한다.
         // 초기화 중 예외가 발생해도 미완성 client가 ShutdownQueue에 등록되지 않도록 순서를 보장한다.
         redisClient = client
-        ShutdownQueue.register { runCatching { client.shutdown() } }
+        ShutdownQueue.register(client)
     }
 
     override fun releaseFromUse() {
@@ -86,6 +86,7 @@ class LettuceNearCacheRegionFactory: RegionFactoryTemplate() {
             }
         }
         caches.clear()
+
         redisClient?.let { client ->
             runCatching { client.shutdown() }.onFailure { e ->
                 log.warn(e) { "RedisClient shutdown 중 오류 무시" }
@@ -135,10 +136,9 @@ class LettuceNearCacheRegionFactory: RegionFactoryTemplate() {
         // 동일 region에 대해 StorageAccess가 여러 번 요청될 수 있으므로(entity + collection 등)
         // computeIfAbsent로 LettuceNearCache 인스턴스를 region당 하나만 생성하고 공유한다.
         // 같은 region에 대해 L1 캐시(Caffeine)와 L2 Redis 연결이 중복 생성되는 것을 방지한다.
-        val nearCache =
-            caches.computeIfAbsent(regionName) {
-                LettuceNearCache(client, codec, properties.buildNearCacheConfig(regionName))
-            }
+        val nearCache = caches.computeIfAbsent(regionName) {
+            LettuceNearCache(client, codec, properties.buildNearCacheConfig(regionName))
+        }
         return LettuceNearCacheStorageAccess(regionName, nearCache)
     }
 }

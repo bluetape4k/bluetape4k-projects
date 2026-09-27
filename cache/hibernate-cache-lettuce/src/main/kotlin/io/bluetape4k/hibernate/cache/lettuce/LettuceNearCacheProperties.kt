@@ -2,6 +2,7 @@ package io.bluetape4k.hibernate.cache.lettuce
 
 import io.bluetape4k.cache.nearcache.LettuceNearCacheConfig
 import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.support.requireNotBlank
@@ -55,10 +56,12 @@ data class LettuceNearCacheProperties(
         }
     }
 
-    companion object {
+    companion object: KLogging() {
         private const val serialVersionUID: Long = 1L
+
         private const val PREFIX = "hibernate.cache.lettuce."
         private val SUPPORTED_CODECS = setOf(
+            "default",
             "jdk",
             "kryo",
             "fory",
@@ -152,27 +155,28 @@ data class LettuceNearCacheProperties(
      * 대칭 호환되지 않습니다. 기존 데이터를 유지해야 하는 region에서는 eviction 또는 migration 후 사용하세요.
      */
     fun createCodec(): LettuceBinaryCodec<Any> = when (codec.lowercase()) {
-        "jdk"             -> LettuceBinaryCodecs.jdk()
-        "kryo"            -> LettuceBinaryCodecs.kryo()
-        "fory"            -> LettuceBinaryCodecs.fory()
-        "fastfory"        -> LettuceBinaryCodecs.fastFory()
-        "gzipjdk"         -> LettuceBinaryCodecs.gzipJdk()
-        "gzipkryo"        -> LettuceBinaryCodecs.gzipKryo()
-        "gzipfory"        -> LettuceBinaryCodecs.gzipFory()
-        "gzipfastfory"    -> LettuceBinaryCodecs.gzipFastFory()
-        "lz4jdk"          -> LettuceBinaryCodecs.lz4Jdk()
-        "lz4kryo"         -> LettuceBinaryCodecs.lz4Kryo()
-        "lz4fory"         -> LettuceBinaryCodecs.lz4Fory()
-        "lz4fastfory"     -> LettuceBinaryCodecs.lz4FastFory()
-        "snappyjdk"       -> LettuceBinaryCodecs.snappyJdk()
-        "snappykryo"      -> LettuceBinaryCodecs.snappyKryo()
-        "snappyfory"      -> LettuceBinaryCodecs.snappyFory()
-        "snappyfastfory"  -> LettuceBinaryCodecs.snappyFastFory()
-        "zstdjdk"         -> LettuceBinaryCodecs.zstdJdk()
-        "zstdkryo"        -> LettuceBinaryCodecs.zstdKryo()
-        "zstdfory"        -> LettuceBinaryCodecs.zstdFory()
-        "zstdfastfory"    -> LettuceBinaryCodecs.zstdFastFory()
-        else              -> throw IllegalArgumentException("Unsupported codec: $codec. supported=$SUPPORTED_CODECS")
+        "default"        -> LettuceBinaryCodecs.default()
+        "jdk"            -> LettuceBinaryCodecs.jdk()
+        "kryo"           -> LettuceBinaryCodecs.kryo()
+        "fory"           -> LettuceBinaryCodecs.fory()
+        "fastfory"       -> LettuceBinaryCodecs.fastFory()
+        "gzipjdk"        -> LettuceBinaryCodecs.gzipJdk()
+        "gzipkryo"       -> LettuceBinaryCodecs.gzipKryo()
+        "gzipfory"       -> LettuceBinaryCodecs.gzipFory()
+        "gzipfastfory"   -> LettuceBinaryCodecs.gzipFastFory()
+        "lz4jdk"         -> LettuceBinaryCodecs.lz4Jdk()
+        "lz4kryo"        -> LettuceBinaryCodecs.lz4Kryo()
+        "lz4fory"        -> LettuceBinaryCodecs.lz4Fory()
+        "lz4fastfory"    -> LettuceBinaryCodecs.lz4FastFory()
+        "snappyjdk"      -> LettuceBinaryCodecs.snappyJdk()
+        "snappykryo"     -> LettuceBinaryCodecs.snappyKryo()
+        "snappyfory"     -> LettuceBinaryCodecs.snappyFory()
+        "snappyfastfory" -> LettuceBinaryCodecs.snappyFastFory()
+        "zstdjdk"        -> LettuceBinaryCodecs.zstdJdk()
+        "zstdkryo"       -> LettuceBinaryCodecs.zstdKryo()
+        "zstdfory"       -> LettuceBinaryCodecs.zstdFory()
+        "zstdfastfory"   -> LettuceBinaryCodecs.zstdFastFory()
+        else             -> throw IllegalArgumentException("Unsupported codec: $codec. supported=$SUPPORTED_CODECS")
     }
 
     /**

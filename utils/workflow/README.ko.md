@@ -30,28 +30,28 @@ Work 단위, 컨텍스트, 플로우가 어떻게 연관되는지:
 
 ## 주요 특징
 
-- **다중 실행 모델**: 동기(Virtual Threads), 코루틴(suspend), 혼합 워크플로우 지원
+- **다중 실행 모델**: 동기 (Virtual Threads), 코루틴 (suspend), 혼합 워크플로우 지원
 - **타입 안전 DSL**: `workflow {}`, `sequentialFlow {}`, `suspendWorkflow {}` 등으로 선언적 정의
 - **조합 가능**: 워크플로우 내에 워크플로우 중첩으로 임의 복잡도 구성
 - **에러 전략**: `STOP`(즉시 중단) 또는 `CONTINUE`(부분 성공)
 - **재시도 백오프**: 지수 백오프 정책으로 복원력 제공
 - **Cancellation 인지 코루틴 플로우**: suspend 플로우는 `CancellationException`을 `WorkReport.Failure`로 바꾸지 않고 다시 던집니다
-- **실행 모델 비교 benchmark**: 동일한 주문 처리 시나리오로 동기(Virtual Threads)와 코루틴 워크플로 실행 시간을 비교하는 예제 benchmark 테스트를 제공합니다
-  - 최근 측정 예시(2026-04-11): normal scenario sync=43.989ms, suspend=46.153ms, ratio=1.07
-  - 최근 측정 예시(2026-04-11): retry+poll scenario sync=264.568ms, suspend=251.904ms, ratio=0.95
+- **실행 모델 비교 benchmark**: 동일한 주문 처리 시나리오로 동기 (Virtual Threads)와 코루틴 워크플로 실행 시간을 비교하는 예제 benchmark 테스트를 제공합니다
+  - 최근 측정 예시 (2026-04-11): normal scenario sync=43.989ms, suspend=46.153ms, ratio=1.07
+  - 최근 측정 예시 (2026-04-11): retry+poll scenario sync=264.568ms, suspend=251.904ms, ratio=0.95
 - **WorkContext**: 작업 간 상태 공유용 Mutable Map
 
 ## WorkStatus & WorkReport
 
 워크 실행의 5가지 가능한 결과:
 
-| Status      | Type             | 비유        | 설명                           |
-|-------------|------------------|-----------|------------------------------|
-| `COMPLETED` | `Success`        | 정상 반환     | 작업 성공, 컨텍스트 유지               |
-| `FAILED`    | `Failure`        | 예외 발생     | 작업 실패, 에러 발생; 흐름 중단 (STOP)   |
+| Status      | Type             | 비유          | 설명                                      |
+|-------------|------------------|---------------|-------------------------------------------|
+| `COMPLETED` | `Success`        | 정상 반환     | 작업 성공, 컨텍스트 유지                  |
+| `FAILED`    | `Failure`        | 예외 발생     | 작업 실패, 에러 발생; 흐름 중단 (STOP)    |
 | `PARTIAL`   | `PartialSuccess` | 부분 반환     | 하나 이상 실패했으나 흐름 계속 (CONTINUE) |
-| `ABORTED`   | `Aborted`        | `break` 문 | 작업이 워크플로 즉시 중단 요청            |
-| `CANCELLED` | `Cancelled`      | 외부 인터럽트   | 타임아웃 또는 코루틴 취소 발생            |
+| `ABORTED`   | `Aborted`        | `break` 문    | 작업이 워크플로 즉시 중단 요청            |
+| `CANCELLED` | `Cancelled`      | 외부 인터럽트 | 타임아웃 또는 코루틴 취소 발생            |
 
 ### 제어 흐름 비유
 

@@ -1,14 +1,15 @@
 package io.bluetape4k.testcontainers.aws.floci.services
 
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.testcontainers.aws.floci.AbstractFlociServiceTest
 import io.bluetape4k.testcontainers.aws.getCredentialProvider
 import io.bluetape4k.utils.ShutdownQueue
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -28,11 +29,11 @@ import java.time.Instant
  * LocalStack 기반 [io.bluetape4k.testcontainers.aws.localstack.services.CloudWatchTest]에 대응합니다.
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
-class FlociCloudWatchTest : AbstractFlociServiceTest() {
+class FlociCloudWatchTest: AbstractFlociServiceTest() {
 
-    companion object : KLogging() {
-        private val NAMESPACE = "Bluetape4k/Test-${System.currentTimeMillis()}"
-        private val LOG_GROUP_NAME = "/bluetape4k/test-${System.currentTimeMillis()}"
+    companion object: KLogging() {
+        private val NAMESPACE = "Bluetape4k/Test-${Base58.randomString(8)}"
+        private val LOG_GROUP_NAME = "/bluetape4k/test-${Base58.randomString(8)}"
         private const val LOG_STREAM_NAME = "app-stream"
     }
 

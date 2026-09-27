@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.http.hc5.http.futureRequestExecutionServiceOf
 import io.bluetape4k.http.hc5.protocol.httpClientContextOf
 import io.mockk.Runs
@@ -26,7 +27,7 @@ import java.io.IOException
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * 실제 HC5 Future의 실행 순서를 제어해 취소 결과를 검증합니다.
@@ -57,7 +58,7 @@ class ClientWithRequestFutureCancellationTest {
             task.captured.run()
 
             future.isCancelled.shouldBeTrue()
-            assertFailsWith<CancellationException> { future.get(1, TimeUnit.SECONDS) }
+            assertFailsWith<CancellationException> { future.get(1.seconds) }
             verify(exactly = 0) {
                 httpclient.execute(any<ClassicHttpRequest>(), any<HttpContext>(), handler)
             }
@@ -80,7 +81,7 @@ class ClientWithRequestFutureCancellationTest {
             future.isDone.shouldBeTrue()
             future.isCancelled.shouldBeFalse()
             // callable이 예외로 먼저 완료되면 get()이 취소 원인을 ExecutionException으로 감쌉니다.
-            val error = assertFailsWith<ExecutionException> { future.get(1, TimeUnit.SECONDS) }
+            val error = assertFailsWith<ExecutionException> { future.get(1.seconds) }
             error.cause.shouldBeInstanceOf<CancellationException>()
             verify(exactly = 1) { callback.cancelled() }
             verify(exactly = 0) {
@@ -103,7 +104,7 @@ class ClientWithRequestFutureCancellationTest {
             future.cancel(true).shouldBeFalse()
 
             future.isCancelled.shouldBeFalse()
-            future.get(1, TimeUnit.SECONDS).shouldBeTrue()
+            future.get(1.seconds).shouldBeTrue()
         }
     }
 
@@ -117,7 +118,7 @@ class ClientWithRequestFutureCancellationTest {
 
             future.cancel(true).shouldBeFalse()
 
-            val error = assertFailsWith<ExecutionException> { future.get(1, TimeUnit.SECONDS) }
+            val error = assertFailsWith<ExecutionException> { future.get(1.seconds) }
             error.cause.shouldBeSameInstanceAs(failure)
         }
     }

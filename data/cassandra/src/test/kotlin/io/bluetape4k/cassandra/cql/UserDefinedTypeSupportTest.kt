@@ -4,9 +4,12 @@ import com.datastax.oss.driver.api.core.type.DataTypes
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cassandra.toCqlIdentifier
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class UserDefinedTypeSupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `userDefinedTypeOf 는 CqlIdentifier 인자로 UDT를 생성한다`() {

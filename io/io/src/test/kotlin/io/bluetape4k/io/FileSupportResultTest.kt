@@ -1,13 +1,15 @@
 package io.bluetape4k.io
 
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.junit5.tempfolder.TempFolder
 import io.bluetape4k.junit5.tempfolder.TempFolderTest
 import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContainSame
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -99,7 +101,7 @@ class FileSupportResultTest {
 
         result.isSuccess.shouldBeTrue()
         result.getOrThrow().shouldBeTrue()
-        dir.exists().shouldBeEqualTo(false)
+        dir.exists().shouldBeFalse()
     }
 
     @Test
@@ -110,7 +112,7 @@ class FileSupportResultTest {
         val result = file.tryDeleteIfExists()
 
         result.isSuccess.shouldBeTrue()
-        file.exists().shouldBeEqualTo(false)
+        file.exists().shouldBeFalse()
     }
 
     @Test
@@ -214,7 +216,8 @@ class FileSupportResultTest {
         val result = futureResult.await()
 
         result.isSuccess.shouldBeTrue()
-        source.exists().shouldBeEqualTo(false)
+        source.exists().shouldBeFalse()
+
         target.exists().shouldBeTrue()
         target.readText() shouldBeEqualTo "Move me"
     }
@@ -229,7 +232,7 @@ class FileSupportResultTest {
         val result: Result<ByteArray> = futureResult.await()
 
         result.isSuccess.shouldBeTrue()
-        result.getOrThrow() shouldContainSame content
+        result.getOrThrow() shouldBeEqualTo content
     }
 
     @Test
@@ -257,7 +260,7 @@ class FileSupportResultTest {
     @Test
     fun `tryWriteAsync - 대용량 쓰기 후 전체 내용이 보존된다`() = runTest {
         val path = Paths.get(tempFolder.rootPath, "async-write-large.bin")
-        val content = Random.Default.nextBytes(512 * 1024)
+        val content = Random.nextBytes(512 * 1024)
 
         val writeResult = path.tryWriteAsync(content).await()
         val readResult = path.tryReadAllBytesAsync().await()
@@ -277,7 +280,7 @@ class FileSupportResultTest {
         val result = futureResult.await()
 
         result.isSuccess.shouldBeTrue()
-        path.toFile().readLines() shouldContainSame lines
+        path.toFile().readLines() shouldBeEqualTo lines
     }
 
     @Test
@@ -312,6 +315,6 @@ class FileSupportResultTest {
             }
 
         result.isSuccess.shouldBeTrue()
-        result.getOrThrow() shouldBeEqualTo ByteArray(0)
+        result.getOrThrow().shouldBeEmpty()
     }
 }

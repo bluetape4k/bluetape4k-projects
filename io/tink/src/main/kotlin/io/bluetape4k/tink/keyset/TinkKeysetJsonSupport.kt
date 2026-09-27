@@ -17,7 +17,10 @@ import io.bluetape4k.support.requireNotBlank
  * ```
  */
 fun KeysetHandle.toJsonKeyset(): String =
-    TinkJsonProtoKeysetFormat.serializeKeyset(this, InsecureSecretKeyAccess.get())
+    TinkJsonProtoKeysetFormat.serializeKeyset(
+        this,
+        InsecureSecretKeyAccess.get()
+    )
 
 /**
  * JSON 문자열에서 [KeysetHandle]을 복원합니다.
@@ -28,4 +31,7 @@ fun KeysetHandle.toJsonKeyset(): String =
  * @param jsonKeyset [toJsonKeyset]으로 직렬화한 JSON 문자열
  */
 fun keysetHandleOf(jsonKeyset: String): KeysetHandle =
-    TinkJsonProtoKeysetFormat.parseKeyset(jsonKeyset.requireNotBlank("jsonKeyset"), InsecureSecretKeyAccess.get())
+    TinkJsonProtoKeysetFormat.parseKeyset(
+        jsonKeyset.requireNotBlank("jsonKeyset"),
+        InsecureSecretKeyAccess.get()
+    )

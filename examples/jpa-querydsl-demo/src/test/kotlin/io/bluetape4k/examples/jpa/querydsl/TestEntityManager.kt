@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component
 @Component
 class TestEntityManager(@PersistenceContext val entityManager: EntityManager) {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     /**
      * 엔티티를 영속성 컨텍스트에 저장하고 반환합니다.
@@ -32,7 +32,7 @@ class TestEntityManager(@PersistenceContext val entityManager: EntityManager) {
      * val user = tem.persist(User(name = "debop"))
      * ```
      */
-    fun <E : Any> persist(entity: E): E {
+    fun <E: Any> persist(entity: E): E {
         entityManager.persist(entity)
         return entity
     }
@@ -45,7 +45,7 @@ class TestEntityManager(@PersistenceContext val entityManager: EntityManager) {
      * // flush 이후 DB에서 즉시 조회 가능
      * ```
      */
-    fun <E : Any> persistAndFlush(entity: E): E {
+    fun <E: Any> persistAndFlush(entity: E): E {
         entityManager.persist(entity)
         entityManager.flush()
         return entity
@@ -64,7 +64,7 @@ class TestEntityManager(@PersistenceContext val entityManager: EntityManager) {
      *
      * @throws IllegalArgumentException flush 후에도 ID로 조회되지 않는 경우.
      */
-    fun <E : Any> persistFlushFind(entity: E): E {
+    fun <E: Any> persistFlushFind(entity: E): E {
         entityManager.persist(entity)
         entityManager.flush()
         entityManager.detach(entity)
@@ -106,8 +106,11 @@ class TestEntityManager(@PersistenceContext val entityManager: EntityManager) {
      *
      * @throws IllegalArgumentException [id]가 null인 경우 — flush 전에 ID가 할당됐는지 확인하세요.
      */
-    fun <E : Any> find(clazz: Class<E>, id: Any?): E? {
+    fun <E: Any> find(clazz: Class<E>, id: Any?): E? {
         requireNotNull(id) { "id must not be null when calling find — check that entity was flushed first" }
         return entityManager.find(clazz, id)
     }
 }
+
+inline fun <reified E: Any> TestEntityManager.findByIdOrNull(id: Any?): E? =
+    find(E::class.java, id)

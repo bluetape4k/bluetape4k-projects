@@ -1,5 +1,7 @@
 package io.bluetape4k.examples.coroutines.builders
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -61,6 +63,7 @@ class CoroutineBuilderExamples {
             log.trace { "result=$result" }
             log.trace { "result=${resultDeferred.await()}" }
             log.trace { "Finish" }
+            result shouldBeEqualTo 42
         }
 
         @Test
@@ -73,6 +76,7 @@ class CoroutineBuilderExamples {
                 }
             }
             val res = results.awaitAll()
+            res shouldHaveSize 10
             log.trace { "Result=${res.joinToString()}" }
         }
     }

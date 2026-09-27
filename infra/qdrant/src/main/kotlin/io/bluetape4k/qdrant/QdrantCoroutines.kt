@@ -1,12 +1,12 @@
 package io.bluetape4k.qdrant
 
-import com.google.protobuf.CodedOutputStream
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import com.google.protobuf.CodedOutputStream
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.warn
-import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requireEquals
+import io.bluetape4k.support.requireInRange
 import io.bluetape4k.support.requireLe
 import io.bluetape4k.support.requirePositiveNumber
 import io.qdrant.client.QdrantClient
@@ -19,10 +19,12 @@ import io.qdrant.client.grpc.Points.ScrollPoints
 import io.qdrant.client.grpc.Points.UpdateResult
 import io.qdrant.client.grpc.Points.UpsertPoints
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.time.Duration
 import java.util.concurrent.ExecutionException
@@ -30,6 +32,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 private object QdrantLog: KLoggingChannel()
+
 private const val MAX_SCROLL_LIMIT = 1000
 private const val DEFAULT_BATCH_BYTES = 4_194_304
 
@@ -38,15 +41,21 @@ private const val DEFAULT_BATCH_BYTES = 4_194_304
  * 취소 시 요청 Future를 취소하며, 호출자가 소유한 클라이언트와 채널은 닫지 않습니다.
  */
 suspend fun QdrantClient.querySuspending(request: QueryPoints, timeout: Duration? = null): List<ScoredPoint> =
-    qdrantCall("query") { queryAsync(request, timeout) }
+    qdrantCall("query") {
+        queryAsync(request, timeout)
+    }
 
 /** 포인트를 저장합니다. 대기 취소는 서버에 이미 반영된 쓰기를 되돌리지 않습니다. */
 suspend fun QdrantClient.upsertSuspending(request: UpsertPoints, timeout: Duration? = null): UpdateResult =
-    qdrantCall("upsert") { upsertAsync(request, timeout) }
+    qdrantCall("upsert") {
+        upsertAsync(request, timeout)
+    }
 
 /** 공식 ID·필터 선택 요청을 보존하여 포인트를 삭제합니다. */
 suspend fun QdrantClient.deleteSuspending(request: DeletePoints, timeout: Duration? = null): UpdateResult =
-    qdrantCall("delete") { deleteAsync(request, timeout) }
+    qdrantCall("delete") {
+        deleteAsync(request, timeout)
+    }
 
 /**
  * 수집할 때마다 독립된 cursor로 한 페이지씩 읽는 cold Flow입니다.
@@ -100,6 +109,7 @@ fun QdrantClient.upsertBatches(
     maxBatchBytes.requirePositiveNumber("maxBatchBytes")
     request.pointsCount.requireEquals(0, "request.pointsCount")
     request.serializedSize.requireLe(maxBatchBytes, "request.serializedSize")
+
     return flow {
         var batch = request.toBuilder()
         val requestSerializedSize = request.serializedSize.toLong()
@@ -124,7 +134,9 @@ fun QdrantClient.upsertBatches(
                 batchSerializedSize = requestSerializedSize
             }
         }
-        if (batch.pointsCount > 0) emit(upsertSuspending(batch.build(), timeout))
+        if (batch.pointsCount > 0) {
+            emit(upsertSuspending(batch.build(), timeout))
+        }
     }
 }
 
@@ -132,6 +144,7 @@ fun QdrantClient.upsertBatches(
 @Suppress("TooGenericExceptionCaught")
 private suspend fun <T> qdrantCall(operation: String, call: () -> ListenableFuture<T>): T {
     currentCoroutineContext().ensureActive()
+
     return try {
         call().awaitQdrant()
     } catch (cancelled: CancellationException) {
@@ -143,18 +156,21 @@ private suspend fun <T> qdrantCall(operation: String, call: () -> ListenableFutu
 }
 
 // 완료 콜백에서만 get을 호출하므로 대기 중인 RPC마다 블로킹 스레드가 필요하지 않습니다.
-private suspend fun <T> ListenableFuture<T>.awaitQdrant(): T = suspendCancellableCoroutine { continuation ->
-    continuation.invokeOnCancellation { cancel(true) }
-    addListener({
-        try {
-            continuation.resume(get())
-        } catch (failure: ExecutionException) {
-            continuation.resumeWithException(failure.cause ?: failure)
-        } catch (failure: CancellationException) {
-            continuation.cancel(failure)
-        } catch (failure: InterruptedException) {
-            Thread.currentThread().interrupt()
-            continuation.resumeWithException(failure)
-        }
-    }, MoreExecutors.directExecutor())
-}
+private suspend fun <T> ListenableFuture<T>.awaitQdrant(): T =
+    suspendCancellableCoroutine { continuation ->
+        continuation.invokeOnCancellation { cancel(true) }
+
+        addListener({
+            try {
+                val value = runBlocking(Dispatchers.IO) { get() }
+                continuation.resume(value)
+            } catch (failure: ExecutionException) {
+                continuation.resumeWithException(failure.cause ?: failure)
+            } catch (failure: CancellationException) {
+                continuation.cancel(failure)
+            } catch (failure: InterruptedException) {
+                Thread.currentThread().interrupt()
+                continuation.resumeWithException(failure)
+            }
+        }, MoreExecutors.directExecutor())
+    }

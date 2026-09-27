@@ -4,21 +4,22 @@ import com.alibaba.fastjson2.JSONArray
 import com.alibaba.fastjson2.parseArray
 import com.alibaba.fastjson2.parseObject
 import com.alibaba.fastjson2.toJSONString
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.fastjson2.AbstractFastjson2Test
 import io.bluetape4k.fastjson2.model.User
 import io.bluetape4k.fastjson2.model.newUser
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.io.Serializable
 
 class JSONExtensionsTest: AbstractFastjson2Test() {
+
     companion object: KLogging()
 
     @RepeatedTest(REPEAT_SIZE)
@@ -27,7 +28,7 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
         val jsonString = user.toJSONString()
 
         val parsedUser = jsonString.readValueOrNull<User>()
-        parsedUser.shouldNotBeNull() shouldBeEqualTo user
+        parsedUser shouldBeEqualTo user
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -127,13 +128,12 @@ class JSONExtensionsTest: AbstractFastjson2Test() {
     @RepeatedTest(REPEAT_SIZE)
     fun `JSON 배열 문자열을 JSONArray 로 파싱`() {
         // JSONArray
-        val list =
-            listOf<Any>(
-                faker.random().nextInt(),
-                faker.random().nextDouble().toString(), // dobule 은 string 으로 변환해야 비교가 된다.
-                faker.random().nextBoolean(),
-                faker.random().nextLong()
-            )
+        val list = listOf<Any>(
+            faker.random().nextInt(),
+            faker.random().nextDouble().toString(), // dobule 은 string 으로 변환해야 비교가 된다.
+            faker.random().nextBoolean(),
+            faker.random().nextLong()
+        )
         val json = list.toJSONString()
         val data: JSONArray = json.parseArray()
 

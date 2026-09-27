@@ -32,7 +32,9 @@ object LettuceBinaryCodecs {
         LettuceBinaryCodec(serializer)
 
     /**
-     * 기본 코덱(LZ4 + Fory)을 생성합니다.
+     * 기존 LZ4 + Fory 저장 포맷과 호환되는 기본 코덱을 생성합니다.
+     * `FastFory`는 명시적 팩토리로 선택하세요. 두 포맷은 상호 호환되지 않아 기본값을 바꾸면
+     * 이전 버전이 새 payload를 읽지 못할 수 있습니다.
      *
      * ```kotlin
      * val codec = LettuceBinaryCodecs.default<MyData>()
@@ -86,6 +88,11 @@ object LettuceBinaryCodecs {
      * Kryo Serializer와 Deflate Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
      */
     fun <V: Any> deflateKryo(): LettuceBinaryCodec<V> = codec(BinarySerializers.DeflateKryo)
+
+    /**
+     * FastFory Serializer와 Deflate Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.
+     */
+    fun <V: Any> deflateFastFory(): LettuceBinaryCodec<V> = codec(BinarySerializers.DeflateFastFory)
 
     /**
      * Fory Serializer와 Deflate Compressor를 사용하는 [LettuceBinaryCodec]를 생성합니다.

@@ -1,15 +1,16 @@
 package io.bluetape4k.http.hc5.http
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.completableFutureOf
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.core5.concurrent.Cancellable
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 
 class OperationsTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `CompletableFuture toCancellable - Cancellable 인스턴스 검증`() {
@@ -17,7 +18,7 @@ class OperationsTest {
         val cancellable = future.toCancellable()
 
         cancellable.shouldNotBeNull()
-        cancellable shouldBeInstanceOf Cancellable::class
+        cancellable.shouldBeInstanceOf<Cancellable>()
     }
 
     @Test
@@ -32,16 +33,16 @@ class OperationsTest {
 
     @Test
     fun `이미 완료된 Future toCancellable - Cancellable 인스턴스 검증`() {
-        val future = CompletableFuture.completedFuture("result")
+        val future = completableFutureOf("result")
         val cancellable = future.toCancellable()
 
         cancellable.shouldNotBeNull()
-        cancellable shouldBeInstanceOf Cancellable::class
+        cancellable.shouldBeInstanceOf<Cancellable>()
     }
 
     @Test
     fun `이미 완료된 Future toCancellable - cancel 호출해도 예외 없음`() {
-        val future = CompletableFuture.completedFuture("done")
+        val future = completableFutureOf("done")
         val cancellable = future.toCancellable()
 
         cancellable.shouldNotBeNull()
@@ -55,6 +56,6 @@ class OperationsTest {
         val cancellable = future.toCancellable()
 
         cancellable.shouldNotBeNull()
-        cancellable shouldBeInstanceOf Cancellable::class
+        cancellable.shouldBeInstanceOf<Cancellable>()
     }
 }

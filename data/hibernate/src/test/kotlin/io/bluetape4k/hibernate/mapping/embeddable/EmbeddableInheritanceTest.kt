@@ -1,5 +1,7 @@
 package io.bluetape4k.hibernate.mapping.embeddable
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.hibernate.model.IntJpaEntity
 import io.bluetape4k.support.uninitialized
@@ -9,8 +11,6 @@ import jakarta.persistence.Embeddable
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.jpa.repository.JpaRepository

@@ -4,13 +4,17 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.lock.internal.deriveDistributedLockKeys
 import io.bluetape4k.redis.lettuce.lock.internal.deriveFairLockKeys
 import io.bluetape4k.redis.lettuce.lock.internal.deriveFencedLockKeys
 import io.bluetape4k.redis.lettuce.lock.internal.deriveMultiLockKeys
 import io.bluetape4k.redis.lettuce.lock.internal.deriveReadWriteLockKeys
+import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.support.toUtf8String
 import io.bluetape4k.testcontainers.storage.RedisClusterServer
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.cluster.SlotHash
@@ -26,11 +30,19 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import java.nio.ByteBuffer
-import java.nio.charset.StandardCharsets
 import java.time.Duration
 
 @Timeout(45)
 internal class LockClusterTest {
+
+    companion object: KLogging() {
+        const val SECRET_NAME = "secret-resource"
+        const val SECRET_HASH_TAG = "secret-hash-tag"
+        val LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(3))
+        val OWNER: LockOwnerId = LockOwnerId.from("topology-owner")
+        val REQUEST: LockRequestId = LockRequestId.from("topology-request")
+        val MULTI_NAMES: List<String> = listOf("multi-topology-one", "multi-topology-two")
+    }
 
     @Test
     fun `standalone locks keep every derived key on one encoded Redis slot`() {
@@ -90,7 +102,7 @@ internal class LockClusterTest {
     }
 
     private fun topologyCases(): List<LockTopologyCase> {
-        val lockConfig = LockConfig(hashTag = "topology-${System.nanoTime()}")
+        val lockConfig = LockConfig(hashTag = "topology-${Base58.randomString(8)}")
         val fairConfig = FairLockConfig(lockConfig)
         val fencedConfig = FencedLockConfig(lockConfig, epoch = 101)
         val readWriteConfig = ReadWriteLockConfig(lockConfig)
@@ -218,7 +230,11 @@ internal class LockClusterTest {
             CrossSlotCase(
                 "Derived distributed lock keys must share one Redis Cluster slot.",
                 { connection ->
-                    LettuceSpinLock.create(connection, SECRET_NAME, SpinLockConfig(lock = lockConfig, jitterRatio = 0.0))
+                    LettuceSpinLock.create(
+                        connection,
+                        SECRET_NAME,
+                        SpinLockConfig(lock = lockConfig, jitterRatio = 0.0)
+                    )
                 },
                 { connection ->
                     LettuceSuspendSpinLock.create(
@@ -259,7 +275,7 @@ internal class LockClusterTest {
         vararg val factories: (StatefulRedisClusterConnection<String, String>) -> Unit,
     )
 
-    private object SplitSlotWireCodec : RedisCodec<String, String> {
+    private object SplitSlotWireCodec: RedisCodec<String, String> {
         override fun decodeKey(bytes: ByteBuffer): String = decode(bytes)
         override fun decodeValue(bytes: ByteBuffer): String = decode(bytes)
         override fun encodeKey(key: String): ByteBuffer {
@@ -274,20 +290,11 @@ internal class LockClusterTest {
         override fun encodeValue(value: String): ByteBuffer = encode(value)
 
         private fun encode(value: String): ByteBuffer =
-            ByteBuffer.wrap(value.toByteArray(StandardCharsets.UTF_8))
+            ByteBuffer.wrap(value.toUtf8Bytes())
 
         private fun decode(bytes: ByteBuffer): String =
             bytes.duplicate().let { copy -> ByteArray(copy.remaining()).also(copy::get) }
-                .toString(StandardCharsets.UTF_8)
-    }
-
-    companion object {
-        const val SECRET_NAME = "secret-resource"
-        const val SECRET_HASH_TAG = "secret-hash-tag"
-        val LEASE: LeasePolicy = LeasePolicy.Fixed(Duration.ofSeconds(3))
-        val OWNER: LockOwnerId = LockOwnerId.from("topology-owner")
-        val REQUEST: LockRequestId = LockRequestId.from("topology-request")
-        val MULTI_NAMES: List<String> = listOf("multi-topology-one", "multi-topology-two")
+                .toUtf8String()
     }
 }
 

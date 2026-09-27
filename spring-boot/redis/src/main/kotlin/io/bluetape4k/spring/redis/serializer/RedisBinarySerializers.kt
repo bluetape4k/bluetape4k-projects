@@ -31,6 +31,7 @@ object RedisBinarySerializers {
     val Jdk by lazy { RedisBinarySerializer(BinarySerializers.Jdk) }
     val Kryo by lazy { RedisBinarySerializer(BinarySerializers.Kryo) }
     val Fory by lazy { RedisBinarySerializer(BinarySerializers.Fory) }
+
     /**
      * FastFory(`SCHEMA_CONSISTENT`)를 사용하는 Redis serializer입니다.
      *

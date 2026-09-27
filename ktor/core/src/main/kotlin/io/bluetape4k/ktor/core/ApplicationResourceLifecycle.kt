@@ -6,17 +6,16 @@ import io.bluetape4k.support.closeSafe
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStopped
 import io.ktor.util.AttributeKey
-import kotlinx.coroutines.DisposableHandle as CoroutinesDisposableHandle
-import java.io.Serializable as JavaSerializable
-import java.util.Collections
-import java.util.IdentityHashMap
+import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
+import kotlinx.coroutines.DisposableHandle as CoroutinesDisposableHandle
+import java.io.Serializable as JavaSerializable
 
 /**
  * 등록된 애플리케이션 리소스를 닫을 때 사용한 lifecycle 단계입니다.
  */
-public enum class ApplicationResourceClosePhase {
+enum class ApplicationResourceClosePhase {
     /** 애플리케이션 종료 전에 registration token으로 직접 닫은 단계입니다. */
     EARLY,
 
@@ -30,7 +29,7 @@ public enum class ApplicationResourceClosePhase {
 /**
  * 애플리케이션 리소스 registry의 lifecycle 상태입니다.
  */
-public enum class ApplicationResourceRegistryState {
+enum class ApplicationResourceRegistryState {
     /** 새 리소스를 등록할 수 있는 상태입니다. */
     OPEN,
 
@@ -48,7 +47,7 @@ public enum class ApplicationResourceRegistryState {
  * @property phase close가 시도된 lifecycle 단계입니다.
  * @property fatal JVM `Error` 계열 실패인지 여부입니다.
  */
-public data class ApplicationResourceCloseFailure(
+data class ApplicationResourceCloseFailure(
     val registrationId: Long,
     val phase: ApplicationResourceClosePhase,
     val fatal: Boolean,
@@ -72,7 +71,7 @@ public data class ApplicationResourceCloseFailure(
  * @property closed 예외 없이 close가 끝난 항목 수입니다.
  * @property failures 실패한 항목의 opaque 진단 정보입니다.
  */
-public data class ApplicationResourceCloseReport(
+data class ApplicationResourceCloseReport(
     val state: ApplicationResourceRegistryState,
     val attempted: Int,
     val inFlight: Int,
@@ -101,9 +100,9 @@ public data class ApplicationResourceCloseReport(
  * close action은 token을 호출한 caller thread에서 동기적으로 실행되며, 이 API는
  * timeout·dispatcher·coroutine scope를 소유하지 않습니다.
  */
-public interface ApplicationResourceRegistration : AutoCloseable {
+interface ApplicationResourceRegistration: AutoCloseable {
     /** registry lifetime 안에서만 의미가 있는 opaque ID입니다. */
-    public val id: Long
+    val id: Long
 
     /**
      * 이 token이 소유한 항목을 조기에 닫습니다. 이미 claim된 token이면 아무 작업도 하지 않습니다.
@@ -133,9 +132,9 @@ private class DefaultApplicationResourceRegistration(
  * 전용이며 `SIGKILL`, JVM crash, OOM 등 `ApplicationStopped`가 발생하지 않는 종료는 보장하지
  * 않습니다.
  */
-public class ApplicationResourceRegistry : AutoCloseable {
+class ApplicationResourceRegistry: AutoCloseable {
 
-    public companion object : KLogging()
+    companion object: KLogging()
 
     private val lock = ReentrantLock()
     private val entries = ArrayList<Entry>()
@@ -151,7 +150,7 @@ public class ApplicationResourceRegistry : AutoCloseable {
     /**
      * 현재 registry 상태와 close 누적 결과를 읽기 시점의 불변 값으로 반환합니다.
      */
-    public val closeReport: ApplicationResourceCloseReport
+    val closeReport: ApplicationResourceCloseReport
         get() = lock.withLock {
             ApplicationResourceCloseReport(
                 state = state,
@@ -168,7 +167,7 @@ public class ApplicationResourceRegistry : AutoCloseable {
      * 동일한 [resource] identity는 registry lifetime 동안 한 번만 등록할 수 있습니다.
      * 종료가 시작된 뒤 등록하면 resource는 보관되지 않고 호출 thread에서 즉시 닫힙니다.
      */
-    public fun register(resource: AutoCloseable): ApplicationResourceRegistration =
+    fun register(resource: AutoCloseable): ApplicationResourceRegistration =
         registerInternal(resource) { resource.close() }
 
     /**
@@ -178,7 +177,7 @@ public class ApplicationResourceRegistry : AutoCloseable {
      * action은 application startup code가 소유하는 trusted 작업이어야 하며 유한한 시간 안에
      * 끝나야 합니다.
      */
-    public fun register(closeAction: () -> Unit): ApplicationResourceRegistration =
+    fun register(closeAction: () -> Unit): ApplicationResourceRegistration =
         registerInternal(closeAction, closeAction)
 
     /**
@@ -313,7 +312,7 @@ public class ApplicationResourceRegistry : AutoCloseable {
             try {
                 log.warn {
                     "Application resource close failed: registrationId=${failure.registrationId}, " +
-                        "phase=${failure.phase}, fatal=${failure.fatal}"
+                            "phase=${failure.phase}, fatal=${failure.fatal}"
                 }
             } catch (_: Throwable) {
                 // 로깅 backend 자체의 실패가 나머지 cleanup을 중단시키면 안 됩니다.
@@ -340,13 +339,13 @@ public class ApplicationResourceRegistry : AutoCloseable {
     )
 }
 
-private class SanitizedFatalCloseMarker : Error("Application resource close failed")
+private class SanitizedFatalCloseMarker: Error("Application resource close failed")
 
 private val applicationResourceLifecycleKey =
     AttributeKey<ApplicationResourceLifecycleHolder>("bluetape4k.application.resource.lifecycle")
 
 private typealias ApplicationResourceSubscriptionRegistrar =
-    (onStopped: () -> Unit) -> CoroutinesDisposableHandle
+            (onStopped: () -> Unit) -> CoroutinesDisposableHandle
 
 /**
  * registry와 lifecycle subscription의 소유권을 같은 lock으로 직렬화합니다.
@@ -380,7 +379,7 @@ private class ApplicationResourceLifecycleHolder(
             when (state) {
                 State.READY, State.STOPPED -> return registry
                 State.FAILED -> throw sanitizedInstallationFailure()
-                State.NEW -> try {
+                State.NEW    -> try {
                     val candidate = registrar(::onStopped)
                     subscription = candidate
                     state = State.READY
@@ -441,7 +440,7 @@ private class ApplicationResourceLifecycleHolder(
  * 합니다. Ktor disposal timeout은 이 callback을 중단하지 않으며, `ApplicationStopped`가
  * 발생하지 않는 강제 종료에서는 cleanup을 보장하지 않습니다.
  */
-public fun Application.installApplicationResourceLifecycle(): ApplicationResourceRegistry {
+fun Application.installApplicationResourceLifecycle(): ApplicationResourceRegistry {
     val slot = attributes.computeIfAbsent(applicationResourceLifecycleKey) {
         ApplicationResourceLifecycleHolder(
             { onStopped ->

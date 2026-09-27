@@ -16,13 +16,13 @@ import org.apache.kafka.clients.producer.ProducerRecord
  * // exported == true || exported == false
  * ```
  */
-class DefaultKafkaExporter: io.bluetape4k.kafka.logback.exporter.KafkaExporter {
+class DefaultKafkaExporter: KafkaExporter {
 
     override fun <K: Any, V: Any, E: Any> export(
         producer: Producer<K, V>,
         record: ProducerRecord<K, V>,
         event: E,
-        exceptionHandler: io.bluetape4k.kafka.logback.exporter.ExportExceptionHandler<E>,
+        exceptionHandler: ExportExceptionHandler<E>,
     ): Boolean {
         return try {
             producer.send(record) { _, exception ->

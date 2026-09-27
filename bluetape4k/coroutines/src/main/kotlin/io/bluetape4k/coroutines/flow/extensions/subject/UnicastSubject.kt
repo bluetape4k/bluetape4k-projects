@@ -5,11 +5,11 @@ import io.bluetape4k.coroutines.flow.extensions.Resumable
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.trace
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlin.coroutines.coroutineContext
 
 /**
  * 단일 collector만 허용하는 Subject입니다.
@@ -130,7 +130,7 @@ class UnicastSubject<T: Any>: AbstractFlow<T>(), SubjectApi<T> {
         }
 
         while (true) {
-            coroutineContext.ensureActive()
+            currentCoroutineContext().ensureActive()
             val t = terminal.value
             val v = queue.poll()
 

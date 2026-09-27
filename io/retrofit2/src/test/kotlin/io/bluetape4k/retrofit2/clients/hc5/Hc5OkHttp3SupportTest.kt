@@ -5,11 +5,14 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.junit5.output.InMemoryLogbackAppender
+import io.bluetape4k.logging.KLogging
 import okhttp3.Request
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 
 class Hc5OkHttp3SupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `toSimpleHttpRequest redacts sensitive headers in trace logs`() {
@@ -23,15 +26,13 @@ class Hc5OkHttp3SupportTest {
             try {
                 logger.level = Level.TRACE
 
-                val request =
-                    Request
-                        .Builder()
-                        .url("https://example.com/redaction")
-                        .get()
-                        .header("Authorization", secretToken)
-                        .header("X-Api-Key", apiKey)
-                        .header("X-Request-Id", "request-123")
-                        .build()
+                val request = Request.Builder()
+                    .url("https://example.com/redaction")
+                    .get()
+                    .header("Authorization", secretToken)
+                    .header("X-Api-Key", apiKey)
+                    .header("X-Request-Id", "request-123")
+                    .build()
 
                 val simpleRequest = request.toSimpleHttpRequest()
 

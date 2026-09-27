@@ -11,7 +11,7 @@ import java.util.concurrent.ScheduledExecutorService
 /** Suspending adapter for [LettuceReadWriteLock]'s phase-fair Redis state machine. */
 class LettuceSuspendReadWriteLock internal constructor(
     private val client: ReadWriteLockClient,
-) : AutoCloseable {
+): AutoCloseable {
 
     private val readView = ReadLockView(client)
     private val writeView = WriteLockView(client)

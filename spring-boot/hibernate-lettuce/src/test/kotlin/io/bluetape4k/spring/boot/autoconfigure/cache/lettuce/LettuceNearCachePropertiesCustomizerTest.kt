@@ -3,6 +3,7 @@ package io.bluetape4k.spring.boot.autoconfigure.cache.lettuce
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import org.springframework.boot.hibernate.autoconfigure.HibernatePropertiesCustomizer
 import java.time.Duration
@@ -35,6 +36,7 @@ class LettuceNearCachePropertiesCustomizerTest {
         val hibernateProperties = mutableMapOf<String, Any>()
         customizer.customize(hibernateProperties)
 
+        log.debug { "hibernate properties=${hibernateProperties}" }
         hibernateProperties["hibernate.cache.lettuce.redis_ttl.A"] shouldBeEqualTo "60s"
         hibernateProperties["hibernate.cache.lettuce.redis_ttl.B"] shouldBeEqualTo "300s"
         hibernateProperties["hibernate.cache.lettuce.redis_ttl.C"] shouldBeEqualTo "900s"
@@ -49,6 +51,7 @@ class LettuceNearCachePropertiesCustomizerTest {
         val hibernateProperties = mutableMapOf<String, Any>()
         customizer.customize(hibernateProperties)
 
+        log.debug { "hibernate properties=${hibernateProperties}" }
         hibernateProperties.containsKey("hibernate.generate_statistics").shouldBeFalse()
     }
 
@@ -64,6 +67,7 @@ class LettuceNearCachePropertiesCustomizerTest {
         val hibernateProperties = mutableMapOf<String, Any>()
         customizer.customize(hibernateProperties)
 
+        log.debug { "hibernate properties=${hibernateProperties}" }
         hibernateProperties.containsKey("hibernate.cache.lettuce.local.record_stats").shouldBeFalse()
     }
 }

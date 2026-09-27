@@ -8,19 +8,22 @@ import com.fasterxml.jackson.dataformat.cbor.CBORFactory
 import com.fasterxml.jackson.dataformat.cbor.databind.CBORMapper
 import com.fasterxml.jackson.dataformat.smile.SmileFactory
 import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLAnchorReplayingFactory
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.jackson.async.AsyncJsonParser
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.io.StringReader
 
 class StreamReadConstraintsTest {
+
+    companion object: KLogging()
 
     @ParameterizedTest
     @ValueSource(ints = [1, 7, 1024])
@@ -122,6 +125,7 @@ class StreamReadConstraintsTest {
         val name = "n".repeat(64)
 
         mapper.readTree(writer.writeValueAsBytes(mapOf(name to 1)))[name].asInt() shouldBeEqualTo 1
+
         assertFailsWith<StreamConstraintsException> {
             mapper.readTree(writer.writeValueAsBytes(mapOf(name + "n" to 1)))
         }
@@ -135,6 +139,7 @@ class StreamReadConstraintsTest {
         val name = "n".repeat(64)
 
         mapper.readTree(writer.writeValueAsBytes(mapOf(name to 1)))[name].asInt() shouldBeEqualTo 1
+
         assertFailsWith<StreamConstraintsException> {
             mapper.readTree(writer.writeValueAsBytes(mapOf(name + "n" to 1)))
         }

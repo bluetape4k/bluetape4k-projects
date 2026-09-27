@@ -26,6 +26,9 @@ dependencies {
     testImplementation(bt4k.cache2k.jcache)
     testImplementation(bt4k.redisson)
 
+    // Serializer & Compressor
+    testImplementation(project(":bluetape4k-io"))
+
     // Serializer
     testImplementation(bt4k.fory.kotlin)
     testImplementation(bt4k.kryo5)

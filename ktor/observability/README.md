@@ -56,8 +56,7 @@ fun Application.module(registry: PrometheusMeterRegistry) {
 
 ## OpenTelemetry Tracing Usage
 
-Tracing is explicit and opt-in. Create the OpenTelemetry SDK, exporters, and
-propagators in the application, then pass the resulting `OpenTelemetry`
+Tracing is explicit and opt-in. Create the OpenTelemetry SDK, exporters, and propagators in the application, then pass the resulting `OpenTelemetry`
 instance to the helper.
 
 ```kotlin
@@ -80,23 +79,16 @@ fun Application.module(openTelemetry: OpenTelemetry) {
 ```
 
 `captureSanitizedCorrelationId` records only the sanitized `correlation.id`
-trace attribute. Raw request headers are not recorded. Traced requests always
-record the bounded `correlation.present` attribute.
+trace attribute. Raw request headers are not recorded. Traced requests always record the bounded `correlation.present` attribute.
 
-The combined installer applies one correlation policy to CallId, CallLogging,
-response propagation, and tracing. A tracing configuration without
+The combined installer applies one correlation policy to CallId, CallLogging, response propagation, and tracing. A tracing configuration without
 `correlationId` inherits the top-level policy, including its request header and
-`maxLength`. Set `KtorOpenTelemetryTracingConfig.correlationId` to keep a
-deliberate trace-specific policy separate from the application correlation ID.
+`maxLength`. Set `KtorOpenTelemetryTracingConfig.correlationId` to keep a deliberate trace-specific policy separate from the application correlation ID.
 
 ## Dependency Policy
 
 The module installs Ktor `CallId`, `CallLogging`, and `MicrometerMetrics`
-explicitly. Applications still own the actual `MeterRegistry`, exporters, and
-tracing backend. OpenTelemetry tracing is not installed by default; add the
-`opentelemetry-ktor-3.0` instrumentation dependency only when tracing helpers
-are used. That instrumentation is versioned from the OpenTelemetry alpha BOM, so
-keep the application-owned telemetry setup easy to upgrade.
+explicitly. Applications still own the actual `MeterRegistry`, exporters, and tracing backend. OpenTelemetry tracing is not installed by default; add the
+`opentelemetry-ktor-3.0` instrumentation dependency only when tracing helpers are used. That instrumentation is versioned from the OpenTelemetry alpha BOM, so keep the application-owned telemetry setup easy to upgrade.
 
-Incoming correlation IDs are never echoed directly. They are trimmed, filtered
-to safe characters, capped, and only then added to MDC or response headers.
+Incoming correlation IDs are never echoed directly. They are trimmed, filtered to safe characters, capped, and only then added to MDC or response headers.

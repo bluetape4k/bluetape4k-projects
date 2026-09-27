@@ -51,7 +51,8 @@ inline fun <reified T: Any> BeanFactory.get(): T = getBean<T>()
  * ```
  */
 @Suppress("UNCHECKED_CAST")
-operator fun <T: Any> BeanFactory.get(name: String): T? = getBean(name) as? T
+inline operator fun <reified T: Any> BeanFactory.get(name: String): T =
+    getBean(name, T::class.java)
 
 /**
  * [KClass]로 지정한 타입의 빈을 조회합니다.
@@ -119,6 +120,9 @@ operator fun BeanFactory.get(
         else -> getBean(name, *args)
     }
 
+
+inline fun <reified T: Any> BeanFactory.findBean(): T? = findBean(T::class.java)
+
 /**
  * 타입으로 빈을 조회하고 없으면 `null`을 반환합니다.
  *
@@ -150,6 +154,10 @@ fun <T: Any> BeanFactory.findBean(requiredType: Class<T>): T? =
         description = { "requiredType=$requiredType" },
         block = { get(requiredType) },
     )
+
+
+inline fun <reified T: Any> BeanFactory.findBean(name: String): T? =
+    findBean(name, T::class.java)
 
 /**
  * 이름과 타입으로 빈을 조회하고 없으면 `null`을 반환합니다.

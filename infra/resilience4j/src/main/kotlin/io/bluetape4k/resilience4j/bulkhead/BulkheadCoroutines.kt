@@ -17,12 +17,11 @@ import io.github.resilience4j.kotlin.bulkhead.executeSuspendFunction
  * @param bulkhead [Bulkhead] 인스턴스
  * @param block    실행할 suspend 코드
  */
-suspend inline fun <R> withBulkhead(
+suspend fun <R> withBulkhead(
     bulkhead: Bulkhead,
-    crossinline block: suspend () -> R,
-): R {
-    return bulkhead.executeSuspendFunction { block() }
-}
+    block: suspend () -> R,
+): R =
+    bulkhead.executeSuspendFunction { block() }
 
 /**
  * suspend [func] 실행 시, Resilience4j의 Bulkhead 를 이용하여, 실행을 제어합니다.
@@ -39,13 +38,12 @@ suspend inline fun <R> withBulkhead(
  * @param func     실행할 suspend 함수
  * @return suspend 함수의 실행 결과
  */
-suspend inline fun <T, R> withBulkhead(
+suspend fun <T, R> withBulkhead(
     bulkhead: Bulkhead,
     param: T,
-    crossinline func: suspend (T) -> R,
-): R {
-    return bulkhead.decorateSuspendFunction1(func).invoke(param)
-}
+    func: suspend (T) -> R,
+): R =
+    bulkhead.decorateSuspendFunction1(func).invoke(param)
 
 /**
  * suspend [bifunc] 실행 시, Resilience4j의 Bulkhead 를 이용하여, 실행을 제어합니다.
@@ -63,14 +61,13 @@ suspend inline fun <T, R> withBulkhead(
  * @param bifunc   실행할 suspend 함수
  * @return suspend 함수의 실행 결과
  */
-suspend inline fun <T, U, R> withBulkhead(
+suspend fun <T, U, R> withBulkhead(
     bulkhead: Bulkhead,
     param1: T,
     param2: U,
-    crossinline bifunc: suspend (T, U) -> R,
-): R {
-    return bulkhead.decorateSuspendBiFunction(bifunc).invoke(param1, param2)
-}
+    bifunc: suspend (T, U) -> R,
+): R =
+    bulkhead.decorateSuspendBiFunction(bifunc).invoke(param1, param2)
 
 /**
  * suspend [func] 실행에 실패하는 경우, Resilience4j의 Bulkhead 를 이용하여, 실행을 제어합니다.
@@ -86,8 +83,8 @@ suspend inline fun <T, U, R> withBulkhead(
  * @param func Bulkhead 로 decorate 할 suspend 함수
  * @return retry로 decorated 된 suspend function
  */
-inline fun <T, R> Bulkhead.decorateSuspendFunction1(
-    crossinline func: suspend (input: T) -> R,
+fun <T, R> Bulkhead.decorateSuspendFunction1(
+    func: suspend (input: T) -> R,
 ): suspend (T) -> R = { input: T ->
     this.decorateSuspendFunction { func(input) }.invoke()
 }
@@ -106,8 +103,8 @@ inline fun <T, R> Bulkhead.decorateSuspendFunction1(
  * @param func Bulkhead 로 decorate 할 suspend 함수
  * @return retry로 decorated 된 suspend function
  */
-inline fun <T1, T2, R> Bulkhead.decorateSuspendBiFunction(
-    crossinline func: suspend (input1: T1, input2: T2) -> R,
+fun <T1, T2, R> Bulkhead.decorateSuspendBiFunction(
+    func: suspend (input1: T1, input2: T2) -> R,
 ): suspend (T1, T2) -> R = { input1: T1, input2: T2 ->
     this.decorateSuspendFunction { func(input1, input2) }.invoke()
 }

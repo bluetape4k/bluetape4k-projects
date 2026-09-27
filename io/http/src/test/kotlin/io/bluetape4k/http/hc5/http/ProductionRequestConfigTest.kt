@@ -3,12 +3,13 @@ package io.bluetape4k.http.hc5.http
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
+import org.apache.hc.core5.util.TimeValue
 import org.apache.hc.core5.util.Timeout
 import org.junit.jupiter.api.Test
 
 class ProductionRequestConfigTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     @Suppress("DEPRECATION")
@@ -43,7 +44,7 @@ class ProductionRequestConfigTest {
 
     @Test
     fun `defaultKeepAliveStrategy accepts custom fallback duration`() {
-        val strategy = defaultKeepAliveStrategy(org.apache.hc.core5.util.TimeValue.ofSeconds(30))
+        val strategy = defaultKeepAliveStrategy(TimeValue.ofSeconds(30))
         strategy.shouldNotBeNull()
     }
 
@@ -55,7 +56,7 @@ class ProductionRequestConfigTest {
 
     @Test
     fun `defaultRetryStrategy accepts custom maxRetries and interval`() {
-        val strategy = defaultRetryStrategy(maxRetries = 5, retryInterval = org.apache.hc.core5.util.TimeValue.ofSeconds(2))
+        val strategy = defaultRetryStrategy(maxRetries = 5, retryInterval = TimeValue.ofSeconds(2))
         strategy.shouldNotBeNull()
     }
 }

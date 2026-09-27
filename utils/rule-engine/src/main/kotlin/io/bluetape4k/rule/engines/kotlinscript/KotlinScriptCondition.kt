@@ -29,9 +29,8 @@ class KotlinScriptCondition(val script: String): Condition {
         return try {
             KotlinScriptEngine.evaluate(script, facts.asMap()) as? Boolean ?: false
         } catch (e: Exception) {
-            log.warn {
-                "Unable to evaluate Kotlin script. ${script.toRuleSourceLogContext()}, " +
-                        "exceptionType=${e.javaClass.name}, factCount=${facts.size}"
+            log.warn(e) {
+                "Unable to evaluate Kotlin script. ${script.toRuleSourceLogContext()}, factCount=${facts.size}"
             }
             false
         }

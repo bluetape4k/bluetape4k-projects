@@ -24,7 +24,8 @@ class RunnerError(RuntimeError):
 
 
 def validator_module():
-    spec = importlib.util.spec_from_file_location("issue756_fory_redisson_validator", HERE / "validate-issue756-fory-evidence.py")
+    spec = importlib.util.spec_from_file_location("issue756_fory_redisson_validator",
+                                                  HERE / "validate-issue756-fory-evidence.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -62,6 +63,7 @@ def sha256_file(path: Path) -> str:
 def write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
+
 
 def normalize_jar(source: Path, destination: Path) -> Path:
     destination.parent.mkdir(parents=True, exist_ok=True)

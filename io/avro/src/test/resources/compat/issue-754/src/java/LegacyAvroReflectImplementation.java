@@ -1,6 +1,7 @@
 package io.bluetape4k.avro.compat.issue754.java;
 
 import io.bluetape4k.avro.AvroReflectSerializer;
+
 import java.nio.charset.StandardCharsets;
 
 public final class LegacyAvroReflectImplementation implements AvroReflectSerializer {

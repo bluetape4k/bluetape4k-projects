@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.lettuce.core.codec.StringCodec
 import org.awaitility.kotlin.atMost
@@ -12,9 +13,12 @@ import org.awaitility.kotlin.until
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.seconds
 
 /** Loaded map의 write-behind 재시도와 일괄 삭제 경계를 실제 Redis로 검증합니다. */
 internal class LettuceResidualMapCoverageTest: AbstractLettuceTest() {
+
+    companion object: KLogging()
 
     @Test
     fun `blocking write-behind exhaustion persists failed keys in dead-letter`() {
@@ -25,9 +29,9 @@ internal class LettuceResidualMapCoverageTest: AbstractLettuceTest() {
                 attempts.incrementAndGet()
                 error("residual write failure")
             }
-
             override fun delete(keys: Collection<String>) = Unit
         }
+
         val config = LettuceCacheConfig.WRITE_BEHIND.copy(
             keyPrefix = prefix,
             writeBehindDelay = Duration.ofMillis(20),
@@ -39,7 +43,7 @@ internal class LettuceResidualMapCoverageTest: AbstractLettuceTest() {
 
             val connection = client.connect(StringCodec.UTF8)
             try {
-                await atMost Duration.ofSeconds(2) until {
+                await atMost 2.seconds until {
                     connection.sync().lrange("$prefix:dead-letter", 0L, -1L).contains("dead-key")
                 }
                 val keys = connection.sync().lrange("$prefix:dead-letter", 0L, -1L)

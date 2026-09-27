@@ -2,22 +2,23 @@ package io.bluetape4k.http.hc5.async
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.async.methods.toProducer
 import io.bluetape4k.http.hc5.http.defaultRetryStrategy
 import io.bluetape4k.http.hc5.http.productionRequestConfigOf
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import org.apache.hc.client5.http.async.methods.SimpleRequestBuilder
 import org.apache.hc.client5.http.async.methods.SimpleResponseConsumer
 import org.apache.hc.client5.http.protocol.HttpClientContext
 import org.apache.hc.core5.util.Timeout
 import org.junit.jupiter.api.Test
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
-class ProductionHttpAsyncClientTest : AbstractHc5Test() {
+class ProductionHttpAsyncClientTest: AbstractHc5Test() {
 
-    companion object : KLogging()
+    companion object: KLoggingChannel()
 
     @Test
     fun `productionHttpAsyncClientOf creates client with defaults`() {
@@ -53,7 +54,7 @@ class ProductionHttpAsyncClientTest : AbstractHc5Test() {
                 HttpClientContext.create(),
                 null,
             )
-            val response = future.get(30, TimeUnit.SECONDS)
+            val response = future.get(30.seconds)
             log.debug { "Async GET /get status=${response.code}" }
             response.code shouldBeEqualTo 200
         }

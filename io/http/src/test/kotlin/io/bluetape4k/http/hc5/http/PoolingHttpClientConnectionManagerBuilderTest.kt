@@ -1,7 +1,8 @@
 package io.bluetape4k.http.hc5.http
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager
 import org.apache.hc.core5.pool.PoolConcurrencyPolicy
 import org.apache.hc.core5.pool.PoolReusePolicy
@@ -19,6 +20,7 @@ class PoolingHttpClientConnectionManagerBuilderTest {
             setMaxConnTotal(10)
         }
         cm.shouldNotBeNull()
+        cm.maxTotal shouldBeEqualTo 10
         cm.close()
     }
 
@@ -47,6 +49,7 @@ class PoolingHttpClientConnectionManagerBuilderTest {
             maxConnPerRoute = 10,
         )
         cm.shouldNotBeNull()
+        cm.maxTotal shouldBeEqualTo 100
         cm.close()
     }
 

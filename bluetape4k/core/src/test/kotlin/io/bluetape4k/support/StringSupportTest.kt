@@ -23,6 +23,7 @@ import kotlin.text.takeLast
 
 @RandomizedTest
 class StringSupportTest: AbstractCoreTest() {
+
     companion object: KLogging() {
         private const val REPEAT_SIZE = 5
     }

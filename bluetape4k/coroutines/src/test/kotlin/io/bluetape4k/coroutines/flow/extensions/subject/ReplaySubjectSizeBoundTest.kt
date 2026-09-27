@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.awaitility.kotlin.await
 import org.junit.jupiter.api.Test
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration.Companion.milliseconds
@@ -28,7 +29,7 @@ class ReplaySubjectSizeBoundTest {
     fun `basic online`() = runTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10)
-            val result = mutableListOf<Int>()
+            val result = ConcurrentLinkedQueue<Int>()
 
             val job = launch {
                 replay
@@ -45,7 +46,7 @@ class ReplaySubjectSizeBoundTest {
             replay.complete()
             job.join()
 
-            result shouldBeEqualTo listOf(0, 1, 2, 3, 4)
+            result.toList() shouldBeEqualTo listOf(0, 1, 2, 3, 4)
         }
     }
 
@@ -58,13 +59,13 @@ class ReplaySubjectSizeBoundTest {
         }
         replay.complete()
 
-        val result = mutableListOf<Int>()
+        val result = ConcurrentLinkedQueue<Int>()
         replay
             .onEach { delay(10.milliseconds) }
             .log("#1")
             .collect { result.add(it) }
 
-        result shouldBeEqualTo listOf(0, 1, 2, 3, 4)
+        result.toList() shouldBeEqualTo listOf(0, 1, 2, 3, 4)
     }
 
     @Test
@@ -72,7 +73,7 @@ class ReplaySubjectSizeBoundTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10)
 
-            val result = mutableListOf<Int>()
+            val result = ConcurrentLinkedQueue<Int>()
             val exc = AtomicReference<Throwable>(null)
 
             val job = launch {
@@ -97,7 +98,7 @@ class ReplaySubjectSizeBoundTest {
 
             job.join()
 
-            result shouldBeEqualTo listOf(0, 1, 2, 3, 4)
+            result.toList() shouldBeEqualTo listOf(0, 1, 2, 3, 4)
             exc.get() shouldBeInstanceOf RuntimeException::class
         }
     }
@@ -106,7 +107,7 @@ class ReplaySubjectSizeBoundTest {
     fun `error offline`() = runTest {
         val replay = ReplaySubject<Int>(10)
 
-        val result = mutableListOf<Int>()
+        val result = ConcurrentLinkedQueue<Int>()
         val exc = AtomicReference<Throwable>(null)
 
         repeat(5) {
@@ -124,7 +125,7 @@ class ReplaySubjectSizeBoundTest {
             exc.set(e)
         }
 
-        result shouldBeEqualTo listOf(0, 1, 2, 3, 4)
+        result.toList() shouldBeEqualTo listOf(0, 1, 2, 3, 4)
         exc.get() shouldBeInstanceOf RuntimeException::class
     }
 
@@ -132,7 +133,7 @@ class ReplaySubjectSizeBoundTest {
     fun `take online`() = runTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10)
-            val result = mutableListOf<Int>()
+            val result = ConcurrentLinkedQueue<Int>()
 
             val job = launch {
                 replay.take(3)
@@ -148,7 +149,7 @@ class ReplaySubjectSizeBoundTest {
             replay.complete()
             job.join()
 
-            result shouldBeEqualTo listOf(0, 1, 2)
+            result.toList() shouldBeEqualTo listOf(0, 1, 2)
         }
     }
 
@@ -161,21 +162,21 @@ class ReplaySubjectSizeBoundTest {
         }
         replay.complete()
 
-        val result = mutableListOf<Int>()
+        val result = ConcurrentLinkedQueue<Int>()
         replay.take(3)
             .log("#1")
             .collect {
                 result.add(it)
             }
 
-        result shouldBeEqualTo listOf(0, 1, 2)
+        result.toList() shouldBeEqualTo listOf(0, 1, 2)
     }
 
     @Test
     fun `bounded online`() = runTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(2)
-            val result = mutableListOf<Int>()
+            val result = ConcurrentLinkedQueue<Int>()
 
             val job = launch {
                 replay
@@ -192,7 +193,7 @@ class ReplaySubjectSizeBoundTest {
             replay.complete()
             job.join()
 
-            result shouldBeEqualTo listOf(0, 1, 2, 3, 4)
+            result.toList() shouldBeEqualTo listOf(0, 1, 2, 3, 4)
 
             // replay -------------------------
 
@@ -203,7 +204,7 @@ class ReplaySubjectSizeBoundTest {
                 .collect {
                     result.add(it)
                 }
-            result shouldBeEqualTo listOf(3, 4)
+            result.toList() shouldBeEqualTo listOf(3, 4)
         }
     }
 
@@ -217,13 +218,13 @@ class ReplaySubjectSizeBoundTest {
         }
         replay.complete()
 
-        val result = mutableListOf<Int>()
+        val result = ConcurrentLinkedQueue<Int>()
         replay
             .onEach { delay(10.milliseconds) }
             .log("#1")
             .collect { result.add(it) }
 
-        result shouldBeEqualTo listOf(3, 4)
+        result.toList() shouldBeEqualTo listOf(3, 4)
     }
 
     @Test
@@ -235,10 +236,10 @@ class ReplaySubjectSizeBoundTest {
         }
         replay.complete()
 
-        val result = mutableListOf<Int>()
+        val result = ConcurrentLinkedQueue<Int>()
         replay.collect { result.add(it) }
 
-        result shouldBeEqualTo listOf(4)
+        result.toList() shouldBeEqualTo listOf(4)
     }
 
     @Test
@@ -246,8 +247,8 @@ class ReplaySubjectSizeBoundTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10)
 
-            val result1 = mutableListOf<Int>()
-            val result2 = mutableListOf<Int>()
+            val result1 = ConcurrentLinkedQueue<Int>()
+            val result2 = ConcurrentLinkedQueue<Int>()
 
             val job1 = launch {
                 replay
@@ -273,8 +274,8 @@ class ReplaySubjectSizeBoundTest {
             job1.join()
             job2.join()
 
-            result1 shouldBeEqualTo listOf(0, 1, 2, 3, 4)
-            result2 shouldBeEqualTo listOf(0, 1, 2, 3, 4)
+            result1.toList() shouldBeEqualTo listOf(0, 1, 2, 3, 4)
+            result2.toList() shouldBeEqualTo listOf(0, 1, 2, 3, 4)
         }
     }
 
@@ -283,7 +284,7 @@ class ReplaySubjectSizeBoundTest {
         withSingleThread {
             val replay = ReplaySubject<Int>(10)
 
-            val result1 = mutableListOf<Int>()
+            val result1 = ConcurrentLinkedQueue<Int>()
             val job1 = launch {
                 replay
                     .onEach { delay(10.milliseconds) }
@@ -291,7 +292,7 @@ class ReplaySubjectSizeBoundTest {
                     .collect { result1.add(it) }
             }.log("job1")
 
-            val result2 = mutableListOf<Int>()
+            val result2 = ConcurrentLinkedQueue<Int>()
             val job2 = launch {
                 replay.take(3)
                     .onEach { delay(20.milliseconds) }
@@ -309,8 +310,8 @@ class ReplaySubjectSizeBoundTest {
             job1.join()
             job2.join()
 
-            result1 shouldBeEqualTo listOf(0, 1, 2, 3, 4)
-            result2 shouldBeEqualTo listOf(0, 1, 2)
+            result1.toList() shouldBeEqualTo listOf(0, 1, 2, 3, 4)
+            result2.toList() shouldBeEqualTo listOf(0, 1, 2)
         }
     }
 

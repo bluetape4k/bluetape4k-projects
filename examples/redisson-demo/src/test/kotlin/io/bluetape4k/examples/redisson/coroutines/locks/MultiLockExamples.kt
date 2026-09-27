@@ -1,5 +1,8 @@
 package io.bluetape4k.examples.redisson.coroutines.locks
 
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.coroutines.support.awaitUntil
 import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -12,17 +15,13 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import org.redisson.RedissonMultiLock
 import org.redisson.api.RLock
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.milliseconds
-
 
 /**
  * [RedissonMultiLock] 예제
@@ -52,7 +51,7 @@ class MultiLockExamples: AbstractRedissonCoroutineTest() {
                     "새로운 Thread예서 MultiLock을 잡습니다. threadId=${Thread.currentThread().threadId()}, lockId=$mlockId"
                 }
 
-                mlock.tryLockAsync(1, 60, TimeUnit.SECONDS, mlockId).await().shouldBeTrue()
+                mlock.tryLockAsync(1, 60, TimeUnit.SECONDS, mlockId).awaitUntil().shouldBeTrue()
                 log.debug { "새로운 Thread예서 MultiLock을 잡는데 성공했습니다." }
                 assertIsLockedAsync(lock1, lock2, lock3)
             } finally {
@@ -62,7 +61,7 @@ class MultiLockExamples: AbstractRedissonCoroutineTest() {
                         "MultiLock을 unlock 합니다. threadId=${Thread.currentThread().threadId()}, lockId=$mlockId"
                     }
                     // NonCancellable context 하에 있기 때문에 currentCoroutineId 가 lock 걸 때와 달리잔다. 그래서 currCoroutineId 를 사용한다
-                    mlock.unlockAsync(mlockId).await()
+                    mlock.unlockAsync(mlockId).awaitUntil()
                 }
             }
         }
@@ -73,20 +72,20 @@ class MultiLockExamples: AbstractRedissonCoroutineTest() {
         val mlockId2 = redisson.getLockId("mlock2")
 
         log.debug { "Main Thread예서 MultiLock을 잡습니다." }
-        mlock2.lockAsync(mlockId2).await()
+        mlock2.lockAsync(mlockId2).awaitUntil()
 
         delay(10.milliseconds)
         assertIsLockedAsync(lock1, lock2, lock3)
         delay(10.milliseconds)
 
-        mlock2.unlockAsync(mlockId2).await()
+        mlock2.unlockAsync(mlockId2).awaitUntil()
     }
 
     private suspend fun assertIsLockedAsync(vararg locks: RLock) = coroutineScope {
         log.debug { "모든 Lock이 lock이 잡혀있는지 검사합니다..." }
 
         val locked = locks.map {
-            async { it.isLockedAsync.await() }
+            async { it.isLockedAsync.awaitUntil() }
         }.awaitAll()
 
         locked.all { it }.shouldBeTrue()
@@ -103,26 +102,26 @@ class MultiLockExamples: AbstractRedissonCoroutineTest() {
         val mlockId = redisson.getLockId("mlock")
 
         log.debug { "Main Thread에서 MultiRock에 대해서 lock을 잡습니다." }
-        mlock.tryLockAsync(1, 60, TimeUnit.SECONDS, mlockId).await().shouldBeTrue()
+        mlock.tryLockAsync(1, 60, TimeUnit.SECONDS, mlockId).awaitUntil().shouldBeTrue()
         assertIsLockedAsync(lock1, lock2, lock3)
 
         val job = launch(exceptionHandler) {
             val mlock2 = RedissonMultiLock(lock1, lock2, lock4)
             log.debug { "다른 Thread 에서 새로운 MultiRock에 대해서 lock을 잡으려고 하면 실패한다." }
-            mlock2.tryLockAsync(1, 60, TimeUnit.SECONDS).await().shouldBeFalse()
+            mlock2.tryLockAsync(1, 60, TimeUnit.SECONDS).awaitUntil().shouldBeFalse()
             // 이미 Lock이 잡혀있다
             assertIsLockedAsync(lock1, lock2, lock3)
             // mlock2에 속한 lock4 는 lock 이 걸리지 않았다
-            lock4.isLockedAsync.await().shouldBeFalse()
+            lock4.isLockedAsync.awaitUntil().shouldBeFalse()
         }
         delay(10.milliseconds)
         job.join()
 
         // 같은 Thread 에서 기존 lock이 걸려 있는데, 또 lock을 걸면 TTL이 갱신된다
-        mlock.tryLockAsync(1, 60, TimeUnit.SECONDS, mlockId).await().shouldBeTrue()
+        mlock.tryLockAsync(1, 60, TimeUnit.SECONDS, mlockId).awaitUntil().shouldBeTrue()
 
         delay(10.milliseconds)
-        mlock.unlockAsync(mlockId).await()
+        mlock.unlockAsync(mlockId).awaitUntil()
     }
 
     @Test
@@ -170,7 +169,7 @@ class MultiLockExamples: AbstractRedissonCoroutineTest() {
         val lockId = redisson.getLockId("mlock")
 
         log.debug { "Main Thread에서 MultiRock에 대해서 lock을 잡습니다." }
-        mlock.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId).await().shouldBeTrue()
+        mlock.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId).awaitUntil().shouldBeTrue()
         assertIsLocked(lock1, lock2, lock3)
 
         SuspendedJobTester()
@@ -181,7 +180,7 @@ class MultiLockExamples: AbstractRedissonCoroutineTest() {
                 val lockId2 = redisson.getLockId("mlock2")
 
                 log.debug { "다른 Thread 에서 새로운 MultiRock에 대해서 lock을 잡으려고 하면 실패한다." }
-                mlock2.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId2).await().shouldBeFalse()
+                mlock2.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId2).awaitUntil().shouldBeFalse()
                 // 이미 Lock이 잡혀있다
                 assertIsLocked(lock1, lock2, lock3)
                 // mlock2에 속한 lock4 는 lock 이 걸리지 않았다
@@ -190,10 +189,10 @@ class MultiLockExamples: AbstractRedissonCoroutineTest() {
             .run()
 
         // 같은 Thread 에서 기존 lock이 걸려 있는데, 또 lock을 걸면 TTL이 갱신된다
-        mlock.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId).await().shouldBeTrue()
+        mlock.tryLockAsync(1, 60, TimeUnit.SECONDS, lockId).awaitUntil().shouldBeTrue()
 
         delay(10.milliseconds)
-        mlock.unlockAsync(lockId).await()
+        mlock.unlockAsync(lockId).awaitUntil()
     }
 
     private fun assertIsLocked(vararg locks: RLock) {

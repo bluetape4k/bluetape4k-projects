@@ -1,8 +1,8 @@
 package io.bluetape4k.cache.nearcache.jcache
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeBlank
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class NearJCacheConfigBuilderTest {

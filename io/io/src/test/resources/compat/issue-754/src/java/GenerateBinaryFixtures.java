@@ -4,6 +4,7 @@ import io.bluetape4k.io.serializer.BinarySerializer;
 import io.bluetape4k.io.serializer.ForyBinarySerializer;
 import io.bluetape4k.io.serializer.JdkBinarySerializer;
 import io.bluetape4k.io.serializer.KryoBinarySerializer;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -27,7 +28,7 @@ public final class GenerateBinaryFixtures {
     }
 
     private static void write(Path path, BinarySerializer serializer, LegacyBinaryCaller.SimpleData data)
-        throws Exception {
+            throws Exception {
         byte[] bytes = serializer.serialize(data);
         if (bytes.length == 0) {
             throw new IllegalStateException("empty fixture: " + path);

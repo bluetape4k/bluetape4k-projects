@@ -1,5 +1,6 @@
 package io.bluetape4k.io.benchmark
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.io.compressor.Compressors
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.support.toUtf8String
@@ -11,7 +12,6 @@ import kotlinx.benchmark.Mode
 import kotlinx.benchmark.Scope
 import kotlinx.benchmark.State
 import kotlinx.benchmark.Warmup
-import io.bluetape4k.assertions.shouldBeEqualTo
 import java.util.concurrent.TimeUnit
 
 @State(Scope.Benchmark)

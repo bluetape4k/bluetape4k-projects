@@ -2,20 +2,19 @@
 
 English | [한국어](./README.ko.md)
 
-An integrated Kotlin module for scientific and geospatial data processing: GIS coordinate conversion,
-Shapefile I/O, JTS geometry operations, PostGIS database pipelines, and NetCDF metadata cataloging.
+An integrated Kotlin module for scientific and geospatial data processing: GIS coordinate conversion, Shapefile I/O, JTS geometry operations, PostGIS database pipelines, and NetCDF metadata cataloging.
 
 ## Overview
 
 `bluetape4k-science` covers five domains:
 
-| # | Domain | Key Libraries | Status |
-|---|--------|---------------|--------|
-| 1 | **GIS Coordinate Conversion** | Proj4J, proj4j-epsg | ✅ Implemented |
-| 2 | **Shapefile Processing** | GeoTools (LGPL) | ✅ Implemented |
-| 3 | **JTS Geometry Operations** | JTS Core | ✅ Implemented |
-| 4 | **PostGIS Data Pipeline** | Exposed + PostGIS | ✅ Implemented |
-| 5 | **NetCDF Metadata Catalog** | UCAR netCDF-Java 5.9.1 | ✅ Implemented |
+| # | Domain                        | Key Libraries          | Status         |
+|---|-------------------------------|------------------------|----------------|
+| 1 | **GIS Coordinate Conversion** | Proj4J, proj4j-epsg    | ✅ Implemented |
+| 2 | **Shapefile Processing**      | GeoTools (LGPL)        | ✅ Implemented |
+| 3 | **JTS Geometry Operations**   | JTS Core               | ✅ Implemented |
+| 4 | **PostGIS Data Pipeline**     | Exposed + PostGIS      | ✅ Implemented |
+| 5 | **NetCDF Metadata Catalog**   | UCAR netCDF-Java 5.9.1 | ✅ Implemented |
 
 > **NetCDF status**: `NetCdfCatalogService.registerFile()` and
 > `NetCdfCatalogService.importGridValues()` are implemented and covered by the module tests.
@@ -95,31 +94,31 @@ io.bluetape4k.science/
 
 ## Features
 
-| Domain | Feature | API |
-|--------|---------|-----|
-| **Coordinates** | WGS84 lat/lon with Haversine distance | `GeoLocation.distanceTo()` |
-| | Rectangular bounding box | `BoundingBox.contains()`, `.intersects()` |
-| | Degree-minute-second notation | `DMS.parse()`, `.toDecimal()` |
-| | UTM zone detection | `utmZoneOf(lat, lon)` |
-| | 2D/3D vector math | `Vector(x, y, z?)` |
-| **Projection** | WGS84 ↔ UTM conversion | `wgs84ToUtm()`, `utmToWgs84()` |
-| | Arbitrary EPSG conversion | `transform(x, y, srcEpsg, tgtEpsg)` |
-| | CRS instance caching | `CrsRegistry` |
-| **Shapefile** | Synchronous Shapefile reading | `loadShape(file)` |
-| | Coroutine-based async reading | `loadShapeAsync(file)` |
-| | Type-safe models (no GeoTools leakage) | `Shape`, `ShapeRecord` |
-| **Geometry** | JTS intersection / union / difference | `GeometryOperations.intersection()` |
-| | Buffer zone creation | `GeometryOperations.buffer()` |
-| | Douglas-Peucker simplification | `GeometryOperations.simplify()` |
-| | Distance calculation | `GeometryOperations.distance()` |
-| **Database** | Spatial layer + feature CRUD | `SpatialLayerRepository`, `SpatialFeatureRepository` |
-| | Virtual Thread batch Shapefile import | `ShapefileImportService` |
-| | NetCDF file metadata catalog | `NetCdfFileRepository` ✅ |
-| | NetCDF grid value storage schema | `NetCdfGridValueTable` ✅ |
-| | `.nc` file registration | `NetCdfCatalogService.registerFile()` ✅ |
-| | Rank 1–4 grid import | `NetCdfCatalogService.importGridValues()` ✅ |
-| | Import progress diagnostics | `NetCdfCatalogService.findImportProgress()` ✅ |
-| | CoordinateAxis2D / CF auxiliary coordinates | `NetCdfCatalogService.importGridValues()` ✅ |
+| Domain          | Feature                                     | API                                                  |
+|-----------------|---------------------------------------------|------------------------------------------------------|
+| **Coordinates** | WGS84 lat/lon with Haversine distance       | `GeoLocation.distanceTo()`                           |
+|                 | Rectangular bounding box                    | `BoundingBox.contains()`, `.intersects()`            |
+|                 | Degree-minute-second notation               | `DMS.parse()`, `.toDecimal()`                        |
+|                 | UTM zone detection                          | `utmZoneOf(lat, lon)`                                |
+|                 | 2D/3D vector math                           | `Vector(x, y, z?)`                                   |
+| **Projection**  | WGS84 ↔ UTM conversion                      | `wgs84ToUtm()`, `utmToWgs84()`                       |
+|                 | Arbitrary EPSG conversion                   | `transform(x, y, srcEpsg, tgtEpsg)`                  |
+|                 | CRS instance caching                        | `CrsRegistry`                                        |
+| **Shapefile**   | Synchronous Shapefile reading               | `loadShape(file)`                                    |
+|                 | Coroutine-based async reading               | `loadShapeAsync(file)`                               |
+|                 | Type-safe models (no GeoTools leakage)      | `Shape`, `ShapeRecord`                               |
+| **Geometry**    | JTS intersection / union / difference       | `GeometryOperations.intersection()`                  |
+|                 | Buffer zone creation                        | `GeometryOperations.buffer()`                        |
+|                 | Douglas-Peucker simplification              | `GeometryOperations.simplify()`                      |
+|                 | Distance calculation                        | `GeometryOperations.distance()`                      |
+| **Database**    | Spatial layer + feature CRUD                | `SpatialLayerRepository`, `SpatialFeatureRepository` |
+|                 | Virtual Thread batch Shapefile import       | `ShapefileImportService`                             |
+|                 | NetCDF file metadata catalog                | `NetCdfFileRepository` ✅                            |
+|                 | NetCDF grid value storage schema            | `NetCdfGridValueTable` ✅                            |
+|                 | `.nc` file registration                     | `NetCdfCatalogService.registerFile()` ✅             |
+|                 | Rank 1–4 grid import                        | `NetCdfCatalogService.importGridValues()` ✅         |
+|                 | Import progress diagnostics                 | `NetCdfCatalogService.findImportProgress()` ✅       |
+|                 | CoordinateAxis2D / CF auxiliary coordinates | `NetCdfCatalogService.importGridValues()` ✅         |
 
 ---
 
@@ -201,10 +200,10 @@ val poly1 = wkt.read("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))")
 val poly2 = wkt.read("POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))")
 
 val intersection = GeometryOperations.intersection(poly1, poly2)
-val union        = GeometryOperations.union(poly1, poly2)
-val buffered     = GeometryOperations.buffer(poly1, 100.0)
-val simplified   = GeometryOperations.simplify(poly1, 1.0)
-val distance     = GeometryOperations.distance(poly1, poly2)
+val union = GeometryOperations.union(poly1, poly2)
+val buffered = GeometryOperations.buffer(poly1, 100.0)
+val simplified = GeometryOperations.simplify(poly1, 1.0)
+val distance = GeometryOperations.distance(poly1, poly2)
 println("Distance: $distance m")
 ```
 
@@ -232,9 +231,7 @@ val importedCount = service.importShapefile(
 println("Imported: $importedCount records")
 ```
 
-`ShapefileImportService` reads the companion `.prj` file when present. Projected
-input such as Web Mercator or UTM is transformed to EPSG:4326 before storage, and
-the stored PostGIS geometry is written with SRID 4326. Shapefiles without `.prj`
+`ShapefileImportService` reads the companion `.prj` file when present. Projected input such as Web Mercator or UTM is transformed to EPSG:4326 before storage, and the stored PostGIS geometry is written with SRID 4326. Shapefiles without `.prj`
 metadata are treated as already WGS84.
 
 ### 5.5 NetCDF Metadata Catalog
@@ -283,9 +280,7 @@ transaction {
 
 ### 5.6 NetCDF Grid Import
 
-`NetCdfCatalogService` opens a `.nc` file, stores its metadata, and imports one
-variable into the Exposed/PostGIS grid tables. The API is blocking, so call it
-from a worker or virtual-thread executor rather than an event-loop thread.
+`NetCdfCatalogService` opens a `.nc` file, stores its metadata, and imports one variable into the Exposed/PostGIS grid tables. The API is blocking, so call it from a worker or virtual-thread executor rather than an event-loop thread.
 
 ```kotlin
 import io.bluetape4k.science.exposed.repository.NetCdfFileRepository
@@ -301,12 +296,10 @@ val fileId = catalog.registerFile("/data/era5/ERA5_2024_01.nc")
 catalog.importGridValues(fileId, variableName = "temperature")
 ```
 
-Both calls are blocking. Complete registration outside the import deadline so the
-caller retains `fileId`, then submit only `importGridValues()` to the worker. A
-timeout requests cooperative cancellation; it does not prove that the worker or
-database transaction stopped.
+Both calls are blocking. Complete registration outside the import deadline so the caller retains `fileId`, then submit only `importGridValues()` to the worker. A timeout requests cooperative cancellation; it does not prove that the worker or database transaction stopped.
 
 <!-- netcdf-timeout-example:start -->
+
 ```kotlin
 import io.bluetape4k.science.exposed.NetCdfException
 import io.bluetape4k.science.exposed.model.NetCdfImportStatus
@@ -370,46 +363,34 @@ if (!workerTerminated) {
 }
 if (callerInterrupted) Thread.currentThread().interrupt()
 ```
+
 <!-- netcdf-timeout-example:end -->
 
 `awaitTermination=false` is always `RECOVERY_REQUIRED`: isolate the worker, emit
-`netcdf.import.worker.stuck`, and perform zero automatic retries. After a confirmed
-worker exit, classify the worker exception and progress together:
+`netcdf.import.worker.stuck`, and perform zero automatic retries. After a confirmed worker exit, classify the worker exception and progress together:
 
-| Worker/progress/authoritative signal | Outcome | Caller action |
-|--------------------------------------|---------|---------------|
-| `terminated=false` | `RECOVERY_REQUIRED` | Isolate worker, emit stuck alert, do not retry |
-| Progress `COMPLETED` | `COMPLETED` | Finish the job |
-| First `ImportAlreadyRunning` | `RUNNING` | Trust the DB lease result; do not retry |
-| `PENDING`, `FAILED`, no row, or indeterminate `IN_PROGRESS` | `RETRY_REVIEW` | Zero automatic retries; require operational review |
-| Repeated `ImportAlreadyRunning` or exhausted attempt limit | `RECOVERY_REQUIRED` | Stop retries and alert |
-| Non-transient typed failure | `RECOVERY_REQUIRED` | Repair input or operating conditions before retrying |
-| Unexpected worker failure | `RECOVERY_REQUIRED` | Fail closed, preserve diagnostics, and alert |
+| Worker/progress/authoritative signal                        | Outcome             | Caller action                                        |
+|-------------------------------------------------------------|---------------------|------------------------------------------------------|
+| `terminated=false`                                          | `RECOVERY_REQUIRED` | Isolate worker, emit stuck alert, do not retry       |
+| Progress `COMPLETED`                                        | `COMPLETED`         | Finish the job                                       |
+| First `ImportAlreadyRunning`                                | `RUNNING`           | Trust the DB lease result; do not retry              |
+| `PENDING`, `FAILED`, no row, or indeterminate `IN_PROGRESS` | `RETRY_REVIEW`      | Zero automatic retries; require operational review   |
+| Repeated `ImportAlreadyRunning` or exhausted attempt limit  | `RECOVERY_REQUIRED` | Stop retries and alert                               |
+| Non-transient typed failure                                 | `RECOVERY_REQUIRED` | Repair input or operating conditions before retrying |
+| Unexpected worker failure                                   | `RECOVERY_REQUIRED` | Fail closed, preserve diagnostics, and alert         |
 
-Do not compare `leaseExpiresAt` with the application host clock. The database decides
-whether an expired lease can be reacquired; `ImportAlreadyRunning` is the authoritative
-active-lease signal. `fileId` is not an authorization token. Authenticate and authorize
-register, import, progress, and retry independently, verify tenant/job ownership each time,
-and accept paths only from a caller-owned allowed-root policy.
+Do not compare `leaseExpiresAt` with the application host clock. The database decides whether an expired lease can be reacquired; `ImportAlreadyRunning` is the authoritative active-lease signal. `fileId` is not an authorization token. Authenticate and authorize register, import, progress, and retry independently, verify tenant/job ownership each time, and accept paths only from a caller-owned allowed-root policy.
 
-The service rejects symlinks, non-regular files, identity changes, and files that change
-during open, but this guard is not a sandbox. Stage uploads in an immutable quarantine
-directory and protect them from hostile writers. The fingerprint is only a
+The service rejects symlinks, non-regular files, identity changes, and files that change during open, but this guard is not a sandbox. Stage uploads in an immutable quarantine directory and protect them from hostile writers. The fingerprint is only a
 `fileKey|size|lastModifiedTime` heuristic, not a content hash or TOCTOU proof. A mismatch raises
-`FileChanged`, but an attacker may preserve the same metadata; do not replace the registered path
-and assume a matching fingerprint or filename proves content integrity.
+`FileChanged`, but an attacker may preserve the same metadata; do not replace the registered path and assume a matching fingerprint or filename proves content integrity.
 
-`findImportProgress()` returns an operational model. Convert it to a caller-owned DTO that
-allowlists only status, the last committed slice, and a coarse outcome. Do not serialize
-`errorMessage`, `leaseExpiresAt`, timestamps, raw paths, tenant identifiers, or fingerprints.
-The library metric `netcdf.import.progress.lookup` uses a fixed `status` tag. Caller alerts
-may use `netcdf.import.timeout`, `netcdf.import.worker.stuck`, and
+`findImportProgress()` returns an operational model. Convert it to a caller-owned DTO that allowlists only status, the last committed slice, and a coarse outcome. Do not serialize
+`errorMessage`, `leaseExpiresAt`, timestamps, raw paths, tenant identifiers, or fingerprints. The library metric `netcdf.import.progress.lookup` uses a fixed `status` tag. Caller alerts may use `netcdf.import.timeout`, `netcdf.import.worker.stuck`, and
 `netcdf.import.retry.exhausted`; keep metric tags to bounded values such as `operation` and
 `outcome`. Put the correlation ID in a structured log or trace field, never in a metric tag.
 
-`NetCdfException` is sealed, so adding a subtype can require source migration for exhaustive
-consumer `when` expressions. Keep an `else` fallback at integration boundaries and map only
-the subtypes whose policy the caller owns.
+`NetCdfException` is sealed, so adding a subtype can require source migration for exhaustive consumer `when` expressions. Keep an `else` fallback at integration boundaries and map only the subtypes whose policy the caller owns.
 
 Operator recovery order:
 
@@ -422,27 +403,19 @@ Operator recovery order:
 
 The importer maps the supported ranks as follows:
 
-| Variable rank | Stored coordinates |
-|---------------|--------------------|
-| 1D (`time`) | `timeIdx=t`, `levelIdx=0`, `location=null` |
+| Variable rank                                   | Stored coordinates                                      |
+|-------------------------------------------------|---------------------------------------------------------|
+| 1D (`time`)                                     | `timeIdx=t`, `levelIdx=0`, `location=null`              |
 | 2D (`lat`, `lon`), including `CoordinateAxis2D` | `timeIdx=0`, `levelIdx=0`, one PostGIS `POINT` per cell |
-| 3D (`time`, `lat`, `lon`) | `timeIdx=t`, `levelIdx=0`, one `POINT` per cell |
-| 4D (`time`, `level`, `lat`, `lon`) | `timeIdx=t`, `levelIdx=k`, one `POINT` per cell |
+| 3D (`time`, `lat`, `lon`)                       | `timeIdx=t`, `levelIdx=0`, one `POINT` per cell         |
+| 4D (`time`, `level`, `lat`, `lon`)              | `timeIdx=t`, `levelIdx=k`, one `POINT` per cell         |
 
-CF `coordinates` tokens that are not time, level, latitude, or longitude are treated as
-numeric auxiliary coordinates and serialized into `attrs` (for example,
+CF `coordinates` tokens that are not time, level, latitude, or longitude are treated as numeric auxiliary coordinates and serialized into `attrs` (for example,
 `{"altitude": 125.0}`). The importer preserves non-standard data dimension order such as
-`[time, x, y]`, bounds each tile to 65,536 cells and each JDBC batch to 1,000 rows, and
-rejects duplicate canonical coordinates before writing a slice. Unsupported axes, malformed
-CRS metadata, changed files, corrupt progress, and resource-limit violations are reported as
-typed `NetCdfException` subtypes.
+`[time, x, y]`, bounds each tile to 65,536 cells and each JDBC batch to 1,000 rows, and rejects duplicate canonical coordinates before writing a slice. Unsupported axes, malformed CRS metadata, changed files, corrupt progress, and resource-limit violations are reported as typed `NetCdfException` subtypes.
 
-Each `(fileId, variableName)` import has a five-minute heartbeat lease and a
-slice cursor. `COMPLETED` imports are no-ops; a failed or expired import resumes
-at `lastSliceIdx + 1`. Supported source CRS values are EPSG:4326, 4269, 3857,
-3031, 3413, and UTM EPSG:32601–32660/32701–32760; other values raise
-`NetCdfException.UnsupportedProjection`. NaN and `_FillValue` cells are skipped
-and counted by `netcdf.import.nan.skipped`.
+Each `(fileId, variableName)` import has a five-minute heartbeat lease and a slice cursor. `COMPLETED` imports are no-ops; a failed or expired import resumes at `lastSliceIdx + 1`. Supported source CRS values are EPSG:4326, 4269, 3857, 3031, 3413, and UTM EPSG:32601–32660/32701–32760; other values raise
+`NetCdfException.UnsupportedProjection`. NaN and `_FillValue` cells are skipped and counted by `netcdf.import.nan.skipped`.
 
 ---
 
@@ -450,79 +423,73 @@ and counted by `netcdf.import.nan.skipped`.
 
 ### coords
 
-| Class / Function | Description |
-|------------------|-------------|
-| `GeoLocation(lat, lon)` | WGS84 coordinate; `.distanceTo()` for Haversine distance |
-| `BoundingBox(minLat, minLon, maxLat, maxLon)` | Rectangular boundary; `.contains()`, `.intersects()` |
-| `DMS.parse(str)` / `DM.parse(str)` | Parse degree-minute-second / degree-minute strings |
-| `UtmZone(zone, hemisphere)` | UTM zone data class |
-| `utmZoneOf(lat, lon)` | Auto-detect UTM zone from WGS84 coordinates |
-| `Vector(x, y, z?)` | 2D/3D vector with arithmetic operations |
+| Class / Function                              | Description                                              |
+|-----------------------------------------------|----------------------------------------------------------|
+| `GeoLocation(lat, lon)`                       | WGS84 coordinate; `.distanceTo()` for Haversine distance |
+| `BoundingBox(minLat, minLon, maxLat, maxLon)` | Rectangular boundary; `.contains()`, `.intersects()`     |
+| `DMS.parse(str)` / `DM.parse(str)`            | Parse degree-minute-second / degree-minute strings       |
+| `UtmZone(zone, hemisphere)`                   | UTM zone data class                                      |
+| `utmZoneOf(lat, lon)`                         | Auto-detect UTM zone from WGS84 coordinates              |
+| `Vector(x, y, z?)`                            | 2D/3D vector with arithmetic operations                  |
 
 ### projection
 
-| Function | Description |
-|----------|-------------|
-| `wgs84ToUtm(geoLocation)` | WGS84 → UTM (easting, northing) |
-| `utmToWgs84(e, n, zone)` | UTM → WGS84 |
-| `transform(x, y, srcEpsg, tgtEpsg)` | Arbitrary EPSG-to-EPSG conversion |
-| `CrsRegistry` | Thread-safe CRS instance cache by EPSG code |
+| Function                            | Description                                 |
+|-------------------------------------|---------------------------------------------|
+| `wgs84ToUtm(geoLocation)`           | WGS84 → UTM (easting, northing)             |
+| `utmToWgs84(e, n, zone)`            | UTM → WGS84                                 |
+| `transform(x, y, srcEpsg, tgtEpsg)` | Arbitrary EPSG-to-EPSG conversion           |
+| `CrsRegistry`                       | Thread-safe CRS instance cache by EPSG code |
 
 ### shapefile
 
-| Function | Description |
-|----------|-------------|
-| `loadShape(file, charset?)` | Synchronous Shapefile reading |
-| `loadShapeAsync(file, charset?)` | Coroutine-based async reading (`Dispatchers.IO`) |
-| `Shape` | File metadata + record list |
-| `ShapeRecord` | Geometry + attribute map (GeoTools-free public API) |
+| Function                         | Description                                         |
+|----------------------------------|-----------------------------------------------------|
+| `loadShape(file, charset?)`      | Synchronous Shapefile reading                       |
+| `loadShapeAsync(file, charset?)` | Coroutine-based async reading (`Dispatchers.IO`)    |
+| `Shape`                          | File metadata + record list                         |
+| `ShapeRecord`                    | Geometry + attribute map (GeoTools-free public API) |
 
 ### geometry
 
-| Function | Description |
-|----------|-------------|
-| `GeometryOperations.intersection(a, b)` | Geometric intersection |
-| `GeometryOperations.union(a, b)` | Geometric union |
-| `GeometryOperations.buffer(g, dist)` | Buffer zone at given distance |
-| `GeometryOperations.simplify(g, tol)` | Douglas-Peucker simplification |
-| `GeometryOperations.distance(a, b)` | Minimum distance between geometries |
-| `Polygon.area()` / `.perimeter()` | Area and perimeter extensions |
+| Function                                | Description                         |
+|-----------------------------------------|-------------------------------------|
+| `GeometryOperations.intersection(a, b)` | Geometric intersection              |
+| `GeometryOperations.union(a, b)`        | Geometric union                     |
+| `GeometryOperations.buffer(g, dist)`    | Buffer zone at given distance       |
+| `GeometryOperations.simplify(g, tol)`   | Douglas-Peucker simplification      |
+| `GeometryOperations.distance(a, b)`     | Minimum distance between geometries |
+| `Polygon.area()` / `.perimeter()`       | Area and perimeter extensions       |
 
 ### exposed (PostGIS)
 
-| Class | Description |
-|-------|-------------|
-| `SpatialLayerRepository` | Layer CRUD (`save`, `findByName`) |
-| `SpatialFeatureRepository` | Feature CRUD + PostGIS bbox search |
-| `ShapefileImportService` | Virtual Thread batch import from Shapefile |
+| Class                      | Description                                |
+|----------------------------|--------------------------------------------|
+| `SpatialLayerRepository`   | Layer CRUD (`save`, `findByName`)          |
+| `SpatialFeatureRepository` | Feature CRUD + PostGIS bbox search         |
+| `ShapefileImportService`   | Virtual Thread batch import from Shapefile |
 
 ### exposed (NetCDF)
 
-| Class | Status | Description |
-|-------|--------|-------------|
-| `NetCdfFileRecord` | ✅ | File metadata model (filename, path, size, variables, dimensions) |
-| `NetCdfVariableInfo` | ✅ | Variable descriptor (name, dataType, shape, attributes) |
-| `NetCdfDimensionInfo` | ✅ | Dimension descriptor (name, length, isUnlimited) |
-| `NetCdfFileRepository` | ✅ | File metadata CRUD (`save`, `findById`, `findAll`, `deleteById`) |
-| `NetCdfFileTable` | ✅ | Exposed table — JSONB columns + PostGIS bbox + time range |
-| `NetCdfGridValueTable` | ✅ | Grid value table (location: PostGIS POINT, value, timeIdx, levelIdx) |
-| `NetCdfCatalogService` | ✅ | Blocking `registerFile()`, `importGridValues()`, and read-only `findImportProgress()`; rank 1–4, 1D/2D axes, CF numeric auxiliary coordinates, bounded tiles, lease/resume, CRS whitelist, NaN/`_FillValue` handling |
+| Class                  | Status | Description                                                                                                                                                                                                          |
+|------------------------|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `NetCdfFileRecord`     | ✅     | File metadata model (filename, path, size, variables, dimensions)                                                                                                                                                    |
+| `NetCdfVariableInfo`   | ✅     | Variable descriptor (name, dataType, shape, attributes)                                                                                                                                                              |
+| `NetCdfDimensionInfo`  | ✅     | Dimension descriptor (name, length, isUnlimited)                                                                                                                                                                     |
+| `NetCdfFileRepository` | ✅     | File metadata CRUD (`save`, `findById`, `findAll`, `deleteById`)                                                                                                                                                     |
+| `NetCdfFileTable`      | ✅     | Exposed table — JSONB columns + PostGIS bbox + time range                                                                                                                                                            |
+| `NetCdfGridValueTable` | ✅     | Grid value table (location: PostGIS POINT, value, timeIdx, levelIdx)                                                                                                                                                 |
+| `NetCdfCatalogService` | ✅     | Blocking `registerFile()`, `importGridValues()`, and read-only `findImportProgress()`; rank 1–4, 1D/2D axes, CF numeric auxiliary coordinates, bounded tiles, lease/resume, CRS whitelist, NaN/`_FillValue` handling |
 
-`NetCdfCatalogService` reports typed failures through sealed `NetCdfException` subtypes.
-Consumer code should retain an `else` fallback because a new subtype can require source
-migration for an exhaustive `when`. Blank paths or variable names raise
-`IllegalArgumentException`; missing files, variables,
-coordinates, unsupported ranks/axes/CRS, active leases, lost leases, changed
-files, corrupt progress, duplicates, and resource-limit violations are reported
-as the corresponding `NetCdfException` subtype. Existing schema columns are reused:
+`NetCdfCatalogService` reports typed failures through sealed `NetCdfException` subtypes. Consumer code should retain an `else` fallback because a new subtype can require source migration for an exhaustive `when`. Blank paths or variable names raise
+`IllegalArgumentException`; missing files, variables, coordinates, unsupported ranks/axes/CRS, active leases, lost leases, changed files, corrupt progress, duplicates, and resource-limit violations are reported as the corresponding `NetCdfException` subtype. Existing schema columns are reused:
 `location` stores canonical `(lon, lat)` and `attrs` stores bounded numeric auxiliary JSONB.
 
 ---
 
 ## Dependencies
 
-`bluetape4k-science` declares optional feature-specific libraries as `compileOnly`.
-Add only what your application uses at runtime.
+`bluetape4k-science` declares optional feature-specific libraries as `compileOnly`. Add only what your application uses at runtime.
 
 ### Base
 
@@ -579,8 +546,7 @@ implementation(Libs.kotlinx_coroutines_core)
 
 `utils/science/build.gradle.kts` compiles the NetCDF integration against
 `edu.ucar:cdm-core:5.9.1` and `edu.ucar:netcdf4:5.9.1` as `compileOnly`
-dependencies. The application that calls `NetCdfCatalogService` must provide
-the same artifacts at runtime:
+dependencies. The application that calls `NetCdfCatalogService` must provide the same artifacts at runtime:
 
 ```kotlin
 repositories {
@@ -592,10 +558,7 @@ dependencies {
 }
 ```
 
-The former aggregate coordinate is not part of the current contract and must not
-be used. The Unidata repository is already declared by the root build;
-applications outside this repository should add the repository shown above when
-their dependency management does not inherit it.
+The former aggregate coordinate is not part of the current contract and must not be used. The Unidata repository is already declared by the root build; applications outside this repository should add the repository shown above when their dependency management does not inherit it.
 
 ### Full Example
 
@@ -657,11 +620,7 @@ class NetCdfTableTest : AbstractPostgisTest() {
 }
 ```
 
-`NetCdfCatalogServiceTest` covers the current service contract with dynamically
-generated rank 1–4 files: metadata registration, grid-row counts, missing
-variables/coordinates, NaN and `_FillValue` filtering, CRS reprojection and
-whitelist failures, resume/no-op behavior, heartbeat lease contention and
-stale-owner protection. The public Unidata CF-1.x sample regression is tagged
+`NetCdfCatalogServiceTest` covers the current service contract with dynamically generated rank 1–4 files: metadata registration, grid-row counts, missing variables/coordinates, NaN and `_FillValue` filtering, CRS reprojection and whitelist failures, resume/no-op behavior, heartbeat lease contention and stale-owner protection. The public Unidata CF-1.x sample regression is tagged
 `slow-netcdf`.
 
 ```bash
@@ -673,8 +632,7 @@ stale-owner protection. The public Unidata CF-1.x sample regression is tagged
 ```
 
 The module's default test configuration excludes `slow-netcdf`; specifying
-`-PincludeTags` disables that exclusion. Testcontainers-backed tests require a
-working Docker runtime and PostgreSQL/PostGIS access.
+`-PincludeTags` disables that exclusion. Testcontainers-backed tests require a working Docker runtime and PostgreSQL/PostGIS access.
 
 ### Shapefile Import Test
 
@@ -710,7 +668,8 @@ fun `import shapefile into PostGIS`() {
 ### PostGIS Database
 
 - **Spatial indexes**: `CREATE INDEX ON spatial_features USING GIST (geom)` for fast bbox queries.
-- **Batch loading**: `ShapefileImportService` processes rows in configurable batches (default: 1000) via Virtual Threads.
+- **Batch
+  loading**: `ShapefileImportService` processes rows in configurable batches (default: 1000) via Virtual Threads.
 - **Connection pooling**: Use HikariCP or Exposed's built-in pool.
 
 ### JTS Geometry
@@ -728,31 +687,26 @@ fun `import shapefile into PostGIS`() {
 
 ## Related Modules
 
-| Module | Purpose |
-|--------|---------|
-| `bluetape4k-core` | Core utilities (compression, assertions) |
-| `bluetape4k-coroutines` | Coroutine extensions (Flow, DeferredValue) |
-| `bluetape4k-exposed-postgresql` | PostGIS column types |
-| `bluetape4k-exposed-jdbc` | Exposed JDBC repository base |
-| `bluetape4k-testing-testcontainers` | Testcontainers helpers |
+| Module                              | Purpose                                    |
+|-------------------------------------|--------------------------------------------|
+| `bluetape4k-core`                   | Core utilities (compression, assertions)   |
+| `bluetape4k-coroutines`             | Coroutine extensions (Flow, DeferredValue) |
+| `bluetape4k-exposed-postgresql`     | PostGIS column types                       |
+| `bluetape4k-exposed-jdbc`           | Exposed JDBC repository base               |
+| `bluetape4k-testing-testcontainers` | Testcontainers helpers                     |
 
 ## Failure and lifecycle contract
 
 BoundingBox validates latitude in [-90, 90] and longitude in [-180, 180] during construction and copy. Minimum/maximum ordering is required; longitude intervals crossing the date line are not represented by reversed bounds.
 
-
 ### Migrating Shapefile bounds
 
 `ShapeHeader.bbox`, `ShapeRecord.bbox`, and `Shape.computeBoundingBox()` now use
-`ShapeBounds(minX, minY, maxX, maxY)`. Each axis validates finite values and minimum/maximum
-ordering only, preserving projected coordinates in meters such as EPSG:3857. Neither
+`ShapeBounds(minX, minY, maxX, maxY)`. Each axis validates finite values and minimum/maximum ordering only, preserving projected coordinates in meters such as EPSG:3857. Neither
 `loadShape` nor `loadShapeAsync` infers a CRS or transforms coordinates.
 
-Replace `minLon`/`maxLon` access with `minX`/`maxX`, and `minLat`/`maxLat` with `minY`/`maxY`.
-Use named constructor arguments to verify axis order. Changed return types and model constructor
-signatures require caller source migration and recompilation. Previous Java serialized
-`ShapeHeader` and `ShapeRecord` objects are incompatible (`serialVersionUID = 2L`);
-recreate stored objects from the original Shapefile.
+Replace `minLon`/`maxLon` access with `minX`/`maxX`, and `minLat`/`maxLat` with `minY`/`maxY`. Use named constructor arguments to verify axis order. Changed return types and model constructor signatures require caller source migration and recompilation. Previous Java serialized
+`ShapeHeader` and `ShapeRecord` objects are incompatible (`serialVersionUID = 2L`); recreate stored objects from the original Shapefile.
 
 ```kotlin
 val shape = loadShape(file)
@@ -760,8 +714,4 @@ val bounds: ShapeBounds? = shape.computeBoundingBox()
 val filtered = shape.filterByBoundingBox(shape.header.bbox)
 ```
 
-`filterByBoundingBox(ShapeBounds)` requires bounds in the same coordinate system as the geometry.
-The existing `filterByBoundingBox(BoundingBox)` overload is for geographic coordinates and does
-not transform them. Database import keeps its existing CRS transformation, then validates WGS84
-bounds. Unlike the `geo` module bounds type, `BoundingBox` does not accept reversed longitude
-bounds crossing the date line.
+`filterByBoundingBox(ShapeBounds)` requires bounds in the same coordinate system as the geometry. The existing `filterByBoundingBox(BoundingBox)` overload is for geographic coordinates and does not transform them. Database import keeps its existing CRS transformation, then validates WGS84 bounds. Unlike the `geo` module bounds type, `BoundingBox` does not accept reversed longitude bounds crossing the date line.

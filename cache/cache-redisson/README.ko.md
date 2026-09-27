@@ -6,8 +6,7 @@
 
 ## 패키지 / import 안정성
 
-cache 폴더 재편으로 소스 위치는 `cache/cache-redisson/`이 되었지만 Gradle 프로젝트 이름, Maven artifact,
-Kotlin package는 유지됩니다.
+cache 폴더 재편으로 소스 위치는 `cache/cache-redisson/`이 되었지만 Gradle 프로젝트 이름, Maven artifact, Kotlin package는 유지됩니다.
 
 - Gradle project: `:bluetape4k-cache-redisson`
 - Maven artifact: `io.github.bluetape4k:bluetape4k-cache-redisson`
@@ -17,36 +16,31 @@ Kotlin package는 유지됩니다.
 
 ## 제공 API
 
-| API | Package | 목적 |
-| --- | --- | --- |
-| `RedissonJCaching` | `jcache` | Redisson JCache provider helper |
-| `RedissonSuspendJCache<K, V>` | `jcache` | Redisson JCache를 감싼 `SuspendJCache` |
-| `RedissonNearCache<V>` | `nearcache` | `RLocalCachedMap` 기반 동기 `NearCacheOperations` |
-| `RedissonSuspendNearCache<V>` | `nearcache` | `RLocalCachedMap` 기반 suspend `SuspendNearCacheOperations` |
-| `RedissonCaches` | root package | JCache, suspend JCache, near cache factory |
-| `RedissonMemoizer<T, R>` | `memoizer` | 동기 Redis-backed memoizer |
-| `RedissonAsyncMemoizer<T, R>` | `memoizer` | `CompletableFuture`/`CompletionStage` memoizer |
-| `RedissonSuspendMemoizer<T, R>` | `memoizer` | key별 in-flight 공유를 제공하는 coroutine memoizer |
+| API                             | Package      | 목적                                                        |
+|---------------------------------|--------------|-------------------------------------------------------------|
+| `RedissonJCaching`              | `jcache`     | Redisson JCache provider helper                             |
+| `RedissonSuspendJCache<K, V>`   | `jcache`     | Redisson JCache를 감싼 `SuspendJCache`                      |
+| `RedissonNearCache<V>`          | `nearcache`  | `RLocalCachedMap` 기반 동기 `NearCacheOperations`           |
+| `RedissonSuspendNearCache<V>`   | `nearcache`  | `RLocalCachedMap` 기반 suspend `SuspendNearCacheOperations` |
+| `RedissonCaches`                | root package | JCache, suspend JCache, near cache factory                  |
+| `RedissonMemoizer<T, R>`        | `memoizer`   | 동기 Redis-backed memoizer                                  |
+| `RedissonAsyncMemoizer<T, R>`   | `memoizer`   | `CompletableFuture`/`CompletionStage` memoizer              |
+| `RedissonSuspendMemoizer<T, R>` | `memoizer`   | key별 in-flight 공유를 제공하는 coroutine memoizer          |
 
 이 모듈은 RESP3 hybrid near-cache class를 제공하지 않습니다. Redisson-managed local caching이 필요하면 실제 public API인 `RedissonNearCache` / `RedissonSuspendNearCache`를 사용하세요.
 
 ## Near-Cache Capability
 
-Redisson native/JCache NearCache는 공통 conformance suite에서 supported로 검증됩니다.
-Native `RedissonNearCache` / `RedissonSuspendNearCache`는 Redisson `RLocalCachedMap` invalidation을 사용합니다.
-JCache 변형은 cache-entry listener를 등록하며, Redisson bulk event가 발생하지 않는 경로는 entry별 removal로 전파합니다.
+Redisson native/JCache NearCache는 공통 conformance suite에서 supported로 검증됩니다. Native `RedissonNearCache` / `RedissonSuspendNearCache`는 Redisson `RLocalCachedMap` invalidation을 사용합니다. JCache 변형은 cache-entry listener를 등록하며, Redisson bulk event가 발생하지 않는 경로는 entry별 removal로 전파합니다.
 
 전체 행렬은 [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md)를 참고하세요.
 
 <!-- nearjcache-clear-authority-contract -->
+
 ### #1368 Redisson NearJCache clear authority
 
-`RedissonCaches.nearJCache`의 기본값은 `NearJCacheClearAuthority.DENY`이며 Redis
-namespace ownership을 추론하지 않습니다. `clear()`, `clearAllCache()`, 인자 없는
-`removeAll()`은 `SecurityException`을 발생시키므로, 전체 back namespace를 caller가
-소유한다고 확인한 경우에만 `NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE`를 전달합니다.
-공유 tenant에는 key-scoped `removeAll(keys)`를 사용합니다. wrapper `close()`는 front만
-닫고 전달받은 back cache나 Redisson provider는 닫지 않습니다. Native
+`RedissonCaches.nearJCache`의 기본값은 `NearJCacheClearAuthority.DENY`이며 Redis namespace ownership을 추론하지 않습니다. `clear()`, `clearAllCache()`, 인자 없는
+`removeAll()`은 `SecurityException`을 발생시키므로, 전체 back namespace를 caller가 소유한다고 확인한 경우에만 `NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE`를 전달합니다. 공유 tenant에는 key-scoped `removeAll(keys)`를 사용합니다. wrapper `close()`는 front만 닫고 전달받은 back cache나 Redisson provider는 닫지 않습니다. Native
 `RedissonNearCache.clearAll()`은 별도 API입니다.
 
 ```kotlin
@@ -59,6 +53,7 @@ val owner = RedissonCaches.nearJCache(
 )
 owner.clearAllCache()
 ```
+
 <!-- /nearjcache-clear-authority-contract -->
 
 ## 의존성

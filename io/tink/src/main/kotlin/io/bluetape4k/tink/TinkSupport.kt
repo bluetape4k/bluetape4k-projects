@@ -28,7 +28,7 @@ private val tinkRegistered = atomic(false)
  * ```
  */
 fun registerTink() {
-    if (tinkRegistered.compareAndSet(false, true)) {
+    if (tinkRegistered.compareAndSet(expect = false, update = true)) {
         AeadConfig.register()
         DeterministicAeadConfig.register()
         MacConfig.register()

@@ -21,8 +21,8 @@ class DefaultStateMachineTest {
     }
 
     sealed class E {
-        data object GoB: E();
-        data object GoC: E();
+        data object GoB: E()
+        data object GoC: E()
         data object GoFinal: E()
     }
 

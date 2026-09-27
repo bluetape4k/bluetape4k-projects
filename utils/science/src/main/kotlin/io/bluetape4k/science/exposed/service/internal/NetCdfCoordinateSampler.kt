@@ -1,9 +1,9 @@
 package io.bluetape4k.science.exposed.service.internal
 
 import io.bluetape4k.science.exposed.NetCdfException
-import ucar.ma2.Array as UcarArray
 import ucar.nc2.Variable
 import java.util.concurrent.CancellationException
+import ucar.ma2.Array as UcarArray
 
 /** NetCDF variable를 bounded section으로 읽는 추상화입니다. */
 internal fun interface VariableReader {
@@ -120,7 +120,7 @@ internal class NetCdfCoordinateSampler(
     private val map: VariableAxisMap,
     private val reader: CoordinateReader,
     private val pointProvider: ((Int, Int) -> Pair<Double, Double>)? = null,
-) : CoordinateSampler {
+): CoordinateSampler {
 
     override fun sample(globalRow: Int, globalColumn: Int, target: MutableCoordinateSample) {
         target.clear()
@@ -190,7 +190,7 @@ internal class NetCdfTileCoordinateSampler(
     private val rowCount: Int,
     private val columnCount: Int,
     private val pointProvider: ((Int, Int) -> Pair<Double, Double>)? = null,
-) : CoordinateSampler {
+): CoordinateSampler {
 
     private val longitudeWindow = if (pointProvider == null) map.lonAxis?.let(::readWindow) else null
     private val latitudeWindow = if (pointProvider == null) map.latAxis?.let(::readWindow) else null
@@ -221,7 +221,7 @@ internal class NetCdfTileCoordinateSampler(
         val lat = latitudeWindow ?: throw NetCdfException.MissingCoordinate("lat")
         val lon = longitudeWindow ?: throw NetCdfException.MissingCoordinate("lon")
         return valueAt(lon, globalRow, globalColumn) to
-            valueAt(lat, globalRow, globalColumn)
+                valueAt(lat, globalRow, globalColumn)
     }
 
     private fun readWindow(binding: VariableAxisMap.AxisBinding): CoordinateWindow {

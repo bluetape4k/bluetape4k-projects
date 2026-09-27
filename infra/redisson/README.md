@@ -6,14 +6,14 @@ A Kotlin extension module for the Redisson Redis client, providing DSL-based cli
 
 ## Features
 
-| Feature                         | Description                                                                         |
-|---------------------------------|-------------------------------------------------------------------------------------|
-| `RedissonClientSupport`         | DSL-based `RedissonClient` / `RedissonReactiveClient` factory, YAML config loading  |
-| `RedissonClientExtensions`      | `withBatch {}`, `withTransaction {}` DSL extension functions                        |
-| `RedissonClientCoroutine`       | `withSuspendedBatch {}`, `withSuspendedTransaction {}` suspend extension functions  |
-| `RFutureSupport`                | `Collection<RFuture>.awaitAll()`, `Iterable<RFuture>.sequence()` coroutine adapters |
-| `RedissonCodecs`                | Codec combinations: serializers (Fory/Kryo5/Jackson3/Fastjson2) × compression (LZ4/Zstd/Snappy/GZip) |
-| `RedissonNearCache`             | 2-tier Near Cache based on `RLocalCachedMap`                                        |
+| Feature                    | Description                                                                                          |
+|----------------------------|------------------------------------------------------------------------------------------------------|
+| `RedissonClientSupport`    | DSL-based `RedissonClient` / `RedissonReactiveClient` factory, YAML config loading                   |
+| `RedissonClientExtensions` | `withBatch {}`, `withTransaction {}` DSL extension functions                                         |
+| `RedissonClientCoroutine`  | `withSuspendedBatch {}`, `withSuspendedTransaction {}` suspend extension functions                   |
+| `RFutureSupport`           | `Collection<RFuture>.awaitAll()`, `Iterable<RFuture>.sequence()` coroutine adapters                  |
+| `RedissonCodecs`           | Codec combinations: serializers (Fory/Kryo5/Jackson3/Fastjson2) × compression (LZ4/Zstd/Snappy/GZip) |
+| `RedissonNearCache`        | 2-tier Near Cache based on `RLocalCachedMap`                                                         |
 
 When using `RedissonCacheConfig` and Redisson near-cache options:
 
@@ -105,27 +105,29 @@ singleServerConfig:
 
 High-performance codecs are available in the `io.bluetape4k.redis.redisson.codec` package.
 
-| Constant                        | Serializer             | Compression | Description                             |
-|---------------------------------|------------------------|-------------|-----------------------------------------|
-| `RedissonCodecs.Default`        | Fory (fallback: Kryo5) | None        | Default general-purpose codec           |
-| `RedissonCodecs.Fory`           | Fory                   | None        | Fory serialization only                 |
-| `RedissonCodecs.Kryo5`          | Kryo5                  | None        | Kryo5 serialization only                |
-| `RedissonCodecs.LZ4`            | Default                | LZ4         | LZ4 compression wrapper                 |
-| `RedissonCodecs.Zstd`           | Default                | Zstd        | High compression ratio                  |
-| `RedissonCodecs.Jackson3`       | Jackson3 (JSON)        | None        | Jackson 3.x JSON codec                  |
-| `RedissonCodecs.Fastjson2`      | Fastjson2 (JSONB)      | None        | Fastjson2 JSONB codec                   |
-| `RedissonCodecs.FastFory`       | FastFory               | None        | FastFory serialization only             |
-| `RedissonCodecs.LZ4FastFory`    | FastFory               | LZ4         | FastFory with LZ4 compression           |
-| `RedissonCodecs.ZstdFastFory`   | FastFory               | Zstd        | FastFory with Zstd compression          |
-| `RedissonCodecs.SnappyFastFory` | FastFory               | Snappy      | FastFory with Snappy compression        |
-| `RedissonCodecs.GzipFastFory`   | FastFory               | GZip        | FastFory with GZip compression          |
-| `RedissonCodecs.FastForyComposite`       | FastFory (composite)   | None        | FastFory composite serialization        |
-| `RedissonCodecs.LZ4FastForyComposite`    | FastFory (composite)   | LZ4         | FastFory composite with LZ4             |
-| `RedissonCodecs.ZstdFastForyComposite`   | FastFory (composite)   | Zstd        | FastFory composite with Zstd            |
-| `RedissonCodecs.SnappyFastForyComposite` | FastFory (composite)   | Snappy      | FastFory composite with Snappy          |
-| `RedissonCodecs.GzipFastForyComposite`   | FastFory (composite)   | GZip        | FastFory composite with GZip            |
+| Constant                                 | Serializer             | Compression | Description                      |
+|------------------------------------------|------------------------|-------------|----------------------------------|
+| `RedissonCodecs.Default`                 | Fory (fallback: Kryo5) | None        | Default general-purpose codec    |
+| `RedissonCodecs.Fory`                    | Fory                   | None        | Fory serialization only          |
+| `RedissonCodecs.Kryo5`                   | Kryo5                  | None        | Kryo5 serialization only         |
+| `RedissonCodecs.LZ4`                     | Default                | LZ4         | LZ4 compression wrapper          |
+| `RedissonCodecs.Zstd`                    | Default                | Zstd        | High compression ratio           |
+| `RedissonCodecs.Jackson3`                | Jackson3 (JSON)        | None        | Jackson 3.x JSON codec           |
+| `RedissonCodecs.Fastjson2`               | Fastjson2 (JSONB)      | None        | Fastjson2 JSONB codec            |
+| `RedissonCodecs.FastFory`                | FastFory               | None        | FastFory serialization only      |
+| `RedissonCodecs.LZ4FastFory`             | FastFory               | LZ4         | FastFory with LZ4 compression    |
+| `RedissonCodecs.ZstdFastFory`            | FastFory               | Zstd        | FastFory with Zstd compression   |
+| `RedissonCodecs.SnappyFastFory`          | FastFory               | Snappy      | FastFory with Snappy compression |
+| `RedissonCodecs.GzipFastFory`            | FastFory               | GZip        | FastFory with GZip compression   |
+| `RedissonCodecs.FastForyComposite`       | FastFory (composite)   | None        | FastFory composite serialization |
+| `RedissonCodecs.LZ4FastForyComposite`    | FastFory (composite)   | LZ4         | FastFory composite with LZ4      |
+| `RedissonCodecs.ZstdFastForyComposite`   | FastFory (composite)   | Zstd        | FastFory composite with Zstd     |
+| `RedissonCodecs.SnappyFastForyComposite` | FastFory (composite)   | Snappy      | FastFory composite with Snappy   |
+| `RedissonCodecs.GzipFastForyComposite`   | FastFory (composite)   | GZip        | FastFory composite with GZip     |
 
-> ⚠️ **Wire Format Warning**: FastFory codecs use `CompatibleMode.SCHEMA_CONSISTENT`. `FastForyCodec` can read legacy Fory data via fallback, but `ForyCodec` **cannot** read FastFory data. Use only for volatile caches.
+> ⚠️ **Wire Format
+Warning**: FastFory codecs use `CompatibleMode.SCHEMA_CONSISTENT`. `FastForyCodec` can read legacy Fory data via fallback, but `ForyCodec`
+> **cannot** read FastFory data. Use only for volatile caches.
 
 ```kotlin
 import io.bluetape4k.redis.redisson.codec.RedissonCodecs
@@ -171,29 +173,22 @@ Codec classes:
 
 #### Raw Fory/FastFory buffer boundary
 
-For uncompressed `ForyCodec` and `FastForyCodec`, a single-NIO-component heap or direct `ByteBuf` is decoded through a
-bounded read-only view. Composite or otherwise non-NIO buffers, and direct-view failures, use the copied compatibility
-path. Both paths preserve the input `readerIndex` and `writerIndex`. Apache Fory still uses an internal reusable
-`MemoryBuffer`, so the retained view path is not zero-copy. Encode ownership is a separate evidence gate and must not
-be inferred from decode results; compressed wrappers retain their existing copied path.
+For uncompressed `ForyCodec` and `FastForyCodec`, a single-NIO-component heap or direct `ByteBuf` is decoded through a bounded read-only view. Composite or otherwise non-NIO buffers, and direct-view failures, use the copied compatibility path. Both paths preserve the input `readerIndex` and `writerIndex`. Apache Fory still uses an internal reusable
+`MemoryBuffer`, so the retained view path is not zero-copy. Encode ownership is a separate evidence gate and must not be inferred from decode results; compressed wrappers retain their existing copied path.
 
-`FastForyCodec` may fall back to legacy Fory bytes, but `ForyCodec` cannot read FastFory bytes. Keeping the same codec
-requires no caller API or payload migration; changing modes requires an explicit cache migration or eviction. These
-registration-disabled codecs must decode only trusted payloads. The committed
-[issue #756 Fory follow-up evidence](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md) records the
-terminal disposition for every raw Redisson cell:
+`FastForyCodec` may fall back to legacy Fory bytes, but `ForyCodec` cannot read FastFory bytes. Keeping the same codec requires no caller API or payload migration; changing modes requires an explicit cache migration or eviction. These registration-disabled codecs must decode only trusted payloads. The committed
+[issue #756 Fory follow-up evidence](../../docs/benchmarks/2026-07-23-issue-756-fory-codec-followup.md) records the terminal disposition for every raw Redisson cell:
 
-| Raw path | Fory | FastFory |
-|---|---|---|
-| Direct decode | accepted: 28.57138% allocation reduction in canonical A/B | accepted: 26.98408% |
-| Heap decode | rejected: allocation increased by 20–30% | rejected: allocation increased by 22.22% |
-| Composite decode | fallback: copied compatibility only; non-promotable | fallback: copied compatibility only; non-promotable |
-| Encode | rejected by feasibility probe; existing allocating path retained | rejected by feasibility probe; existing allocating path retained |
+| Raw path         | Fory                                                             | FastFory                                                         |
+|------------------|------------------------------------------------------------------|------------------------------------------------------------------|
+| Direct decode    | accepted: 28.57138% allocation reduction in canonical A/B        | accepted: 26.98408%                                              |
+| Heap decode      | rejected: allocation increased by 20–30%                         | rejected: allocation increased by 22.22%                         |
+| Composite decode | fallback: copied compatibility only; non-promotable              | fallback: copied compatibility only; non-promotable              |
+| Encode           | rejected by feasibility probe; existing allocating path retained | rejected by feasibility probe; existing allocating path retained |
 
 ![Issue #756 accepted Fory allocation reductions](../../docs/images/readme-charts/issue756-fory-followup-allocation-chart-01.png)
 
-Only the two direct decode cells carry an allocation-improvement claim. There is no runtime feature flag or dispatch
-telemetry.
+Only the two direct decode cells carry an allocation-improvement claim. There is no runtime feature flag or dispatch telemetry.
 
 ```kotlin
 val codec = GzipCodec(
@@ -207,26 +202,26 @@ val codec = GzipCodec(
 See [Serialization Trust Profiles](../../docs/security/serialization-trust-profiles.md)
 for the shared profile vocabulary.
 
-| Codec family | Default profile | Safer shared-boundary option |
-|---|---|---|
-| `ForyCodec`, `Kryo5Codec`, and compressed variants | `TrustedInternal` | Use only for private Redis data controlled by one deployment boundary, or choose a secure serializer/factory where available. |
-| `GzipCodec` compressed payloads | `TrustedInternal` with bounded expansion | Tune `maxDecompressedSize` to the largest legitimate Redis value for the deployment. |
-| `Jackson3Codec` / `Fastjson2Codec` with `allowedPackagePrefixes = null` | `TrustedInternal` | Set `allowedPackagePrefixes` for `AllowListedTypes`. |
-| `Jackson3Codec` / `Fastjson2Codec` with `allowedPackagePrefixes = setOf(...)` | `AllowListedTypes` | Keep prefixes narrow. Fallback binary decode is rejected unless `allowFallbackDecode = true` is selected for a trusted migration window. |
+| Codec family                                                                  | Default profile                          | Safer shared-boundary option                                                                                                             |
+|-------------------------------------------------------------------------------|------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| `ForyCodec`, `Kryo5Codec`, and compressed variants                            | `TrustedInternal`                        | Use only for private Redis data controlled by one deployment boundary, or choose a secure serializer/factory where available.            |
+| `GzipCodec` compressed payloads                                               | `TrustedInternal` with bounded expansion | Tune `maxDecompressedSize` to the largest legitimate Redis value for the deployment.                                                     |
+| `Jackson3Codec` / `Fastjson2Codec` with `allowedPackagePrefixes = null`       | `TrustedInternal`                        | Set `allowedPackagePrefixes` for `AllowListedTypes`.                                                                                     |
+| `Jackson3Codec` / `Fastjson2Codec` with `allowedPackagePrefixes = setOf(...)` | `AllowListedTypes`                       | Keep prefixes narrow. Fallback binary decode is rejected unless `allowFallbackDecode = true` is selected for a trusted migration window. |
 
 #### Use-Case Factory Functions
 
 `RedissonCodecs` provides use-case-oriented factory functions so you can select the right codec without knowing the internals:
 
-| Factory                                | Returns             | Description                                          |
-|----------------------------------------|---------------------|------------------------------------------------------|
-| `RedissonCodecs.forCache()`            | `LZ4Fory`           | High-throughput value cache (>1KB objects)           |
-| `RedissonCodecs.forHighThroughput()`   | `LZ4FastFory`       | ~27% faster than `forCache()`. Volatile cache only ⚠️ |
-| `RedissonCodecs.forCacheMap()`         | `LZ4ForyComposite`  | Map-type cache (RMap, RLocalCachedMap)               |
-| `RedissonCodecs.forGeneral()`          | `Fory`              | General mixed read/write workload                    |
-| `RedissonCodecs.forSmallValue()`       | `Kryo5`             | Small values (<1KB) — skips compression overhead     |
-| `RedissonCodecs.forArchival()`         | `ZstdFory`          | Cold/archival storage — maximum compression          |
-| `RedissonCodecs.forCompatibility()`    | `Jdk`               | Interop with non-bluetape4k systems                  |
+| Factory                              | Returns            | Description                                           |
+|--------------------------------------|--------------------|-------------------------------------------------------|
+| `RedissonCodecs.forCache()`          | `LZ4Fory`          | High-throughput value cache (>1KB objects)            |
+| `RedissonCodecs.forHighThroughput()` | `LZ4FastFory`      | ~27% faster than `forCache()`. Volatile cache only ⚠️ |
+| `RedissonCodecs.forCacheMap()`       | `LZ4ForyComposite` | Map-type cache (RMap, RLocalCachedMap)                |
+| `RedissonCodecs.forGeneral()`        | `Fory`             | General mixed read/write workload                     |
+| `RedissonCodecs.forSmallValue()`     | `Kryo5`            | Small values (<1KB) — skips compression overhead      |
+| `RedissonCodecs.forArchival()`       | `ZstdFory`         | Cold/archival storage — maximum compression           |
+| `RedissonCodecs.forCompatibility()`  | `Jdk`              | Interop with non-bluetape4k systems                   |
 
 ```kotlin
 val config = Config()
@@ -322,21 +317,22 @@ val value = nearCache.get("key")   // Checks local cache first
 ```
 
 > For advanced NearCache features (RESP3 hybrid, resilient write-behind, etc.), use the
-`bluetape4k-cache-redisson` module.
+> `bluetape4k-cache-redisson` module.
 
 ---
 
 ## High-Performance Batch Pattern — Mega-Batch
 
-In coroutine-based workloads, creating **one RBatch per coroutine** (rather than one per operation) reduces Redis round-trips (RTT) by up to 100×.
+In coroutine-based workloads, creating **one RBatch per
+coroutine** (rather than one per operation) reduces Redis round-trips (RTT) by up to 100×.
 
 ### Pattern Comparison
 
-| Approach | RTT count (50 coroutines × 100 ops) | Relative throughput |
-|----------|-------------------------------------|---------------------|
-| Individual RMap op | 10,000 | 1× |
-| RBatch per op | 5,000 | ~2× |
-| **1 RBatch per coroutine (mega-batch)** | **50** | **~8×** |
+| Approach                                | RTT count (50 coroutines × 100 ops) | Relative throughput |
+|-----------------------------------------|-------------------------------------|---------------------|
+| Individual RMap op                      | 10,000                              | 1×                  |
+| RBatch per op                           | 5,000                               | ~2×                 |
+| **1 RBatch per coroutine (mega-batch)** | **50**                              | **~8×**             |
 
 ### Mega-Batch Example
 
@@ -369,11 +365,11 @@ suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
 
 ### Key Optimization Points
 
-| Optimization | Effect | Notes |
-|--------------|--------|-------|
-| One `createBatch()` per coroutine | 100× RTT reduction | Largest single gain |
-| `StringCodec.INSTANCE` | Eliminates Jackson serialization overhead | Apply only to `Map<String, String>` |
-| Pre-computed KEY_POOL | Removes GC pressure from string interpolation | Effective for repetitive key patterns |
+| Optimization                      | Effect                                        | Notes                                 |
+|-----------------------------------|-----------------------------------------------|---------------------------------------|
+| One `createBatch()` per coroutine | 100× RTT reduction                            | Largest single gain                   |
+| `StringCodec.INSTANCE`            | Eliminates Jackson serialization overhead     | Apply only to `Map<String, String>`   |
+| Pre-computed KEY_POOL             | Removes GC pressure from string interpolation | Effective for repetitive key patterns |
 
 ---
 
@@ -381,21 +377,21 @@ suspend fun processInMegaBatch(redisson: RedissonClient, mapName: String) {
 
 Based on `RedissonCodecBenchmark` (JMH, Apple M4 Pro / GraalVM 21 / Warmup 3×2s / Measurement 5×3s / Fork 1 / 2026-04-27):
 
-| Codec | ops/ms | ± Error |
-|-------|-------:|--------:|
-| **FastFory** | **3,084** | ± 287 |
-| Fory | 2,504 | ± 105 |
-| fastjson2 | 1,928 | ± 62 |
-| Kryo5 | 1,225 | ± 67 |
-| LZ4FastFory | 829 | ± 71 |
-| LZ4Fory | 774 | ± 42 |
-| LZ4Kryo5 | 518 | ± 114 |
-| Jackson3 | 474 | ± 25 |
-| ZstdFory | 196 | ± 7 |
-| ZstdFastFory | 193 | ± 62 |
-| ZstdKryo5 | 139 | ± 5 |
-| JDK | 128 | ± 14 |
-| GzipFastFory | 108 | ± 1 |
+| Codec        |    ops/ms | ± Error |
+|--------------|----------:|--------:|
+| **FastFory** | **3,084** |   ± 287 |
+| Fory         |     2,504 |   ± 105 |
+| fastjson2    |     1,928 |    ± 62 |
+| Kryo5        |     1,225 |    ± 67 |
+| LZ4FastFory  |       829 |    ± 71 |
+| LZ4Fory      |       774 |    ± 42 |
+| LZ4Kryo5     |       518 |   ± 114 |
+| Jackson3     |       474 |    ± 25 |
+| ZstdFory     |       196 |     ± 7 |
+| ZstdFastFory |       193 |    ± 62 |
+| ZstdKryo5    |       139 |     ± 5 |
+| JDK          |       128 |    ± 14 |
+| GzipFastFory |       108 |     ± 1 |
 
 ![Redisson Codec Throughput chart](../../docs/images/readme-charts/infra-redisson-codec-throughput-chart-01.png)
 
@@ -408,13 +404,13 @@ Based on `RedissonCodecBenchmark` (JMH, Apple M4 Pro / GraalVM 21 / Warmup 3×2s
 
 Based on `RedissonConcurrencyBenchmark` (50 coroutines, 100 ops/coroutine):
 
-| Optimization stage | concurrent_ops/sec | Improvement |
-|--------------------|--------------------|-------------|
-| Baseline (individual op) | ~11,737 | — |
-| Warmup stabilization | 16,025 | +36.5% |
-| RBatch pipelining | 28,571 | +143% |
-| **Mega-batch (1 RBatch per coroutine)** | 78,125 | +566% |
-| **StringCodec + KEY_POOL** | **92,592** | **+689%** |
+| Optimization stage                      | concurrent_ops/sec | Improvement |
+|-----------------------------------------|--------------------|-------------|
+| Baseline (individual op)                | ~11,737            | —           |
+| Warmup stabilization                    | 16,025             | +36.5%      |
+| RBatch pipelining                       | 28,571             | +143%       |
+| **Mega-batch (1 RBatch per coroutine)** | 78,125             | +566%       |
+| **StringCodec + KEY_POOL**              | **92,592**         | **+689%**   |
 
 ![Redisson Batch Optimization Throughput chart](../../docs/images/readme-charts/infra-redisson-batch-throughput-chart-01.png)
 

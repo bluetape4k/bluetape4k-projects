@@ -11,6 +11,7 @@ import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
 class UlidGeneratorTest {
+
     companion object: KLogging() {
         private const val REPEAT_SIZE = 5
         private const val ID_SIZE = 100
@@ -81,7 +82,7 @@ class UlidGeneratorTest {
         val ulids = List(ID_SIZE) { generator.nextULID() }
 
         val sorted = ulids.sorted()
-        (ulids == sorted).shouldBeTrue()
+        sorted shouldBeEqualTo ulids
     }
 
     @Test
@@ -89,7 +90,7 @@ class UlidGeneratorTest {
         val ids = List(ID_SIZE) { generator.nextId() }
 
         val sorted = ids.sorted()
-        (ids == sorted).shouldBeTrue()
+        sorted shouldBeEqualTo ids
     }
 
     @RepeatedTest(REPEAT_SIZE)

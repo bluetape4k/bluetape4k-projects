@@ -1,5 +1,10 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.RedisServer
@@ -9,11 +14,6 @@ import io.lettuce.core.RedisClient
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.StringCodec
 import io.lettuce.core.protocol.ProtocolVersion
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 
 /**
@@ -70,6 +70,7 @@ abstract class AbstractLettuceNearCacheTest {
     ) {
         put("key1", "value1")
         get("key1").shouldNotBeNull()
+
         remove("key1")
         get("key1").shouldBeNull()
     }
@@ -82,6 +83,7 @@ abstract class AbstractLettuceNearCacheTest {
         put("keyX", "valX")
         containsKey("keyX").shouldBeTrue()
         containsKey("nonexistent").shouldBeFalse()
+
         remove("keyX")
         containsKey("keyX").shouldBeFalse()
     }
@@ -92,6 +94,7 @@ abstract class AbstractLettuceNearCacheTest {
     ) {
         putIfAbsent("key", "first").shouldBeNull()          // 새로 저장 → null 반환
         get("key") shouldBeEqualTo "first"
+
         putIfAbsent("key", "second") shouldBeEqualTo "first" // 이미 존재 → 기존 값 반환
         get("key") shouldBeEqualTo "first"
     }
@@ -102,6 +105,7 @@ abstract class AbstractLettuceNearCacheTest {
     ) {
         val data = mapOf("a" to "1", "b" to "2", "c" to "3")
         putAll(data)
+
         val result = getAll(setOf("a", "b", "c", "x"))
         result["a"] shouldBeEqualTo "1"
         result["b"] shouldBeEqualTo "2"
@@ -116,6 +120,7 @@ abstract class AbstractLettuceNearCacheTest {
     ) {
         replace("noKey", "val").shouldBeFalse()
         put("key", "old")
+
         replace("key", "new").shouldBeTrue()
         get("key") shouldBeEqualTo "new"
     }
@@ -149,12 +154,13 @@ abstract class AbstractLettuceNearCacheTest {
     ) {
         putAll(mapOf("a" to "1", "b" to "2", "c" to "3"))
         removeAll(setOf("a", "b"))
+
         get("a").shouldBeNull()
         get("b").shouldBeNull()
         get("c") shouldBeEqualTo "3"
     }
 
-    protected inline fun verifyClearLocal(
+    protected fun verifyClearLocal(
         put: (String, String) -> Unit,
         clearLocal: () -> Unit,
         localSize: () -> Long,
@@ -163,8 +169,10 @@ abstract class AbstractLettuceNearCacheTest {
         put("k1", "v1")
         put("k2", "v2")
         localSize() shouldBeEqualTo 2L
+
         clearLocal()
         localSize() shouldBeEqualTo 0L
+
         // Redis still has the data (prefix key로 확인)
         getFromRedis("k1").shouldNotBeNull()
     }

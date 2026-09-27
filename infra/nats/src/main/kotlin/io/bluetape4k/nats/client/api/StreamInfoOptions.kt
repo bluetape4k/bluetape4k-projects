@@ -20,6 +20,7 @@ inline fun streamInfoOptions(
  */
 fun streamInfoOptionsOfFilterSubject(subjectsFilter: String): StreamInfoOptions {
     subjectsFilter.requireNotBlank("subjectsFilter")
+
     return StreamInfoOptions.filterSubjects(subjectsFilter)
 }
 

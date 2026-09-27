@@ -2,6 +2,8 @@ package io.bluetape4k.tink.keyset.redis
 
 import com.google.crypto.tink.KeyTemplate
 import com.google.crypto.tink.KeysetHandle
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.tink.keyset.VersionedKeysetHandle
 import io.bluetape4k.tink.keyset.VersionedKeysetStore
@@ -75,6 +77,7 @@ class LettuceVersionedKeysetStore(
     override fun rotate(): VersionedKeysetHandle =
         withLock { token ->
             val nextVersion = (commands.get(activeVersionKey)?.toLongOrNull() ?: 0L) + 1L
+            log.debug { "nextVersion=$nextVersion" }
             val rotated = newVersionedKeyset(nextVersion)
             persist(rotated, activate = true, lockToken = token)
             rotated
@@ -82,6 +85,7 @@ class LettuceVersionedKeysetStore(
 
     override fun rotateIfDue(rotationPeriod: Duration): VersionedKeysetHandle {
         require(rotationPeriod > Duration.ZERO) { "rotationPeriod must be positive." }
+
         return withLock { token ->
             // Due 판단은 lock 안에서 다시 읽는다. 여러 caller가 같은 stale active keyset을 보고
             // 순차적으로 rotate하는 것을 막아 "한 due window당 한 번"만 회전하게 한다.
@@ -95,6 +99,7 @@ class LettuceVersionedKeysetStore(
             }
             val elapsed = Duration.between(current.createdAt, Instant.now(clock))
             if (elapsed >= rotationPeriod) {
+                log.debug { "rotate if due for rlotationPeriod=$rotationPeriod, elapsed=$elapsed" }
                 val rotated = newVersionedKeyset(current.version + 1L)
                 persist(rotated, activate = true, lockToken = token)
                 rotated
@@ -134,7 +139,7 @@ class LettuceVersionedKeysetStore(
         }
     }
 
-    private fun <T> withLock(action: (String) -> T): T {
+    private inline fun <T> withLock(action: (String) -> T): T {
         val token = UUID.randomUUID().toString()
         val acquired = acquireLock(token)
         check(acquired) { "Failed to acquire lock for keyring=$keyringName" }
@@ -160,7 +165,7 @@ class LettuceVersionedKeysetStore(
         return false
     }
 
-    companion object {
+    companion object: KLogging() {
         private const val LOCK_TTL_MILLIS = 30_000L
         private const val LOCK_WAIT_TIMEOUT_MILLIS = 5_000L
         private const val LOCK_RETRY_DELAY_MILLIS = 20L

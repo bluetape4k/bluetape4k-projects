@@ -12,7 +12,7 @@ import org.springframework.boot.runApplication
  */
 @SpringBootApplication
 class MockServerApplication {
-    companion object : KLogging()
+    companion object: KLogging()
 }
 
 /**

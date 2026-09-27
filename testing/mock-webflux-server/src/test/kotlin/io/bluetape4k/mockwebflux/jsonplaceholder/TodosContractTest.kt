@@ -1,9 +1,9 @@
 package io.bluetape4k.mockwebflux.jsonplaceholder
 
-import io.bluetape4k.mockwebflux.AbstractMockWebfluxServerTest
-import io.bluetape4k.mockwebflux.jsonplaceholder.model.TodoRecord
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.mockwebflux.AbstractMockWebfluxServerTest
+import io.bluetape4k.mockwebflux.jsonplaceholder.model.TodoRecord
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 

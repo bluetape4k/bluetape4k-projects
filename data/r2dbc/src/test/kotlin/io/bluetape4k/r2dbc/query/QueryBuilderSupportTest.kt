@@ -1,10 +1,12 @@
 package io.bluetape4k.r2dbc.query
 
-import io.r2dbc.spi.Parameter
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldContainAll
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.r2dbc.spi.Parameter
 import org.junit.jupiter.api.Test
 
 /**
@@ -14,6 +16,8 @@ import org.junit.jupiter.api.Test
  * - [queryWithCount]: 일반 쿼리와 카운트 쿼리를 함께 반환
  */
 class QueryBuilderSupportTest {
+
+    companion object: KLogging()
 
     /**
      * [parameterNullable]은 null 값을 typed-null Parameter로 바인딩해야 합니다.
@@ -28,9 +32,9 @@ class QueryBuilderSupportTest {
                 parameterNullable<String>("name", null)
             }
         }
-
+        log.debug { "query: $query" }
         val param = query.parameters["name"] as Parameter
-        (param.value == null).shouldBeTrue()
+        param.value.shouldBeNull()
     }
 
     /**
@@ -45,7 +49,7 @@ class QueryBuilderSupportTest {
                 parameterNullable<Int>("age", 30)
             }
         }
-
+        log.debug { "query: $query" }
         val param = query.parameters["age"] as Parameter
         param.value shouldBeEqualTo 30
     }
@@ -64,9 +68,10 @@ class QueryBuilderSupportTest {
                 parameterNullable(Item::title, null as String?)
             }
         }
+        log.debug { "query: $query" }
 
         val param = query.parameters["title"] as Parameter
-        (param.value == null).shouldBeTrue()
+        param.value.shouldBeNull()
     }
 
     /**
@@ -83,6 +88,8 @@ class QueryBuilderSupportTest {
                 parameter("active", true)
             }
         }
+        log.debug { "dataQuery: $dataQuery" }
+        log.debug { "countQuery: $countQuery" }
 
         dataQuery.shouldNotBeNull()
         countQuery.shouldNotBeNull()
@@ -101,6 +108,7 @@ class QueryBuilderSupportTest {
             select("SELECT * FROM users")
             selectCount("SELECT COUNT(*) FROM users")
         }
+        log.debug { "countQuery: $countQuery" }
 
         countQuery.sql shouldBeEqualTo "SELECT COUNT(*) FROM users"
     }

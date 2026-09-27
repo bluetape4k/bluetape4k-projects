@@ -36,8 +36,10 @@ The state diagram shows transient paths explicitly: a `Failure` can either retur
 - **Composable**: nest flows within flows for arbitrary complexity
 - **Error strategies**: `STOP` (fail fast) or `CONTINUE` (partial success)
 - **Retry with backoff**: exponential backoff policy for resilience
-- **Cancellation-aware coroutine flows**: suspend flows rethrow `CancellationException` instead of converting it to `WorkReport.Failure`
-- **Execution model comparison benchmark**: example benchmark tests compare sync(Virtual Threads) and coroutine workflows with the same order-processing scenario
+- **Cancellation-aware coroutine
+  flows**: suspend flows rethrow `CancellationException` instead of converting it to `WorkReport.Failure`
+- **Execution model comparison
+  benchmark**: example benchmark tests compare sync (Virtual Threads) and coroutine workflows with the same order-processing scenario
   - Recent sample measurement (2026-04-11): normal scenario sync=43.989ms, suspend=46.153ms, ratio=1.07
   - Recent sample measurement (2026-04-11): retry+poll scenario sync=264.568ms, suspend=251.904ms, ratio=0.95
 - **WorkContext**: shared mutable map for inter-task communication

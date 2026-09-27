@@ -1,5 +1,6 @@
 package io.bluetape4k.http.hc5.examples
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.classic.httpClient
 import io.bluetape4k.http.hc5.entity.consume
@@ -10,7 +11,6 @@ import io.bluetape4k.http.hc5.http.poolingHttpClientConnectionManager
 import io.bluetape4k.http.hc5.http.tlsConfig
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.apache.hc.core5.http.HttpHost
 import org.apache.hc.core5.http.Method
 import org.apache.hc.core5.http.URIScheme

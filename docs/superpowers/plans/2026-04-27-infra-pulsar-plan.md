@@ -795,7 +795,7 @@ Jackson3 mapper 생성 힌트:
     - `README.ko.md` → `한국어 | [English](./README.md)`
 - Mermaid Class diagram 포함 (PulsarClient ↔ Producer/Consumer/Reader 관계)
 - 구조: **Architecture → UML → Features → Examples**
-- 예시 코드: `pulsarClient {}`, `withProducer/withConsumer/withReader`, `sendSuspend`, `receiveAsFlow`, `jacksonSchema`
+- 예시 코드: `pulsarClient {}`, `withProducer/withConsumer/withReader`, `sendSuspend`, `receiveAsFlow`, `jacksonSchemaOf`
 
 Mermaid 예:
 

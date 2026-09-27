@@ -5,7 +5,6 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.junit5.output.InMemoryLogbackAppender
-import io.bluetape4k.logging.KLogging
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.mockwebserver.MockResponse
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 
 class LoggingInterceptorTest {
-    companion object: KLogging()
 
     private lateinit var server: MockWebServer
     private lateinit var client: OkHttpClient
@@ -28,11 +26,11 @@ class LoggingInterceptorTest {
         val loggerName = LoggingInterceptorTest::class.java.name
         appender = InMemoryLogbackAppender(loggerName)
         val logger = LoggerFactory.getLogger(loggerName)
-        client =
-            OkHttpClient
-                .Builder()
-                .addInterceptor(LoggingInterceptor(logger))
-                .build()
+
+        client = OkHttpClient
+            .Builder()
+            .addInterceptor(LoggingInterceptor(logger))
+            .build()
     }
 
     @AfterEach
@@ -45,12 +43,10 @@ class LoggingInterceptorTest {
     fun `LoggingInterceptor - 요청과 응답을 로깅하고 응답을 그대로 반환한다`() {
         server.enqueue(MockResponse().setBody("ok").setResponseCode(200))
 
-        val request =
-            Request
-                .Builder()
-                .url(server.url("/"))
-                .get()
-                .build()
+        val request = Request.Builder()
+            .url(server.url("/"))
+            .get()
+            .build()
 
         client.newCall(request).execute().use { response ->
             response.isSuccessful.shouldBeTrue()
@@ -65,12 +61,11 @@ class LoggingInterceptorTest {
         }
 
         repeat(3) {
-            val request =
-                Request
-                    .Builder()
-                    .url(server.url("/path-$it"))
-                    .get()
-                    .build()
+            val request = Request.Builder()
+                .url(server.url("/path-$it"))
+                .get()
+                .build()
+
             client.newCall(request).execute().use { response ->
                 response.isSuccessful.shouldBeTrue()
             }
@@ -93,15 +88,13 @@ class LoggingInterceptorTest {
                 .setHeader("X-Trace-Id", "trace-123")
         )
 
-        val request =
-            Request
-                .Builder()
-                .url(server.url("/redaction"))
-                .get()
-                .header("Authorization", secretToken)
-                .header("Cookie", cookie)
-                .header("X-Request-Id", "request-123")
-                .build()
+        val request = Request.Builder()
+            .url(server.url("/redaction"))
+            .get()
+            .header("Authorization", secretToken)
+            .header("Cookie", cookie)
+            .header("X-Request-Id", "request-123")
+            .build()
 
         client.newCall(request).execute().use { response ->
             response.isSuccessful.shouldBeTrue()
@@ -124,22 +117,18 @@ class LoggingInterceptorTest {
     fun `LoggingInterceptor - additional sensitive headers are redacted`() {
         val internalSecret = "internal-secret"
         val loggerName = LoggingInterceptorTest::class.java.name
-        val customClient =
-            OkHttpClient
-                .Builder()
-                .addInterceptor(LoggingInterceptor(LoggerFactory.getLogger(loggerName), setOf("X-Internal-Secret")))
-                .build()
+        val customClient = OkHttpClient.Builder()
+            .addInterceptor(LoggingInterceptor(LoggerFactory.getLogger(loggerName), setOf("X-Internal-Secret")))
+            .build()
 
         server.enqueue(MockResponse().setBody("ok").setResponseCode(200))
 
-        val request =
-            Request
-                .Builder()
-                .url(server.url("/custom-redaction"))
-                .get()
-                .header("X-Internal-Secret", internalSecret)
-                .header("X-Request-Id", "request-123")
-                .build()
+        val request = Request.Builder()
+            .url(server.url("/custom-redaction"))
+            .get()
+            .header("X-Internal-Secret", internalSecret)
+            .header("X-Request-Id", "request-123")
+            .build()
 
         customClient.newCall(request).execute().use { response ->
             response.isSuccessful.shouldBeTrue()

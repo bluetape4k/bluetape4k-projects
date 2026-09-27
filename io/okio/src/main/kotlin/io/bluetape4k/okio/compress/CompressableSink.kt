@@ -5,6 +5,7 @@ import io.bluetape4k.io.compressor.StreamingCompressor
 import io.bluetape4k.io.compressor.asCompressor
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import io.bluetape4k.okio.bufferOf
 import io.bluetape4k.support.requireInRange
 import okio.Buffer
@@ -64,12 +65,16 @@ open class CompressableSink(
         }
         closed = true
 
-        val plainBytes = plainBuffer.readByteArray()
-        val compressed = compressor.compress(plainBytes)
-        log.debug { "압축: source=${plainBytes.size} bytes, compressed=${compressed.size} bytes" }
-        super.write(bufferOf(compressed), compressed.size.toLong())
-        super.flush()
-        super.close()
+        runCatching {
+            val plainBytes = plainBuffer.readByteArray()
+            val compressed = compressor.compress(plainBytes)
+            log.debug { "압축: source=${plainBytes.size} bytes, compressed=${compressed.size} bytes" }
+            super.write(bufferOf(compressed), compressed.size.toLong())
+            super.flush()
+            super.close()
+        }
+            .onSuccess { log.debug { "Close sink." } }
+            .onFailure { log.warn(it) { "Failed to close sink." } }
     }
 
     private fun ensureOpen() {

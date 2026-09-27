@@ -16,14 +16,14 @@ class Ignite2ServerApiCompatibilityTest {
     fun `2_0_0 public constructors remain source compatible`() {
         Ignite2Server().use { server ->
             server.configuredImageName().toString() shouldBeEqualTo
-                "${Ignite2Server.IMAGE}:${Ignite2Server.DEFAULT_TAG}"
+                    "${Ignite2Server.IMAGE}:${Ignite2Server.DEFAULT_TAG}"
             server.propertyNamespace shouldBeEqualTo Ignite2Server.NAME
             server.propertyKeys() shouldBeEqualTo setOf("host", "port", "url")
         }
 
         Ignite2Server(DockerImageName.parse(Ignite2Server.IMAGE)).use { server ->
             server.configuredImageName().toString() shouldBeEqualTo
-                "${Ignite2Server.IMAGE}:${Ignite2Server.DEFAULT_TAG}"
+                    "${Ignite2Server.IMAGE}:${Ignite2Server.DEFAULT_TAG}"
         }
 
         Ignite2Server(

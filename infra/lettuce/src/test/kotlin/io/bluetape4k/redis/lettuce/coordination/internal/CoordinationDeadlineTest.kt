@@ -4,7 +4,8 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
-import kotlinx.coroutines.test.runTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.microseconds
@@ -12,8 +13,10 @@ import kotlin.time.Duration.Companion.nanoseconds
 
 class CoordinationDeadlineTest {
 
+    companion object: KLoggingChannel()
+
     @Test
-    fun `deadline uses injected monotonic time and rounds remaining milliseconds up`() = runTest {
+    fun `deadline uses injected monotonic time and rounds remaining milliseconds up`() = runSuspendIO {
         val ticker = MutableTicker(1_000_000L)
         val deadline = CoordinationDeadline.after(1_500.microseconds, ticker)
 
@@ -30,7 +33,7 @@ class CoordinationDeadlineTest {
     }
 
     @Test
-    fun `deadline saturates addition instead of overflowing`() = runTest {
+    fun `deadline saturates addition instead of overflowing`() = runSuspendIO {
         val ticker = MutableTicker(Long.MAX_VALUE - 5L)
         val deadline = CoordinationDeadline.after(10.nanoseconds, ticker)
 
@@ -42,9 +45,15 @@ class CoordinationDeadlineTest {
     fun `deadline rejects non-positive and infinite durations`() {
         val ticker = MutableTicker()
 
-        assertFailsWith<IllegalArgumentException> { CoordinationDeadline.after(Duration.ZERO, ticker) }
-        assertFailsWith<IllegalArgumentException> { CoordinationDeadline.after((-1).nanoseconds, ticker) }
-        assertFailsWith<IllegalArgumentException> { CoordinationDeadline.after(Duration.INFINITE, ticker) }
+        assertFailsWith<IllegalArgumentException> {
+            CoordinationDeadline.after(Duration.ZERO, ticker)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            CoordinationDeadline.after((-1).nanoseconds, ticker)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            CoordinationDeadline.after(Duration.INFINITE, ticker)
+        }
     }
 
     @Test

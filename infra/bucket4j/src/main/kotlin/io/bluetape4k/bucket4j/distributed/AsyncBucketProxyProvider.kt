@@ -1,12 +1,12 @@
 package io.bluetape4k.bucket4j.distributed
 
+import io.bluetape4k.bucket4j.DEFAULT_KEY_PREFIX
 import io.bluetape4k.bucket4j.validateBucketKeySize
 import io.bluetape4k.concurrent.completableFutureOf
-import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.toUtf8Bytes
-import io.github.bucket4j.Bucket
 import io.github.bucket4j.BucketConfiguration
 import io.github.bucket4j.distributed.AsyncBucketProxy
 import io.github.bucket4j.distributed.proxy.AsyncProxyManager
@@ -46,10 +46,7 @@ open class AsyncBucketProxyProvider(
     protected val bucketConfiguration: BucketConfiguration,
     protected val keyPrefix: String = DEFAULT_KEY_PREFIX,
 ) {
-
-    companion object: KLoggingChannel() {
-        const val DEFAULT_KEY_PREFIX = BucketProxyProvider.DEFAULT_KEY_PREFIX
-    }
+    companion object: KLogging()
 
     /**
      * Resolves the [AsyncBucketProxy] for [key].
@@ -63,6 +60,7 @@ open class AsyncBucketProxyProvider(
     fun resolveBucket(key: String): AsyncBucketProxy {
         key.requireNotBlank("key")
         log.debug { "Resolving AsyncBucketProxy for key: $key" }
+
         // Keep prefix ownership in getBucketKey so overrides have one boundary.
         val bucketKey = validateBucketKeySize(getBucketKey(key))
 

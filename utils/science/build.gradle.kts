@@ -17,7 +17,7 @@ tasks.test {
         val exclude = when {
             excludeProp != null -> excludeProp
             include.isNotEmpty() -> emptyList()
-            else -> listOf("slow-netcdf")
+            else                -> listOf("slow-netcdf")
         }
         include.forEach { includeTags(it) }
         exclude.forEach { excludeTags(it) }
@@ -60,22 +60,20 @@ dependencies {
     compileOnly(bt4k.exposed.java.time)
     compileOnly(libs.exposed.json)
     compileOnly(bt4k.postgis.y2024)
+
     // JSONB 직렬화용 Jackson, PGobject (compileOnly)
-    compileOnly(libs.jackson.module.kotlin)
+    compileOnly(libs.jackson3.module.kotlin)
     compileOnly(bt4k.postgresql)
 
     // Test
+    testImplementation(project(":bluetape4k-io"))
     testImplementation(project(":bluetape4k-junit5"))
     testImplementation(project(":bluetape4k-testcontainers"))
-    testImplementation(bt4k.exposed.core)
-    testImplementation(libs.exposed.dao)
-    testImplementation(bt4k.exposed.jdbc)
-    testImplementation(bt4k.exposed.java.time)
-    testImplementation(libs.exposed.json)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.testcontainers.junit.jupiter)
     testImplementation(libs.testcontainers.postgresql)
 
-    testRuntimeOnly(bt4k.postgresql)
+    testImplementation(bt4k.fory.kotlin)
+
     testRuntimeOnly(bt4k.hikaricp)
 }

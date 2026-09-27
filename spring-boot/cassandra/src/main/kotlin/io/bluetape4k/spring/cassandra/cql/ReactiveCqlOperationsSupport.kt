@@ -3,6 +3,7 @@ package io.bluetape4k.spring.cassandra.cql
 import com.datastax.oss.driver.api.core.cql.PreparedStatement
 import com.datastax.oss.driver.api.core.cql.Row
 import com.datastax.oss.driver.api.core.cql.Statement
+import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.asPublisher
@@ -50,7 +51,8 @@ fun <T: Any> ReactiveCqlOperations.executeSuspending(action: (ReactiveSession) -
  * // result == applied
  * ```
  */
-suspend fun ReactiveCqlOperations.executeSuspending(cql: String): Boolean? = execute(cql).awaitSingleOrNull()
+suspend fun ReactiveCqlOperations.executeSuspending(cql: String): Boolean? =
+    execute(cql.requireNotBlank("cql")).awaitSingleOrNull()
 
 /**
  * [ReactivePreparedStatementCreator]를 실행하고 적용 여부를 코루틴으로 반환합니다.
@@ -82,7 +84,8 @@ suspend fun ReactiveCqlOperations.coExecute(psc: ReactivePreparedStatementCreato
 fun ReactiveCqlOperations.executeSuspending(
     cql: String,
     args: () -> Flow<Array<Any?>>,
-): Flow<Boolean?> = execute(cql, args().asPublisher()).asFlow()
+): Flow<Boolean?> =
+    execute(cql.requireNotBlank("cql"), args().asPublisher()).asFlow()
 
 /**
  * CQL 문자열 실행 결과를 단건으로 매핑해 반환하고 없으면 `null`을 반환합니다.
@@ -103,7 +106,8 @@ suspend fun <T: Any> ReactiveCqlOperations.queryForObjectSuspending(
     cql: String,
     vararg args: Any,
     rowMapper: (Row, Int) -> T,
-): T? = queryForObject(cql, rowMapper, *args).awaitSingleOrNull()
+): T? =
+    queryForObject(cql.requireNotBlank("cql"), rowMapper, *args).awaitSingleOrNull()
 
 /**
  * CQL 문자열 실행 결과를 타입 기반 단건 매핑으로 반환하고 없으면 `null`을 반환합니다.
@@ -120,7 +124,7 @@ suspend fun <T: Any> ReactiveCqlOperations.queryForObjectSuspending(
 suspend inline fun <reified T: Any> ReactiveCqlOperations.queryForObjectSuspending(
     cql: String,
     vararg args: Any,
-): T? = queryForObject<T>(cql, *args).awaitSingleOrNull()
+): T? = queryForObject<T>(cql.requireNotBlank("cql"), *args).awaitSingleOrNull()
 
 /**
  * [Statement] 실행 결과를 타입 기반 단건 매핑으로 반환하고 없으면 `null`을 반환합니다.
@@ -152,7 +156,8 @@ suspend inline fun <reified T: Any> ReactiveCqlOperations.queryForObjectSuspendi
 suspend fun ReactiveCqlOperations.queryForMapSuspending(
     cql: String,
     vararg args: Any,
-): Map<String, Any?> = queryForMap(cql, *args).awaitSingle()
+): Map<String, Any?> =
+    queryForMap(cql.requireNotBlank("cql"), *args).awaitSingle()
 
 /**
  * CQL 문자열 실행 결과를 지정 타입 [Flow]로 반환합니다.
@@ -169,7 +174,8 @@ suspend fun ReactiveCqlOperations.queryForMapSuspending(
 inline fun <reified T: Any> ReactiveCqlOperations.queryForFlow(
     cql: String,
     vararg args: Any,
-): Flow<T> = queryForFlux<T>(cql, *args).asFlow()
+): Flow<T> =
+    queryForFlux<T>(cql.requireNotBlank("cql"), *args).asFlow()
 
 /**
  * CQL 문자열 실행 결과를 `Map<String, Any?>` [Flow]로 반환합니다.
@@ -186,7 +192,8 @@ inline fun <reified T: Any> ReactiveCqlOperations.queryForFlow(
 fun ReactiveCqlOperations.queryForMapFlow(
     cql: String,
     vararg args: Any,
-): Flow<Map<String, Any?>> = queryForFlux(cql, *args).asFlow()
+): Flow<Map<String, Any?>> =
+    queryForFlux(cql.requireNotBlank("cql"), *args).asFlow()
 
 /**
  * CQL 문자열 실행 결과를 [ReactiveResultSet]으로 반환합니다.
@@ -203,7 +210,8 @@ fun ReactiveCqlOperations.queryForMapFlow(
 suspend fun ReactiveCqlOperations.queryForResultSetSuspending(
     cql: String,
     vararg args: Any,
-): ReactiveResultSet = queryForResultSet(cql, *args).awaitSingle()
+): ReactiveResultSet =
+    queryForResultSet(cql.requireNotBlank("cql"), *args).awaitSingle()
 
 /**
  * [Statement]를 실행한 결과 행을 [Flow]로 반환합니다.
@@ -217,7 +225,8 @@ suspend fun ReactiveCqlOperations.queryForResultSetSuspending(
  * // rows.toList().isNotEmpty() == true
  * ```
  */
-fun ReactiveCqlOperations.queryForRowsFlow(statement: Statement<*>): Flow<Row> = queryForRows(statement).asFlow()
+fun ReactiveCqlOperations.queryForRowsFlow(statement: Statement<*>): Flow<Row> =
+    queryForRows(statement).asFlow()
 
 /**
  * CQL 문자열을 실행한 결과 행을 [Flow]로 반환합니다.
@@ -234,7 +243,7 @@ fun ReactiveCqlOperations.queryForRowsFlow(statement: Statement<*>): Flow<Row> =
 fun ReactiveCqlOperations.queryForRowsFlow(
     cql: String,
     vararg args: Any,
-): Flow<Row> = queryForRows(cql, *args).asFlow()
+): Flow<Row> = queryForRows(cql.requireNotBlank("cql"), *args).asFlow()
 
 /**
  * CQL 문자열 [Flow]를 실행하고 성공 여부를 [Flow]로 반환합니다.
@@ -263,7 +272,8 @@ fun ReactiveCqlOperations.executeForFlow(statementFlow: Flow<String>): Flow<Bool
  * // applied == true
  * ```
  */
-suspend fun ReactiveCqlOperations.executeSuspending(statement: Statement<*>): Boolean = execute(statement).awaitSingle()
+suspend fun ReactiveCqlOperations.executeSuspending(statement: Statement<*>): Boolean =
+    execute(statement).awaitSingle()
 
 /**
  * [Statement]와 ResultSet 기반 추출기로 결과를 [Flow]로 반환합니다.
@@ -280,7 +290,8 @@ suspend fun ReactiveCqlOperations.executeSuspending(statement: Statement<*>): Bo
 fun <T: Any> ReactiveCqlOperations.queryForFlow(
     statement: Statement<*>,
     rse: (ReactiveResultSet) -> Flow<T>,
-): Flow<T> = query(statement) { rs -> rse(rs).asPublisher() }.asFlow()
+): Flow<T> =
+    query(statement) { rs -> rse(rs).asPublisher() }.asFlow()
 
 /**
  * [Statement]와 Row 매퍼로 결과를 [Flow]로 반환합니다.
@@ -376,7 +387,10 @@ suspend fun ReactiveCqlOperations.queryForResultSetSuspending(statement: Stateme
 fun <T: Any> ReactiveCqlOperations.executeForFlow(
     psc: ReactivePreparedStatementCreator,
     action: (ReactiveSession, PreparedStatement) -> Flow<T>,
-): Flow<T> = execute(psc) { rs, ps -> action(rs, ps).asPublisher() }.asFlow()
+): Flow<T> =
+    execute(psc) { rs, ps ->
+        action(rs, ps).asPublisher()
+    }.asFlow()
 
 /**
  * CQL 문자열과 액션으로 결과를 [Flow]로 반환합니다.
@@ -395,7 +409,10 @@ fun <T: Any> ReactiveCqlOperations.executeForFlow(
 fun <T: Any> ReactiveCqlOperations.executeForFlow(
     cql: String,
     action: (ReactiveSession, PreparedStatement) -> Flow<T>,
-): Flow<T> = execute(cql) { rs, ps -> action(rs, ps).asPublisher() }.asFlow()
+): Flow<T> =
+    execute(cql.requireNotBlank("cql")) { rs, ps ->
+        action(rs, ps).asPublisher()
+    }.asFlow()
 
 /**
  * CQL 문자열과 ResultSet 기반 추출기로 결과를 [Flow]로 반환합니다.
@@ -415,7 +432,12 @@ fun <T: Any> ReactiveCqlOperations.queryForFlow(
     cql: String,
     vararg args: Any,
     rse: (ReactiveResultSet) -> Flow<T>,
-): Flow<T> = query(cql, { rs -> rse(rs).asPublisher() }, *args).asFlow()
+): Flow<T> =
+    query(
+        cql.requireNotBlank("cql"),
+        { rse(it).asPublisher() },
+        *args
+    ).asFlow()
 
 /**
  * CQL 문자열과 Row 매퍼로 결과를 [Flow]로 반환합니다.
@@ -435,7 +457,8 @@ fun <T: Any> ReactiveCqlOperations.queryForFlow(
     cql: String,
     vararg args: Any,
     rowMapper: (Row, Int) -> T,
-): Flow<T> = query(cql, rowMapper, *args).asFlow()
+): Flow<T> =
+    query(cql.requireNotBlank("cql"), rowMapper, *args).asFlow()
 
 /**
  * [ReactivePreparedStatementCreator]와 ResultSet 기반 추출기로 결과를 [Flow]로 반환합니다.
@@ -452,7 +475,8 @@ fun <T: Any> ReactiveCqlOperations.queryForFlow(
 fun <T: Any> ReactiveCqlOperations.queryForFlow(
     psc: ReactivePreparedStatementCreator,
     rse: (ReactiveResultSet) -> Flow<T>,
-): Flow<T> = query(psc) { rs -> rse(rs).asPublisher() }.asFlow()
+): Flow<T> =
+    query(psc) { rse(it).asPublisher() }.asFlow()
 
 /**
  * CQL 문자열, 바인더, ResultSet 기반 추출기로 결과를 [Flow]로 반환합니다.
@@ -470,7 +494,8 @@ fun <T: Any> ReactiveCqlOperations.queryForFlow(
     cql: String,
     psb: PreparedStatementBinder? = null,
     rse: (ReactiveResultSet) -> Flow<T>,
-): Flow<T> = query(cql, psb) { rs -> rse(rs).asPublisher() }.asFlow()
+): Flow<T> =
+    query(cql, psb) { rse(it).asPublisher() }.asFlow()
 
 /**
  * [ReactivePreparedStatementCreator], 바인더, ResultSet 기반 추출기로 결과를 [Flow]로 반환합니다.
@@ -488,7 +513,8 @@ fun <T: Any> ReactiveCqlOperations.queryForFlow(
     psc: ReactivePreparedStatementCreator,
     psb: PreparedStatementBinder? = null,
     rse: (ReactiveResultSet) -> Flow<T>,
-): Flow<T> = query(psc, psb) { rs -> rse(rs).asPublisher() }.asFlow()
+): Flow<T> =
+    query(psc, psb) { rse(it).asPublisher() }.asFlow()
 
 /**
  * [ReactivePreparedStatementCreator]와 Row 매퍼로 결과를 [Flow]로 반환합니다.

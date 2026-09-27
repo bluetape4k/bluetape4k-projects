@@ -1,6 +1,7 @@
 package io.bluetape4k.io.serializer.compat.issue754.java;
 
 import io.bluetape4k.io.serializer.BinarySerializer;
+
 import java.io.Serializable;
 import java.util.Objects;
 

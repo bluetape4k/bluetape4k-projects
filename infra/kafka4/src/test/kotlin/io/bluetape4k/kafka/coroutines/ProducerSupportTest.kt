@@ -1,5 +1,9 @@
 package io.bluetape4k.kafka.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.concurrent.asCompletableFuture
 import io.bluetape4k.concurrent.sequence
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -12,6 +16,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.asDouble
 import io.bluetape4k.testcontainers.mq.KafkaServer
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
@@ -24,17 +29,13 @@ import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.apache.kafka.clients.producer.Callback
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
@@ -54,6 +55,12 @@ class ProducerSupportTest: AbstractKafkaTest() {
     }
 
     private val producer = KafkaServer.Launcher.createStringProducer()
+    private val mockProducer = mockk<Producer<String, String>>()
+
+    @BeforeEach
+    fun beforeEach() {
+        clearMocks(mockProducer)
+    }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `send one message with future`(@RandomValue message: String) = runSuspendIO {
@@ -76,9 +83,8 @@ class ProducerSupportTest: AbstractKafkaTest() {
     @Test
     fun `suspendSend propagates callback exception`() = runTest {
         val failure = TimeoutException("send failed")
-        val producer = mockk<Producer<String, String>>()
 
-        every { producer.send(any(), any()) } answers {
+        every { mockProducer.send(any(), any()) } answers {
             secondArg<Callback>().onCompletion(null, failure)
             CompletableFuture<RecordMetadata>().apply {
                 completeExceptionally(failure)
@@ -86,19 +92,18 @@ class ProducerSupportTest: AbstractKafkaTest() {
         }
 
         assertFailsWith<TimeoutException> {
-            producer.suspendSend(ProducerRecord(TEST_TOPIC_NAME, "key", "value"))
+            mockProducer.suspendSend(ProducerRecord(TEST_TOPIC_NAME, "key", "value"))
         }
     }
 
     @Test
     fun `suspendSend cancels kafka future when coroutine is cancelled`() = runTest {
         val future = RecordingFuture<RecordMetadata>()
-        val producer = mockk<Producer<String, String>>()
 
-        every { producer.send(any(), any()) } returns future
+        every { mockProducer.send(any(), any()) } returns future
 
         val job = launch {
-            producer.suspendSend(ProducerRecord(TEST_TOPIC_NAME, "key", "value"))
+            mockProducer.suspendSend(ProducerRecord(TEST_TOPIC_NAME, "key", "value"))
         }
 
         yield()
@@ -110,9 +115,8 @@ class ProducerSupportTest: AbstractKafkaTest() {
     @Test
     fun `suspendSend remains stable under SuspendedJobTester`() = runSuspendIO {
         val metadata = recordMetadata()
-        val producer = mockk<Producer<String, String>>()
 
-        every { producer.send(any(), any()) } answers {
+        every { mockProducer.send(any(), any()) } answers {
             secondArg<Callback>().onCompletion(metadata, null)
             CompletableFuture.completedFuture(metadata)
         }
@@ -121,14 +125,15 @@ class ProducerSupportTest: AbstractKafkaTest() {
             .workers(4)
             .rounds(32)
             .add {
-                producer.suspendSend(ProducerRecord(TEST_TOPIC_NAME, "key", "value"))
+                mockProducer
+                    .suspendSend(ProducerRecord(TEST_TOPIC_NAME, "key", "value"))
                     .verifyRecordMetadata()
             }
             .run()
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `send many messages with future`() {
+    fun `send many messages with future`() = runSuspendIO {
         val messages = randomStrings()
 
         measureSendRecords(MESSAGE_SIZE) {
@@ -145,7 +150,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `send many messages with suspend`() {
+    fun `send many messages with suspend`() = runSuspendIO {
         val messages = randomStrings()
 
         measureSendRecords(MESSAGE_SIZE) {
@@ -163,7 +168,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `send flow messages all async`() {
+    fun `send flow messages all async`() = runSuspendIO {
         val messages = randomStrings()
 
         measureSendRecords(MESSAGE_SIZE) {
@@ -181,7 +186,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `send flow messages as parallel mode`() {
+    fun `send flow messages as parallel mode`() = runSuspendIO {
         val messages = randomStrings()
 
         measureSendRecords(MESSAGE_SIZE) {
@@ -197,30 +202,28 @@ class ProducerSupportTest: AbstractKafkaTest() {
     }
 
     @RepeatedTest(REPEAT_SIZE)
-    fun `send and forget flow messages`() {
+    fun `send and forget flow messages`() = runSuspendIO {
         val messages = randomStrings()
 
-        runBlocking(Dispatchers.IO) {
-            val prevSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
+        val prevSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
 
-            val sendTime = measureTimeMillis {
-                val records = messages.asFlow()
-                    .map { ProducerRecord<String, String>(TEST_TOPIC_NAME, null, it) }
+        val sendTime = measureTimeMillis {
+            val records = messages.asFlow()
+                .map { ProducerRecord<String, String>(TEST_TOPIC_NAME, null, it) }
 
-                producer.sendAndForget(records, true)
-            }
-
-            log.debug { "Send time=$sendTime" }
-            val currSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble() - prevSentTotal
-            log.debug { "Current sent count=$currSentTotal" }
+            producer.sendAndForget(records, true)
         }
+
+        log.debug { "Send time=$sendTime" }
+        val currSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble() - prevSentTotal
+        log.debug { "Current sent count=$currSentTotal" }
     }
 
-    private fun measureSendRecords(
+    private suspend fun measureSendRecords(
         expectCount: Int = MESSAGE_SIZE,
         block: suspend CoroutineScope.() -> Unit,
     ) {
-        runBlocking(Dispatchers.IO) {
+        runSuspendIO {
             val prevSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
 
             block()
@@ -232,6 +235,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
     }
 
     private fun RecordMetadata.verifyRecordMetadata() {
+        log.debug { "Record metadata: $this" }
         topic() shouldBeEqualTo TEST_TOPIC_NAME
         partition() shouldBeGreaterOrEqualTo 0
         // ACK >= 1 이어야만 유효합니다.

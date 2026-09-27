@@ -73,9 +73,7 @@ stats.percentile(50) // 중앙값 (50th percentile)
 
 `normalizedRmse`는 RMSE를 actual 값의 범위로 나눕니다. 길이가 같은 빈 입력은
 `0.0`을 반환하며, 입력 길이가 다르거나 양쪽 중 하나가 `NaN`만 포함하면
-`IllegalArgumentException`을 발생시킵니다. 일부 값만 `NaN`이면 오차 계산에서
-필터링하지 않고 `NaN`을 반환합니다. actual의 범위가 0이고 0이 아닌 유한한
-RMSE가 있으면 결과는 `+Infinity`입니다.
+`IllegalArgumentException`을 발생시킵니다. 일부 값만 `NaN`이면 오차 계산에서 필터링하지 않고 `NaN`을 반환합니다. actual의 범위가 0이고 0이 아닌 유한한 RMSE가 있으면 결과는 `+Infinity`입니다.
 
 ```kotlin
 val predicted = sequenceOf(0.0, 1.0)
@@ -251,22 +249,22 @@ permutations(5, 3)   // 60
 
 ## 주요 파일
 
-| 파일                        | 설명                                              |
-|---------------------------|-------------------------------------------------|
-| `Aggregation.kt`          | 컬렉션 집계 함수                                       |
-| `Descriptives.kt`         | 기술통계 인터페이스                                      |
-| `DoubleStatistics.kt`     | Double 통계                                       |
-| `BigDecimalStatistics.kt` | BigDecimal 통계                                   |
-| `DoubleHistogram.kt`      | Double 히스토그램                                    |
-| `RandomSupport.kt`        | 랜덤 샘플링                                          |
+| 파일                      | 설명                                                  |
+|---------------------------|-------------------------------------------------------|
+| `Aggregation.kt`          | 컬렉션 집계 함수                                      |
+| `Descriptives.kt`         | 기술통계 인터페이스                                   |
+| `DoubleStatistics.kt`     | Double 통계                                           |
+| `BigDecimalStatistics.kt` | BigDecimal 통계                                       |
+| `DoubleHistogram.kt`      | Double 히스토그램                                     |
+| `RandomSupport.kt`        | 랜덤 샘플링                                           |
 | `interpolation/*.kt`      | 보간 알고리즘 (Linear, Spline, Loess, Akima)          |
 | `integration/*.kt`        | 적분 알고리즘 (Romberg, Simpson, Trapezoid, MidPoint) |
-| `equation/*.kt`           | 방정식 해법 (Bisection, Brent, Secant, Ridders)      |
-| `special/*.kt`            | 특수 함수 (Gamma, Beta, Factorial)                  |
-| `linear/*.kt`             | 선형대수 (Matrix, Vector)                           |
-| `ml/clustering/*.kt`      | 클러스터링 알고리즘                                      |
+| `equation/*.kt`           | 방정식 해법 (Bisection, Brent, Secant, Ridders)       |
+| `special/*.kt`            | 특수 함수 (Gamma, Beta, Factorial)                    |
+| `linear/*.kt`             | 선형대수 (Matrix, Vector)                             |
+| `ml/clustering/*.kt`      | 클러스터링 알고리즘                                   |
 | `ml/distance/*.kt`        | 거리 측정 방법                                        |
-| `commons/*.kt`            | Apache Commons Math 유틸리티                        |
+| `commons/*.kt`            | Apache Commons Math 유틸리티                          |
 
 ## 의존성 추가
 

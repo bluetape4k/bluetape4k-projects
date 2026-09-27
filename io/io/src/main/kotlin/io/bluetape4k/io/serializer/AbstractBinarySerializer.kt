@@ -1,7 +1,6 @@
 package io.bluetape4k.io.serializer
 
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.error
 import io.bluetape4k.support.emptyByteArray
 
 /**
@@ -54,7 +53,6 @@ abstract class AbstractBinarySerializer: BinarySerializer {
         return try {
             doSerialize(graph)
         } catch (e: Throwable) {
-            log.error(e) { "Fail to serialize. throw BinarySerializationException. graph=$graph" }
             throw BinarySerializationException("Fail to serialize. graphType=${graph.javaClass.name}", e)
         }
     }
@@ -80,7 +78,6 @@ abstract class AbstractBinarySerializer: BinarySerializer {
         return try {
             doDeserialize(source)
         } catch (e: Throwable) {
-            log.error(e) { "Fail to deserialize. throw BinarySerializationException." }
             throw BinarySerializationException("Fail to deserialize. bytesSize=${source.size}", e)
         }
     }

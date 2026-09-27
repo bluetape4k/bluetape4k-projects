@@ -28,6 +28,7 @@ Key strengths:
 -
 
 **Testability**: `Buffer` can stand in for both a source and a sink, so most codec and protocol logic can be tested without files, sockets, or temp streams.
+
 - **Coroutine-friendly extensions in this module**: `SuspendedSource`,
   `SuspendedSink`, suspended file/socket channels, and `SuspendedPipe` make Okio style pipelines usable from structured concurrency code.
 

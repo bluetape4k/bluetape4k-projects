@@ -1,16 +1,16 @@
 package io.bluetape4k.javatimes.period.ranges
 
-import io.bluetape4k.javatimes.nowZonedDateTime
-import io.bluetape4k.javatimes.period.TimeCalendar
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.javatimes.nowZonedDateTime
+import io.bluetape4k.javatimes.period.TimeCalendar
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class RangeSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `dayRanges by count generates correct number of days`() {

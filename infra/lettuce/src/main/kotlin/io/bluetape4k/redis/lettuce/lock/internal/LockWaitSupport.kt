@@ -2,10 +2,10 @@ package io.bluetape4k.redis.lettuce.lock.internal
 
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationCapacityException
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationDeadline
-import io.bluetape4k.redis.lettuce.coordination.internal.MonotonicTicker
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationRuntime
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationScheduledHandle
 import io.bluetape4k.redis.lettuce.coordination.internal.CoordinationScheduler
+import io.bluetape4k.redis.lettuce.coordination.internal.MonotonicTicker
 import io.bluetape4k.redis.lettuce.lock.LockAcquireResult
 import io.bluetape4k.redis.lettuce.lock.LockHandle
 import io.bluetape4k.redis.lettuce.lock.LockOutcome
@@ -156,7 +156,7 @@ internal class LockWaitSupport(
                 when {
                     result.isCancelled -> LockOutcome.CANCELLED
                     error != null -> LockOutcome.BACKEND_FAILED
-                    else -> value.observationOutcome()
+                    else          -> value.observationOutcome()
                 },
             )
         }
@@ -246,7 +246,7 @@ internal class LockWaitSupport(
                         }
                         val retryDelay = retryPolicy.delay(++retryAttempt, remaining)
                         when (awaitRetry(retryDelay)) {
-                            RetrySignal.RETRY -> Unit
+                            RetrySignal.RETRY  -> Unit
                             RetrySignal.CLOSED -> {
                                 outcome = LockOutcome.CLOSED
                                 return LockAcquireResult.Closed
@@ -257,7 +257,7 @@ internal class LockWaitSupport(
                             }
                         }
                     }
-                    else -> {
+                    else                           -> {
                         outcome = result.observationOutcome()
                         return result
                     }
@@ -329,15 +329,15 @@ internal fun LockAcquireResult<*>?.observationOutcome(): LockOutcome =
     when (this) {
         is LockAcquireResult.Acquired,
         is LockAcquireResult.Reentered,
-        -> LockOutcome.SUCCEEDED
-        is LockAcquireResult.Contended -> LockOutcome.CONTENDED
-        LockAcquireResult.TimedOut -> LockOutcome.TIMED_OUT
-        LockAcquireResult.CleanupPending -> LockOutcome.CONTENDED
-        LockAcquireResult.CapacityExceeded -> LockOutcome.CAPACITY_REJECTED
-        LockAcquireResult.Closed, null -> LockOutcome.CLOSED
+                                            -> LockOutcome.SUCCEEDED
+        is LockAcquireResult.Contended      -> LockOutcome.CONTENDED
+        LockAcquireResult.TimedOut          -> LockOutcome.TIMED_OUT
+        LockAcquireResult.CleanupPending    -> LockOutcome.CONTENDED
+        LockAcquireResult.CapacityExceeded  -> LockOutcome.CAPACITY_REJECTED
+        LockAcquireResult.Closed, null      -> LockOutcome.CLOSED
         is LockAcquireResult.BackendFailure -> LockOutcome.BACKEND_FAILED
         is LockAcquireResult.IntegrityFailure -> LockOutcome.INTEGRITY_FAILED
-        is LockAcquireResult.Ambiguous -> LockOutcome.AMBIGUOUS
+        is LockAcquireResult.Ambiguous      -> LockOutcome.AMBIGUOUS
     }
 
 internal class ScheduledExecutorCoordinationScheduler(
@@ -373,5 +373,5 @@ private fun LockAcquireResult<LockHandle>?.acquiredHandleOrNull(): LockHandle? =
     when (this) {
         is LockAcquireResult.Acquired -> handle
         is LockAcquireResult.Reentered -> handle
-        else -> null
+        else                          -> null
     }

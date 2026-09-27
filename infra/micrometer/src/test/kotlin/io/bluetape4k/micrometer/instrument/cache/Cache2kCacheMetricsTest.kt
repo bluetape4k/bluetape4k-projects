@@ -1,20 +1,22 @@
 package io.bluetape4k.micrometer.instrument.cache
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cache.cache2k.getOrCreateCache2k
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.micrometer.AbstractMicrometerTest
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.Tag
 import io.micrometer.core.instrument.Tags
 import io.micrometer.core.instrument.search.RequiredSearch
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
 import org.cache2k.Cache
 import org.cache2k.core.api.InternalCache
 import org.cache2k.core.api.InternalCacheInfo
 import org.junit.jupiter.api.Test
 
-class Cache2kCacheMetricsTest {
+class Cache2kCacheMetricsTest: AbstractMicrometerTest() {
 
     companion object: KLogging()
 
@@ -67,7 +69,7 @@ class Cache2kCacheMetricsTest {
         val registry = SimpleMeterRegistry()
         Cache2kCacheMetrics.monitor(registry, cache, expectedTag)
 
-        registry.fetch("cache.load.duration").timeGauge()
+        registry.fetch("cache.load.duration").timeGauge().shouldNotBeNull()
     }
 
     @Test
@@ -108,17 +110,17 @@ class Cache2kCacheMetricsTest {
     }
 
     private fun verifyCommonCacheMetrics(registry: MeterRegistry, metrics: Cache2kCacheMetrics) {
-        registry.get("cache.puts").tags(expectedTag).functionCounter()
-        registry.get("cache.gets").tags(expectedTag).functionCounter()
+        registry.get("cache.puts").tags(expectedTag).functionCounter().shouldNotBeNull()
+        registry.get("cache.gets").tags(expectedTag).functionCounter().shouldNotBeNull()
 
         metrics.size().run {
-            registry.get("cache.size").tags(expectedTag).gauge()
+            registry.get("cache.size").tags(expectedTag).gauge().shouldNotBeNull()
         }
         metrics.missCount().run {
-            registry.get("cache.gets").tags(expectedTag).tag("result", "miss").functionCounter()
+            registry.get("cache.gets").tags(expectedTag).tag("result", "miss").functionCounter().shouldNotBeNull()
         }
         metrics.evictionCount().run {
-            registry.get("cache.evictions").tags(expectedTag).functionCounter()
+            registry.get("cache.evictions").tags(expectedTag).functionCounter().shouldNotBeNull()
         }
     }
 

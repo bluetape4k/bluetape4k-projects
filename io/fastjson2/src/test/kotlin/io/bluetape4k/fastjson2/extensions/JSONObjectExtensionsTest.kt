@@ -2,17 +2,18 @@ package io.bluetape4k.fastjson2.extensions
 
 import com.alibaba.fastjson2.JSONObject
 import com.alibaba.fastjson2.toJSONString
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.fastjson2.AbstractFastjson2Test
 import io.bluetape4k.fastjson2.model.User
 import io.bluetape4k.fastjson2.model.newUser
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
 class JSONObjectExtensionsTest: AbstractFastjson2Test() {
+
     companion object: KLogging()
 
     @RepeatedTest(REPEAT_SIZE)
@@ -25,10 +26,10 @@ class JSONObjectExtensionsTest: AbstractFastjson2Test() {
         val jsonObject: JSONObject = json.readAsJSONObject()
 
         val parsedUser = jsonObject.readValueOrNull<User>()
-        parsedUser.shouldNotBeNull() shouldBeEqualTo user
+        parsedUser shouldBeEqualTo user
 
         val parsedUser2 = jsonObject.readValueOrNull<User>()
-        parsedUser2.shouldNotBeNull() shouldBeEqualTo user
+        parsedUser2 shouldBeEqualTo user
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -40,10 +41,10 @@ class JSONObjectExtensionsTest: AbstractFastjson2Test() {
         val jsonObject = json.readAsJSONObject()
 
         val parsedUser = jsonObject.readValueOrNull<User>("key")
-        parsedUser.shouldNotBeNull() shouldBeEqualTo user
+        parsedUser shouldBeEqualTo user
 
         val parsedUser2 = jsonObject.readValueOrNull<User>("key")
-        parsedUser2.shouldNotBeNull() shouldBeEqualTo user
+        parsedUser2 shouldBeEqualTo user
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -51,16 +52,15 @@ class JSONObjectExtensionsTest: AbstractFastjson2Test() {
         val user = newUser()
 
         // JSONObject
-        val jsonObject: JSONObject =
-            JSONObject().apply {
-                put(
-                    "user",
-                    JSONObject().apply {
-                        put("id", user.id)
-                        put("name", user.name)
-                    }
-                )
-            }
+        val jsonObject: JSONObject = JSONObject().apply {
+            put(
+                "user",
+                JSONObject().apply {
+                    put("id", user.id)
+                    put("name", user.name)
+                }
+            )
+        }
 
         val users = jsonObject.readValueOrNull<Map<String, User>>()
         users.shouldNotBeNull()
@@ -103,6 +103,6 @@ class JSONObjectExtensionsTest: AbstractFastjson2Test() {
             }
 
         val result = jsonObject.readValueOrNull<User>()
-        result.shouldNotBeNull() shouldBeEqualTo user
+        result shouldBeEqualTo user
     }
 }

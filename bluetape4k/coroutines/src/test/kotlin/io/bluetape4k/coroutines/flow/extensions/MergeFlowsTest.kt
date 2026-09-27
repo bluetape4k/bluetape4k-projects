@@ -41,8 +41,13 @@ class MergeFlowsTest: AbstractFlowTest() {
         val n = 1_000
 
         merge(
-            flowRangeOf(0, n / 2).startCollectOn(Dispatchers.Default).log("#1"),
-            flowRangeOf(0, n / 2).startCollectOn(Dispatchers.Unconfined).log("#2"),
+            flowRangeOf(0, n / 2)
+                .startCollectOn(Dispatchers.Default)
+                .log("#1"),
+
+            flowRangeOf(0, n / 2)
+                .startCollectOn(Dispatchers.Unconfined)
+                .log("#2"),
         )
             .count() shouldBeEqualTo n
     }

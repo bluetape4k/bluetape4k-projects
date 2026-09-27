@@ -2,13 +2,13 @@ package io.bluetape4k.http.jdk
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.coroutines.flow.async
 import io.bluetape4k.http.AbstractHttpTest
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.toList
 import org.junit.jupiter.api.Test
 import java.net.URI
 import java.net.http.HttpRequest
@@ -17,7 +17,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class JdkHttpClientCoroutinesTest: AbstractHttpTest() {
 
-    companion object: KLogging()
+    companion object: KLoggingChannel()
 
     private val urisToGet: List<String>
         get() = listOf(
@@ -27,7 +27,7 @@ class JdkHttpClientCoroutinesTest: AbstractHttpTest() {
         )
 
     @Test
-    fun `getAwait 로 GET 요청 상태코드 200`() = runTest(timeout = 30.seconds) {
+    fun `getAwait 로 GET 요청 상태코드 200`() = runSuspendIO(timeout = 30.seconds) {
         val client = jdkHttpClientOf()
         val response = client.getAwait("$httpbinBaseUrl/get")
         log.debug { "GET $httpbinBaseUrl/get status=${response.statusCode()}" }
@@ -35,7 +35,7 @@ class JdkHttpClientCoroutinesTest: AbstractHttpTest() {
     }
 
     @Test
-    fun `getStringAwait 로 GET 요청 상태코드 200 및 body 비어있지 않음`() = runTest(timeout = 30.seconds) {
+    fun `getStringAwait 로 GET 요청 상태코드 200 및 body 비어있지 않음`() = runSuspendIO(timeout = 30.seconds) {
         val client = jdkHttpClientOf()
         val response = client.getStringAwait("$httpbinBaseUrl/get")
         log.debug { "GET $httpbinBaseUrl/get status=${response.statusCode()}" }
@@ -44,7 +44,7 @@ class JdkHttpClientCoroutinesTest: AbstractHttpTest() {
     }
 
     @Test
-    fun `sendAwait 로 커스텀 요청 상태코드 200`() = runTest(timeout = 30.seconds) {
+    fun `sendAwait 로 커스텀 요청 상태코드 200`() = runSuspendIO(timeout = 30.seconds) {
         val client = jdkHttpClientOf()
         val request = HttpRequest.newBuilder(URI.create("$httpbinBaseUrl/get")).GET().build()
         val response = client.sendAwait(request, HttpResponse.BodyHandlers.ofByteArray())
@@ -53,17 +53,16 @@ class JdkHttpClientCoroutinesTest: AbstractHttpTest() {
     }
 
     @Test
-    fun `여러 URL 병렬 coroutine GET 요청 모두 200`() = runTest(timeout = 30.seconds) {
+    fun `여러 URL 병렬 coroutine GET 요청 모두 200`() = runSuspendIO(timeout = 30.seconds) {
         val client = jdkHttpClientOf()
-        val responses = coroutineScope {
-            urisToGet.map { uri ->
-                async {
-                    val response = client.getAwait(uri)
-                    log.debug { "GET $uri status=${response.statusCode()}" }
-                    response
-                }
-            }.awaitAll()
-        }
+        val responses = urisToGet.asFlow()
+            .async { uri ->
+                val response = client.getAwait(uri)
+                log.debug { "GET $uri status=${response.statusCode()}" }
+                response
+            }
+            .toList()
+
         responses.forEach { response ->
             response.statusCode() shouldBeEqualTo 200
         }

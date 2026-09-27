@@ -18,9 +18,8 @@ import io.opentelemetry.sdk.trace.export.SpanExporter
  * @param exporter 내보낼 [SpanExporter]
  * @return [SpanProcessor] 인스턴스
  */
-fun simpleSpanProcessorOf(exporter: SpanExporter): SpanProcessor {
-    return SimpleSpanProcessor.create(exporter)
-}
+fun simpleSpanProcessorOf(exporter: SpanExporter): SpanProcessor =
+    SimpleSpanProcessor.create(exporter)
 
 /**
  * [BatchSpanProcessor]를 생성합니다.
@@ -40,6 +39,5 @@ fun simpleSpanProcessorOf(exporter: SpanExporter): SpanProcessor {
 inline fun batchSpanProcessorOf(
     exporter: SpanExporter,
     builder: BatchSpanProcessorBuilder.() -> Unit,
-): BatchSpanProcessor {
-    return BatchSpanProcessor.builder(exporter).apply(builder).build()
-}
+): BatchSpanProcessor =
+    BatchSpanProcessor.builder(exporter).apply(builder).build()

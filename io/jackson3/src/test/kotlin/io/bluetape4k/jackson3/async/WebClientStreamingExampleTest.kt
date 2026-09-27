@@ -1,7 +1,7 @@
 package io.bluetape4k.jackson3.async
 
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.jackson3.writeAsString
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -39,7 +39,7 @@ class WebClientStreamingExampleTest {
             .blockLast()
 
         roots.size shouldBeEqualTo 3
-        roots.forEach { it shouldContain "/stream/3" }
+        roots.all { it.contains("/stream/3") }.shouldBeTrue()
     }
 
     @Test
@@ -59,7 +59,7 @@ class WebClientStreamingExampleTest {
         parser.consume(byteFlow)
 
         roots.size shouldBeEqualTo 3
-        roots.forEach { it shouldContain "/stream/3" }
+        roots.all { it.contains("/stream/3") }.shouldBeTrue()
     }
 
     private fun DataBuffer.toByteArrayAndRelease(): ByteArray =

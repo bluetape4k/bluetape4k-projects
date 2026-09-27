@@ -18,6 +18,7 @@ import java.io.IOException
 import kotlin.random.Random
 
 class CompressableSinkAndSourceTest: AbstractOkioTest() {
+
     companion object: KLogging()
 
     private fun compressors(): List<Compressor> =
@@ -298,7 +299,7 @@ class CompressableSinkAndSourceTest: AbstractOkioTest() {
         factoryRoundTrip({ Compressable.Sinks.bzip2(it) }, { Compressable.Sources.bzip2(it) })
     }
 
-    private fun extensionRoundTrip(
+    private inline fun extensionRoundTrip(
         createSink: Sink.() -> CompressableSink,
         createSource: Source.() -> DecompressableSource,
     ) {
@@ -312,7 +313,7 @@ class CompressableSinkAndSourceTest: AbstractOkioTest() {
         bufferOf(createSource.invoke(compressed)).readUtf8() shouldBeEqualTo expected
     }
 
-    private fun factoryRoundTrip(
+    private inline fun factoryRoundTrip(
         createSink: (Sink) -> CompressableSink,
         createSource: (Source) -> DecompressableSource,
     ) {

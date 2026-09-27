@@ -42,7 +42,7 @@ fun SimpleStatement.toPrepareRequest(): PrepareRequest = DefaultPrepareRequest(t
  */
 inline fun simpleStatementOf(
     query: String,
-    builder: SimpleStatementBuilder.() -> Unit,
+    builder: SimpleStatementBuilder.() -> Unit = {},
 ): SimpleStatement {
     query.requireNotBlank("query")
     return SimpleStatement.builder(query).apply(builder).build()
@@ -70,10 +70,8 @@ inline fun simpleStatement(
  * // stmt.query == "select * from users"
  * ```
  */
-fun statementOf(cql: String): SimpleStatement {
-    cql.requireNotBlank("cql")
-    return SimpleStatement.newInstance(cql)
-}
+fun statementOf(cql: String): SimpleStatement =
+    SimpleStatement.newInstance(cql.requireNotBlank("cql"))
 
 /**
  * 위치 기반 파라미터와 함께 [SimpleStatement]를 생성합니다.
@@ -88,10 +86,11 @@ fun statementOf(cql: String): SimpleStatement {
  * // stmt.positionalValues.size == 1
  * ```
  */
-fun statementOf(cql: String, vararg positionValues: Any?): SimpleStatement {
-    cql.requireNotBlank("cql")
-    return SimpleStatement.newInstance(cql, *positionValues)
-}
+fun statementOf(cql: String, vararg positionValues: Any?): SimpleStatement =
+    SimpleStatement.newInstance(
+        cql.requireNotBlank("cql"),
+        *positionValues
+    )
 
 /**
  * 이름 기반 파라미터와 함께 [SimpleStatement]를 생성합니다.
@@ -126,7 +125,7 @@ fun statementOf(cql: String, nameValues: Map<String, Any?>): SimpleStatement {
  */
 inline fun boundStatementOf(
     boundStatement: BoundStatement,
-    builder: BoundStatementBuilder.() -> Unit,
+    builder: BoundStatementBuilder.() -> Unit = {},
 ): BoundStatement {
     return BoundStatementBuilder(boundStatement).apply(builder).build()
 }
@@ -170,7 +169,10 @@ fun batchStatementOf(batchType: BatchType): BatchStatement {
  * // batch.size() == 2
  * ```
  */
-fun batchStatementOf(batchType: BatchType, vararg statements: BatchableStatement<*>): BatchStatement {
+fun batchStatementOf(
+    batchType: BatchType,
+    vararg statements: BatchableStatement<*>
+): BatchStatement {
     return BatchStatement.newInstance(batchType, *statements)
 }
 
@@ -187,7 +189,10 @@ fun batchStatementOf(batchType: BatchType, vararg statements: BatchableStatement
  * // batch.size() == 3
  * ```
  */
-fun batchStatementOf(batchType: BatchType, statements: Iterable<BatchableStatement<*>>): BatchStatement {
+fun batchStatementOf(
+    batchType: BatchType,
+    statements: Iterable<BatchableStatement<*>>
+): BatchStatement {
     return BatchStatement.newInstance(batchType, statements)
 }
 
@@ -206,10 +211,19 @@ fun batchStatementOf(batchType: BatchType, statements: Iterable<BatchableStateme
  */
 inline fun batchStatementOf(
     batchType: BatchType,
-    builder: BatchStatementBuilder.() -> Unit,
+    builder: BatchStatementBuilder.() -> Unit = {},
 ): BatchStatement {
     return BatchStatementBuilder(batchType).apply(builder).build()
 }
+
+@Deprecated(
+    message = "Use batchStatementOf(batchType, builder) for consistent naming.",
+    replaceWith = ReplaceWith("batchStatementOf(batchType, builder)")
+)
+inline fun batchStatement(
+    batchType: BatchType,
+    builder: BatchStatementBuilder.() -> Unit,
+): BatchStatement = batchStatementOf(batchType, builder)
 
 /**
  * 템플릿 배치를 기반으로 새 [BatchStatement]를 생성합니다.
@@ -226,19 +240,10 @@ inline fun batchStatementOf(
  */
 inline fun batchStatementOf(
     template: BatchStatement,
-    builder: BatchStatementBuilder.() -> Unit,
+    builder: BatchStatementBuilder.() -> Unit = {},
 ): BatchStatement {
     return BatchStatementBuilder(template).apply(builder).build()
 }
-
-@Deprecated(
-    message = "Use batchStatementOf(batchType, builder) for consistent naming.",
-    replaceWith = ReplaceWith("batchStatementOf(batchType, builder)")
-)
-inline fun batchStatement(
-    batchType: BatchType,
-    builder: BatchStatementBuilder.() -> Unit,
-): BatchStatement = batchStatementOf(batchType, builder)
 
 @Deprecated(
     message = "Use batchStatementOf(template, builder) for consistent naming.",

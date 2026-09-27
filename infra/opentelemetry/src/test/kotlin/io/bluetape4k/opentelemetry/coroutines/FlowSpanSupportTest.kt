@@ -1,14 +1,17 @@
 package io.bluetape4k.opentelemetry.coroutines
 
+import io.bluetape4k.apache.containsIgnoreCase
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import io.bluetape4k.opentelemetry.AbstractOtelTest
 import io.bluetape4k.opentelemetry.shouldNotExpose
 import io.bluetape4k.opentelemetry.trace.sdkTracerProvider
@@ -18,6 +21,8 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -62,10 +67,11 @@ class FlowSpanSupportTest: AbstractOtelTest() {
     fun `traced normal completion should produce exactly 1 span with OK status`() = runSuspendIO {
         flowOf(1, 2, 3)
             .traced(tracer, "flow-ok")
-            .collect { }
+            .collect()
         flush()
 
         val finished = spanExporter.finishedSpanItems
+        finished.forEach { log.debug { "spanData=$it" } }
         finished shouldHaveSize 1
         finished[0].name shouldBeEqualTo "flow-ok"
         finished[0].status.statusCode shouldBeEqualTo StatusCode.OK
@@ -79,6 +85,7 @@ class FlowSpanSupportTest: AbstractOtelTest() {
         flush()
 
         items shouldHaveSize 3
+        items.forEach { log.debug { "item=$it" } }
         spanExporter.finishedSpanItems shouldHaveSize 1
     }
 
@@ -87,14 +94,15 @@ class FlowSpanSupportTest: AbstractOtelTest() {
         val upstream = flow<Int> { throw IllegalStateException("upstream-fail") }
 
         val ex = kotlin.runCatching {
-            upstream.traced(tracer, "err-flow").collect { }
+            upstream.traced(tracer, "err-flow").collect()
         }.exceptionOrNull()
 
-        ex.shouldNotBeNull()
-        (ex is IllegalStateException).shouldBeTrue()
+        ex.shouldBeInstanceOf<IllegalStateException>()
+
         flush()
 
         val finished = spanExporter.finishedSpanItems
+        finished.forEach { log.debug { "spanData=$it" } }
         finished shouldHaveSize 1
         finished[0].status.statusCode shouldBeEqualTo StatusCode.ERROR
         finished[0].events.any { it.name == "exception" }.shouldBeTrue()
@@ -106,19 +114,20 @@ class FlowSpanSupportTest: AbstractOtelTest() {
         val failure = IllegalStateException("query failed with $secret")
         val upstream = flow<Int> { throw failure }
 
-        val ex = kotlin.runCatching {
-            upstream.traced(tracer, "redacted-flow").collect { }
+        val ex = runCatching {
+            upstream.traced(tracer, "redacted-flow").collect()
         }.exceptionOrNull()
 
-        ex.shouldNotBeNull()
-        (ex is IllegalStateException).shouldBeTrue()
+        ex.shouldBeInstanceOf<IllegalStateException>()
         ex.message shouldBeEqualTo failure.message
+
         flush()
 
         val finished = spanExporter.finishedSpanItems
         finished shouldHaveSize 1
 
         val span = finished[0]
+        log.debug { "spanData=$span" }
         span.status.statusCode shouldBeEqualTo StatusCode.ERROR
         span.events.any { it.name == "exception" }.shouldBeTrue()
         span.shouldNotExpose(secret)
@@ -152,8 +161,10 @@ class FlowSpanSupportTest: AbstractOtelTest() {
         flush()
 
         val finished = spanExporter.finishedSpanItems
+
         finished shouldHaveSize 24
         finished.forEach { span ->
+            log.debug { "spanData=$span" }
             span.status.statusCode shouldBeEqualTo StatusCode.ERROR
             span.events.any { it.name == "exception" }.shouldBeTrue()
             secrets.forEach { secret ->
@@ -167,24 +178,28 @@ class FlowSpanSupportTest: AbstractOtelTest() {
         flowOf(1, 2, 3, 4)
             .traced(tracer, "take-flow")
             .take(2)
-            .collect { }
+            .collect()
+
         flush()
 
         val finished = spanExporter.finishedSpanItems
         finished shouldHaveSize 1
+        log.debug { "spanData=${finished[0]}" }
         // channelFlow 의 버퍼로 인해 producer(upstream collect)가 take(2) 취소 전에 완료 → OK
         finished[0].status.statusCode shouldBeEqualTo StatusCode.OK
     }
 
     @Test
     fun `traced withTimeout cancellation should set UNSET status not ERROR`() = runSuspendIO {
-        val ex = kotlin.runCatching {
+        val ex = runCatching {
             withTimeout(50.milliseconds) {
-                flow<Int> {
+                flow {
                     emit(1)
-                    kotlinx.coroutines.delay(1_000)
+                    delay(1_000.milliseconds)
                     emit(2)
-                }.traced(tracer, "timeout-flow").collect { }
+                }
+                    .traced(tracer, "timeout-flow")
+                    .collect()
             }
         }.exceptionOrNull()
 
@@ -193,6 +208,8 @@ class FlowSpanSupportTest: AbstractOtelTest() {
 
         val finished = spanExporter.finishedSpanItems
         finished shouldHaveSize 1
+
+        log.debug { "spanData=${finished[0]}" }
         finished[0].status.statusCode shouldBeEqualTo StatusCode.UNSET
         finished[0].events.any { it.name == "exception" }.shouldBeFalse()
     }
@@ -202,7 +219,7 @@ class FlowSpanSupportTest: AbstractOtelTest() {
         flowOf(1, 2, 3)
             .flowOn(Dispatchers.IO)
             .traced(tracer, "flowon-span")
-            .collect { }
+            .collect()
         flush()
 
         spanExporter.finishedSpanItems shouldHaveSize 1
@@ -232,14 +249,14 @@ class FlowSpanSupportTest: AbstractOtelTest() {
                 // Authorization 헤더를 attribute로 추가하지 않음 — 이 테스트는 configure에서 민감 attribute를 설정하지 않는 경우를 검증
                 setAttribute(AttributeKey.stringKey("safe-key"), "safe-value")
             }
-            .collect { }
+            .collect()
         flush()
 
         val finished = spanExporter.finishedSpanItems
         finished shouldHaveSize 1
         // Authorization attribute가 없음을 검증
         finished[0].attributes.asMap().keys
-            .none { it.key.contains("Authorization", ignoreCase = true) }
+            .none { it.key.containsIgnoreCase("Authorization") }
             .shouldBeTrue()
     }
 
@@ -247,7 +264,7 @@ class FlowSpanSupportTest: AbstractOtelTest() {
     fun `traced with blank spanName should throw IllegalArgumentException`() {
         assertFailsWith<IllegalArgumentException> {
             runSuspendIO {
-                flowOf(1).traced(tracer, "").collect { }
+                flowOf(1).traced(tracer, "").collect()
             }
         }
     }

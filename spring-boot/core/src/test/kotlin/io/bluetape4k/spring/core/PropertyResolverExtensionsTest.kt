@@ -18,6 +18,7 @@ import org.springframework.core.env.getRequiredProperty
 import java.util.*
 
 class PropertyResolverExtensionsTest: AbstractSpringTest() {
+
     companion object: KLogging()
 
     private lateinit var testProperties: Properties
@@ -27,8 +28,8 @@ class PropertyResolverExtensionsTest: AbstractSpringTest() {
     @BeforeEach
     fun setup() {
         testProperties = Properties()
-        propertySources =
-            MutablePropertySources().apply {
+        propertySources = MutablePropertySources()
+            .apply {
                 addFirst(PropertiesPropertySource("testProperties", testProperties))
             }
         propertyResolver = PropertySourcesPropertyResolver(propertySources)
@@ -46,7 +47,7 @@ class PropertyResolverExtensionsTest: AbstractSpringTest() {
 
         propertyResolver["foo"] shouldBeEqualTo "bar"
         propertyResolver["num", Int::class] shouldBeEqualTo 5
-        propertyResolver["enabled", Boolean::class].shouldNotBeNull().shouldBeTrue()
+        propertyResolver["enabled", Boolean::class].shouldBeTrue()
     }
 
     @Test

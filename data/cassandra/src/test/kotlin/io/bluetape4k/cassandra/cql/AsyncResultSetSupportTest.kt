@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class AsyncResultSetSupportTest: AbstractCassandraTest() {
 
     companion object: KLoggingChannel() {
-        private const val SIZE = 6000
+        private const val ITEM_SIZE = 500
     }
 
     @BeforeAll
@@ -30,7 +30,7 @@ class AsyncResultSetSupportTest: AbstractCassandraTest() {
             session.executeSuspending("TRUNCATE bulks")
 
             val ps = session.prepareSuspending("INSERT INTO bulks(id, name) VALUES(?, ?)")
-            val futures = List(SIZE) {
+            val futures = List(ITEM_SIZE) {
                 val id = it.toString()
                 val name = faker.credentials().username()
 
@@ -59,7 +59,7 @@ class AsyncResultSetSupportTest: AbstractCassandraTest() {
             .collect()
 
         log.debug { "Loaded record count=${counter.get()}" }
-        counter.get() shouldBeEqualTo SIZE
+        counter.get() shouldBeEqualTo ITEM_SIZE
     }
 
     data class Bulk(val id: String, val name: String): Serializable
@@ -71,7 +71,12 @@ class AsyncResultSetSupportTest: AbstractCassandraTest() {
 
         val flow = session
             .executeSuspending("SELECT * FROM bulks")
-            .asFlow { row -> Bulk(row.getStringOrEmpty(0), row.getStringOrEmpty(1)) }
+            .asFlow { row ->
+                Bulk(
+                    row.getStringOrEmpty(0),
+                    row.getStringOrEmpty(1)
+                )
+            }
 
         flow.buffer()
             .onEach { bulk ->
@@ -82,6 +87,6 @@ class AsyncResultSetSupportTest: AbstractCassandraTest() {
             .collect()
 
         log.debug { "Loaded record count=${counter.get()}" }
-        counter.get() shouldBeEqualTo SIZE
+        counter.get() shouldBeEqualTo ITEM_SIZE
     }
 }

@@ -1,7 +1,6 @@
 package io.bluetape4k.concurrent.virtualthread.jdk25
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.debug
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
@@ -9,6 +8,8 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeBlank
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
@@ -17,7 +18,6 @@ import java.util.concurrent.Executors
 import java.util.concurrent.StructuredTaskScope
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [Jdk25StructuredTaskScopeProvider] 추가 커버리지 테스트입니다.
@@ -41,7 +41,7 @@ class Jdk25StructuredTaskScopeProviderExtTest {
     @Test
     fun `priority 가 25 여야 한다`() {
         provider.priority shouldBeEqualTo Jdk25StructuredTaskScopeProvider.PRIORITY
-        provider.priority shouldBeEqualTo 25
+        provider.priority shouldBeEqualTo Jdk25StructuredTaskScopeProvider.JAVA_VERSION
     }
 
     @Test
@@ -248,7 +248,7 @@ class Jdk25StructuredTaskScopeProviderExtTest {
 
     @Test
     fun `subtask 성공 상태와 값을 확인해야 한다`() {
-        var capturedSubtask: io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask<Int>? = null
+        var capturedSubtask: StructuredSubtask<Int>? = null
         provider.withAll { scope ->
             capturedSubtask = scope.fork { 88 }
             scope.join().throwIfFailed()
@@ -262,7 +262,7 @@ class Jdk25StructuredTaskScopeProviderExtTest {
 
     @Test
     fun `subtask 실패 상태에서 exceptionOrNull 이 예외를 반환해야 한다`() {
-        var capturedSubtask: io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask<Int>? = null
+        var capturedSubtask: StructuredSubtask<Int>? = null
         assertFailsWith<RuntimeException> {
             provider.withAll { scope ->
                 capturedSubtask = scope.fork<Int> { throw RuntimeException("jdk25-fail") }
@@ -271,7 +271,7 @@ class Jdk25StructuredTaskScopeProviderExtTest {
         }
         val subtask = capturedSubtask.shouldNotBeNull()
         subtask.state() shouldBeEqualTo StructuredTaskScope.Subtask.State.FAILED
-        subtask.exceptionOrNull().shouldNotBeNull().shouldBeInstanceOf<RuntimeException>()
+        subtask.exceptionOrNull().shouldBeInstanceOf<RuntimeException>()
     }
 
     @Test
@@ -390,7 +390,7 @@ class Jdk25StructuredTaskScopeProviderExtTest {
 
     @Test
     fun `withAny subtask 성공 상태를 확인해야 한다`() {
-        var capturedSubtask: io.bluetape4k.concurrent.virtualthread.api.StructuredSubtask<String>? = null
+        var capturedSubtask: StructuredSubtask<String>? = null
         provider.withAny<String> { scope ->
             capturedSubtask = scope.fork { "jdk25-winner" }
             scope.join().result { IllegalStateException(it) }

@@ -1,12 +1,13 @@
 package io.bluetape4k.r2dbc.support
 
-import io.bluetape4k.junit5.coroutines.runSuspendIO
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.r2dbc.AbstractR2dbcTest
-import io.bluetape4k.r2dbc.core.execute
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
+import io.bluetape4k.r2dbc.AbstractR2dbcTest
+import io.bluetape4k.r2dbc.core.execute
 import org.junit.jupiter.api.Test
 import org.springframework.r2dbc.core.awaitOne
 import org.springframework.r2dbc.core.awaitRowsUpdated
@@ -22,6 +23,7 @@ class TransactionSupportTest: AbstractR2dbcTest() {
     @Test
     fun `withTransactionSuspend - 성공 시 모든 변경이 커밋된다`() = runSuspendIO {
         val countBefore = client.execute<Int>("SELECT COUNT(*) FROM users").fetch().awaitOne()
+        log.debug { "count before = $countBefore" }
 
         client.databaseClient.withTransactionSuspend {
             client.databaseClient
@@ -43,6 +45,7 @@ class TransactionSupportTest: AbstractR2dbcTest() {
 
         val countAfter = client.execute<Int>("SELECT COUNT(*) FROM users").fetch().awaitOne()
 
+        log.debug { "count after = $countAfter" }
         countAfter shouldBeEqualTo countBefore + 2
     }
 
@@ -52,12 +55,13 @@ class TransactionSupportTest: AbstractR2dbcTest() {
      */
     @Test
     fun `withTransactionSuspend - 블록 반환값이 올바르게 반환된다`() = runSuspendIO {
-        val result = client.databaseClient.withTransactionSuspend {
+        val count = client.databaseClient.withTransactionSuspend {
             client.execute<Int>("SELECT COUNT(*) FROM users").fetch().awaitOne()
         }
 
-        result.shouldNotBeNull()
-        result shouldBeGreaterThan 0
+        log.debug { "count: $count" }
+        count.shouldNotBeNull()
+        count shouldBeGreaterThan 0
     }
 
     /**
@@ -67,11 +71,12 @@ class TransactionSupportTest: AbstractR2dbcTest() {
     @Test
     @Suppress("DEPRECATION")
     fun `withTransactionSuspending - deprecated 함수가 동일하게 동작한다`() = runSuspendIO {
-        val result = client.databaseClient.withTransactionSuspending {
+        val count = client.databaseClient.withTransactionSuspending {
             client.execute<Int>("SELECT COUNT(*) FROM users").fetch().awaitOne()
         }
 
-        result.shouldNotBeNull()
-        result shouldBeGreaterThan 0
+        log.debug { "count: $count" }
+        count.shouldNotBeNull()
+        count shouldBeGreaterThan 0
     }
 }

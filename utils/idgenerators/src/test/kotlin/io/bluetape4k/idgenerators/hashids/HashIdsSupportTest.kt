@@ -100,6 +100,7 @@ class HashIdsSupportTest {
         @Test
         fun `encode flake id in multi threading`() {
             val map = ConcurrentHashMap<Long, Int>()
+
             MultithreadingTester()
                 .workers(2 * Runtimex.availableProcessors)
                 .rounds(ITEM_SIZE)

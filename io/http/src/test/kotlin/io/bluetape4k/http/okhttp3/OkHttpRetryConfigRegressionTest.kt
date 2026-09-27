@@ -2,16 +2,18 @@ package io.bluetape4k.http.okhttp3
 
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class OkHttpRetryConfigRegressionTest {
+
+    companion object: KLogging()
 
     @Test
     fun `okhttp3Client propagates retryOnConnectionFailure true`() {
         val client = okhttp3Client {
             retryOnConnectionFailure(true)
         }
-
         client.retryOnConnectionFailure.shouldBeTrue()
     }
 
@@ -20,7 +22,6 @@ class OkHttpRetryConfigRegressionTest {
         val client = okhttp3Client {
             retryOnConnectionFailure(false)
         }
-
         client.retryOnConnectionFailure.shouldBeFalse()
     }
 }

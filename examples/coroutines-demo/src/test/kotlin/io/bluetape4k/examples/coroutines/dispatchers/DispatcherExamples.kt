@@ -1,5 +1,7 @@
 package io.bluetape4k.examples.coroutines.dispatchers
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.coroutines.support.log
 import io.bluetape4k.coroutines.support.suspendLogging
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -17,8 +19,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContain
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.Continuation
@@ -44,7 +44,7 @@ class DispatcherExamples {
                 // thread name 에 @coroutine#number 가 붙는다 
                 val threadName = Thread.currentThread().name
                 suspendLogging { "Running on thread $threadName" }
-            }
+            }.log("Job #it")
         }.joinAll()
     }
 
@@ -85,7 +85,7 @@ class DispatcherExamples {
 
                 val threadName = Thread.currentThread().name
                 suspendLogging { "Running on thread $threadName" }
-            }
+            }.log("Job #$it")
         }
         jobs.joinAll()
     }
@@ -100,7 +100,7 @@ class DispatcherExamples {
                     advanceTimeBy(Random.nextLong(100, 200).milliseconds)
                     val threadName = Thread.currentThread().name
                     suspendLogging { "Running on thread $threadName" }
-                }
+                }.log("Job #$it")
             }.joinAll()
         }
     }
@@ -117,7 +117,7 @@ class DispatcherExamples {
                 launch(dispatcher) {
                     counter.incrementAndGet()
                     suspendLogging { "count=${counter.get()}, thread=${Thread.currentThread().name}" }
-                }
+                }.log("Job #$it")
             }
             jobs.joinAll()
             counter.get() shouldBeEqualTo REPEAT_SIZE

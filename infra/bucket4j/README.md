@@ -19,8 +19,8 @@ A wrapper and utility module for building application-level rate limiters using 
   `RateLimitResult(status, consumedTokens, availableTokens, errorMessage, diagnostics)` consistently represents consumed, rejected, and error outcomes
 - **Retry diagnostics**: Rejected results expose `retryAfter`, refill/reset nanos, and a stable
   `RateLimitRejectionReason`
-- **Built-in request validation**: Rejects blank keys, serialized keys above 512 bytes, tokens <= 0, and requests
-  exceeding the policy maximum (`MAX_TOKENS_PER_REQUEST`) upfront
+- **Built-in request
+  validation**: Rejects blank keys, serialized keys above 512 bytes, tokens <= 0, and requests exceeding the policy maximum (`MAX_TOKENS_PER_REQUEST`) upfront
 
 ## Class Structure
 
@@ -50,8 +50,8 @@ A wrapper and utility module for building application-level rate limiters using 
 - **Simplified Redis initialization**: `lettuceBasedProxyManagerOf`, `redissonBasedProxyManagerOf`
 - **Minimized extra remote calls**: Distributed and local rate limiters do not issue additional
   `availableTokens` queries to build results
-- **Facade boundary**: This module owns token-bucket rate limiting only. Use Resilience4j for retry, timeout,
-  circuit breaker, bulkhead, and fallback policies.
+- **Facade
+  boundary**: This module owns token-bucket rate limiting only. Use Resilience4j for retry, timeout, circuit breaker, bulkhead, and fallback policies.
 
 ## Dependency
 
@@ -127,8 +127,8 @@ when (result.status) {
 ```
 
 > Note:
-`SuspendRateLimiter.consume` attempts immediate consumption internally without waiting. When tokens are insufficient,
-`REJECTED` is returned immediately. Retry/backoff logic is the caller's responsibility.
+> `SuspendRateLimiter.consume` attempts immediate consumption internally without waiting. When tokens are insufficient,
+> `REJECTED` is returned immediately. Retry/backoff logic is the caller's responsibility.
 
 ### 4) Distributed Coroutine Timeout
 
@@ -141,9 +141,7 @@ val rateLimiter = DistributedSuspendRateLimiter(
 val result = rateLimiter.consume("tenant:a:user:42", 1)
 ```
 
-The timeout bounds the async Redis operation. A timeout returns `RateLimitStatus.ERROR`; coroutine cancellation still
-throws `CancellationException`. The in-flight Redis command can still complete after the coroutine is cancelled.
-The per-call timeout overload is available on `DistributedSuspendRateLimiter`; code injected as `SuspendRateLimiter`
+The timeout bounds the async Redis operation. A timeout returns `RateLimitStatus.ERROR`; coroutine cancellation still throws `CancellationException`. The in-flight Redis command can still complete after the coroutine is cancelled. The per-call timeout overload is available on `DistributedSuspendRateLimiter`; code injected as `SuspendRateLimiter`
 should configure `defaultTimeout` at bean construction time.
 
 ### 5) Configuration Replacement With Bandwidth IDs
@@ -172,8 +170,7 @@ val replacement = bucketConfiguration {
 bucket.replaceConfiguration(replacement, TokensInheritanceStrategy.PROPORTIONALLY)
 ```
 
-Assign stable bandwidth IDs before replacing a configuration. Without matching IDs, Bucket4j cannot safely inherit
-tokens across changed limits.
+Assign stable bandwidth IDs before replacing a configuration. Without matching IDs, Bucket4j cannot safely inherit tokens across changed limits.
 
 ## Public API Contract Notes
 
@@ -185,15 +182,12 @@ tokens across changed limits.
   `ConsumptionProbe`, so no extra Redis round-trips are made to build results.
 - `BucketProxyProvider` and
   `AsyncBucketProxyProvider` namespace bucket keys using a default prefix. In production, if multiple rate limiting policies share the same Redis instance, it is safer to use distinct prefixes.
-- Callers own Redis client lifecycle, connection pooling, shutdown, and expiration strategy. For distributed buckets,
-  configure Bucket4j expiration after write according to the policy TTL.
+- Callers own Redis client lifecycle, connection pooling, shutdown, and expiration strategy. For distributed buckets, configure Bucket4j expiration after write according to the policy TTL.
 - `LocalBucketProvider` and `LocalSuspendBucketProvider` reuse the same bucket state for the same key.
 - `SuspendLocalBucket.tryConsume(maxWaitTime)` suspends the coroutine with
   `delay` when waiting is needed, and propagates `CancellationException` unchanged on cancellation.
-- `RateLimitResult.error(cause)` stores a sanitized public message in `errorMessage`. URI user-info credentials are
-  redacted and messages are capped at 256 characters.
-- `RateLimitResult.retryAfter` is derived from Bucket4j refill nanos for rejected results only. HTTP header rounding
-  remains an application policy.
+- `RateLimitResult.error(cause)` stores a sanitized public message in `errorMessage`. URI user-info credentials are redacted and messages are capped at 256 characters.
+- `RateLimitResult.retryAfter` is derived from Bucket4j refill nanos for rejected results only. HTTP header rounding remains an application policy.
 
 ## Spring Boot Configuration
 

@@ -1,16 +1,19 @@
 package io.bluetape4k.hibernate.standalone
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.getEntityName
 import io.bluetape4k.hibernate.registerEventListener
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.logging.KLogging
 import org.hibernate.event.spi.EventType
 import org.hibernate.event.spi.PreInsertEvent
 import org.hibernate.event.spi.PreInsertEventListener
 import org.junit.jupiter.api.Test
 
-class SessionFactorySupportStandaloneTest : AbstractStandaloneHibernateTest() {
+class SessionFactorySupportStandaloneTest: AbstractStandaloneHibernateTest() {
+
+    companion object: KLogging()
 
     override fun entityClasses() = listOf(StandaloneEntity::class.java)
 
@@ -36,7 +39,11 @@ class SessionFactorySupportStandaloneTest : AbstractStandaloneHibernateTest() {
     @Test
     fun `registerEventListener는 이벤트 리스너를 등록한다`() {
         var called = false
-        val listener = PreInsertEventListener { _: PreInsertEvent -> called = false; false }
+
+        val listener = PreInsertEventListener { _: PreInsertEvent ->
+            called = true
+            true
+        }
         sessionFactory.registerEventListener(listener, listOf(EventType.PRE_INSERT))
         // 리스너 등록 후 예외 없이 완료
     }

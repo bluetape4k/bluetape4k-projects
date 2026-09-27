@@ -2,6 +2,7 @@ package io.bluetape4k.bucket4j
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBe
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.github.bucket4j.Bandwidth
@@ -47,7 +48,6 @@ class ConfigurationSupportTest {
     @Test
     fun `addBandwidth 확장 함수는 builder 를 체이닝하며 bandwidth 를 추가한다`() {
         val config = bucketConfiguration {
-
             addBandwidth {
                 Bandwidth.builder()
                     .capacity(50)
@@ -75,7 +75,8 @@ class ConfigurationSupportTest {
         }
 
         // 동일한 설정이라도 별개 인스턴스여야 한다
-        (config1 !== config2) shouldBeEqualTo true
+        config1 shouldBeEqualTo config2
+        config1 shouldNotBe config2
     }
 
     @Test

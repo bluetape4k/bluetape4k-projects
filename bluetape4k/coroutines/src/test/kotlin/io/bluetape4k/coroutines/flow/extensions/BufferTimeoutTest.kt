@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines.flow.extensions
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -67,8 +68,12 @@ class BufferTimeoutTest: AbstractFlowTest() {
 
     @Test
     fun `invalid size and duration fail before collection`() = runTest {
-        assertFailsWith<IllegalArgumentException> { flowOf(1).bufferTimeout(0, 1.seconds).toList() }
-        assertFailsWith<IllegalArgumentException> { flowOf(1).bufferTimeout(1, Duration.ZERO).toList() }
+        assertFailsWith<IllegalArgumentException> {
+            flowOf(1).bufferTimeout(0, 1.seconds).toList()
+        }
+        assertFailsWith<IllegalArgumentException> {
+            flowOf(1).bufferTimeout(1, Duration.ZERO).toList()
+        }
     }
 
     @Test
@@ -94,6 +99,6 @@ class BufferTimeoutTest: AbstractFlowTest() {
             }
         }.bufferTimeout(10, 1.hours).take(1).collect()
 
-        cancelled shouldBeEqualTo true
+        cancelled.shouldBeTrue()
     }
 }

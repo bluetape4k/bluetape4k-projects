@@ -4,7 +4,9 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.io.serializer.BinarySerializer
+import io.bluetape4k.logging.KLogging
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.PooledByteBufAllocator
 import io.netty.buffer.Unpooled
@@ -16,6 +18,21 @@ import java.nio.ByteOrder
 import java.nio.ReadOnlyBufferException
 
 class LettuceBinaryCodecBufferContractTest {
+
+    private companion object: KLogging() {
+        const val PREFIX: Int = 0x5A
+        const val PREFIX_SECRET: String = "P!"
+        const val SUFFIX_SECRET: String = "S!"
+        const val VALUE: String = "buffer-contract"
+        val WIRE: ByteArray = byteArrayOf(1, 2, 3, 4)
+        const val RAW_FORY_VALUE: String = "raw-fory-buffer-contract"
+        const val RAW_PREFIX_INDEX: Int = 0
+        const val RAW_READER_INDEX: Int = 1
+        const val RAW_SUFFIX_INDEX: Int = 1
+        const val RAW_START: Int = 2
+        const val RAW_PREFIX: Int = 0x5A
+        const val RAW_SUFFIX: Int = 0x6B
+    }
 
     @Test
     fun `built in target encoding uses the stream path and commits only the exact wire`() {
@@ -36,7 +53,8 @@ class LettuceBinaryCodecBufferContractTest {
                 target.writerIndex() shouldBeEqualTo start + WIRE.size
                 target.readerIndex() shouldBeEqualTo 0
                 target.refCnt() shouldBeEqualTo referenceCount
-                target.bytes(0, target.writerIndex()).contentEquals(byteArrayOf(PREFIX.toByte()) + WIRE).shouldBeTrue()
+                target.bytes(0, target.writerIndex()) shouldBeEqualTo byteArrayOf(PREFIX.toByte()) + WIRE
+
                 target.resetReaderIndex()
                 target.resetWriterIndex()
                 target.readerIndex() shouldBeEqualTo 0
@@ -58,7 +76,7 @@ class LettuceBinaryCodecBufferContractTest {
             codec.encodeValue(VALUE, target)
 
             val oneArgument = codec.encodeValue(VALUE).remainingBytes()
-            target.bytes(0, target.writerIndex()).contentEquals(oneArgument).shouldBeTrue()
+            target.bytes(0, target.writerIndex()) shouldBeEqualTo oneArgument
         } finally {
             target.release()
         }
@@ -77,7 +95,10 @@ class LettuceBinaryCodecBufferContractTest {
     @Test
     fun `read only target fails before serializer dispatch and preserves observable state`() {
         val serializer = RecordingBinarySerializer()
-        val target = Unpooled.buffer(8, 8).writeZero(7).readerIndex(3).asReadOnly()
+        val target = Unpooled.buffer(8, 8)
+            .writeZero(7)
+            .readerIndex(3)
+            .asReadOnly()
         try {
             target.markReaderIndex()
             target.markWriterIndex()
@@ -92,6 +113,7 @@ class LettuceBinaryCodecBufferContractTest {
             target.readerIndex() shouldBeEqualTo 3
             target.writerIndex() shouldBeEqualTo 7
             target.refCnt() shouldBeEqualTo referenceCount
+
             target.resetReaderIndex()
             target.resetWriterIndex()
             target.readerIndex() shouldBeEqualTo 3
@@ -110,6 +132,7 @@ class LettuceBinaryCodecBufferContractTest {
             }
         }
         val target = Unpooled.buffer(1, 64)
+
         try {
             target.writeByte(PREFIX)
             val start = target.writerIndex()
@@ -134,13 +157,14 @@ class LettuceBinaryCodecBufferContractTest {
             val target = Unpooled.buffer(8, 64)
             try {
                 target.writeBytes(byteArrayOf(PREFIX.toByte(), 0x22))
-                val serializer = RecordingBinarySerializer().apply {
-                    streamBehavior = { output ->
-                        output.write(WIRE)
-                        drift(target)
-                        WIRE.size
+                val serializer = RecordingBinarySerializer()
+                    .apply {
+                        streamBehavior = { output ->
+                            output.write(WIRE)
+                            drift(target)
+                            WIRE.size
+                        }
                     }
-                }
 
                 val failure = assertFailsWith<IllegalStateException> {
                     LettuceBinaryCodec<String>(serializer).encodeValue(VALUE, target)
@@ -222,7 +246,10 @@ class LettuceBinaryCodecBufferContractTest {
             } shouldBeSameInstanceAs sentinel
 
             target.writerIndex() shouldBeEqualTo start
-            val sealedFailure = assertFailsWith<IOException> { requireNotNull(serializer.retainedOutput).write(0x33) }
+
+            val sealedFailure = assertFailsWith<IOException> {
+                requireNotNull(serializer.retainedOutput).write(0x33)
+            }
             sealedFailure.message shouldBeEqualTo "Bounded ByteBuf output stream is sealed."
             target.writerIndex() shouldBeEqualTo start
         } finally {
@@ -256,7 +283,7 @@ class LettuceBinaryCodecBufferContractTest {
             LettuceBinaryCodec<String>(serializer).encodeValue(VALUE, target)
 
             target.writerIndex() shouldBeEqualTo start + 1
-            target.bytes(0, target.writerIndex()).contentEquals(byteArrayOf(PREFIX.toByte(), 0x09)).shouldBeTrue()
+            target.bytes(0, target.writerIndex()) shouldBeEqualTo byteArrayOf(PREFIX.toByte(), 0x09)
             target.getUnsignedByte(start + 1).toInt() shouldBeEqualTo WIRE[1].toInt()
         } finally {
             target.release()
@@ -282,9 +309,11 @@ class LettuceBinaryCodecBufferContractTest {
         try {
             partial.writeByte(PREFIX)
             val start = partial.writerIndex()
+
             val actual = assertFailsWith<IOException> {
                 LettuceBinaryCodec<String>(RecordingBinarySerializer()).encodeValue(VALUE, partial)
             }
+
             actual shouldBeSameInstanceAs sentinel
             partial.writerIndex() shouldBeEqualTo start
         } finally {
@@ -298,31 +327,40 @@ class LettuceBinaryCodecBufferContractTest {
             val codec = codecFactory()
             val expected = codec.encodeValue(RAW_FORY_VALUE).remainingBytes()
 
-            pooledRawTargets(initialCapacity = 8, maxCapacity = 512).forEach { (targetName, targetFactory) ->
-                val target = targetFactory()
-                try {
-                    val start = prepareRawForyTarget(target, suffixIndex = RAW_START + expected.size)
-                    val readerMark = target.readerIndex()
-                    val writerMark = target.writerIndex()
-                    val referenceCount = target.refCnt()
+            pooledRawTargets(initialCapacity = 8, maxCapacity = 512)
+                .forEach { (targetName, targetFactory) ->
+                    val target = targetFactory()
+                    try {
+                        val start = prepareRawForyTarget(target, suffixIndex = RAW_START + expected.size)
+                        val readerMark = target.readerIndex()
+                        val writerMark = target.writerIndex()
+                        val referenceCount = target.refCnt()
 
-                    codec.encodeValue(RAW_FORY_VALUE, target)
+                        codec.encodeValue(RAW_FORY_VALUE, target)
 
-                    target.readerIndex() shouldBeEqualTo readerMark
-                    target.writerIndex() shouldBeEqualTo start + expected.size
-                    target.refCnt() shouldBeEqualTo referenceCount
-                    target.getUnsignedByte(RAW_PREFIX_INDEX).toInt() shouldBeEqualTo RAW_PREFIX
-                    target.getUnsignedByte(RAW_SUFFIX_INDEX).toInt() shouldBeEqualTo RAW_SUFFIX
-                    target.getUnsignedByte(start + expected.size).toInt() shouldBeEqualTo RAW_SUFFIX
-                    target.bytes(start, expected.size).contentEquals(expected).shouldBeTrue()
-                    codec.decodeValue(ByteBuffer.wrap(target.bytes(start, expected.size))) shouldBeEqualTo RAW_FORY_VALUE
-                    assertRawForyMarks(target, readerMark, writerMark)
-                } catch (failure: Throwable) {
-                    throw AssertionError("raw Fory success fixture failed: $codecName/$targetName", failure)
-                } finally {
-                    target.release()
+                        target.readerIndex() shouldBeEqualTo readerMark
+                        target.writerIndex() shouldBeEqualTo start + expected.size
+                        target.refCnt() shouldBeEqualTo referenceCount
+                        target.getUnsignedByte(RAW_PREFIX_INDEX).toInt() shouldBeEqualTo RAW_PREFIX
+                        target.getUnsignedByte(RAW_SUFFIX_INDEX).toInt() shouldBeEqualTo RAW_SUFFIX
+                        target.getUnsignedByte(start + expected.size).toInt() shouldBeEqualTo RAW_SUFFIX
+                        target.bytes(start, expected.size) shouldBeEqualTo expected
+
+                        codec.decodeValue(
+                            ByteBuffer.wrap(
+                                target.bytes(
+                                    start,
+                                    expected.size
+                                )
+                            )
+                        ) shouldBeEqualTo RAW_FORY_VALUE
+                        assertRawForyMarks(target, readerMark, writerMark)
+                    } catch (failure: Throwable) {
+                        throw AssertionError("raw Fory success fixture failed: $codecName/$targetName", failure)
+                    } finally {
+                        target.release()
+                    }
                 }
-            }
         }
     }
 
@@ -333,7 +371,10 @@ class LettuceBinaryCodecBufferContractTest {
             val expected = codec.encodeValue(RAW_FORY_VALUE).remainingBytes()
             val maxCapacity = RAW_START + expected.size - 1
 
-            pooledRawTargets(initialCapacity = maxCapacity, maxCapacity = maxCapacity).forEach { (targetName, targetFactory) ->
+            pooledRawTargets(
+                initialCapacity = maxCapacity,
+                maxCapacity = maxCapacity
+            ).forEach { (targetName, targetFactory) ->
                 val target = targetFactory()
                 try {
                     val start = prepareRawForyTarget(target, suffixIndex = maxCapacity - 1)
@@ -362,7 +403,10 @@ class LettuceBinaryCodecBufferContractTest {
             val expected = codec.encodeValue(RAW_FORY_VALUE).remainingBytes()
             val maxCapacity = RAW_START + expected.size + 8
 
-            pooledRawTargets(initialCapacity = maxCapacity, maxCapacity = maxCapacity).forEach { (targetName, targetFactory) ->
+            pooledRawTargets(
+                initialCapacity = maxCapacity,
+                maxCapacity = maxCapacity
+            ).forEach { (targetName, targetFactory) ->
                 val delegate = targetFactory()
                 val destinationFailure = IOException("raw Fory destination failure")
                 val target = BinaryPartialFailingByteBuf(delegate, destinationFailure)
@@ -376,7 +420,14 @@ class LettuceBinaryCodecBufferContractTest {
                         codec.encodeValue(RAW_FORY_VALUE, target)
                     } shouldBeSameInstanceAs destinationFailure
 
-                    assertRawForyFailureState(target, start, readerMark, writerMark, referenceCount, RAW_START + expected.size + 1)
+                    assertRawForyFailureState(
+                        target,
+                        start,
+                        readerMark,
+                        writerMark,
+                        referenceCount,
+                        RAW_START + expected.size + 1
+                    )
                 } catch (failure: Throwable) {
                     throw AssertionError("raw Fory destination fixture failed: $codecName/$targetName", failure)
                 } finally {
@@ -394,8 +445,7 @@ class LettuceBinaryCodecBufferContractTest {
             val failure = assertFailsWith<IllegalStateException> {
                 LettuceBinaryCodec<String>(RecordingBinarySerializer()).encodeValue(secret, target)
             }
-
-            (failure.message?.contains(secret) == false).shouldBeTrue()
+            failure.message shouldNotContain secret
         } finally {
             target.release()
         }
@@ -405,23 +455,24 @@ class LettuceBinaryCodecBufferContractTest {
     fun `decode borrows only a bounded read only remaining view and preserves caller state`() {
         binarySources().forEach { (name, source) ->
             val retainedViews = mutableListOf<ByteBuffer>()
-            val serializer = RecordingBinarySerializer().apply {
-                deserializeBehavior = { view ->
-                    retainedViews += view
-                    view.position() shouldBeEqualTo 0
-                    view.limit() shouldBeEqualTo WIRE.size
-                    view.capacity() shouldBeEqualTo WIRE.size
-                    view.order() shouldBeEqualTo ByteOrder.LITTLE_ENDIAN
-                    view.isReadOnly.shouldBeTrue()
-                    (!view.hasArray()).shouldBeTrue()
-                    assertFailsWith<UnsupportedOperationException> { view.array() }
-                    assertFailsWith<UnsupportedOperationException> { view.arrayOffset() }
-                    assertFailsWith<ReadOnlyBufferException> { view.put(0, 0x33.toByte()) }
-                    view.clear()
-                    view.remainingBytes().contentEquals(WIRE).shouldBeTrue()
-                    VALUE
+            val serializer = RecordingBinarySerializer()
+                .apply {
+                    deserializeBehavior = { view ->
+                        retainedViews += view
+                        view.position() shouldBeEqualTo 0
+                        view.limit() shouldBeEqualTo WIRE.size
+                        view.capacity() shouldBeEqualTo WIRE.size
+                        view.order() shouldBeEqualTo ByteOrder.LITTLE_ENDIAN
+                        view.isReadOnly.shouldBeTrue()
+                        (!view.hasArray()).shouldBeTrue()
+                        assertFailsWith<UnsupportedOperationException> { view.array() }
+                        assertFailsWith<UnsupportedOperationException> { view.arrayOffset() }
+                        assertFailsWith<ReadOnlyBufferException> { view.put(0, 0x33.toByte()) }
+                        view.clear()
+                        view.remainingBytes().contentEquals(WIRE).shouldBeTrue()
+                        VALUE
+                    }
                 }
-            }
             val start = source.position()
             val limit = source.limit()
             val order = source.order()
@@ -437,7 +488,10 @@ class LettuceBinaryCodecBufferContractTest {
                 source.reset()
                 source.position() shouldBeEqualTo start
                 retainedViews.single().capacity() shouldBeEqualTo WIRE.size
-                assertFailsWith<IndexOutOfBoundsException> { retainedViews.single().get(WIRE.size) }
+
+                assertFailsWith<IndexOutOfBoundsException> {
+                    retainedViews.single().get(WIRE.size)
+                }
             } catch (failure: Throwable) {
                 throw AssertionError("binary decode source fixture failed: $name", failure)
             }
@@ -448,13 +502,14 @@ class LettuceBinaryCodecBufferContractTest {
     fun `decode failure keeps caller state and retained view cannot expose surrounding secrets`() {
         val sentinel = IOException("bounded decode failure")
         lateinit var retainedView: ByteBuffer
-        val serializer = RecordingBinarySerializer().apply {
-            deserializeBehavior = { view ->
-                retainedView = view
-                view.clear()
-                throw sentinel
+        val serializer = RecordingBinarySerializer()
+            .apply {
+                deserializeBehavior = { view ->
+                    retainedView = view
+                    view.clear()
+                    throw sentinel
+                }
             }
-        }
         val source = binarySources().first().second
         val start = source.position()
         val limit = source.limit()
@@ -472,9 +527,12 @@ class LettuceBinaryCodecBufferContractTest {
         source.position() shouldBeEqualTo start
         retainedView.capacity() shouldBeEqualTo WIRE.size
         retainedView.remainingBytes().contentEquals(WIRE).shouldBeTrue()
-        assertFailsWith<IndexOutOfBoundsException> { retainedView.get(WIRE.size) }
-        (actual.message?.contains(PREFIX_SECRET) == false).shouldBeTrue()
-        (actual.message?.contains(SUFFIX_SECRET) == false).shouldBeTrue()
+
+        assertFailsWith<IndexOutOfBoundsException> {
+            retainedView.get(WIRE.size)
+        }
+        actual.message shouldNotContain PREFIX_SECRET
+        actual.message shouldNotContain SUFFIX_SECRET
     }
 
     @Test
@@ -665,18 +723,4 @@ class LettuceBinaryCodecBufferContractTest {
     private fun ByteBuffer.remainingBytes(): ByteArray =
         ByteArray(remaining()).also { bytes -> duplicate().get(bytes) }
 
-    private companion object {
-        const val PREFIX: Int = 0x5A
-        const val PREFIX_SECRET: String = "P!"
-        const val SUFFIX_SECRET: String = "S!"
-        const val VALUE: String = "buffer-contract"
-        val WIRE: ByteArray = byteArrayOf(1, 2, 3, 4)
-        const val RAW_FORY_VALUE: String = "raw-fory-buffer-contract"
-        const val RAW_PREFIX_INDEX: Int = 0
-        const val RAW_READER_INDEX: Int = 1
-        const val RAW_SUFFIX_INDEX: Int = 1
-        const val RAW_START: Int = 2
-        const val RAW_PREFIX: Int = 0x5A
-        const val RAW_SUFFIX: Int = 0x6B
-    }
 }

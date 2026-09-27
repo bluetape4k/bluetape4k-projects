@@ -13,7 +13,8 @@ This module provides Kotlin-idiomatic extension functions and DSLs for the NATS 
 ## Features
 
 - **Kotlin extension functions** — NATS Java client in idiomatic Kotlin style
-- **Coroutines support** — `suspend` functions and cold `Flow<Message>` consumers for async operations (`requestSuspending`, `publishSuspending`, `drainSuspending`)
+- **Coroutines
+  support** — `suspend` functions and cold `Flow<Message>` consumers for async operations (`requestSuspending`, `publishSuspending`, `drainSuspending`)
 - **JetStream support** — stream creation, publish/subscribe, consumer management
 - **NATS Service** — build microservice endpoints with DSL
 - **DSL builders** — fluent configuration for Streams, Consumers, Key-Value stores, and Object Stores
@@ -251,11 +252,8 @@ val consumerCtx2 = consumerContextOf(connection, "my-stream", consumerConfigurat
 ### 11. Cold JetStream Consumer Flow
 
 `ConsumerContext.consumeAsFlow` uses a pull consumer, while
-`JetStream.consumeAsFlow` creates a synchronous push subscription for each
-collector. Both flows are cold: subscription and cleanup happen per collection.
-The adapter accepts finite NATS options, limits the Flow channel to
-`capacity + 1` held messages, and fails with `NatsConsumerFlowException` if the
-NATS pending queue reports a drop.
+`JetStream.consumeAsFlow` creates a synchronous push subscription for each collector. Both flows are cold: subscription and cleanup happen per collection. The adapter accepts finite NATS options, limits the Flow channel to
+`capacity + 1` held messages, and fails with `NatsConsumerFlowException` if the NATS pending queue reports a drop.
 
 ```kotlin
 import io.bluetape4k.nats.client.*
@@ -290,34 +288,18 @@ jetStream.consumeAsFlow(
 }
 ```
 
-The adapter is manual-ack only: it never calls `ack`, `nak`, or `term` for the
-collector. Call `nak()` for retryable failures and `term()` for poison messages.
-An unacknowledged message can be redelivered according to the server consumer's
+The adapter is manual-ack only: it never calls `ack`, `nak`, or `term` for the collector. Call `nak()` for retryable failures and `term()` for poison messages. An unacknowledged message can be redelivered according to the server consumer's
 `ackWait`/`maxDeliver`; configure `maxAckPending` separately on the consumer.
-`capacity` bounds the Flow side and does not change NATS pending limits. If the
-pending queue drops messages, inspect `NatsConsumerFlowException.droppedMessages`
-instead of continuing with silent loss. A second concurrent collection of the
-same Flow instance is rejected; create a new Flow instance when needed.
+`capacity` bounds the Flow side and does not change NATS pending limits. If the pending queue drops messages, inspect `NatsConsumerFlowException.droppedMessages`
+instead of continuing with silent loss. A second concurrent collection of the same Flow instance is rejected; create a new Flow instance when needed.
 
-The adapter validates `capacity` in `1..1024` and a finite `receiveTimeout` of at
-least `100.milliseconds`. Push options must keep `pendingMessageLimit` in
-`1..65_536` and `pendingByteLimit` in `1..64 MiB`; the default is 1,024 messages
-and 16 MiB. Pull `batchBytes > 0` is rejected before the consumer is created, and
-the effective message batch is normalized to `min(originalBatchSize, capacity + 1)`.
-The adapter only closes the subscription or iterable consumer it created; the
-caller still owns `Connection`, `JetStream`, and consumer configuration.
+The adapter validates `capacity` in `1..1024` and a finite `receiveTimeout` of at least `100.milliseconds`. Push options must keep `pendingMessageLimit` in
+`1..65_536` and `pendingByteLimit` in `1..64 MiB`; the default is 1,024 messages and 16 MiB. Pull `batchBytes > 0` is rejected before the consumer is created, and the effective message batch is normalized to `min(originalBatchSize, capacity + 1)`. The adapter only closes the subscription or iterable consumer it created; the caller still owns `Connection`, `JetStream`, and consumer configuration.
 
-Failure precedence is cancellation, receive/collector failure, drop or pending
-state read-back failure, then observable cleanup failure. Cleanup failures are
-suppressed behind an earlier failure. A pure drop has a null exception cause;
-pending-state read-back failures retain their original cause in
+Failure precedence is cancellation, receive/collector failure, drop or pending state read-back failure, then observable cleanup failure. Cleanup failures are suppressed behind an earlier failure. A pure drop has a null exception cause; pending-state read-back failures retain their original cause in
 `NatsConsumerFlowException`.
 
-The push-side message bound is `pendingMessageLimit + capacity + 1`: the NATS
-pending queue, Flow buffer, and one message held by the receiver. The pending
-byte limit applies to the NATS queue independently; Flow capacity is a message
-count. Pull uses `min(originalBatchSize, capacity + 1)` and one receiver-held
-message, so the adapter never requests an unbounded batch.
+The push-side message bound is `pendingMessageLimit + capacity + 1`: the NATS pending queue, Flow buffer, and one message held by the receiver. The pending byte limit applies to the NATS queue independently; Flow capacity is a message count. Pull uses `min(originalBatchSize, capacity + 1)` and one receiver-held message, so the adapter never requests an unbounded batch.
 
 Handle an observable drop or pending-state read-back failure explicitly:
 
@@ -356,18 +338,18 @@ Line coverage: **79.45%** (259/326 lines) — measured with Kover.
 
 Unit tests (no server required):
 
-| Test File | Scope |
-|-----------|-------|
-| `OptionsTest` | `natsOptions`, `natsOptionsOf` builders |
-| `JetStreamOptionsTest` | `jetStreamOptionsOf`, `defaultJetStreamOptions` |
-| `PublishOptionsTest` | `publishOptions`, `publishOptionsOf` builders |
-| `KeyValueOptionsTest` | `keyValueOptions` (3 overloads) |
-| `PullSubscriptionOptionsTest` | `pullSubscriptionOptions`, `pullSubscriptionOptionsOf` |
-| `PushSubscriptionOptionsTest` | `pushSubscriptionOptions`, `pushSubscriptionOf` (2 overloads) |
-| `NatsMessageTest` | `natsMessage`, `natsMessageOf` (3 overloads) |
-| `ConnectionExtensionsTest` | `publish`, `request`, `requestAsync`, `requestSuspending`, `drainSuspending` (MockK) |
-| `ConsumerExtensionsTest` | `Consumer.drain`, `Consumer.drainSuspending` (MockK) |
-| `ServiceExtensionsTest` | `natsService`, `natsServiceOf` (MockK Connection) |
+| Test File                     | Scope                                                                                |
+|-------------------------------|--------------------------------------------------------------------------------------|
+| `OptionsTest`                 | `natsOptions`, `natsOptionsOf` builders                                              |
+| `JetStreamOptionsTest`        | `jetStreamOptionsOf`, `defaultJetStreamOptions`                                      |
+| `PublishOptionsTest`          | `publishOptions`, `publishOptionsOf` builders                                        |
+| `KeyValueOptionsTest`         | `keyValueOptions` (3 overloads)                                                      |
+| `PullSubscriptionOptionsTest` | `pullSubscriptionOptions`, `pullSubscriptionOptionsOf`                               |
+| `PushSubscriptionOptionsTest` | `pushSubscriptionOptions`, `pushSubscriptionOf` (2 overloads)                        |
+| `NatsMessageTest`             | `natsMessage`, `natsMessageOf` (3 overloads)                                         |
+| `ConnectionExtensionsTest`    | `publish`, `request`, `requestAsync`, `requestSuspending`, `drainSuspending` (MockK) |
+| `ConsumerExtensionsTest`      | `Consumer.drain`, `Consumer.drainSuspending` (MockK)                                 |
+| `ServiceExtensionsTest`       | `natsService`, `natsServiceOf` (MockK Connection)                                    |
 
 ## Test Support
 
@@ -394,13 +376,13 @@ class MyNatsTest : AbstractNatsTest() {
 
 Test examples are located in `src/test/kotlin/io/bluetape4k/nats/`:
 
-| Package | Description |
-|---------|-------------|
-| `client.examples` | Core pub/sub, request-reply, encoding, JetStream basics |
-| `client.examples.jetstream` | JetStream async publishing, stream management |
+| Package                            | Description                                             |
+|------------------------------------|---------------------------------------------------------|
+| `client.examples`                  | Core pub/sub, request-reply, encoding, JetStream basics |
+| `client.examples.jetstream`        | JetStream async publishing, stream management           |
 | `client.examples.jetstream.simple` | Simple consumer API (fetch, iterable, message consumer) |
-| `client.examples.chainOfCommand` | Chain-of-command microservice pattern |
-| `service.examples` | NATS Service API endpoint registration |
+| `client.examples.chainOfCommand`   | Chain-of-command microservice pattern                   |
+| `service.examples`                 | NATS Service API endpoint registration                  |
 
 ## References
 

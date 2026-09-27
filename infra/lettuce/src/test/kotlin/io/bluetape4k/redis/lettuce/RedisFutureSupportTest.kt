@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -38,7 +39,7 @@ class RedisFutureSupportTest: AbstractLettuceTest() {
     fun `awaitSuspending should handle set command`() = runSuspendIO {
         val keyName = randomName()
         asyncCommands.set(keyName, "hello").awaitSuspending() shouldBeEqualTo "OK"
-        asyncCommands.del(keyName).await()
+        asyncCommands.del(keyName).await() shouldBeEqualTo 1L
     }
 
     @Test
@@ -46,12 +47,12 @@ class RedisFutureSupportTest: AbstractLettuceTest() {
         val keyName = randomName()
         asyncCommands.set(keyName, "world").awaitSuspending() shouldBeEqualTo "OK"
         asyncCommands.get(keyName).awaitSuspending() shouldBeEqualTo "world"
-        asyncCommands.del(keyName).await()
+        asyncCommands.del(keyName).await() shouldBeEqualTo 1L
     }
 
     @Test
     fun `awaitAll - 빈 컬렉션은 빈 리스트 반환`() = runSuspendIO {
-        val result = emptyList<io.lettuce.core.RedisFuture<String>>().awaitAll()
+        val result = emptyList<RedisFuture<String>>().awaitAll()
         result shouldHaveSize 0
     }
 
@@ -63,7 +64,7 @@ class RedisFutureSupportTest: AbstractLettuceTest() {
         }
         val results = futures.awaitAll()
         results shouldHaveSize ITEM_SIZE
-        asyncCommands.del(keyName).await()
+        asyncCommands.del(keyName).await() shouldBeEqualTo 1L
     }
 
     @Test
@@ -80,9 +81,7 @@ class RedisFutureSupportTest: AbstractLettuceTest() {
     @Test
     fun `awaitAll - 취소되면 대기 중인 RedisFuture 들을 취소한다`() = runSuspendIO {
         val futures = List(3) { TestRedisFuture<String>() }
-        val task = async {
-            futures.awaitAll()
-        }
+        val task = async { futures.awaitAll() }
 
         withTimeout(1.seconds) {
             while (futures.any { it.numberOfDependents == 0 }) {
@@ -120,11 +119,13 @@ class RedisFutureSupportTest: AbstractLettuceTest() {
     fun `sequence - RedisFuture 컬렉션을 CompletableFuture로 변환`() {
         val keyName = randomName()
         val futures = List(ITEM_SIZE) { i ->
-            asyncCommands.hset(keyName, i.toString(), i)
+            asyncCommands.hset(keyName, i.toString(), i).shouldNotBeNull()
         }.sequence()
         val results = futures.get()
         results shouldHaveSize ITEM_SIZE
-        asyncCommands.del(keyName).get()
+        results.all { it }.shouldBeTrue()
+
+        asyncCommands.del(keyName).get() shouldBeEqualTo 1L
     }
 
     @Test

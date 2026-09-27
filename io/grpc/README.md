@@ -33,7 +33,8 @@ A Kotlin extension library for implementing gRPC servers and clients.
 - **gRPC client abstraction**: Channel management and calls
 - **In-process server/client**: In-memory communication for testing
 - **Interceptor support**: Server interceptor helpers
-- **Secure client defaults**: Host/port client constructors use transport security by default; plaintext requires explicit local/test opt-in
+- **Secure client
+  defaults**: Host/port client constructors use transport security by default; plaintext requires explicit local/test opt-in
 - **Input validation**: host/target/name must be non-blank; port must be in the `1..65535` range — validated immediately
 
 ## Usage Examples

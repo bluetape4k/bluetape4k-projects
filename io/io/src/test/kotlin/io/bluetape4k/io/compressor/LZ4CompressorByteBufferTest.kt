@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldContentEqual
+import io.bluetape4k.logging.KLogging
 import net.jpountz.lz4.LZ4Exception
 import org.junit.jupiter.api.Test
 import java.nio.BufferOverflowException
@@ -12,6 +13,9 @@ import java.nio.ByteOrder
 import java.util.concurrent.atomic.AtomicInteger
 
 class LZ4CompressorByteBufferTest {
+
+    companion object: KLogging()
+
     private val compressor = LZ4Compressor()
 
     @Test
@@ -44,8 +48,8 @@ class LZ4CompressorByteBufferTest {
         val written = compressor.compress(CompressorByteBufferTestSupport.heap(payload), wireTarget)
         val callerOwnedWire = CompressorByteBufferTestSupport.bytes(wireTarget, wireStart, written)
 
-        callerOwnedWire.shouldContentEqual(legacyWire)
-        compressor.decompress(callerOwnedWire).shouldContentEqual(payload)
+        callerOwnedWire shouldContentEqual legacyWire
+        compressor.decompress(callerOwnedWire) shouldContentEqual payload
     }
 
     @Test
@@ -179,8 +183,10 @@ class LZ4CompressorByteBufferTest {
 
         val retryPayload = ByteArray(512)
         val retryWire = compressor.compress(retryPayload)
+
         compressor.compress(CompressorByteBufferTestSupport.heap(retryPayload), target)
             .shouldBeEqualTo(retryWire.size)
+
         CompressorByteBufferTestSupport.bytes(target, targetStart, retryWire.size)
             .shouldContentEqual(retryWire)
     }
@@ -272,7 +278,9 @@ class LZ4CompressorByteBufferTest {
 
         val retryPayload = "retry after overflow".encodeToByteArray()
         val retryWire = compressor.compress(retryPayload)
+
         compressor.decompress(ByteBuffer.wrap(retryWire), target).shouldBeEqualTo(retryPayload.size)
+
         CompressorByteBufferTestSupport.bytes(target, targetStart, retryPayload.size)
             .shouldContentEqual(retryPayload)
     }
@@ -342,6 +350,7 @@ class LZ4CompressorByteBufferTest {
         source.position() shouldBeEqualTo 4
         source.limit() shouldBeEqualTo 10
         source.order() shouldBeEqualTo ByteOrder.LITTLE_ENDIAN
+
         CompressorByteBufferTestSupport.assertMark(source, 4)
         target.position() shouldBeEqualTo targetStart + 1
     }
@@ -425,15 +434,20 @@ class LZ4CompressorByteBufferTest {
                 source.position() shouldBeEqualTo sourceStart
                 source.limit() shouldBeEqualTo sourceLimit
                 source.order() shouldBeEqualTo sourceOrder
+
                 CompressorByteBufferTestSupport.assertMark(source, sourceStart)
                 target.position() shouldBeEqualTo targetStart + expected.size
                 target.limit() shouldBeEqualTo targetLimit
                 target.order() shouldBeEqualTo targetOrder
+
                 CompressorByteBufferTestSupport.assertMark(target, targetStart)
+
                 CompressorByteBufferTestSupport.bytes(target, targetStart, expected.size)
                     .shouldContentEqual(expected)
+
                 CompressorByteBufferTestSupport.allBytes(target).copyOfRange(0, targetStart)
                     .shouldContentEqual(before.copyOfRange(0, targetStart))
+
                 CompressorByteBufferTestSupport.allBytes(target).copyOfRange(targetLimit, target.capacity())
                     .shouldContentEqual(before.copyOfRange(targetLimit, target.capacity()))
             }

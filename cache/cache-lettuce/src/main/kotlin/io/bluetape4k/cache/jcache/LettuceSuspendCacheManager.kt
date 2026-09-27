@@ -7,7 +7,6 @@ import io.bluetape4k.redis.lettuce.RedisCommandSupports
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodec
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
 import io.bluetape4k.support.requireNotBlank
-import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.RedisClient
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
@@ -15,7 +14,6 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 
-@OptIn(ExperimentalLettuceCoroutinesApi::class)
 @Suppress("UNCHECKED_CAST")
 /**
  * Lettuce 기반 [LettuceSuspendJCache] 인스턴스의 생성/조회/종료를 관리합니다.
@@ -43,7 +41,7 @@ class LettuceSuspendCacheManager(
     /** 기본 TTL(초). `getOrCreate`에 개별 TTL이 없을 때 사용됩니다. */
     val defaultTtlSeconds: Long? = null,
     /** 기본 바이너리 codec. `getOrCreate`에 개별 codec이 없을 때 사용됩니다. */
-    val defaultCodec: LettuceBinaryCodec<Any> = LettuceBinaryCodecs.lz4Fory(),
+    val defaultCodec: LettuceBinaryCodec<Any> = LettuceBinaryCodecs.default(),
 ) {
 
     companion object: KLoggingChannel()
@@ -185,14 +183,8 @@ class LettuceSuspendCacheManager(
         operation: String,
         cause: Exception,
     ): javax.cache.CacheException =
-        if (cause is javax.cache.CacheException) {
-            cause
-        } else {
-            javax.cache.CacheException(
-                "LettuceSuspendCache [$cacheName] $operation 중 오류가 발생했습니다.",
-                cause,
-            )
-        }
+        cause as? javax.cache.CacheException
+            ?: javax.cache.CacheException("LettuceSuspendCache [$cacheName] $operation 중 오류가 발생했습니다.", cause)
 
     /**
      * 캐시 이름을 기준으로 매니저 등록 목록에서 제거합니다.

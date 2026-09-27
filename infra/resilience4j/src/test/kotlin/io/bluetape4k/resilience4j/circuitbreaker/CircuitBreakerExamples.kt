@@ -2,7 +2,7 @@ package io.bluetape4k.resilience4j.circuitbreaker
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.resilience4j.SuspendHelloWorldService
@@ -33,7 +33,7 @@ class CircuitBreakerExamples {
     }
 
     @Test
-    fun `execute successful function`() = runSuspendTest {
+    fun `execute successful function`() = runSuspendIO {
         val circuitBreaker = CircuitBreaker.ofDefaults("test")
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0

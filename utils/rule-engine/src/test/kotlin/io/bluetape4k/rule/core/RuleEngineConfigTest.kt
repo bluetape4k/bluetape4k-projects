@@ -1,12 +1,12 @@
 package io.bluetape4k.rule.core
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.rule.api.RuleEngineConfig
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.rule.api.RuleEngineConfig
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class RuleEngineConfigTest {
 
@@ -53,19 +53,18 @@ class RuleEngineConfigTest {
     @Test
     fun `skipOnFirstAppliedRule 설정`() {
         val config = RuleEngineConfig(skipOnFirstAppliedRule = true)
-        config.skipOnFirstAppliedRule shouldBeEqualTo true
+        config.skipOnFirstAppliedRule.shouldBeTrue()
     }
 
     @Test
     fun `skipOnFirstFailedRule 설정`() {
         val config = RuleEngineConfig(skipOnFirstFailedRule = true)
-        config.skipOnFirstFailedRule shouldBeEqualTo true
+        config.skipOnFirstFailedRule.shouldBeTrue()
     }
 
     @Test
     fun `skipOnFirstNonTriggeredRule 설정`() {
         val config = RuleEngineConfig(skipOnFirstNonTriggeredRule = true)
-        config.skipOnFirstNonTriggeredRule shouldBeEqualTo true
+        config.skipOnFirstNonTriggeredRule.shouldBeTrue()
     }
 }
-

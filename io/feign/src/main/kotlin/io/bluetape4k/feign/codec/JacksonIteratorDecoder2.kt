@@ -9,6 +9,7 @@ import io.bluetape4k.feign.bodyAsReader
 import io.bluetape4k.feign.isJsonBody
 import io.bluetape4k.jackson3.Jackson
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.support.actualIteratorTypeArgument
 import io.bluetape4k.support.closeSafe
 import tools.jackson.core.JacksonException
@@ -196,6 +197,7 @@ class JacksonIteratorDecoder2 private constructor(
          * 파서와 응답 본문 리소스를 정리합니다.
          */
         override fun close() {
+            log.debug { "Close JacksonIteratorDecoder2.JacksonIterator." }
             runCatching { parser.close() }
             runCatching { response.body()?.close() }
         }

@@ -13,7 +13,9 @@ JUnit Jupiter API and Kotlin coroutines are exposed only where the public DSL re
 
 - **bluetape4k assertion API surface** — familiar infix names with explicit equality semantics
 - **Basic**: `shouldBe` (ref ===), `shouldBeEqualTo` (value ==), `shouldNotBeNull` with smart cast contract
-- **Numerical**: comparisons (`shouldBeLessThan`, `shouldBeGreaterOrEqualTo`), sign checks, signed and unsigned range containment
+-
+
+**Numerical**: comparisons (`shouldBeLessThan`, `shouldBeGreaterOrEqualTo`), sign checks, signed and unsigned range containment
 - **Collections / Arrays / Maps**: content equality, containment (`shouldContainAll`, `shouldNotContainAny`)
 - **CharSequences**: `shouldStartWith`, `shouldEndWith`, `shouldContain`, case-insensitive checks
 - **Exceptions**: `invoking { }` / `shouldThrow`, message matching, cause inspection
@@ -54,33 +56,33 @@ class MyTest {
         // Basic
         "hello" shouldBeEqualTo "hello"
         "hello" shouldNotBeEqualTo "world"
-        
+
         // Smart cast after shouldNotBeNull
         val name: String? = "John"
         name.shouldNotBeNull().length shouldBeGreaterThan 0
-        
+
         // Collections
         listOf(1, 2, 3) shouldContainAll listOf(1, 2)
         listOf(1, 2, 3) shouldNotContainAny listOf(4, 5)
         listOf("GET", "POST") shouldContainIgnoringCase "post"
-        
+
         // CharSequences
         "hello".shouldStartWith("he")
         "hello".shouldEndWith("lo")
-        
+
         // Numerical
         5 shouldBeLessThan 10
         5 shouldBeGreaterOrEqualTo 5
         5 shouldBeInRange 1..10
         UInt.MAX_VALUE shouldBeInRange Int.MAX_VALUE.toUInt()..UInt.MAX_VALUE
         5.0.shouldBeNear(5.1, tolerance = 0.2)
-        
+
         // Exceptions
         invoking { error("boom") }.shouldThrow(IllegalStateException::class)
-        
+
         // Reflection
         listOf(1, 2, 3).shouldBeInstanceOf<List<*>>()
-        
+
         // DateTimes
         val now = LocalDateTime.now()
         now.shouldBeAfter(now.minusSeconds(1))
@@ -93,7 +95,7 @@ class MyTest {
         flowOf(1, 2, 3).assertResult(1, 2, 3)
         emptyFlow<Int>().assertEmpty()
     }
-    
+
     @Test
     fun `softly assertions`() {
         assertSoftly {
@@ -103,7 +105,7 @@ class MyTest {
         }
         // All assertions collected, MultipleFailuresError if any fail
     }
-    
+
 }
 ```
 
@@ -111,77 +113,77 @@ class MyTest {
 
 ### Basic Assertions
 
-| Function | Description |
-|----------|-------------|
-| `shouldBe(expected)` | Referential equality (===) |
-| `shouldNotBe(expected)` | Referential inequality (!==) |
-| `shouldBeEqualTo(expected)` | Structural equality (==) |
-| `shouldNotBeEqualTo(expected)` | Structural inequality (!=) |
-| `shouldBeNull()` | Is null |
-| `shouldNotBeNull()` | Is not null (smart cast) |
+| Function                       | Description                  |
+|--------------------------------|------------------------------|
+| `shouldBe(expected)`           | Referential equality (===)   |
+| `shouldNotBe(expected)`        | Referential inequality (!==) |
+| `shouldBeEqualTo(expected)`    | Structural equality (==)     |
+| `shouldNotBeEqualTo(expected)` | Structural inequality (!=)   |
+| `shouldBeNull()`               | Is null                      |
+| `shouldNotBeNull()`            | Is not null (smart cast)     |
 
 ### Numerical
 
-| Function | Description |
-|----------|-------------|
-| `shouldBeLessThan(bound)` | < |
-| `shouldBeLessOrEqualTo(bound)` | <= |
-| `shouldBeGreaterThan(bound)` | > |
-| `shouldBeGreaterOrEqualTo(bound)` | >= |
-| `shouldBePositive()` | > 0 |
-| `shouldBeNegative()` | < 0 |
-| `shouldBeInRange(range)` | Closed range containment |
-| `shouldNotBeInRange(range)` | Closed range exclusion |
-| `UInt/ULong shouldBeInRange range` | Unsigned range containment |
-| `UInt/ULong shouldNotBeInRange range` | Unsigned range exclusion |
-| `shouldBeNear(expected, tolerance)` | Approx equality for floats |
-| `BigDecimal shouldBeEqualTo expected` | Scale-insensitive equality (`compareTo`) |
+| Function                                 | Description                                |
+|------------------------------------------|--------------------------------------------|
+| `shouldBeLessThan(bound)`                | <                                          |
+| `shouldBeLessOrEqualTo(bound)`           | <=                                         |
+| `shouldBeGreaterThan(bound)`             | >                                          |
+| `shouldBeGreaterOrEqualTo(bound)`        | >=                                         |
+| `shouldBePositive()`                     | > 0                                        |
+| `shouldBeNegative()`                     | < 0                                        |
+| `shouldBeInRange(range)`                 | Closed range containment                   |
+| `shouldNotBeInRange(range)`              | Closed range exclusion                     |
+| `UInt/ULong shouldBeInRange range`       | Unsigned range containment                 |
+| `UInt/ULong shouldNotBeInRange range`    | Unsigned range exclusion                   |
+| `shouldBeNear(expected, tolerance)`      | Approx equality for floats                 |
+| `BigDecimal shouldBeEqualTo expected`    | Scale-insensitive equality (`compareTo`)   |
 | `BigDecimal shouldNotBeEqualTo expected` | Scale-insensitive inequality (`compareTo`) |
 
 ### Collections & Arrays
 
-| Function | Description |
-|----------|-------------|
-| `shouldBeEmpty()` | Empty collection |
-| `shouldNotBeEmpty()` | Non-empty collection |
-| `shouldContainAll(elements)` | Contains all (⊇) |
-| `shouldNotContainAny(elements)` | Contains none (∩ = ∅) |
-| `shouldContainIgnoringCase(element)` | String collection contains element ignoring case |
-| `shouldHaveSize(size)` | Size check |
-| `shouldContain(element)` | Contains single element |
-| `IntArray shouldBeEqualTo expected` | Primitive array content equality (`contentEquals`) |
-| `ByteArray shouldBeEqualTo expected` | Primitive array content equality (`contentEquals`) |
-| `Array<T> shouldBeEqualTo expected` | Object array deep content equality (`contentDeepEquals`) |
+| Function                             | Description                                              |
+|--------------------------------------|----------------------------------------------------------|
+| `shouldBeEmpty()`                    | Empty collection                                         |
+| `shouldNotBeEmpty()`                 | Non-empty collection                                     |
+| `shouldContainAll(elements)`         | Contains all (⊇)                                         |
+| `shouldNotContainAny(elements)`      | Contains none (∩ = ∅)                                    |
+| `shouldContainIgnoringCase(element)` | String collection contains element ignoring case         |
+| `shouldHaveSize(size)`               | Size check                                               |
+| `shouldContain(element)`             | Contains single element                                  |
+| `IntArray shouldBeEqualTo expected`  | Primitive array content equality (`contentEquals`)       |
+| `ByteArray shouldBeEqualTo expected` | Primitive array content equality (`contentEquals`)       |
+| `Array<T> shouldBeEqualTo expected`  | Object array deep content equality (`contentDeepEquals`) |
 
 ### Exceptions
 
-| Function | Description |
-|----------|-------------|
-| `invoking { }.shouldThrow(E::class)` | Sync block throws E |
-| `invoking { }.shouldNotThrow()` | Sync block throws nothing |
-| `coInvoking { }.shouldThrow(E::class)` | Async block throws E |
-| `.withMessage(msg)` | Exact message match (chain) |
-| `.withMessageContaining(substring)` | Message contains (chain) |
+| Function                               | Description                 |
+|----------------------------------------|-----------------------------|
+| `invoking { }.shouldThrow(E::class)`   | Sync block throws E         |
+| `invoking { }.shouldNotThrow()`        | Sync block throws nothing   |
+| `coInvoking { }.shouldThrow(E::class)` | Async block throws E        |
+| `.withMessage(msg)`                    | Exact message match (chain) |
+| `.withMessageContaining(substring)`    | Message contains (chain)    |
 
 ### Reflection
 
-| Function | Description |
-|----------|-------------|
-| `shouldBeInstanceOf<T>()` | Instance check (smart cast) |
-| `shouldNotBeInstanceOf<T>()` | Negative instance check |
+| Function                     | Description                 |
+|------------------------------|-----------------------------|
+| `shouldBeInstanceOf<T>()`    | Instance check (smart cast) |
+| `shouldNotBeInstanceOf<T>()` | Negative instance check     |
 
 ## Migration Notes
 
 The package remains `io.bluetape4k.assertions`, but equality semantics are intentionally explicit.
 
-| Legacy expectation | This module | Notes |
-|--------|-------------|-------|
-| `shouldBe` for value equality | `shouldBeEqualTo` | Use structural equality (`==`) |
-| `shouldBe` (ref ===) | `shouldBe` | Same behavior |
-| `shouldNotBeNull()` | `shouldNotBeNull()` | + smart cast contract |
-| `shouldThrow(E::class)` | `invoking { }.shouldThrow(E::class)` | Explicit block wrapper |
-| `shouldHaveMessage()` | `.withMessage()` | Chain on InvokingBlock |
-| `coInvoking { }` | `coInvoking { }` | Full coroutine support |
+| Legacy expectation            | This module                          | Notes                          |
+|-------------------------------|--------------------------------------|--------------------------------|
+| `shouldBe` for value equality | `shouldBeEqualTo`                    | Use structural equality (`==`) |
+| `shouldBe` (ref ===)          | `shouldBe`                           | Same behavior                  |
+| `shouldNotBeNull()`           | `shouldNotBeNull()`                  | + smart cast contract          |
+| `shouldThrow(E::class)`       | `invoking { }.shouldThrow(E::class)` | Explicit block wrapper         |
+| `shouldHaveMessage()`         | `.withMessage()`                     | Chain on InvokingBlock         |
+| `coInvoking { }`              | `coInvoking { }`                     | Full coroutine support         |
 
 ### Critical Semantic Change
 

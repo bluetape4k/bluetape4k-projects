@@ -2,6 +2,7 @@ package io.bluetape4k.math
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeNear
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
@@ -9,13 +10,15 @@ import kotlin.math.PI
 
 class MathConstsTest {
 
-    companion object: KLogging()
+    companion object: KLogging() {
+        private const val EPSILON = 1e-15
+    }
 
     @Test
     fun `Pi 상수가 올바르다`() {
-        MathConsts.Pi.shouldBeNear(PI, 1e-15)
-        MathConsts.Pi2.shouldBeNear(2.0 * PI, 1e-15)
-        MathConsts.PiOver2.shouldBeNear(PI / 2.0, 1e-15)
+        MathConsts.Pi.shouldBeNear(PI, EPSILON)
+        MathConsts.Pi2.shouldBeNear(2.0 * PI, EPSILON)
+        MathConsts.PiOver2.shouldBeNear(PI / 2.0, EPSILON)
     }
 
     @Test
@@ -39,12 +42,12 @@ class MathConstsTest {
 
     @Test
     fun `goldenRatio가 올바르다`() {
-        MathConsts.goldenRatio.shouldBeNear(1.6180339887, 1e-9)
+        MathConsts.goldenRatio.shouldBeNear(1.6180339887)
     }
 
     @Test
     fun `EPSILON이 양수이다`() {
-        (MathConsts.EPSILON > 0.0) shouldBeEqualTo true
-        (MathConsts.FLOAT_EPSILON > 0.0f) shouldBeEqualTo true
+        MathConsts.EPSILON shouldBeGreaterThan 0.0
+        MathConsts.FLOAT_EPSILON shouldBeGreaterThan 0.0f
     }
 }

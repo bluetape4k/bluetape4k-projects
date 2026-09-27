@@ -1,5 +1,10 @@
 package io.bluetape4k.hibernate.converter
 
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.converters.BZip2StringConverter
 import io.bluetape4k.hibernate.converters.DeflateStringConverter
 import io.bluetape4k.hibernate.converters.GZipStringConverter
@@ -8,10 +13,6 @@ import io.bluetape4k.hibernate.converters.SnappyStringConverter
 import io.bluetape4k.hibernate.converters.ZstdStringConverter
 import io.bluetape4k.logging.KLogging
 import jakarta.persistence.AttributeConverter
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldNotBeEqualTo
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
@@ -46,11 +47,10 @@ class CompressedStringConverterTest {
     @ParameterizedTest(name = "{0} - 문자열을 압축하고 복원한다")
     @MethodSource("converters")
     fun `문자열을 압축하고 복원한다`(converter: AttributeConverter<String?, String?>) {
-        val compressed = converter.convertToDatabaseColumn(SAMPLE_TEXT)
-        compressed.shouldNotBeNull()
+        val compressed = converter.convertToDatabaseColumn(SAMPLE_TEXT).shouldNotBeNull()
         compressed shouldNotBeEqualTo SAMPLE_TEXT
 
-        val restored = converter.convertToEntityAttribute(compressed)
+        val restored = converter.convertToEntityAttribute(compressed).shouldNotBeNull()
         restored shouldBeEqualTo SAMPLE_TEXT
     }
 
@@ -64,32 +64,25 @@ class CompressedStringConverterTest {
     @ParameterizedTest(name = "{0} - 한국어 문자열을 압축하고 복원한다")
     @MethodSource("converters")
     fun `한국어 문자열을 압축하고 복원한다`(converter: AttributeConverter<String?, String?>) {
-        val compressed = converter.convertToDatabaseColumn(KOREAN_TEXT)
-        compressed.shouldNotBeNull()
-
-        val restored = converter.convertToEntityAttribute(compressed)
+        val compressed = converter.convertToDatabaseColumn(KOREAN_TEXT).shouldNotBeNull()
+        val restored = converter.convertToEntityAttribute(compressed).shouldNotBeNull()
         restored shouldBeEqualTo KOREAN_TEXT
     }
 
     @ParameterizedTest(name = "{0} - 빈 문자열을 압축하고 복원한다")
     @MethodSource("converters")
     fun `빈 문자열을 압축하고 복원한다`(converter: AttributeConverter<String?, String?>) {
-        val compressed = converter.convertToDatabaseColumn("")
-        compressed.shouldNotBeNull()
-
-        val restored = converter.convertToEntityAttribute(compressed)
-        restored shouldBeEqualTo ""
+        val compressed = converter.convertToDatabaseColumn("").shouldNotBeNull()
+        converter.convertToEntityAttribute(compressed).shouldBeEmpty()
     }
 
     @ParameterizedTest(name = "{0} - 반복 문자열은 높은 압축률을 보인다")
     @MethodSource("converters")
     fun `반복 문자열은 높은 압축률을 보인다`(converter: AttributeConverter<String?, String?>) {
-        val repeatedText = "압축테스트".repeat(100)
+        val repeatedText = "압축 테스트".repeat(100)
 
-        val compressed = converter.convertToDatabaseColumn(repeatedText)
-        compressed.shouldNotBeNull()
-
-        val restored = converter.convertToEntityAttribute(compressed)
+        val compressed = converter.convertToDatabaseColumn(repeatedText).shouldNotBeNull()
+        val restored = converter.convertToEntityAttribute(compressed).shouldNotBeNull()
         restored shouldBeEqualTo repeatedText
     }
 }

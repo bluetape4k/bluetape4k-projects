@@ -7,8 +7,11 @@ import io.bluetape4k.feign.clients.AbstractHttpbinCoroutineTest
 import io.bluetape4k.feign.codec.JacksonDecoder2
 import io.bluetape4k.feign.codec.JacksonEncoder2
 import io.bluetape4k.feign.coroutines.coroutineFeignBuilder
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 
 class VertxHttpbinCoroutineJacksonTest: AbstractHttpbinCoroutineTest() {
+
+    companion object: KLoggingChannel()
 
     override fun newBuilder(): CoroutineFeign.CoroutineBuilder<*> {
         return coroutineFeignBuilder {

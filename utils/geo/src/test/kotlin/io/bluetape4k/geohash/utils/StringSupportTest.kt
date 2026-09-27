@@ -1,13 +1,14 @@
 package io.bluetape4k.geohash.utils
 
-import io.bluetape4k.geohash.geoHashOfString
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
+import io.bluetape4k.geohash.geoHashOfString
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class StringSupportTest {
+
     companion object: KLogging()
 
     @Test

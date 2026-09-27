@@ -65,6 +65,7 @@ open class TinkDecryptSource(
 
         val encryptedBuffer = Buffer()
         var noProgressCount = 0
+
         while (true) {
             val bytesRead = super.read(encryptedBuffer, DEFAULT_BUFFER_SIZE.toLong())
             if (bytesRead < 0L) {

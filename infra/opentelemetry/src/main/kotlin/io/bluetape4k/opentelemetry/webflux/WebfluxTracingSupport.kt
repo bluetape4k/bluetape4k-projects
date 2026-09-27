@@ -33,7 +33,7 @@ import org.springframework.web.server.WebFilter
  * @return [SpringWebfluxServerTelemetry] 인스턴스
  * @see createTracingWebFilter
  */
-public fun OpenTelemetry.webfluxServerTelemetry(): SpringWebfluxServerTelemetry =
+fun OpenTelemetry.webfluxServerTelemetry(): SpringWebfluxServerTelemetry =
     SpringWebfluxServerTelemetry.create(this)
 
 /**
@@ -64,5 +64,5 @@ public fun OpenTelemetry.webfluxServerTelemetry(): SpringWebfluxServerTelemetry 
  * @return 서버 요청/응답 Span을 자동으로 생성하는 [WebFilter]
  * @see webfluxServerTelemetry
  */
-public fun OpenTelemetry.createTracingWebFilter(): WebFilter =
+fun OpenTelemetry.createTracingWebFilter(): WebFilter =
     webfluxServerTelemetry().createWebFilterAndRegisterReactorHook()

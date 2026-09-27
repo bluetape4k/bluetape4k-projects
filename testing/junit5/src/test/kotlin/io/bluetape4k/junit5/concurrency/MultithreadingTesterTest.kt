@@ -1,16 +1,17 @@
 package io.bluetape4k.junit5.concurrency
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.trace
-import kotlinx.atomicfu.atomic
 import io.bluetape4k.assertions.assertFails
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.trace
+import kotlinx.atomicfu.atomic
 import org.junit.jupiter.api.Test
 import kotlin.system.measureTimeMillis
 
 class MultithreadingTesterTest {
+
     companion object: KLogging() {
         private const val LARGE_ROUNDS = 2_000
     }
@@ -131,21 +132,24 @@ class MultithreadingTesterTest {
     @Test
     fun `workers 범위 미만값 0 을 설정하면 예외가 발생한다`() {
         assertFailsWith<IllegalArgumentException> {
-            MultithreadingTester().workers(0)
+            MultithreadingTester()
+                .workers(0)
         }
     }
 
     @Test
     fun `workers 범위 초과값 2001 을 설정하면 예외가 발생한다`() {
         assertFailsWith<IllegalArgumentException> {
-            MultithreadingTester().workers(2001)
+            MultithreadingTester()
+                .workers(2001)
         }
     }
 
     @Test
     fun `rounds 범위 미만값 0 을 설정하면 예외가 발생한다`() {
         assertFailsWith<IllegalArgumentException> {
-            MultithreadingTester().rounds(0)
+            MultithreadingTester()
+                .rounds(0)
         }
     }
 

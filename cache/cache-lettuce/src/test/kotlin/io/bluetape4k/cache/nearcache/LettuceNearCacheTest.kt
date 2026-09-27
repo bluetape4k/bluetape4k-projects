@@ -1,15 +1,18 @@
 package io.bluetape4k.cache.nearcache
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeInRange
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.lettuce.core.codec.RedisCodec
 import io.lettuce.core.codec.StringCodec
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.RepeatedTest
@@ -20,9 +23,9 @@ import org.testcontainers.utility.Base58
 import java.nio.ByteBuffer
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
-import io.bluetape4k.assertions.assertFailsWith
 
 class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
+
     companion object: KLogging()
 
     private lateinit var cache: LettuceNearCache<String>
@@ -190,6 +193,7 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
         cache.put("k2", "v2")
         cache.clearAll()
         cache.localCacheSize() shouldBeEqualTo 0L
+
         // prefix key로 삭제 확인
         directCommands.get("${cache.cacheName}:k1").shouldBeNull()
         directCommands.get("${cache.cacheName}:k2").shouldBeNull()
@@ -197,12 +201,12 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `clearAll - 다른 cacheName의 데이터는 유지됨`() {
-        val otherCache =
-            LettuceNearCache(
-                redisClient = resp3Client,
-                codec = StringCodec.UTF8,
-                config = LettuceNearCacheConfig(cacheName = "other-cache-" + Base58.randomString(6))
-            )
+        val otherCache = LettuceNearCache(
+            redisClient = resp3Client,
+            codec = StringCodec.UTF8,
+            config = LettuceNearCacheConfig(cacheName = "other-cache-" + Base58.randomString(6))
+        )
+
         otherCache.use { other ->
             cache.put("shared-key", "from-main-cache")
             other.put("shared-key", "from-other-cache")
@@ -222,12 +226,11 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
     @Test
     fun `clearAll - Redis clear 실패를 호출자에게 전파한다`() {
         val failingCacheName = "fail-clear-" + Base58.randomString(6)
-        val failingCache =
-            LettuceNearCache(
-                redisClient = resp3Client,
-                codec = failingKeyDecodeCodec(),
-                config = LettuceNearCacheConfig(cacheName = failingCacheName)
-            )
+        val failingCache = LettuceNearCache(
+            redisClient = resp3Client,
+            codec = failingKeyDecodeCodec(),
+            config = LettuceNearCacheConfig(cacheName = failingCacheName)
+        )
 
         failingCache.use { c ->
             directCommands.set("$failingCacheName:k", "v")
@@ -244,22 +247,22 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
     @Test
     fun `Redis TTL - TTL이 있는 캐시 설정`() {
         val ttlCacheName = "ttl-test-" + Base58.randomString(6)
-        val ttlCache =
-            LettuceNearCache(
-                redisClient = resp3Client,
-                codec = StringCodec.UTF8,
-                config =
-                    LettuceNearCacheConfig(
-                        cacheName = ttlCacheName,
-                        redisTtl = Duration.ofSeconds(2)
-                    )
-            )
+        val ttlCache = LettuceNearCache(
+            redisClient = resp3Client,
+            codec = StringCodec.UTF8,
+            config =
+                LettuceNearCacheConfig(
+                    cacheName = ttlCacheName,
+                    redisTtl = Duration.ofSeconds(2)
+                )
+        )
         ttlCache.use { c ->
             c.put("ttl-key", "ttl-val")
             c.get("ttl-key") shouldBeEqualTo "ttl-val"
+
             // prefix key로 TTL 확인
             val ttl = directCommands.ttl("$ttlCacheName:ttl-key")
-            (ttl > 0L).shouldBeTrue()
+            ttl shouldBeGreaterThan 0L
         }
     }
 
@@ -288,12 +291,11 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `put - Redis 쓰기 실패 시 local cache를 오염시키지 않는다`() {
-        val failingCache =
-            LettuceNearCache(
-                redisClient = resp3Client,
-                codec = failingValueCodec(),
-                config = LettuceNearCacheConfig(cacheName = "fail-put-" + Base58.randomString(6))
-            )
+        val failingCache = LettuceNearCache(
+            redisClient = resp3Client,
+            codec = failingValueCodec(),
+            config = LettuceNearCacheConfig(cacheName = "fail-put-" + Base58.randomString(6))
+        )
 
         failingCache.use { broken ->
             assertWriteFailure {
@@ -307,14 +309,16 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
 
     @Test
     fun `putAll - Redis 쓰기 실패 시 local cache를 오염시키지 않는다`() {
-        val failingCache =
-            LettuceNearCache(
-                redisClient = resp3Client,
-                codec = failingValueCodec(),
-                config = LettuceNearCacheConfig(cacheName = "fail-putall-" + Base58.randomString(6))
-            )
+        val failingCache = LettuceNearCache(
+            redisClient = resp3Client,
+            codec = failingValueCodec(),
+            config = LettuceNearCacheConfig(cacheName = "fail-putall-" + Base58.randomString(6))
+        )
+
         failingCache.use { c ->
-            assertFailsWith<Exception> { c.putAll(mapOf("k1" to "v1", "k2" to "v2")) }
+            assertFailsWith<Exception> {
+                c.putAll(mapOf("k1" to "v1", "k2" to "v2"))
+            }
             c.localCacheSize() shouldBeEqualTo 0L
         }
     }
@@ -358,6 +362,7 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
     @Test
     fun `putIfAbsent - MultithreadingTester 경쟁 상황에서도 단 한 번만 저장된다`() {
         val storeCount = AtomicInteger(0)
+
         MultithreadingTester()
             .workers(8)
             .rounds(4)
@@ -365,6 +370,7 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
                 val existing = cache.putIfAbsent("race-key", "v-${Thread.currentThread().threadId()}")
                 if (existing == null) storeCount.incrementAndGet()
             }.run()
+
         storeCount.get() shouldBeEqualTo 1
         cache.get("race-key").shouldNotBeNull()
     }
@@ -375,16 +381,17 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
     fun `putIfAbsent - TTL이 있는 경우 단일 명령으로 TTL까지 함께 저장한다`() {
         val ttlMs = 5_000L
         val ttlCacheName = "pia-ttl-" + Base58.randomString(6)
-        val ttlCache =
-            LettuceNearCache(
-                redisClient = resp3Client,
-                codec = StringCodec.UTF8,
-                config = LettuceNearCacheConfig(cacheName = ttlCacheName, redisTtl = Duration.ofMillis(ttlMs))
-            )
+
+        val ttlCache = LettuceNearCache(
+            redisClient = resp3Client,
+            codec = StringCodec.UTF8,
+            config = LettuceNearCacheConfig(cacheName = ttlCacheName, redisTtl = Duration.ofMillis(ttlMs))
+        )
+
         ttlCache.use { c ->
             c.putIfAbsent("pia-key", "pia-val").shouldBeNull()
             val pttl = directCommands.pttl("$ttlCacheName:pia-key")
-            (pttl > 0L && pttl <= ttlMs).shouldBeTrue()
+            pttl shouldBeInRange 1..ttlMs
         }
     }
 
@@ -394,16 +401,17 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
     fun `Redis TTL - millisecond 단위도 보존된다`() {
         val ttlMs = 5_000L
         val ttlCacheName = "ms-ttl-" + Base58.randomString(6)
-        val ttlCache =
-            LettuceNearCache(
-                redisClient = resp3Client,
-                codec = StringCodec.UTF8,
-                config = LettuceNearCacheConfig(cacheName = ttlCacheName, redisTtl = Duration.ofMillis(ttlMs))
-            )
+
+        val ttlCache = LettuceNearCache(
+            redisClient = resp3Client,
+            codec = StringCodec.UTF8,
+            config = LettuceNearCacheConfig(cacheName = ttlCacheName, redisTtl = Duration.ofMillis(ttlMs))
+        )
+
         ttlCache.use { c ->
             c.put("ms-key", "ms-val")
             val pttl = directCommands.pttl("$ttlCacheName:ms-key")
-            (pttl > 0L && pttl <= ttlMs).shouldBeTrue()
+            pttl shouldBeInRange 1..ttlMs
         }
     }
 
@@ -455,7 +463,7 @@ class LettuceNearCacheTest: AbstractLettuceNearCacheTest() {
             override fun encodeValue(value: String): ByteBuffer = delegate.encodeValue(value)
         }
 
-    private fun assertWriteFailure(block: () -> Unit) {
+    private inline fun assertWriteFailure(block: () -> Unit) {
         val thrown = runCatching(block).exceptionOrNull()
         thrown.shouldNotBeNull()
         generateSequence(thrown) { it.cause }

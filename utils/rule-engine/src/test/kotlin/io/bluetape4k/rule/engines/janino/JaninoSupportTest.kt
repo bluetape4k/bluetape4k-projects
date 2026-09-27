@@ -1,16 +1,15 @@
 package io.bluetape4k.rule.engines.janino
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.RuleDefinition
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
 class JaninoSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private val amountGt1000 = "((Integer)facts.get(\"amount\")).intValue() > 1000"
     private val putDiscountTrue = "facts.put(\"discount\", Boolean.TRUE);"
@@ -27,7 +26,7 @@ class JaninoSupportTest {
         val action = janinoActionOf(putDiscountTrue)
         val facts = Facts.of("amount" to 1500)
         action.execute(facts)
-        facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("discount").shouldBeTrue()
     }
 
     @Test
@@ -45,7 +44,7 @@ class JaninoSupportTest {
         val facts = Facts.of("amount" to 2000)
         rule.evaluate(facts).shouldBeTrue()
         rule.execute(facts)
-        facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("discount").shouldBeTrue()
     }
 
     @Test
@@ -62,7 +61,7 @@ class JaninoSupportTest {
         val facts = Facts.of("amount" to 2000)
         rule.evaluate(facts).shouldBeTrue()
         rule.execute(facts)
-        facts.get<Boolean>("discount").shouldNotBeNull().shouldBeTrue()
-        facts.get<Boolean>("processed").shouldNotBeNull().shouldBeTrue()
+        facts.get<Boolean>("discount").shouldBeTrue()
+        facts.get<Boolean>("processed").shouldBeTrue()
     }
 }

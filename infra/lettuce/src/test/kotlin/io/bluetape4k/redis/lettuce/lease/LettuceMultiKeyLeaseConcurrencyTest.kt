@@ -5,16 +5,27 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldBeZero
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.lettuce.core.codec.StringCodec
-import org.awaitility.Awaitility.await
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.untilAsserted
+import org.awaitility.kotlin.withPollInterval
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 internal class LettuceMultiKeyLeaseConcurrencyTest {
+
+    private companion object: KLogging() {
+        val FIVE_SECONDS: Duration = Duration.ofSeconds(5)
+        val TEN_SECONDS: Duration = Duration.ofSeconds(10)
+    }
 
     @Test
     fun `overlapping callers create only the winning key set`() {
@@ -35,6 +46,7 @@ internal class LettuceMultiKeyLeaseConcurrencyTest {
                     commands.del(*allKeys)
                     val firstLease = LettuceMultiKeyLease(firstConnection)
                     val secondLease = LettuceMultiKeyLease(secondConnection)
+
                     MultithreadingTester()
                         .workers(2)
                         .rounds(1)
@@ -59,13 +71,13 @@ internal class LettuceMultiKeyLeaseConcurrencyTest {
                     (firstWon xor secondWon).shouldBeTrue()
                     if (firstWon) {
                         secondResult.get() shouldBeEqualTo
-                            MultiKeyAcquireResult.Conflicted(MultiKeyLeaseCounts(2, 0, 1, 1))
+                                MultiKeyAcquireResult.Conflicted(MultiKeyLeaseCounts(2, 0, 1, 1))
                         commands.get(shared) shouldBeEqualTo firstToken
                         commands.get(firstOnly) shouldBeEqualTo firstToken
                         commands.get(secondOnly).shouldBeNull()
                     } else {
                         firstResult.get() shouldBeEqualTo
-                            MultiKeyAcquireResult.Conflicted(MultiKeyLeaseCounts(2, 0, 1, 1))
+                                MultiKeyAcquireResult.Conflicted(MultiKeyLeaseCounts(2, 0, 1, 1))
                         commands.get(shared) shouldBeEqualTo secondToken
                         commands.get(secondOnly) shouldBeEqualTo secondToken
                         commands.get(firstOnly).shouldBeNull()
@@ -92,20 +104,20 @@ internal class LettuceMultiKeyLeaseConcurrencyTest {
                 lease.acquire(keys, owner, FIVE_SECONDS) shouldBeEqualTo MultiKeyAcquireResult.Acquired
 
                 lease.renew(keys, stale, TEN_SECONDS) shouldBeEqualTo
-                    MultiKeyRenewResult.OwnershipMismatch(MultiKeyLeaseCounts(2, 0, 0, 2))
+                        MultiKeyRenewResult.OwnershipMismatch(MultiKeyLeaseCounts(2, 0, 0, 2))
                 lease.release(keys, stale) shouldBeEqualTo
-                    MultiKeyReleaseResult.OwnershipMismatch(MultiKeyLeaseCounts(2, 0, 0, 2))
+                        MultiKeyReleaseResult.OwnershipMismatch(MultiKeyLeaseCounts(2, 0, 0, 2))
                 keys.forEach { commands.get(it) shouldBeEqualTo owner }
 
                 commands.del(keys[1])
                 lease.renew(keys, owner, TEN_SECONDS) shouldBeEqualTo
-                    MultiKeyRenewResult.PartialLoss(MultiKeyLeaseCounts(2, 1, 1, 0))
+                        MultiKeyRenewResult.PartialLoss(MultiKeyLeaseCounts(2, 1, 1, 0))
                 commands.get(keys[0]) shouldBeEqualTo owner
                 commands.get(keys[1]).shouldBeNull()
 
                 commands.psetex(keys[1], 5_000, replacement)
                 lease.release(keys, owner) shouldBeEqualTo
-                    MultiKeyReleaseResult.OwnershipMismatch(MultiKeyLeaseCounts(2, 1, 0, 1))
+                        MultiKeyReleaseResult.OwnershipMismatch(MultiKeyLeaseCounts(2, 1, 0, 1))
                 commands.get(keys[0]).shouldBeNull()
                 commands.get(keys[1]) shouldBeEqualTo replacement
             } finally {
@@ -126,22 +138,14 @@ internal class LettuceMultiKeyLeaseConcurrencyTest {
                 commands.del(*keys.toTypedArray())
                 lease.acquire(keys, token, Duration.ofMillis(200)) shouldBeEqualTo MultiKeyAcquireResult.Acquired
 
-                await()
-                    .atMost(Duration.ofSeconds(5))
-                    .pollInterval(Duration.ofMillis(20))
-                    .untilAsserted {
-                        lease.inspect(keys, token) shouldBeEqualTo MultiKeyInspectResult.Lost
-                    }
+                await atMost 5.seconds withPollInterval 20.milliseconds untilAsserted {
+                    lease.inspect(keys, token) shouldBeEqualTo MultiKeyInspectResult.Lost
+                }
 
                 commands.exists(*keys.toTypedArray()).shouldBeZero()
             } finally {
                 commands.del(*keys.toTypedArray())
             }
         }
-    }
-
-    private companion object {
-        val FIVE_SECONDS: Duration = Duration.ofSeconds(5)
-        val TEN_SECONDS: Duration = Duration.ofSeconds(10)
     }
 }

@@ -65,7 +65,7 @@ class EhCacheSuspendMemoizer<T: Any, R: Any>(
 
     // per-key Deferred 맵: 같은 키에 대해 첫 번째 호출이 Deferred를 생성하고 이후 호출들이 await한다.
     private val inflightMap = ConcurrentHashMap<T, Deferred<R>>()
-    private val clearMutex = Mutex()
+    private val mutex = Mutex()
 
     override suspend fun invoke(input: T): R {
         // 1단계: 빠른 경로 — 이미 캐시된 결과는 lock/Deferred 없이 즉시 반환
@@ -95,7 +95,7 @@ class EhCacheSuspendMemoizer<T: Any, R: Any>(
     }
 
     override suspend fun clear() {
-        clearMutex.withLock {
+        mutex.withLock {
             inflightMap.clear()
             cache.clear()
         }

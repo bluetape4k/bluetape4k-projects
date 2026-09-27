@@ -1,21 +1,21 @@
 package io.bluetape4k.cache.memoizer.caffeine
 
-import io.bluetape4k.cache.memoizer.verifySuspendMemoizerClear
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeLessOrEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.cache.caffeine.cache
 import io.bluetape4k.cache.caffeine.caffeine
 import io.bluetape4k.cache.memoizer.AbstractSuspendMemoizerTest
 import io.bluetape4k.cache.memoizer.SuspendFactorialProvider
 import io.bluetape4k.cache.memoizer.SuspendFibonacciProvider
-import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeLessOrEqualTo
+import io.bluetape4k.cache.memoizer.verifySuspendMemoizerClear
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.delay
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger

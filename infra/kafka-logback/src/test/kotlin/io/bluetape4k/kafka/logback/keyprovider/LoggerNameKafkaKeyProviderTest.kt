@@ -1,6 +1,7 @@
 package io.bluetape4k.kafka.logback.keyprovider
 
 import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.kafka.logback.utils.hashBytes
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -14,8 +15,8 @@ class LoggerNameKafkaKeyProviderTest: AbstractKafkaKeyProviderTest() {
 
     @Test
     fun `log의 logger 기반으로 kafka key를 생성한다`() {
-        val key = keyProvider.get(sampleEvent)!!
+        val key = keyProvider.get(sampleEvent).shouldNotBeNull()
         log.debug { "key=${key.contentToString()}" }
-        key shouldContainSame sampleEvent.loggerName.hashBytes()!!
+        key shouldContainSame sampleEvent.loggerName.hashBytes().shouldNotBeNull()
     }
 }

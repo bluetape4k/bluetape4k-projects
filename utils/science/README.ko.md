@@ -8,17 +8,17 @@ GIS 좌표 변환, Shapefile 처리, JTS 도형 연산, PostGIS 데이터베이�
 
 `bluetape4k-science`는 다섯 가지 도메인을 다룹니다:
 
-| # | 도메인 | 핵심 라이브러리 | 상태 |
-|---|--------|---------------|------|
-| 1 | **GIS 좌표 변환** | Proj4J, proj4j-epsg | ✅ 구현 완료 |
-| 2 | **Shapefile 처리** | GeoTools (LGPL) | ✅ 구현 완료 |
-| 3 | **JTS 도형 연산** | JTS Core | ✅ 구현 완료 |
-| 4 | **PostGIS 데이터 파이프라인** | Exposed + PostGIS | ✅ 구현 완료 |
+| # | 도메인                         | 핵심 라이브러리        | 상태         |
+|---|--------------------------------|------------------------|--------------|
+| 1 | **GIS 좌표 변환**              | Proj4J, proj4j-epsg    | ✅ 구현 완료 |
+| 2 | **Shapefile 처리**             | GeoTools (LGPL)        | ✅ 구현 완료 |
+| 3 | **JTS 도형 연산**              | JTS Core               | ✅ 구현 완료 |
+| 4 | **PostGIS 데이터 파이프라인**  | Exposed + PostGIS      | ✅ 구현 완료 |
 | 5 | **NetCDF 메타데이터 카탈로그** | UCAR netCDF-Java 5.9.1 | ✅ 구현 완료 |
 
 > **NetCDF 현황**: `NetCdfCatalogService.registerFile()`과
 > `NetCdfCatalogService.importGridValues()`가 구현되어 모듈 테스트로 검증됩니다.
-> 서비스는 UCAR netCDF-Java 5.9.1 기반의 동기(blocking) API이며 UCAR 아티팩트는
+> 서비스는 UCAR netCDF-Java 5.9.1 기반의 동기 (blocking) API이며 UCAR 아티팩트는
 > `compileOnly`로 선언되어 있으므로 서비스를 호출하는 애플리케이션이 런타임에 제공해야 합니다.
 >
 > 현재 임포터는 rank 1~4 변수와 1·2차원 좌표축, numeric CF auxiliary coordinate를
@@ -95,31 +95,31 @@ io.bluetape4k.science/
 
 ## 핵심 기능
 
-| 도메인 | 기능 | API |
-|--------|------|-----|
-| **좌표 기본 타입** | WGS84 위경도 + Haversine 거리 | `GeoLocation.distanceTo()` |
-| | 사각형 경계 영역 | `BoundingBox.contains()`, `.intersects()` |
-| | 도분초 표기법 | `DMS.parse()`, `.toDecimal()` |
-| | UTM Zone 자동 판정 | `utmZoneOf(lat, lon)` |
-| | 2D/3D 벡터 연산 | `Vector(x, y, z?)` |
-| **좌표계 변환** | WGS84 ↔ UTM 변환 | `wgs84ToUtm()`, `utmToWgs84()` |
-| | 임의 EPSG 간 변환 | `transform(x, y, srcEpsg, tgtEpsg)` |
-| | CRS 인스턴스 캐싱 | `CrsRegistry` |
-| **Shapefile** | 동기 Shapefile 읽기 | `loadShape(file)` |
-| | 코루틴 기반 비동기 읽기 | `loadShapeAsync(file)` |
-| | 타입 안전 모델 (GeoTools 미노출) | `Shape`, `ShapeRecord` |
-| **도형 연산** | JTS 교집합 / 합집합 / 차집합 | `GeometryOperations.intersection()` |
-| | 버퍼 영역 생성 | `GeometryOperations.buffer()` |
-| | Douglas-Peucker 단순화 | `GeometryOperations.simplify()` |
-| | 거리 계산 | `GeometryOperations.distance()` |
-| **데이터베이스** | 공간 레이어 + 피처 CRUD | `SpatialLayerRepository`, `SpatialFeatureRepository` |
-| | Virtual Thread 배치 Shapefile 임포트 | `ShapefileImportService` |
-| | NetCDF 파일 메타데이터 카탈로그 | `NetCdfFileRepository` ✅ |
-| | NetCDF 격자 값 저장 스키마 | `NetCdfGridValueTable` ✅ |
-| | `.nc` 파일 등록 | `NetCdfCatalogService.registerFile()` ✅ |
-| | rank 1~4 격자 임포트 | `NetCdfCatalogService.importGridValues()` ✅ |
-| | 임포트 progress 진단 | `NetCdfCatalogService.findImportProgress()` ✅ |
-| | CoordinateAxis2D / CF auxiliary 좌표 | `NetCdfCatalogService.importGridValues()` ✅ |
+| 도메인             | 기능                                 | API                                                  |
+|--------------------|--------------------------------------|------------------------------------------------------|
+| **좌표 기본 타입** | WGS84 위경도 + Haversine 거리        | `GeoLocation.distanceTo()`                           |
+|                    | 사각형 경계 영역                     | `BoundingBox.contains()`, `.intersects()`            |
+|                    | 도분초 표기법                        | `DMS.parse()`, `.toDecimal()`                        |
+|                    | UTM Zone 자동 판정                   | `utmZoneOf(lat, lon)`                                |
+|                    | 2D/3D 벡터 연산                      | `Vector(x, y, z?)`                                   |
+| **좌표계 변환**    | WGS84 ↔ UTM 변환                     | `wgs84ToUtm()`, `utmToWgs84()`                       |
+|                    | 임의 EPSG 간 변환                    | `transform(x, y, srcEpsg, tgtEpsg)`                  |
+|                    | CRS 인스턴스 캐싱                    | `CrsRegistry`                                        |
+| **Shapefile**      | 동기 Shapefile 읽기                  | `loadShape(file)`                                    |
+|                    | 코루틴 기반 비동기 읽기              | `loadShapeAsync(file)`                               |
+|                    | 타입 안전 모델 (GeoTools 미노출)     | `Shape`, `ShapeRecord`                               |
+| **도형 연산**      | JTS 교집합 / 합집합 / 차집합         | `GeometryOperations.intersection()`                  |
+|                    | 버퍼 영역 생성                       | `GeometryOperations.buffer()`                        |
+|                    | Douglas-Peucker 단순화               | `GeometryOperations.simplify()`                      |
+|                    | 거리 계산                            | `GeometryOperations.distance()`                      |
+| **데이터베이스**   | 공간 레이어 + 피처 CRUD              | `SpatialLayerRepository`, `SpatialFeatureRepository` |
+|                    | Virtual Thread 배치 Shapefile 임포트 | `ShapefileImportService`                             |
+|                    | NetCDF 파일 메타데이터 카탈로그      | `NetCdfFileRepository` ✅                            |
+|                    | NetCDF 격자 값 저장 스키마           | `NetCdfGridValueTable` ✅                            |
+|                    | `.nc` 파일 등록                      | `NetCdfCatalogService.registerFile()` ✅             |
+|                    | rank 1~4 격자 임포트                 | `NetCdfCatalogService.importGridValues()` ✅         |
+|                    | 임포트 progress 진단                 | `NetCdfCatalogService.findImportProgress()` ✅       |
+|                    | CoordinateAxis2D / CF auxiliary 좌표 | `NetCdfCatalogService.importGridValues()` ✅         |
 
 ---
 
@@ -201,10 +201,10 @@ val poly1 = wkt.read("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))")
 val poly2 = wkt.read("POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))")
 
 val intersection = GeometryOperations.intersection(poly1, poly2)   // 교집합
-val union        = GeometryOperations.union(poly1, poly2)          // 합집합
-val buffered     = GeometryOperations.buffer(poly1, 100.0)         // 100m 버퍼
-val simplified   = GeometryOperations.simplify(poly1, 1.0)         // Douglas-Peucker
-val distance     = GeometryOperations.distance(poly1, poly2)
+val union = GeometryOperations.union(poly1, poly2)          // 합집합
+val buffered = GeometryOperations.buffer(poly1, 100.0)         // 100m 버퍼
+val simplified = GeometryOperations.simplify(poly1, 1.0)         // Douglas-Peucker
+val distance = GeometryOperations.distance(poly1, poly2)
 println("거리: $distance m")
 ```
 
@@ -232,10 +232,7 @@ val importedCount = service.importShapefile(
 println("임포트 완료: $importedCount 레코드")
 ```
 
-`ShapefileImportService`는 companion `.prj` 파일이 있으면 CRS 정보를 읽습니다.
-Web Mercator, UTM 같은 projected 입력은 저장 전에 EPSG:4326으로 변환하고,
-PostGIS geometry는 SRID 4326으로 기록합니다. `.prj` 메타데이터가 없는
-Shapefile은 이미 WGS84라고 가정합니다.
+`ShapefileImportService`는 companion `.prj` 파일이 있으면 CRS 정보를 읽습니다. Web Mercator, UTM 같은 projected 입력은 저장 전에 EPSG:4326으로 변환하고, PostGIS geometry는 SRID 4326으로 기록합니다. `.prj` 메타데이터가 없는 Shapefile은 이미 WGS84라고 가정합니다.
 
 ### 5.5 NetCDF 메타데이터 카탈로그
 
@@ -283,9 +280,7 @@ transaction {
 
 ### 5.6 NetCDF 격자 임포트
 
-`NetCdfCatalogService`는 `.nc` 파일을 열어 메타데이터를 저장하고, 지정한
-변수를 Exposed/PostGIS 격자 테이블로 임포트합니다. 동기(blocking) API이므로
-이벤트 루프 스레드가 아닌 워커 또는 virtual-thread executor에서 호출하세요.
+`NetCdfCatalogService`는 `.nc` 파일을 열어 메타데이터를 저장하고, 지정한 변수를 Exposed/PostGIS 격자 테이블로 임포트합니다. 동기 (blocking) API이므로 이벤트 루프 스레드가 아닌 워커 또는 virtual-thread executor에서 호출하세요.
 
 ```kotlin
 import io.bluetape4k.science.exposed.repository.NetCdfFileRepository
@@ -301,11 +296,10 @@ val fileId = catalog.registerFile("/data/era5/ERA5_2024_01.nc")
 catalog.importGridValues(fileId, variableName = "temperature")
 ```
 
-두 호출은 blocking입니다. 호출자가 `fileId`를 보존할 수 있도록 등록을 import deadline
-밖에서 완료하고, worker에는 `importGridValues()`만 제출하세요. timeout은 cooperative
-cancellation을 요청할 뿐 worker나 데이터베이스 transaction 종료를 보장하지 않습니다.
+두 호출은 blocking입니다. 호출자가 `fileId`를 보존할 수 있도록 등록을 import deadline 밖에서 완료하고, worker에는 `importGridValues()`만 제출하세요. timeout은 cooperative cancellation을 요청할 뿐 worker나 데이터베이스 transaction 종료를 보장하지 않습니다.
 
 <!-- netcdf-timeout-example:start -->
+
 ```kotlin
 import io.bluetape4k.science.exposed.NetCdfException
 import io.bluetape4k.science.exposed.model.NetCdfImportStatus
@@ -369,45 +363,32 @@ if (!workerTerminated) {
 }
 if (callerInterrupted) Thread.currentThread().interrupt()
 ```
+
 <!-- netcdf-timeout-example:end -->
 
 `awaitTermination=false`는 항상 `RECOVERY_REQUIRED`입니다. worker를 격리하고
-`netcdf.import.worker.stuck` 경보를 보낸 뒤 자동 재시도를 0회로 유지하세요. worker 종료를
-확인한 뒤에는 worker 예외와 progress를 함께 분류합니다.
+`netcdf.import.worker.stuck` 경보를 보낸 뒤 자동 재시도를 0회로 유지하세요. worker 종료를 확인한 뒤에는 worker 예외와 progress를 함께 분류합니다.
 
-| Worker/progress/기준 신호 | Outcome | Caller 조치 |
-|--------------------------|---------|-------------|
-| `terminated=false` | `RECOVERY_REQUIRED` | worker 격리, stuck 경보, 재시도 금지 |
-| progress `COMPLETED` | `COMPLETED` | 작업 완료 처리 |
-| 첫 `ImportAlreadyRunning` | `RUNNING` | DB lease 결과를 신뢰하고 재시도 금지 |
-| `PENDING`, `FAILED`, row 없음, 판정할 수 없는 `IN_PROGRESS` | `RETRY_REVIEW` | 자동 재시도 0회, 운영 검토 |
-| 반복 `ImportAlreadyRunning` 또는 attempt 상한 소진 | `RECOVERY_REQUIRED` | 재시도 중단과 경보 |
-| non-transient typed failure | `RECOVERY_REQUIRED` | 입력이나 운영 조건을 수정하기 전 재시도 금지 |
-| 예상하지 못한 worker failure | `RECOVERY_REQUIRED` | fail-closed, 진단 보존, 경보 |
+| Worker/progress/기준 신호                                   | Outcome             | Caller 조치                                  |
+|-------------------------------------------------------------|---------------------|----------------------------------------------|
+| `terminated=false`                                          | `RECOVERY_REQUIRED` | worker 격리, stuck 경보, 재시도 금지         |
+| progress `COMPLETED`                                        | `COMPLETED`         | 작업 완료 처리                               |
+| 첫 `ImportAlreadyRunning`                                   | `RUNNING`           | DB lease 결과를 신뢰하고 재시도 금지         |
+| `PENDING`, `FAILED`, row 없음, 판정할 수 없는 `IN_PROGRESS` | `RETRY_REVIEW`      | 자동 재시도 0회, 운영 검토                   |
+| 반복 `ImportAlreadyRunning` 또는 attempt 상한 소진          | `RECOVERY_REQUIRED` | 재시도 중단과 경보                           |
+| non-transient typed failure                                 | `RECOVERY_REQUIRED` | 입력이나 운영 조건을 수정하기 전 재시도 금지 |
+| 예상하지 못한 worker failure                                | `RECOVERY_REQUIRED` | fail-closed, 진단 보존, 경보                 |
 
-`leaseExpiresAt`과 application host clock을 비교하지 마세요. 만료된 lease의 재획득 가능 여부는
-데이터베이스가 판정하며, `ImportAlreadyRunning`이 활성 lease의 기준 신호입니다. `fileId`는
-권한 토큰이 아닙니다. register, import, progress, retry를 각각 인증·인가하고, 매 호출에서
-tenant/job 소유권을 확인하며, caller-owned allowed-root 정책에 속한 경로만 허용하세요.
+`leaseExpiresAt`과 application host clock을 비교하지 마세요. 만료된 lease의 재획득 가능 여부는 데이터베이스가 판정하며, `ImportAlreadyRunning`이 활성 lease의 기준 신호입니다. `fileId`는 권한 토큰이 아닙니다. register, import, progress, retry를 각각 인증·인가하고, 매 호출에서 tenant/job 소유권을 확인하며, caller-owned allowed-root 정책에 속한 경로만 허용하세요.
 
-서비스는 symlink, 일반 파일이 아닌 경로, identity 변경, open 중 파일 변경을 거부하지만 이
-guard가 sandbox를 대신하지는 않습니다. 업로드 파일은 hostile writer가 접근할 수 없는 immutable
-quarantine directory에 보관하세요. fingerprint는 content hash나 TOCTOU 증명이 아닌
-`fileKey|size|lastModifiedTime` 휴리스틱입니다. 값이 다르면 `FileChanged`가 발생하지만 공격자가
-동일 metadata를 보존할 수 있습니다. fingerprint나 파일 이름이 같다는 이유로 content integrity가
-증명됐거나 등록된 path를 교체해도 안전하다고 가정하면 안 됩니다.
+서비스는 symlink, 일반 파일이 아닌 경로, identity 변경, open 중 파일 변경을 거부하지만 이 guard가 sandbox를 대신하지는 않습니다. 업로드 파일은 hostile writer가 접근할 수 없는 immutable quarantine directory에 보관하세요. fingerprint는 content hash나 TOCTOU 증명이 아닌
+`fileKey|size|lastModifiedTime` 휴리스틱입니다. 값이 다르면 `FileChanged`가 발생하지만 공격자가 동일 metadata를 보존할 수 있습니다. fingerprint나 파일 이름이 같다는 이유로 content integrity가 증명됐거나 등록된 path를 교체해도 안전하다고 가정하면 안 됩니다.
 
-`findImportProgress()`는 운영용 model을 반환합니다. caller-owned DTO에는 status, 마지막 commit
-slice, coarse outcome만 allowlist로 복사하세요. `errorMessage`, `leaseExpiresAt`, timestamp, raw path,
-tenant identifier, fingerprint를 직렬화하면 안 됩니다. library metric
+`findImportProgress()`는 운영용 model을 반환합니다. caller-owned DTO에는 status, 마지막 commit slice, coarse outcome만 allowlist로 복사하세요. `errorMessage`, `leaseExpiresAt`, timestamp, raw path, tenant identifier, fingerprint를 직렬화하면 안 됩니다. library metric
 `netcdf.import.progress.lookup`은 고정 `status` tag를 사용합니다. caller 경보는
-`netcdf.import.timeout`, `netcdf.import.worker.stuck`, `netcdf.import.retry.exhausted`를 사용할 수
-있으며 metric tag는 `operation`, `outcome`처럼 cardinality가 제한된 값만 둡니다. correlation ID는
-metric tag가 아니라 구조화 로그나 trace 필드에 기록하세요.
+`netcdf.import.timeout`, `netcdf.import.worker.stuck`, `netcdf.import.retry.exhausted`를 사용할 수 있으며 metric tag는 `operation`, `outcome`처럼 cardinality가 제한된 값만 둡니다. correlation ID는 metric tag가 아니라 구조화 로그나 trace 필드에 기록하세요.
 
-`NetCdfException`은 sealed 타입이므로 subtype이 추가되면 exhaustive consumer `when`의 source
-migration이 필요할 수 있습니다. integration 경계에는 `else` fallback을 두고 caller가 정책을
-소유한 subtype만 명시적으로 매핑하세요.
+`NetCdfException`은 sealed 타입이므로 subtype이 추가되면 exhaustive consumer `when`의 source migration이 필요할 수 있습니다. integration 경계에는 `else` fallback을 두고 caller가 정책을 소유한 subtype만 명시적으로 매핑하세요.
 
 운영 복구 순서는 다음과 같습니다.
 
@@ -420,24 +401,18 @@ migration이 필요할 수 있습니다. integration 경계에는 `else` fallbac
 
 지원 rank의 저장 좌표는 다음과 같습니다.
 
-| 변수 rank | 저장 좌표 |
-|-----------|----------|
-| 1D (`time`) | `timeIdx=t`, `levelIdx=0`, `location=null` |
+| 변수 rank                                  | 저장 좌표                                         |
+|--------------------------------------------|---------------------------------------------------|
+| 1D (`time`)                                | `timeIdx=t`, `levelIdx=0`, `location=null`        |
 | 2D (`lat`, `lon`), `CoordinateAxis2D` 포함 | `timeIdx=0`, `levelIdx=0`, 셀마다 PostGIS `POINT` |
-| 3D (`time`, `lat`, `lon`) | `timeIdx=t`, `levelIdx=0`, 셀마다 `POINT` |
-| 4D (`time`, `level`, `lat`, `lon`) | `timeIdx=t`, `levelIdx=k`, 셀마다 `POINT` |
+| 3D (`time`, `lat`, `lon`)                  | `timeIdx=t`, `levelIdx=0`, 셀마다 `POINT`         |
+| 4D (`time`, `level`, `lat`, `lon`)         | `timeIdx=t`, `levelIdx=k`, 셀마다 `POINT`         |
 
-CF `coordinates` 토큰 중 time·level·latitude·longitude가 아닌 numeric 좌표는
-auxiliary coordinate로 취급해 `attrs`에 직렬화합니다(예: `{"altitude": 125.0}`).
-`[time, x, y]` 같은 비표준 데이터 dimension 순서도 보존하며, tile은 65,536셀,
-JDBC batch는 1,000행으로 제한합니다. slice를 쓰기 전에 canonical 좌표 중복을 검증하고,
-지원하지 않는 축·잘못된 CRS metadata·변경된 파일·손상된 progress·자원 한도 초과는
-typed `NetCdfException` 하위 타입으로 보고합니다.
+CF `coordinates` 토큰 중 time·level·latitude·longitude가 아닌 numeric 좌표는 auxiliary coordinate로 취급해 `attrs`에 직렬화합니다 (예: `{"altitude": 125.0}`).
+`[time, x, y]` 같은 비표준 데이터 dimension 순서도 보존하며, tile은 65,536셀, JDBC batch는 1,000행으로 제한합니다. slice를 쓰기 전에 canonical 좌표 중복을 검증하고, 지원하지 않는 축·잘못된 CRS metadata·변경된 파일·손상된 progress·자원 한도 초과는 typed `NetCdfException` 하위 타입으로 보고합니다.
 
-각 `(fileId, variableName)` 임포트는 5분 heartbeat lease와 슬라이스 cursor를
-사용합니다. `COMPLETED` 상태는 no-op이며, 실패했거나 만료된 임포트는
-`lastSliceIdx + 1`부터 재개합니다. 지원 CRS는 EPSG:4326, 4269, 3857, 3031,
-3413, UTM EPSG:32601~32660/32701~32760이며, 그 밖의 값은
+각 `(fileId, variableName)` 임포트는 5분 heartbeat lease와 슬라이스 cursor를 사용합니다. `COMPLETED` 상태는 no-op이며, 실패했거나 만료된 임포트는
+`lastSliceIdx + 1`부터 재개합니다. 지원 CRS는 EPSG:4326, 4269, 3857, 3031, 3413, UTM EPSG:32601~32660/32701~32760이며, 그 밖의 값은
 `NetCdfException.UnsupportedProjection`을 발생시킵니다. NaN과 `_FillValue`
 셀은 건너뛰고 `netcdf.import.nan.skipped` counter에 기록합니다.
 
@@ -447,79 +422,71 @@ typed `NetCdfException` 하위 타입으로 보고합니다.
 
 ### coords
 
-| 클래스 / 함수 | 설명 |
-|--------------|------|
-| `GeoLocation(lat, lon)` | WGS84 좌표; `.distanceTo()` — Haversine 거리 (미터) |
-| `BoundingBox(minLat, minLon, maxLat, maxLon)` | 사각형 경계; `.contains()`, `.intersects()` |
-| `DMS.parse(str)` / `DM.parse(str)` | 도분초 / 도분 문자열 파싱 |
-| `UtmZone(zone, hemisphere)` | UTM Zone 데이터 클래스 |
-| `utmZoneOf(lat, lon)` | WGS84 좌표로 UTM Zone 자동 판정 |
-| `Vector(x, y, z?)` | 2D/3D 벡터 + 산술 연산 |
+| 클래스 / 함수                                 | 설명                                                |
+|-----------------------------------------------|-----------------------------------------------------|
+| `GeoLocation(lat, lon)`                       | WGS84 좌표; `.distanceTo()` — Haversine 거리 (미터) |
+| `BoundingBox(minLat, minLon, maxLat, maxLon)` | 사각형 경계; `.contains()`, `.intersects()`         |
+| `DMS.parse(str)` / `DM.parse(str)`            | 도분초 / 도분 문자열 파싱                           |
+| `UtmZone(zone, hemisphere)`                   | UTM Zone 데이터 클래스                              |
+| `utmZoneOf(lat, lon)`                         | WGS84 좌표로 UTM Zone 자동 판정                     |
+| `Vector(x, y, z?)`                            | 2D/3D 벡터 + 산술 연산                              |
 
 ### projection
 
-| 함수 | 설명 |
-|------|------|
-| `wgs84ToUtm(geoLocation)` | WGS84 → UTM (easting, northing) |
-| `utmToWgs84(e, n, zone)` | UTM → WGS84 |
-| `transform(x, y, srcEpsg, tgtEpsg)` | 임의 EPSG 간 좌표 변환 |
-| `CrsRegistry` | EPSG 코드별 CRS 인스턴스 캐시 (스레드 안전) |
+| 함수                                | 설명                                        |
+|-------------------------------------|---------------------------------------------|
+| `wgs84ToUtm(geoLocation)`           | WGS84 → UTM (easting, northing)             |
+| `utmToWgs84(e, n, zone)`            | UTM → WGS84                                 |
+| `transform(x, y, srcEpsg, tgtEpsg)` | 임의 EPSG 간 좌표 변환                      |
+| `CrsRegistry`                       | EPSG 코드별 CRS 인스턴스 캐시 (스레드 안전) |
 
 ### shapefile
 
-| 함수 | 설명 |
-|------|------|
-| `loadShape(file, charset?)` | 동기 Shapefile 읽기 |
+| 함수                             | 설명                                  |
+|----------------------------------|---------------------------------------|
+| `loadShape(file, charset?)`      | 동기 Shapefile 읽기                   |
 | `loadShapeAsync(file, charset?)` | 코루틴 비동기 읽기 (`Dispatchers.IO`) |
-| `Shape` | 파일 메타데이터 + 레코드 목록 |
-| `ShapeRecord` | 도형 + 속성 맵 (GeoTools 타입 미노출) |
+| `Shape`                          | 파일 메타데이터 + 레코드 목록         |
+| `ShapeRecord`                    | 도형 + 속성 맵 (GeoTools 타입 미노출) |
 
 ### geometry
 
-| 함수 | 설명 |
-|------|------|
-| `GeometryOperations.intersection(a, b)` | 교집합 |
-| `GeometryOperations.union(a, b)` | 합집합 |
-| `GeometryOperations.buffer(g, dist)` | 지정 거리 버퍼 영역 생성 |
-| `GeometryOperations.simplify(g, tol)` | Douglas-Peucker 단순화 |
-| `GeometryOperations.distance(a, b)` | 도형 간 최소 거리 |
-| `Polygon.area()` / `.perimeter()` | 면적 / 둘레 확장 함수 |
+| 함수                                    | 설명                     |
+|-----------------------------------------|--------------------------|
+| `GeometryOperations.intersection(a, b)` | 교집합                   |
+| `GeometryOperations.union(a, b)`        | 합집합                   |
+| `GeometryOperations.buffer(g, dist)`    | 지정 거리 버퍼 영역 생성 |
+| `GeometryOperations.simplify(g, tol)`   | Douglas-Peucker 단순화   |
+| `GeometryOperations.distance(a, b)`     | 도형 간 최소 거리        |
+| `Polygon.area()` / `.perimeter()`       | 면적 / 둘레 확장 함수    |
 
 ### exposed (PostGIS)
 
-| 클래스 | 설명 |
-|--------|------|
-| `SpatialLayerRepository` | 레이어 CRUD (`save`, `findByName`) |
-| `SpatialFeatureRepository` | 피처 CRUD + PostGIS bbox 검색 |
-| `ShapefileImportService` | Virtual Thread 배치 Shapefile 임포트 |
+| 클래스                     | 설명                                 |
+|----------------------------|--------------------------------------|
+| `SpatialLayerRepository`   | 레이어 CRUD (`save`, `findByName`)   |
+| `SpatialFeatureRepository` | 피처 CRUD + PostGIS bbox 검색        |
+| `ShapefileImportService`   | Virtual Thread 배치 Shapefile 임포트 |
 
 ### exposed (NetCDF)
 
-| 클래스 | 상태 | 설명 |
-|--------|------|------|
-| `NetCdfFileRecord` | ✅ | 파일 메타데이터 모델 (filename, path, size, variables, dimensions) |
-| `NetCdfVariableInfo` | ✅ | 변수 기술자 (name, dataType, shape, attributes) |
-| `NetCdfDimensionInfo` | ✅ | 차원 기술자 (name, length, isUnlimited) |
-| `NetCdfFileRepository` | ✅ | 파일 메타데이터 CRUD (`save`, `findById`, `findAll`, `deleteById`) |
-| `NetCdfFileTable` | ✅ | JSONB 컬럼 + PostGIS bbox + 시간 범위 |
-| `NetCdfGridValueTable` | ✅ | 격자 값 테이블 (location: PostGIS POINT, value, timeIdx, levelIdx) |
-| `NetCdfCatalogService` | ✅ | 동기 `registerFile()`·`importGridValues()`와 read-only `findImportProgress()`; rank 1~4, 1D/2D 축, CF numeric auxiliary, bounded tile, lease/resume, CRS 화이트리스트, NaN/`_FillValue` 처리 |
+| 클래스                 | 상태 | 설명                                                                                                                                                                                         |
+|------------------------|------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `NetCdfFileRecord`     | ✅   | 파일 메타데이터 모델 (filename, path, size, variables, dimensions)                                                                                                                           |
+| `NetCdfVariableInfo`   | ✅   | 변수 기술자 (name, dataType, shape, attributes)                                                                                                                                              |
+| `NetCdfDimensionInfo`  | ✅   | 차원 기술자 (name, length, isUnlimited)                                                                                                                                                      |
+| `NetCdfFileRepository` | ✅   | 파일 메타데이터 CRUD (`save`, `findById`, `findAll`, `deleteById`)                                                                                                                           |
+| `NetCdfFileTable`      | ✅   | JSONB 컬럼 + PostGIS bbox + 시간 범위                                                                                                                                                        |
+| `NetCdfGridValueTable` | ✅   | 격자 값 테이블 (location: PostGIS POINT, value, timeIdx, levelIdx)                                                                                                                           |
+| `NetCdfCatalogService` | ✅   | 동기 `registerFile()`·`importGridValues()`와 read-only `findImportProgress()`; rank 1~4, 1D/2D 축, CF numeric auxiliary, bounded tile, lease/resume, CRS 화이트리스트, NaN/`_FillValue` 처리 |
 
-`NetCdfCatalogService`는 sealed `NetCdfException` subtype으로 typed failure를 보고합니다.
-새 subtype이 추가되면 exhaustive `when`의 source migration이 필요할 수 있으므로 consumer
-code에는 `else` fallback을 유지하세요. 빈 경로와 변수명은 `IllegalArgumentException`을
-발생시키며, 파일·변수·좌표 누락,
-지원하지 않는 rank/축/CRS, 활성 lease, lease 손실, 파일 변경, 손상된 progress,
-좌표 중복, 자원 한도 초과는 각각의 `NetCdfException` 하위 타입으로 보고합니다.
-기존 schema를 재사용해 `location`에는 canonical `(lon, lat)`, `attrs`에는
-bounded numeric auxiliary JSONB를 저장합니다.
+`NetCdfCatalogService`는 sealed `NetCdfException` subtype으로 typed failure를 보고합니다. 새 subtype이 추가되면 exhaustive `when`의 source migration이 필요할 수 있으므로 consumer code에는 `else` fallback을 유지하세요. 빈 경로와 변수명은 `IllegalArgumentException`을 발생시키며, 파일·변수·좌표 누락, 지원하지 않는 rank/축/CRS, 활성 lease, lease 손실, 파일 변경, 손상된 progress, 좌표 중복, 자원 한도 초과는 각각의 `NetCdfException` 하위 타입으로 보고합니다. 기존 schema를 재사용해 `location`에는 canonical `(lon, lat)`, `attrs`에는 bounded numeric auxiliary JSONB를 저장합니다.
 
 ---
 
 ## 설치 및 의존성
 
-`bluetape4k-science`는 기능별 선택 의존성을 `compileOnly`로 선언합니다.
-**필요한 라이브러리만 런타임 의존성으로 추가하세요.**
+`bluetape4k-science`는 기능별 선택 의존성을 `compileOnly`로 선언합니다. **필요한 라이브러리만 런타임 의존성으로 추가하세요.**
 
 ### 기본 설치
 
@@ -575,9 +542,7 @@ implementation(Libs.kotlinx_coroutines_core)
 ### NetCDF (UCAR netCDF-Java 5.9.1)
 
 `utils/science/build.gradle.kts`는 NetCDF 통합을
-`edu.ucar:cdm-core:5.9.1`, `edu.ucar:netcdf4:5.9.1`의 `compileOnly`로
-컴파일합니다. `NetCdfCatalogService`를 호출하는 애플리케이션은 동일한
-아티팩트를 런타임에 제공해야 합니다.
+`edu.ucar:cdm-core:5.9.1`, `edu.ucar:netcdf4:5.9.1`의 `compileOnly`로 컴파일합니다. `NetCdfCatalogService`를 호출하는 애플리케이션은 동일한 아티팩트를 런타임에 제공해야 합니다.
 
 ```kotlin
 repositories {
@@ -589,9 +554,7 @@ dependencies {
 }
 ```
 
-이전 aggregate 좌표는 현재 계약이 아니므로 사용하지 않습니다. 루트 빌드는
-Unidata 저장소를 이미 선언하지만, 이 저장소 밖의 애플리케이션은
-의존성 관리가 이를 상속하지 않는 경우 위 저장소를 직접 추가하세요.
+이전 aggregate 좌표는 현재 계약이 아니므로 사용하지 않습니다. 루트 빌드는 Unidata 저장소를 이미 선언하지만, 이 저장소 밖의 애플리케이션은 의존성 관리가 이를 상속하지 않는 경우 위 저장소를 직접 추가하세요.
 
 ### 전체 의존성 예시
 
@@ -617,7 +580,7 @@ dependencies {
 
 ## 테스트 (Testcontainers + PostGIS)
 
-통합 테스트는 Testcontainers 기반 PostgreSQL + PostGIS 컨테이너(`postgis/postgis:16-3.4`)로 실행됩니다.
+통합 테스트는 Testcontainers 기반 PostgreSQL + PostGIS 컨테이너 (`postgis/postgis:16-3.4`)로 실행됩니다.
 
 ### NetCDF 카탈로그 테스트
 
@@ -654,11 +617,8 @@ class NetCdfTableTest : AbstractPostgisTest() {
 }
 ```
 
-`NetCdfCatalogServiceTest`는 동적으로 생성한 rank 1~4 파일로 현재 서비스
-계약을 검증합니다. 메타데이터 등록, 격자 row 수, 변수·좌표 누락, NaN과
-`_FillValue` 필터링, CRS 재투영 및 화이트리스트 실패, resume/no-op,
-heartbeat lease 경합과 stale owner 보호를 포함합니다. Unidata 공개 CF-1.x
-샘플 회귀는 `slow-netcdf` 태그로 분리되어 있습니다.
+`NetCdfCatalogServiceTest`는 동적으로 생성한 rank 1~4 파일로 현재 서비스 계약을 검증합니다. 메타데이터 등록, 격자 row 수, 변수·좌표 누락, NaN과
+`_FillValue` 필터링, CRS 재투영 및 화이트리스트 실패, resume/no-op, heartbeat lease 경합과 stale owner 보호를 포함합니다. Unidata 공개 CF-1.x 샘플 회귀는 `slow-netcdf` 태그로 분리되어 있습니다.
 
 ```bash
 # 로컬/기본 프로필: 느린 공개 샘플 회귀는 제외합니다.
@@ -668,9 +628,7 @@ heartbeat lease 경합과 stale owner 보호를 포함합니다. Unidata 공개 
 ./gradlew :bluetape4k-science:test -PincludeTags=slow-netcdf --no-configuration-cache
 ```
 
-모듈 기본 테스트 설정은 `slow-netcdf`를 제외하며, `-PincludeTags`를 지정하면
-해당 제외가 해제됩니다. Testcontainers 기반 테스트에는 동작하는 Docker
-런타임과 PostgreSQL/PostGIS 접근이 필요합니다.
+모듈 기본 테스트 설정은 `slow-netcdf`를 제외하며, `-PincludeTags`를 지정하면 해당 제외가 해제됩니다. Testcontainers 기반 테스트에는 동작하는 Docker 런타임과 PostgreSQL/PostGIS 접근이 필요합니다.
 
 ### Shapefile 임포트 테스트
 
@@ -701,12 +659,12 @@ fun `Shapefile PostGIS 임포트`() {
 ### Shapefile 처리
 
 - 대용량 파일은 `loadShapeAsync()` 사용 — `Dispatchers.IO` 디스패치, 논블로킹 처리.
-- 지연(lazy) 레코드 순회로 수 GB 파일도 메모리 효율적 처리 가능.
+- 지연 (lazy) 레코드 순회로 수 GB 파일도 메모리 효율적 처리 가능.
 
 ### PostGIS 데이터베이스
 
 - **공간 인덱스**: `CREATE INDEX ON spatial_features USING GIST (geom)` — bbox 범위 검색 가속.
-- **배치 처리**: `ShapefileImportService`는 설정 가능한 배치 크기(기본 1000행)로 Virtual Thread 처리.
+- **배치 처리**: `ShapefileImportService`는 설정 가능한 배치 크기 (기본 1000행)로 Virtual Thread 처리.
 - **연결 풀링**: HikariCP 또는 Exposed 내장 풀 사용 권장.
 
 ### JTS 도형
@@ -724,31 +682,25 @@ fun `Shapefile PostGIS 임포트`() {
 
 ## 관련 모듈
 
-| 모듈 | 용도 |
-|------|------|
-| `bluetape4k-core` | 기본 유틸리티 (압축, 어설션) |
-| `bluetape4k-coroutines` | 코루틴 확장 (Flow, DeferredValue) |
-| `bluetape4k-exposed-postgresql` | PostGIS 컬럼 타입 |
-| `bluetape4k-exposed-jdbc` | Exposed JDBC 저장소 기반 클래스 |
-| `bluetape4k-testing-testcontainers` | Testcontainers 헬퍼 |
+| 모듈                                | 용도                              |
+|-------------------------------------|-----------------------------------|
+| `bluetape4k-core`                   | 기본 유틸리티 (압축, 어설션)      |
+| `bluetape4k-coroutines`             | 코루틴 확장 (Flow, DeferredValue) |
+| `bluetape4k-exposed-postgresql`     | PostGIS 컬럼 타입                 |
+| `bluetape4k-exposed-jdbc`           | Exposed JDBC 저장소 기반 클래스   |
+| `bluetape4k-testing-testcontainers` | Testcontainers 헬퍼               |
 
 ## 실패와 생명주기 계약
 
 BoundingBox는 생성자와 copy에서 위도 [-90, 90], 경도 [-180, 180] 범위를 검증합니다. 최소/최대 순서를 유지해야 하며 날짜 변경선 교차를 경도 역순 범위로 표현하지 않습니다.
 
-
 ### Shapefile 경계 타입 이행
 
 `ShapeHeader.bbox`, `ShapeRecord.bbox`, `Shape.computeBoundingBox()`는 이제
-`ShapeBounds(minX, minY, maxX, maxY)`를 사용합니다. 각 축은 유한한 값과 최소/최대
-순서만 검증하므로 EPSG:3857 같은 미터 단위 투영좌표를 보존합니다. `loadShape`와
+`ShapeBounds(minX, minY, maxX, maxY)`를 사용합니다. 각 축은 유한한 값과 최소/최대 순서만 검증하므로 EPSG:3857 같은 미터 단위 투영좌표를 보존합니다. `loadShape`와
 `loadShapeAsync`는 CRS를 추론하거나 좌표를 변환하지 않습니다.
 
-기존 `minLon`/`maxLon` 접근은 `minX`/`maxX`로, `minLat`/`maxLat`는 `minY`/`maxY`로
-변경해야 합니다. 생성자 인수는 이름을 지정해 축 순서를 확인하세요. 반환 타입과 모델 생성자
-시그니처가 바뀌므로 호출자 소스 수정과 재컴파일이 필요합니다. `ShapeHeader`와 `ShapeRecord`의
-이전 Java 직렬화 데이터도 호환되지 않습니다(`serialVersionUID = 2L`). 저장한 객체는
-원본 Shapefile에서 다시 읽어 생성하세요.
+기존 `minLon`/`maxLon` 접근은 `minX`/`maxX`로, `minLat`/`maxLat`는 `minY`/`maxY`로 변경해야 합니다. 생성자 인수는 이름을 지정해 축 순서를 확인하세요. 반환 타입과 모델 생성자 시그니처가 바뀌므로 호출자 소스 수정과 재컴파일이 필요합니다. `ShapeHeader`와 `ShapeRecord`의 이전 Java 직렬화 데이터도 호환되지 않습니다 (`serialVersionUID = 2L`). 저장한 객체는 원본 Shapefile에서 다시 읽어 생성하세요.
 
 ```kotlin
 val shape = loadShape(file)
@@ -756,7 +708,5 @@ val bounds: ShapeBounds? = shape.computeBoundingBox()
 val filtered = shape.filterByBoundingBox(shape.header.bbox)
 ```
 
-`filterByBoundingBox(ShapeBounds)`는 도형과 같은 좌표계의 경계를 받습니다.
-기존 `filterByBoundingBox(BoundingBox)`는 위경도 도형에 사용하며 자동 변환하지 않습니다.
-DB 임포트는 기존 CRS 변환을 수행한 뒤 WGS84 경계를 검증합니다. `BoundingBox`는
+`filterByBoundingBox(ShapeBounds)`는 도형과 같은 좌표계의 경계를 받습니다. 기존 `filterByBoundingBox(BoundingBox)`는 위경도 도형에 사용하며 자동 변환하지 않습니다. DB 임포트는 기존 CRS 변환을 수행한 뒤 WGS84 경계를 검증합니다. `BoundingBox`는
 `geo` 모듈의 경계 타입과 달리 날짜 변경선을 가로지르는 역순 경도를 허용하지 않습니다.

@@ -1,8 +1,13 @@
 package io.bluetape4k.io
 
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.await
+import io.bluetape4k.concurrent.awaitTermination
+import io.bluetape4k.concurrent.get
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -10,14 +15,16 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration.Companion.seconds
 
 class AtomicFileSupportTest {
+
+    companion object: KLogging()
 
     @TempDir
     lateinit var tempDir: Path
@@ -82,8 +89,8 @@ class AtomicFileSupportTest {
             target.writeAtomically { throw IllegalArgumentException("reject") }
         }
 
-        assertTrue(Files.isDirectory(target.parent))
-        assertFalse(Files.exists(target))
+        Files.isDirectory(target.parent).shouldBeTrue()
+        Files.exists(target).shouldBeFalse()
         assertNoSiblingTemps(target)
     }
 
@@ -93,24 +100,25 @@ class AtomicFileSupportTest {
         val release = CountDownLatch(1)
         val executor = Executors.newFixedThreadPool(2)
         val targets = listOf(tempDir.resolve("a.bin"), tempDir.resolve("b.bin"))
+
         val futures = targets.mapIndexed { index, target ->
             executor.submit<Long> {
                 target.writeAtomically { output ->
                     entered.countDown()
-                    assertTrue(release.await(5, TimeUnit.SECONDS))
+                    assertTrue(release.await(5.seconds))
                     output.write("payload-$index".toByteArray())
                 }
             }
         }
 
         try {
-            assertTrue(entered.await(5, TimeUnit.SECONDS))
+            assertTrue(entered.await(5.seconds))
             release.countDown()
-            futures.forEach { it.get(5, TimeUnit.SECONDS) }
+            futures.forEach { it.get(5.seconds) }
         } finally {
             release.countDown()
             executor.shutdownNow()
-            assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS))
+            executor.awaitTermination(5.seconds).shouldBeTrue()
         }
 
         targets.forEach(::assertNoSiblingTemps)
@@ -126,20 +134,20 @@ class AtomicFileSupportTest {
             executor.submit<Long> {
                 target.writeAtomically { output ->
                     output.write(payload)
-                    staged.await(5, TimeUnit.SECONDS)
+                    staged.await(5.seconds)
                 }
             }
         }
 
         try {
-            futures.forEach { it.get(5, TimeUnit.SECONDS) }
+            futures.forEach { it.get(5.seconds) }
         } finally {
             executor.shutdownNow()
-            assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS))
+            executor.awaitTermination(5.seconds).shouldBeTrue()
         }
 
         val actual = Files.readAllBytes(target)
-        assertTrue(payloads.any(actual::contentEquals))
+        payloads.any(actual::contentEquals).shouldBeTrue()
         assertNoSiblingTemps(target)
     }
 
@@ -173,27 +181,27 @@ class AtomicFileSupportTest {
         }
 
         try {
-            writers.forEach { it.get(15, TimeUnit.SECONDS) }
+            writers.forEach { it.get(15.seconds) }
             reading.set(false)
-            reader.get(5, TimeUnit.SECONDS)
+            reader.get(5.seconds)
             assertTrue(partialSizes.isEmpty(), "partial sizes=$partialSizes")
         } finally {
             reading.set(false)
             executor.shutdownNow()
-            assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS))
+            executor.awaitTermination(5.seconds).shouldBeTrue()
         }
 
-        assertTrue(payloads.any(Files.readAllBytes(target)::contentEquals))
+        payloads.any(Files.readAllBytes(target)::contentEquals).shouldBeTrue()
         assertNoSiblingTemps(target)
     }
 
     private fun assertNoSiblingTemps(target: Path) {
         val prefix = ".${target.fileName}."
         Files.list(target.parent).use { siblings ->
-            assertFalse(siblings.anyMatch { path ->
+            siblings.anyMatch { path ->
                 val name = path.fileName.toString()
                 name.startsWith(prefix) && name.endsWith(".tmp")
-            })
+            }.shouldBeFalse()
         }
     }
 }

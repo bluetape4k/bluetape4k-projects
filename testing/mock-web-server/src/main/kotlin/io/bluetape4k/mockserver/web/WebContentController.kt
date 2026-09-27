@@ -17,7 +17,7 @@ import java.util.concurrent.ThreadLocalRandom
 @RestController
 @RequestMapping("/web")
 class WebContentController(private val loader: WebContentLoader) {
-    companion object : KLogging() {
+    companion object: KLogging() {
         private val HTML_NAMES = listOf("home", "naver", "google", "login", "article")
     }
 

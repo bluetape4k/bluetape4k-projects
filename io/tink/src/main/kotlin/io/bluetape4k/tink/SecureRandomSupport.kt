@@ -4,15 +4,11 @@ import io.bluetape4k.support.emptyByteArray
 import java.security.SecureRandom
 
 /**
- * 난수 발생 기본 알고리즘
- */
-internal const val randomNumberGenerationAlgorithm = "SHA1PRNG"
-
-/**
  * 기본 [SecureRandom] 인스턴스
  */
 @JvmField
-internal val secureRandom: SecureRandom = SecureRandom.getInstance(randomNumberGenerationAlgorithm)
+internal val secureRandom: SecureRandom = SecureRandom.getInstanceStrong()
+
 
 /**
  * 지정 길이의 난수 바이트 배열을 생성합니다.

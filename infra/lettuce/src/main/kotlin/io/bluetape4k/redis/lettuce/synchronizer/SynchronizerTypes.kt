@@ -14,43 +14,67 @@ private const val MAX_LATCH_COUNT = 1_000_000
 
 /** Stable, caller-supplied semaphore owner identity. Its value is redacted from [toString]. */
 class SemaphoreOwnerId private constructor(internal val value: String): Serializable {
-    init { validateIdentity(value, "Semaphore owner ID") }
+    init {
+        validateIdentity(value, "Semaphore owner ID")
+    }
+
     override fun equals(other: Any?): Boolean = other is SemaphoreOwnerId && value == other.value
     override fun hashCode(): Int = value.hashCode()
     override fun toString(): String = "SemaphoreOwnerId(<redacted>)"
     private fun readResolve(): Any = restore("SemaphoreOwnerId") { SemaphoreOwnerId(value) }
+
     companion object {
         private const val serialVersionUID = 1L
-        @JvmStatic fun random(): SemaphoreOwnerId = SemaphoreOwnerId(Base58.randomString(BASE58_LENGTH))
-        @JvmStatic fun from(value: String): SemaphoreOwnerId = SemaphoreOwnerId(value)
+
+        @JvmStatic
+        fun random(): SemaphoreOwnerId = SemaphoreOwnerId(Base58.randomString(BASE58_LENGTH))
+
+        @JvmStatic
+        fun from(value: String): SemaphoreOwnerId = SemaphoreOwnerId(value)
     }
 }
 
 /** Idempotency identity for one logical semaphore operation. Reuse it only for reconciliation. */
 class SemaphoreRequestId private constructor(internal val value: String): Serializable {
-    init { validateIdentity(value, "Semaphore request ID") }
+    init {
+        validateIdentity(value, "Semaphore request ID")
+    }
+
     override fun equals(other: Any?): Boolean = other is SemaphoreRequestId && value == other.value
     override fun hashCode(): Int = value.hashCode()
     override fun toString(): String = "SemaphoreRequestId(<redacted>)"
     private fun readResolve(): Any = restore("SemaphoreRequestId") { SemaphoreRequestId(value) }
+
     companion object {
         private const val serialVersionUID = 1L
-        @JvmStatic fun random(): SemaphoreRequestId = SemaphoreRequestId(Base58.randomString(BASE58_LENGTH))
-        @JvmStatic fun from(value: String): SemaphoreRequestId = SemaphoreRequestId(value)
+
+        @JvmStatic
+        fun random(): SemaphoreRequestId = SemaphoreRequestId(Base58.randomString(BASE58_LENGTH))
+
+        @JvmStatic
+        fun from(value: String): SemaphoreRequestId = SemaphoreRequestId(value)
     }
 }
 
 /** Idempotency identity for one logical latch mutation or wait. */
 class LatchRequestId private constructor(internal val value: String): Serializable {
-    init { validateIdentity(value, "Latch request ID") }
+    init {
+        validateIdentity(value, "Latch request ID")
+    }
+
     override fun equals(other: Any?): Boolean = other is LatchRequestId && value == other.value
     override fun hashCode(): Int = value.hashCode()
     override fun toString(): String = "LatchRequestId(<redacted>)"
     private fun readResolve(): Any = restore("LatchRequestId") { LatchRequestId(value) }
+
     companion object {
         private const val serialVersionUID = 1L
-        @JvmStatic fun random(): LatchRequestId = LatchRequestId(Base58.randomString(BASE58_LENGTH))
-        @JvmStatic fun from(value: String): LatchRequestId = LatchRequestId(value)
+
+        @JvmStatic
+        fun random(): LatchRequestId = LatchRequestId(Base58.randomString(BASE58_LENGTH))
+
+        @JvmStatic
+        fun from(value: String): LatchRequestId = LatchRequestId(value)
     }
 }
 
@@ -73,9 +97,13 @@ data class PermitHandle(
         require(permits in 1..MAX_PERMITS)
         validateIdentity(token, "Permit token")
     }
+
     override fun toString(): String = "PermitHandle(<redacted>)"
     private fun readResolve(): Any = restore("PermitHandle") { copy() }
-    private companion object { private const val serialVersionUID = 1L }
+
+    private companion object {
+        private const val serialVersionUID = 1L
+    }
 }
 
 /** Redis-time expiry identity for one permit unit inside an expirable allocation. */
@@ -87,9 +115,13 @@ data class ExpirablePermitLease(
         validateIdentity(permitId, "Permit ID")
         require(deadlineMillis > 0)
     }
+
     override fun toString(): String = "ExpirablePermitLease(<redacted>)"
     private fun readResolve(): Any = restore("ExpirablePermitLease") { copy() }
-    private companion object { private const val serialVersionUID = 1L }
+
+    private companion object {
+        private const val serialVersionUID = 1L
+    }
 }
 
 /**
@@ -105,26 +137,51 @@ data class ExpirablePermitHandle(
         require(leases.size == permit.permits) { "One lease identity is required for each permit." }
         require(leases.map { it.permitId }.distinct().size == leases.size) { "Permit IDs must be unique." }
     }
+
     override fun toString(): String = "ExpirablePermitHandle(<redacted>)"
     private fun readResolve(): Any = restore("ExpirablePermitHandle") { copy(leases = leases.toList()) }
-    private companion object { private const val serialVersionUID = 1L }
+
+    private companion object {
+        private const val serialVersionUID = 1L
+    }
 }
 
 /** Monotonic latch lifecycle generation used to reject stale callers after delete and recreate. */
 data class LatchGeneration(val value: Long): Comparable<LatchGeneration>, Serializable {
-    init { require(value > 0) }
+    init {
+        require(value > 0)
+    }
+
     override fun compareTo(other: LatchGeneration): Int = value.compareTo(other.value)
     override fun toString(): String = "LatchGeneration(<redacted>)"
     private fun readResolve(): Any = restore("LatchGeneration") { copy() }
-    private companion object { private const val serialVersionUID = 1L }
+
+    private companion object {
+        private const val serialVersionUID = 1L
+    }
 }
 
 /** Transport-side failure category. Timeout and connection failures may make a mutation ambiguous. */
-enum class SynchronizerBackendFailureKind { TIMEOUT, CONNECTION, COMMAND }
+enum class SynchronizerBackendFailureKind {
+    TIMEOUT,
+    CONNECTION,
+    COMMAND
+}
+
 /** Redis reply or state invariant that could not be trusted. Integrity failures must fail closed. */
-enum class SynchronizerIntegrityFailureKind { MALFORMED_REPLY, INVALID_NUMBER, CROSS_SLOT, STATE_MISMATCH }
+enum class SynchronizerIntegrityFailureKind {
+    MALFORMED_REPLY,
+    INVALID_NUMBER,
+    CROSS_SLOT,
+    STATE_MISMATCH
+}
+
 /** Caller action recommended by a typed failure or ambiguous result. */
-enum class SynchronizerRecoveryAction { RETRY, RECONCILE_REQUEST, INSPECT_HANDLE }
+enum class SynchronizerRecoveryAction {
+    RETRY,
+    RECONCILE_REQUEST,
+    INSPECT_HANDLE
+}
 
 /** Backend failure with the recovery boundary callers should follow. */
 data class SynchronizerBackendFailure(
@@ -139,7 +196,11 @@ data class SynchronizerIntegrityFailure(
 
 /** Result of initializing a semaphore capacity without resetting an existing generation. */
 sealed interface SemaphoreInitializationResult: Serializable {
-    data class Initialized(val generation: Long): SemaphoreInitializationResult { init { require(generation > 0) } }
+    data class Initialized(val generation: Long): SemaphoreInitializationResult { init {
+        require(generation > 0)
+    }
+    }
+
     data object AlreadyInitialized: SemaphoreInitializationResult
     data object InvalidCapacity: SemaphoreInitializationResult
     data object Closed: SemaphoreInitializationResult
@@ -172,8 +233,11 @@ sealed interface PermitAcquireResult<out H: Serializable>: Serializable {
  */
 sealed interface PermitMutationResult<out H: Serializable>: Serializable {
     data class Released<H: Serializable>(val handle: H, val remainingPermits: Int): PermitMutationResult<H> {
-        init { require(remainingPermits >= 0) }
+        init {
+            require(remainingPermits >= 0)
+        }
     }
+
     data object AlreadyReleased: PermitMutationResult<Nothing>
     data object Expired: PermitMutationResult<Nothing>
     data object StaleGeneration: PermitMutationResult<Nothing>
@@ -188,8 +252,11 @@ sealed interface PermitMutationResult<out H: Serializable>: Serializable {
 /** Redis-authoritative ownership state for a generation-bound permit handle. */
 sealed interface PermitInspectResult<out H: Serializable>: Serializable {
     data class Owned<H: Serializable>(val handle: H, val remainingPermits: Int): PermitInspectResult<H> {
-        init { require(remainingPermits >= 0) }
+        init {
+            require(remainingPermits >= 0)
+        }
     }
+
     data object Released: PermitInspectResult<Nothing>
     data object Expired: PermitInspectResult<Nothing>
     data object StaleGeneration: PermitInspectResult<Nothing>
@@ -232,8 +299,11 @@ sealed interface PermitRenewResult<out H: Serializable>: Serializable {
 sealed interface LatchSetCountResult: Serializable {
     data class Created(val generation: LatchGeneration): LatchSetCountResult
     data class ActiveGeneration(val generation: LatchGeneration, val count: Long): LatchSetCountResult {
-        init { require(count >= 0) }
+        init {
+            require(count >= 0)
+        }
     }
+
     data object InvalidCount: LatchSetCountResult
     data object Closed: LatchSetCountResult
     data class BackendFailure(val failure: SynchronizerBackendFailure): LatchSetCountResult
@@ -252,6 +322,7 @@ sealed interface LatchCountResult: Serializable {
             require(waiters >= 0)
         }
     }
+
     data class Completed(val generation: LatchGeneration): LatchCountResult
     data object Deleted: LatchCountResult
     data object StaleGeneration: LatchCountResult
@@ -284,13 +355,21 @@ sealed interface LatchAwaitResult: Serializable {
 
 /** Result of generation-bound count-down or delete mutations. */
 sealed interface LatchMutationResult: Serializable {
-    data class Decremented(val remaining: Long): LatchMutationResult { init { require(remaining >= 0) } }
+    data class Decremented(val remaining: Long): LatchMutationResult { init {
+        require(remaining >= 0)
+    }
+    }
+
     data object Completed: LatchMutationResult
     data object AlreadyCompleted: LatchMutationResult
     data object Deleted: LatchMutationResult
     data object NotFound: LatchMutationResult
     data object StaleGeneration: LatchMutationResult
-    data class ActiveWaiters(val count: Int): LatchMutationResult { init { require(count > 0) } }
+    data class ActiveWaiters(val count: Int): LatchMutationResult { init {
+        require(count > 0)
+    }
+    }
+
     data object Closed: LatchMutationResult
     data class BackendFailure(val failure: SynchronizerBackendFailure): LatchMutationResult
     data class IntegrityFailure(val failure: SynchronizerIntegrityFailure): LatchMutationResult

@@ -1,11 +1,13 @@
 package io.bluetape4k.science.shapefile
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
@@ -39,7 +41,7 @@ class ShapeModelsTest {
     fun `ShapeHeader equality가 올바르게 동작한다`() {
         val a = ShapeHeader(9994, 1024, 1000, 1, koreaBbox)
         val b = ShapeHeader(9994, 1024, 1000, 1, koreaBbox)
-        (a == b).shouldBeTrue()
+        a shouldBeEqualTo b
     }
 
     @Test
@@ -47,7 +49,8 @@ class ShapeModelsTest {
         val copy = sampleHeader.copy(shapeType = 5)
         copy.shapeType shouldBeEqualTo 5
         copy.fileCode shouldBeEqualTo 9994
-        (sampleHeader == copy).shouldBeFalse()
+
+        copy shouldNotBeEqualTo sampleHeader
     }
 
     @Test
@@ -63,7 +66,7 @@ class ShapeModelsTest {
     fun `ShapeAttribute equality가 올바르게 동작한다`() {
         val a = ShapeAttribute("NAME", 'C', 80, 0)
         val b = ShapeAttribute("NAME", 'C', 80, 0)
-        (a == b).shouldBeTrue()
+        b shouldBeEqualTo a
     }
 
     @Test
@@ -166,9 +169,11 @@ class ShapeModelsTest {
     @Test
     fun `Shape Serializable - 예외 없이 직렬화된다`() {
         val shape = Shape(sampleHeader, emptyList(), emptyList())
-        java.io.ObjectOutputStream(java.io.ByteArrayOutputStream()).use { out ->
-            out.writeObject(shape)
-        }
+
+        val bytes = BinarySerializers.FastFory.serialize(shape)
+        val resotored = BinarySerializers.FastFory.deserialize<Shape>(bytes)
+
+        resotored shouldBeEqualTo shape
     }
 
     @Test

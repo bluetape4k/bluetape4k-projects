@@ -1,16 +1,16 @@
 package io.bluetape4k.examples.redisson.coroutines.collections
 
-import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runTest
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeInRange
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.coroutines.support.awaitUntil
+import io.bluetape4k.examples.redisson.coroutines.AbstractRedissonCoroutineTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Test
 import org.redisson.api.RBucket
 import java.time.Duration
@@ -29,58 +29,58 @@ class BucketExamples: AbstractRedissonCoroutineTest() {
     companion object: KLoggingChannel()
 
     @Test
-    fun `use bucket`() = runTest {
+    fun `use bucket`() = runSuspendIO {
         val bucket: RBucket<String> = redisson.getBucket(randomName())
 
         // bucket에 object를 설정한다
-        bucket.setAsync("000", 60, TimeUnit.SECONDS).await()
+        bucket.setAsync("000", 60, TimeUnit.SECONDS).awaitUntil()
         delay(100.milliseconds)
 
         // 기존 TTL을 유지하면서 object 를 set 한다
-        bucket.setAndKeepTTLAsync("123").await()
+        bucket.setAndKeepTTLAsync("123").awaitUntil()
 
         // TTL 정보
-        bucket.remainTimeToLiveAsync().await() shouldBeInRange (0L until 60 * 1000L)
+        bucket.remainTimeToLiveAsync().awaitUntil() shouldBeInRange (0L until 60 * 1000L)
 
         // "123" 값을 가지고 있으면 "2032" 로 변경한다
-        bucket.compareAndSetAsync("123", "2032").await().shouldBeTrue()
+        bucket.compareAndSetAsync("123", "2032").awaitUntil().shouldBeTrue()
 
         // 기존 값을 가져오고, 새로운 값으로 설정
-        bucket.getAndSetAsync("5555").await() shouldBeEqualTo "2032"
+        bucket.getAndSetAsync("5555").awaitUntil() shouldBeEqualTo "2032"
 
         // bucket에 object가 없을 때에 set을 수행한다
-        bucket.setIfAbsentAsync("7777", Duration.ofSeconds(60)).await().shouldBeFalse()
+        bucket.setIfAbsentAsync("7777", Duration.ofSeconds(60)).awaitUntil().shouldBeFalse()
 
         // 기존 값이 있을 때에만 새로 설정한다
-        bucket.setIfExistsAsync("9999").await().shouldBeTrue()
+        bucket.setIfExistsAsync("9999").awaitUntil().shouldBeTrue()
 
         // object size
         bucket.size() shouldBeGreaterThan 0L
 
-        bucket.deleteAsync().await()
+        bucket.deleteAsync().awaitUntil()
     }
 
     @Test
-    fun `use bucket in coroutines`() = runTest {
+    fun `use bucket in coroutines`() = runSuspendIO {
         val bucket: RBucket<String> = redisson.getBucket(randomName())
 
         // bucket에 object를 설정한다
-        bucket.setAsync("000", 60, TimeUnit.SECONDS).await()
+        bucket.setAsync("000", 60, TimeUnit.SECONDS).awaitUntil()
 
         val job = scope.launch {
-            bucket.compareAndSetAsync("000", "111").await().shouldBeTrue()
+            bucket.compareAndSetAsync("000", "111").awaitUntil().shouldBeTrue()
         }
 
         delay(100.milliseconds)
         job.join()
 
-        bucket.getAndDeleteAsync().await() shouldBeEqualTo "111"
+        bucket.getAndDeleteAsync().awaitUntil() shouldBeEqualTo "111"
 
-        bucket.deleteAsync().await()
+        bucket.deleteAsync().awaitUntil()
     }
 
     @Test
-    fun `multiple buckets example`() = runTest {
+    fun `multiple buckets example`() = runSuspendIO {
         val buckets = redisson.buckets
 
         val bucketName1 = randomName()
@@ -88,7 +88,7 @@ class BucketExamples: AbstractRedissonCoroutineTest() {
         val bucketName3 = randomName()
 
         // 기존에 데이터를 가진 bucket 이 없다
-        val existBuckets1 = buckets.getAsync<String>(bucketName1, bucketName2, bucketName3).await()
+        val existBuckets1 = buckets.getAsync<String>(bucketName1, bucketName2, bucketName3).awaitUntil()
         existBuckets1.size shouldBeEqualTo 0
 
 
@@ -97,17 +97,17 @@ class BucketExamples: AbstractRedissonCoroutineTest() {
             bucketName2 to "object2"
         )
         // 복수의 bucket에 한번에 데이터를 저장한다 (기존에 데이터가 있는 bucket 이 하나라도 있다면 실패한다)
-        buckets.trySetAsync(map).await().shouldBeTrue()
+        buckets.trySetAsync(map).awaitUntil().shouldBeTrue()
 
         // object를 가진 bucket 은 2개이다.
-        val values = buckets.getAsync<String>(bucketName1, bucketName2, bucketName3).await()
+        val values = buckets.getAsync<String>(bucketName1, bucketName2, bucketName3).awaitUntil()
         values.size shouldBeEqualTo 2
 
         val bucket1 = redisson.getBucket<String>(bucketName1)
         bucket1.get() shouldBeEqualTo "object1"
 
-        redisson.getBucket<String>(bucketName1).deleteAsync().await().shouldBeTrue()
-        redisson.getBucket<String>(bucketName2).deleteAsync().await().shouldBeTrue()
-        redisson.getBucket<String>(bucketName3).deleteAsync().await().shouldBeFalse()
+        redisson.getBucket<String>(bucketName1).deleteAsync().awaitUntil().shouldBeTrue()
+        redisson.getBucket<String>(bucketName2).deleteAsync().awaitUntil().shouldBeTrue()
+        redisson.getBucket<String>(bucketName3).deleteAsync().awaitUntil().shouldBeFalse()
     }
 }

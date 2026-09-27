@@ -1,7 +1,7 @@
 package io.bluetape4k.hibernate
 
 import io.bluetape4k.hibernate.model.JpaEntity
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.error
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.support.requireNotEmpty
@@ -11,12 +11,11 @@ import jakarta.persistence.TypedQuery
 import org.hibernate.Session
 import org.hibernate.SessionFactory
 import org.hibernate.internal.SessionImpl
-import org.slf4j.Logger
 import java.io.Serializable
 import java.sql.Connection
 import kotlin.reflect.KClass
 
-private val emLog: Logger by lazy { KotlinLogging.logger { } }
+private object EmLogger: KLogging()
 
 /**
  * [id]로 엔티티 삭제 시 발생한 예외를 처리합니다.
@@ -30,7 +29,7 @@ internal fun handleDeleteByIdFailure(id: Serializable, e: Throwable) {
         // entity not found — proxy 초기화 시 발생하는 정상적인 "없는 엔티티" 케이스, 건너뜀
         return
     }
-    emLog.error(e) { "deleteById failed for id=$id" }
+    EmLogger.log.error(e) { "deleteById failed for id=$id" }
     throw e
 }
 
@@ -286,6 +285,8 @@ inline fun <reified T> EntityManager.tryGetReference(id: Serializable): Result<T
  * ```
  */
 inline fun <reified T> EntityManager.findAs(id: Serializable): T? = find(T::class.java, id)
+
+inline fun <reified T> EntityManager.findAll(): List<T> = findAll(T::class.java)
 
 /**
  * simple natural id 값으로 엔티티를 조회합니다. 없으면 `null`을 반환합니다.

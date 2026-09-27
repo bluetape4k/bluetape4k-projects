@@ -172,7 +172,7 @@ private fun assertCorrelation(correlation: HttpOperationCorrelation) {
         HttpOperationCorrelationMode.GENERATED ->
             correlation.inbound == null && correlation.outbound != null
 
-        HttpOperationCorrelationMode.ABSENT ->
+        HttpOperationCorrelationMode.ABSENT    ->
             correlation.inbound == null && correlation.outbound == null
     }
     assertRedacted(matchesMode, "correlation contract")
@@ -180,10 +180,10 @@ private fun assertCorrelation(correlation: HttpOperationCorrelation) {
 
 private fun isClassificationCompatible(observation: HttpOperationObservation): Boolean =
     when (observation.classification) {
-        HttpOperationClassification.SUCCESS ->
+        HttpOperationClassification.SUCCESS            ->
             observation.statusCode != null && observation.statusCode in 100..399
 
-        HttpOperationClassification.CLIENT_ERROR ->
+        HttpOperationClassification.CLIENT_ERROR       ->
             observation.statusCode != null && observation.statusCode in 400..499
 
         HttpOperationClassification.TIMEOUT_OR_CANCELLATION ->

@@ -1,11 +1,11 @@
 package io.bluetape4k.rule.readers
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.rule.api.RuleDefinition
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.io.Reader
 
 /**
@@ -27,7 +27,7 @@ import java.io.Reader
  * ```
  */
 class JsonRuleReader(
-    private val mapper: ObjectMapper = ObjectMapper().registerKotlinModule(),
+    private val mapper: ObjectMapper = jacksonObjectMapper(),
 ): RuleReader<Reader> {
 
     companion object: KLogging()
@@ -35,6 +35,7 @@ class JsonRuleReader(
     override fun read(source: Reader): RuleDefinition {
         log.debug { "Read JSON formatted rule definition ..." }
         val map = mapper.readTree(source).asMap()
+        log.debug { "JSON formatted rule definition map: $map" }
         return createRuleDefinition(map)
     }
 
@@ -50,11 +51,11 @@ class JsonRuleReader(
 
     private fun JsonNode.asMap(): Map<String, Any?> {
         return mapOf(
-            "name" to this["name"]?.asText(),
-            "description" to this["description"]?.asText(),
+            "name" to this["name"]?.asString(),
+            "description" to this["description"]?.asString(),
             "priority" to this["priority"]?.asInt(),
-            "condition" to runCatching { this["condition"]?.asText() }.getOrNull(),
-            "actions" to runCatching { this["actions"]?.map { it.asText() }?.toList() }.getOrNull()
+            "condition" to runCatching { this["condition"]?.asString() }.getOrNull(),
+            "actions" to this["actions"]?.mapNotNull { runCatching { it.asString() }.getOrNull() }?.toList()
         )
     }
 }

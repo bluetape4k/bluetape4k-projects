@@ -1,8 +1,8 @@
 package io.bluetape4k.hibernate.mapping.embeddable
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class EmbeddableTest: AbstractHibernateTest() {

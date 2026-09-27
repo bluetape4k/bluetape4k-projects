@@ -12,10 +12,7 @@ import io.nats.client.PullSubscribeOptions
 inline fun pullSubscriptionOptions(
     builder: PullSubscribeOptions.Builder.() -> Unit,
 ): PullSubscribeOptions =
-    PullSubscribeOptions
-        .builder()
-        .apply(builder)
-        .build()
+    PullSubscribeOptions.builder().apply(builder).build()
 
 /**
  * 스트림과 바인드 이름으로 [PullSubscribeOptions]를 생성합니다.

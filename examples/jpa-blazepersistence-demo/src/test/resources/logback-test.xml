@@ -6,6 +6,8 @@
             <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36}: %msg%n</pattern>
         </encoder>
     </appender>
+
+    <logger name="io.bluetape4k.examples.jpa.blazepersistence" level="DEBUG"/>
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>

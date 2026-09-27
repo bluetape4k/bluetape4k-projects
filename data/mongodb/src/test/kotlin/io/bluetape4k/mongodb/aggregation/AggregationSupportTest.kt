@@ -1,13 +1,15 @@
 package io.bluetape4k.mongodb.aggregation
 
+import com.mongodb.MongoClientSettings
 import com.mongodb.client.model.Accumulators
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Projections
 import com.mongodb.client.model.Sorts
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import org.bson.BsonDocument
 import org.junit.jupiter.api.Test
 
@@ -33,25 +35,32 @@ class AggregationSupportTest {
             add(sortStage(Sorts.ascending("name")))
             add(limitStage(5))
         }
+        log.debug { "stages=${stages.joinToString()}" }
         stages shouldHaveSize 3
     }
 
     @Test
     fun `matchStage Bson 생성 검증`() {
         val stage = matchStage(Filters.eq("city", "Seoul"))
-        stage.shouldNotBeNull()
-        val doc =
-            stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
-        doc.containsKey("\$match") shouldBeEqualTo true
+        val doc = stage.toBsonDocument(
+            BsonDocument::class.java,
+            MongoClientSettings.getDefaultCodecRegistry()
+        )
+        log.debug { "doc=$doc" }
+        doc.containsKey("\$match").shouldBeTrue()
     }
 
     @Test
     fun `groupStage id 필드에 달러 접두어 자동 추가`() {
         val stage = groupStage("city", Accumulators.sum("count", 1))
-        stage.shouldNotBeNull()
-        val doc =
-            stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
+        val doc = stage.toBsonDocument(
+            BsonDocument::class.java,
+            MongoClientSettings.getDefaultCodecRegistry()
+        )
+        log.debug { "doc=$doc" }
+
         val groupDoc = doc.getDocument("\$group")
+        log.debug { "groupDoc=$groupDoc" }
         // _id 값이 "$city" 형태여야 합니다
         groupDoc.getString("_id").value shouldBeEqualTo "\$city"
     }
@@ -59,45 +68,55 @@ class AggregationSupportTest {
     @Test
     fun `sortStage Bson 생성 검증`() {
         val stage = sortStage(Sorts.descending("score"))
-        stage.shouldNotBeNull()
-        val doc =
-            stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
-        doc.containsKey("\$sort") shouldBeEqualTo true
+        val doc = stage.toBsonDocument(
+            BsonDocument::class.java,
+            MongoClientSettings.getDefaultCodecRegistry()
+        )
+        log.debug { "doc=$doc" }
+        doc.containsKey("\$sort").shouldBeTrue()
     }
 
     @Test
     fun `limitStage Bson 생성 검증`() {
         val stage = limitStage(10)
-        stage.shouldNotBeNull()
-        val doc =
-            stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
+        val doc = stage.toBsonDocument(
+            BsonDocument::class.java,
+            MongoClientSettings.getDefaultCodecRegistry()
+        )
+        log.debug { "doc=$doc" }
         doc.getInt32("\$limit").value shouldBeEqualTo 10
     }
 
     @Test
     fun `skipStage Bson 생성 검증`() {
         val stage = skipStage(5)
-        stage.shouldNotBeNull()
-        val doc =
-            stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
+        val doc = stage.toBsonDocument(
+            BsonDocument::class.java,
+            MongoClientSettings.getDefaultCodecRegistry()
+        )
+        log.debug { "doc=$doc" }
         doc.getInt32("\$skip").value shouldBeEqualTo 5
     }
 
     @Test
     fun `projectStage Bson 생성 검증`() {
         val stage = projectStage(Projections.include("name", "score"))
-        stage.shouldNotBeNull()
-        val doc =
-            stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
-        doc.containsKey("\$project") shouldBeEqualTo true
+        val doc = stage.toBsonDocument(
+            BsonDocument::class.java,
+            MongoClientSettings.getDefaultCodecRegistry()
+        )
+        log.debug { "doc=$doc" }
+        doc.containsKey("\$project").shouldBeTrue()
     }
 
     @Test
     fun `unwindStage 필드명에 달러 접두어 자동 추가`() {
         val stage = unwindStage("tags")
-        stage.shouldNotBeNull()
-        val doc =
-            stage.toBsonDocument(BsonDocument::class.java, com.mongodb.MongoClientSettings.getDefaultCodecRegistry())
+        val doc = stage.toBsonDocument(
+            BsonDocument::class.java,
+            MongoClientSettings.getDefaultCodecRegistry()
+        )
+        log.debug { "doc=$doc" }
         doc.getString("\$unwind").value shouldBeEqualTo "\$tags"
     }
 
@@ -112,5 +131,8 @@ class AggregationSupportTest {
             add(projectStage(Projections.include("city", "count")))
         }
         stages shouldHaveSize 6
+        stages.forEach { stage ->
+            log.debug { "stage=$stage" }
+        }
     }
 }

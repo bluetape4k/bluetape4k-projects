@@ -1,6 +1,8 @@
+@file:Suppress("TooManyFunctions", "MatchingDeclarationName")
+
 package io.bluetape4k.jackson3
 
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import tools.jackson.core.JsonParser
 import tools.jackson.core.TreeNode
@@ -15,8 +17,10 @@ import java.io.StringWriter
 import java.nio.file.Path
 import kotlin.use
 
+internal object JsonMapperLooger: KLogging()
+
 @PublishedApi
-internal val log = KotlinLogging.logger {}
+internal val log = JsonMapperLooger.log
 
 /**
  * [JsonMapper.Builder] DSL로 Jackson 3 매퍼를 생성합니다.

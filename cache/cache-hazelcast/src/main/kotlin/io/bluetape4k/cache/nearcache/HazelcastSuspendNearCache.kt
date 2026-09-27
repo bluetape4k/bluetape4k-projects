@@ -230,8 +230,7 @@ class HazelcastSuspendNearCache<V: Any>(
      * 해당 키가 캐시에 존재하는지 확인한다 (front or IMap).
      */
     override suspend fun containsKey(key: String): Boolean {
-        if (frontCache.containsKey(key)) return true
-        return withContext(Dispatchers.IO) { imap.containsKey(key) }
+        return frontCache.containsKey(key) || withContext(Dispatchers.IO) { imap.containsKey(key) }
     }
 
     /**

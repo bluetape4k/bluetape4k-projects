@@ -1,6 +1,12 @@
 package io.bluetape4k.spring.cassandra.reactive
 
 import com.datastax.oss.driver.api.core.uuid.Uuids
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.spring.cassandra.AbstractCassandraCoroutineTest
@@ -23,12 +29,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldContainSame
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -127,7 +127,7 @@ class ReactiveCassandraTemplateTest(
         val user = newUser()
         reactiveOps.insertSuspending(user)
 
-        user.firstname = "성혁"
+        user.firstname = faker.name().firstName()
         val updated = reactiveOps.updateSuspending(user)
         updated.id shouldBeEqualTo user.id
     }
@@ -149,7 +149,8 @@ class ReactiveCassandraTemplateTest(
         val user = newUser()
         reactiveOps.insertSuspending(user)
 
-        user.firstname = "성혁"
+        user.firstname = faker.name().firstName()
+
         // NOTE: withIfExists() 가 제대로 작동하지 않는다
         val lwtOptions = updateOptions { /*withIfExists()*/ }
         val result = reactiveOps.updateSuspending(user, lwtOptions)
@@ -179,7 +180,7 @@ class ReactiveCassandraTemplateTest(
 
         reactiveOps.deleteSuspending<User>(query).shouldBeTrue()
 
-        val loaded = getUserById(user.id)!!
+        val loaded = getUserById(user.id).shouldNotBeNull()
         loaded.firstname shouldBeEqualTo user.firstname
         loaded.lastname.shouldBeNull()
     }

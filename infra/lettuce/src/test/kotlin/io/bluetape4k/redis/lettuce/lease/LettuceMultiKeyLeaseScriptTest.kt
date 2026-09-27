@@ -10,6 +10,7 @@ import io.bluetape4k.assertions.shouldBePositive
 import io.bluetape4k.assertions.shouldBeZero
 import io.bluetape4k.assertions.shouldMatchAtLeastOneOf
 import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
@@ -24,7 +25,22 @@ import org.junit.jupiter.api.Test
 import kotlin.reflect.KVisibility
 import kotlin.reflect.full.memberProperties
 
-class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
+class LettuceMultiKeyLeaseScriptTest: AbstractLettuceTest() {
+
+    private companion object: KLogging() {
+        const val TTL_TOLERANCE_MILLIS = 1_000L
+
+        val connection by lazy {
+            LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8)
+        }
+
+        val injectedFailureScript = RedisScript(
+            """
+            redis.call('SET', KEYS[1], ARGV[1], 'PX', ARGV[2])
+            error('injected')
+            """.trimIndent(),
+        )
+    }
 
     private lateinit var commands: RedisCommands<String, String>
     private lateinit var keys: List<String>
@@ -51,9 +67,15 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
         acquire(keys, token, 10_000) shouldBeEqualTo MultiKeyAcquireResult.Acquired
         keys.forEach { key -> commands.get(key) shouldBeEqualTo token }
 
-        val before = inspect(keys, token).shouldBeInstanceOf<MultiKeyInspectResult.Owned>().minimumPttlMillis
-        val replay = acquire(keys, token, 20_000).shouldBeInstanceOf<MultiKeyAcquireResult.AlreadyOwned>()
-        val after = inspect(keys, token).shouldBeInstanceOf<MultiKeyInspectResult.Owned>().minimumPttlMillis
+        val before = inspect(keys, token)
+            .shouldBeInstanceOf<MultiKeyInspectResult.Owned>()
+            .minimumPttlMillis
+
+        val replay = acquire(keys, token, 20_000)
+            .shouldBeInstanceOf<MultiKeyAcquireResult.AlreadyOwned>()
+
+        val after = inspect(keys, token)
+            .shouldBeInstanceOf<MultiKeyInspectResult.Owned>().minimumPttlMillis
 
         replay.minimumPttlMillis shouldBeLessOrEqualTo before
         after shouldBeLessOrEqualTo before
@@ -64,13 +86,13 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
     fun `acquire reports partial ownership and never writes on conflicts`() {
         commands.psetex(keys[0], 5_000, token)
         acquire(keys, token, 5_000) shouldBeEqualTo
-            MultiKeyAcquireResult.PartialOwnership(counts(2, 1, 1, 0))
+                MultiKeyAcquireResult.PartialOwnership(counts(2, 1, 1, 0))
         commands.get(keys[1]).shouldBeNull()
 
         commands.del(*keys.toTypedArray())
         commands.psetex(keys[0], 5_000, "other-owner")
         acquire(keys, token, 5_000) shouldBeEqualTo
-            MultiKeyAcquireResult.Conflicted(counts(2, 0, 1, 1))
+                MultiKeyAcquireResult.Conflicted(counts(2, 0, 1, 1))
         commands.get(keys[1]).shouldBeNull()
 
         val sameSlotThird = keys[0].substringBeforeLast(':') + ":three"
@@ -79,7 +101,7 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
         commands.psetex(keys[0], 5_000, token)
         commands.psetex(sameSlotThird, 5_000, "other-owner")
         acquire(listOf(keys[0], keys[1], sameSlotThird), token, 5_000) shouldBeEqualTo
-            MultiKeyAcquireResult.Conflicted(counts(3, 1, 1, 1))
+                MultiKeyAcquireResult.Conflicted(counts(3, 1, 1, 1))
         commands.get(keys[1]).shouldBeNull()
         commands.get(sameSlotThird) shouldBeEqualTo "other-owner"
     }
@@ -99,6 +121,7 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
 
         acquireFailure.operation shouldBeEqualTo MultiKeyLeaseOperation.ACQUIRE
         inspectFailure.operation shouldBeEqualTo MultiKeyLeaseOperation.INSPECT
+
         commands.pttl(keys[0]) shouldBeEqualTo -1L
         commands.pttl(keys[1]) shouldBeLessOrEqualTo before
         commands.get(keys[0]) shouldBeEqualTo token
@@ -128,20 +151,22 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
 
         commands.del(keys[1])
         renew(keys, token, 20_000) shouldBeEqualTo MultiKeyRenewResult.PartialLoss(counts(2, 1, 1, 0))
+
         commands.del(keys[0])
         renew(keys, token, 20_000) shouldBeEqualTo MultiKeyRenewResult.Lost
 
         commands.psetex(keys[0], 5_000, token)
         commands.psetex(keys[1], 5_000, "other-owner")
         renew(keys, token, 20_000) shouldBeEqualTo
-            MultiKeyRenewResult.OwnershipMismatch(counts(2, 1, 0, 1))
+                MultiKeyRenewResult.OwnershipMismatch(counts(2, 1, 0, 1))
+
         commands.pttl(keys[0]) shouldBeGreaterOrEqualTo 15_000L
         commands.get(keys[1]) shouldBeEqualTo "other-owner"
         commands.pttl(keys[1]) shouldBeLessOrEqualTo 5_000L
 
         commands.del(keys[0])
         renew(keys, token, 20_000) shouldBeEqualTo
-            MultiKeyRenewResult.OwnershipMismatch(counts(2, 0, 1, 1))
+                MultiKeyRenewResult.OwnershipMismatch(counts(2, 0, 1, 1))
         commands.get(keys[1]) shouldBeEqualTo "other-owner"
     }
 
@@ -162,7 +187,9 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
 
     @Test
     fun `release covers full partial lost mismatch and zero-owned mismatch states`() {
-        keys.forEach { key -> commands.psetex(key, 5_000, token) }
+        keys.forEach { key ->
+            commands.psetex(key, 5_000, token)
+        }
         release(keys, token) shouldBeEqualTo MultiKeyReleaseResult.Released
         commands.exists(*keys.toTypedArray()).shouldBeZero()
 
@@ -173,12 +200,12 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
         commands.psetex(keys[0], 5_000, token)
         commands.psetex(keys[1], 5_000, "other-owner")
         release(keys, token) shouldBeEqualTo
-            MultiKeyReleaseResult.OwnershipMismatch(counts(2, 1, 0, 1))
+                MultiKeyReleaseResult.OwnershipMismatch(counts(2, 1, 0, 1))
         commands.get(keys[0]).shouldBeNull()
         commands.get(keys[1]) shouldBeEqualTo "other-owner"
 
         release(keys, token) shouldBeEqualTo
-            MultiKeyReleaseResult.OwnershipMismatch(counts(2, 0, 1, 1))
+                MultiKeyReleaseResult.OwnershipMismatch(counts(2, 0, 1, 1))
         commands.get(keys[1]) shouldBeEqualTo "other-owner"
     }
 
@@ -215,6 +242,7 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
 
         observed shouldBeEqualTo MultiKeyInspectResult.PartialOwnership(counts(2, 1, 1, 0))
         released shouldBeEqualTo MultiKeyReleaseResult.PartialRelease(counts(2, 1, 1, 0))
+
         commands.exists(*secretKeys.toTypedArray()).shouldBeZero()
         assertSecretsAbsent(listOf(failure, observed, released), secretKey, secondSecretKey, secretToken)
     }
@@ -280,24 +308,11 @@ class LettuceMultiKeyLeaseScriptTest : AbstractLettuceTest() {
         secrets.forEach { secret -> surface shouldNotContain secret }
     }
 
-    private companion object {
-        const val TTL_TOLERANCE_MILLIS = 1_000L
-
-        val connection by lazy { LettuceClients.connect(LettuceTestUtils.client, StringCodec.UTF8) }
-
-        val injectedFailureScript = RedisScript(
-            """
-            redis.call('SET', KEYS[1], ARGV[1], 'PX', ARGV[2])
-            error('injected')
-            """.trimIndent(),
-        )
-    }
-
     class SecretPropertyException(
         val publicSecret: String,
-    ) : RuntimeException()
+    ): RuntimeException()
 
-    class ThrowingPropertyException : RuntimeException() {
+    class ThrowingPropertyException: RuntimeException() {
         val inaccessibleSurface: String
             get() = error("getter failed")
     }

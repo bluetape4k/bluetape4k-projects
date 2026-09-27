@@ -3,6 +3,8 @@ package consumer.fixture
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeBlank
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.science.exposed.NetCdfException
 import io.bluetape4k.science.exposed.model.NetCdfImportProgress
 import io.bluetape4k.science.exposed.model.NetCdfImportStatus
@@ -93,7 +95,7 @@ class NetCdfPublicApiSourceCompatibilityTest {
     ) {
         val decision = decideLifecycle(input)
 
-        name.isNotBlank().shouldBeTrue()
+        name.shouldNotBeBlank()
         decision.outcome shouldBeEqualTo expectedOutcome
         decision.retryInvocations shouldBeEqualTo 0
         decision.alerts shouldBeEqualTo expectedAlerts
@@ -105,10 +107,10 @@ class NetCdfPublicApiSourceCompatibilityTest {
         decision.structuredLogFields.values.none {
             it.contains(input.rawPath) || it.contains(input.tenant) || it.contains(input.rawError)
         }.shouldBeTrue()
-        decision.structuredLogFields.getValue("correlation_id").isNotBlank().shouldBeTrue()
+        decision.structuredLogFields.getValue("correlation_id").shouldNotBeBlank()
     }
 
-    companion object {
+    companion object: KLogging() {
         @JvmStatic
         fun deniedOperations(): Stream<Arguments> = CallerOperation.entries.flatMap { operation ->
             val outsideRootRequest = if (operation == CallerOperation.REGISTER) {
@@ -253,10 +255,10 @@ internal fun readProgress(
 ): NetCdfImportProgress? = catalog.findImportProgress(fileId, variableName)
 
 internal fun classify(exception: NetCdfException): String = when (exception) {
-    is NetCdfException.FileChanged -> "file-changed"
+    is NetCdfException.FileChanged     -> "file-changed"
     is NetCdfException.CorruptProgress -> "corrupt-progress"
     is NetCdfException.ImportAlreadyRunning -> "running"
-    else -> "unhandled-netcdf"
+    else                               -> "unhandled-netcdf"
 }
 
 private data class NetCdfImportStatusResponse(
@@ -272,9 +274,19 @@ private fun NetCdfImportProgress.toCallerResponse(outcome: ImportOutcome): NetCd
         outcome = outcome.name,
     )
 
-internal enum class CallerOperation { REGISTER, IMPORT, PROGRESS, RETRY }
+internal enum class CallerOperation {
+    REGISTER,
+    IMPORT,
+    PROGRESS,
+    RETRY
+}
 
-internal enum class DenialReason { CROSS_TENANT, CROSS_JOB, UNAUTHORIZED, OUTSIDE_ALLOWED_ROOT }
+internal enum class DenialReason {
+    CROSS_TENANT,
+    CROSS_JOB,
+    UNAUTHORIZED,
+    OUTSIDE_ALLOWED_ROOT
+}
 
 internal data class CallerRequest(
     val actor: String,
@@ -309,7 +321,7 @@ private fun DenialReason.matches(operation: CallerOperation, request: CallerRequ
     DenialReason.CROSS_TENANT -> resolveTarget(operation, request)?.let { target ->
         request.actorTenant != target.tenant || request.targetTenant != target.tenant
     } ?: true
-    DenialReason.CROSS_JOB -> resolveTarget(operation, request)?.let { target ->
+    DenialReason.CROSS_JOB    -> resolveTarget(operation, request)?.let { target ->
         request.actorJob != target.job || request.targetJob != target.job
     } ?: true
     DenialReason.UNAUTHORIZED -> operation !in request.allowedOperations
@@ -330,12 +342,12 @@ private class AuthorizedNetCdfCaller(
 private fun authorize(operation: CallerOperation, request: CallerRequest): Boolean {
     val target = resolveTarget(operation, request) ?: return false
     return request.actor.isNotBlank() &&
-        request.actorTenant == target.tenant &&
-        request.actorJob == target.job &&
-        request.targetTenant == target.tenant &&
-        request.targetJob == target.job &&
-        operation in request.allowedOperations &&
-        isWithinAllowedRoot(target.path)
+            request.actorTenant == target.tenant &&
+            request.actorJob == target.job &&
+            request.targetTenant == target.tenant &&
+            request.targetJob == target.job &&
+            operation in request.allowedOperations &&
+            isWithinAllowedRoot(target.path)
 }
 
 private fun isWithinAllowedRoot(rawPath: String): Boolean {
@@ -352,7 +364,12 @@ internal enum class LifecycleSignal {
     UNKNOWN_FAILURE,
 }
 
-internal enum class ImportOutcome { COMPLETED, RUNNING, RETRY_REVIEW, RECOVERY_REQUIRED }
+internal enum class ImportOutcome {
+    COMPLETED,
+    RUNNING,
+    RETRY_REVIEW,
+    RECOVERY_REQUIRED
+}
 
 internal data class LifecycleInput(
     val terminated: Boolean,
@@ -393,22 +410,25 @@ private fun decideLifecycle(input: LifecycleInput): LifecycleDecision {
 }
 
 private fun decideOutcome(input: LifecycleInput): ImportOutcome = when {
-    !input.terminated -> ImportOutcome.RECOVERY_REQUIRED
-    input.progressStatus == NetCdfImportStatus.COMPLETED -> ImportOutcome.COMPLETED
-    input.signal == LifecycleSignal.ALREADY_RUNNING -> ImportOutcome.RUNNING
+    !input.terminated                                     -> ImportOutcome.RECOVERY_REQUIRED
+    input.progressStatus == NetCdfImportStatus.COMPLETED  -> ImportOutcome.COMPLETED
+    input.signal == LifecycleSignal.ALREADY_RUNNING       -> ImportOutcome.RUNNING
     input.signal == LifecycleSignal.REPEATED_ALREADY_RUNNING -> ImportOutcome.RECOVERY_REQUIRED
-    input.attempt >= input.maxAttempts -> ImportOutcome.RECOVERY_REQUIRED
+    input.attempt >= input.maxAttempts                    -> ImportOutcome.RECOVERY_REQUIRED
     input.signal == LifecycleSignal.NON_TRANSIENT_FAILURE -> ImportOutcome.RECOVERY_REQUIRED
-    input.signal == LifecycleSignal.UNKNOWN_FAILURE -> ImportOutcome.RECOVERY_REQUIRED
-    else -> ImportOutcome.RETRY_REVIEW
+    input.signal == LifecycleSignal.UNKNOWN_FAILURE       -> ImportOutcome.RECOVERY_REQUIRED
+    else                                                  -> ImportOutcome.RETRY_REVIEW
 }
 
 private fun alertsFor(input: LifecycleInput, outcome: ImportOutcome): Set<String> = when {
-    !input.terminated -> setOf("netcdf.import.timeout", "netcdf.import.worker.stuck")
+    !input.terminated                                       -> setOf(
+        "netcdf.import.timeout",
+        "netcdf.import.worker.stuck"
+    )
     input.signal == LifecycleSignal.REPEATED_ALREADY_RUNNING ||
-        input.attempt >= input.maxAttempts ||
-        input.signal == LifecycleSignal.NON_TRANSIENT_FAILURE ||
-        input.signal == LifecycleSignal.UNKNOWN_FAILURE -> setOf("netcdf.import.retry.exhausted")
-    outcome == ImportOutcome.RETRY_REVIEW -> setOf("netcdf.import.timeout")
-    else -> emptySet()
+            input.attempt >= input.maxAttempts ||
+            input.signal == LifecycleSignal.NON_TRANSIENT_FAILURE ||
+            input.signal == LifecycleSignal.UNKNOWN_FAILURE -> setOf("netcdf.import.retry.exhausted")
+    outcome == ImportOutcome.RETRY_REVIEW                   -> setOf("netcdf.import.timeout")
+    else                                                    -> emptySet()
 }

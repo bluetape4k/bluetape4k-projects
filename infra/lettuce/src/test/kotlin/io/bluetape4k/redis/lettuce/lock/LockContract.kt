@@ -2,11 +2,13 @@ package io.bluetape4k.redis.lettuce.lock
 
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.lock.internal.DistributedLockKeys
@@ -20,6 +22,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 internal interface DistributedLockAdapter {
     suspend fun tryAcquire(
@@ -52,7 +56,11 @@ internal interface DistributedLockAdapter {
     fun close()
 }
 
-internal abstract class LockContract : AbstractLettuceTest() {
+internal abstract class LockContract: AbstractLettuceTest() {
+
+    companion object: KLogging() {
+        private const val RENEW_REPLAY_DECAY_MILLIS = 200L
+    }
 
     private lateinit var connection: StatefulRedisConnection<String, String>
     private lateinit var commands: RedisCommands<String, String>
@@ -73,10 +81,12 @@ internal abstract class LockContract : AbstractLettuceTest() {
     fun setUpContract() {
         connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
         commands = connection.sync()
-        val name = "lock-${randomName().substringAfter(':')}"
+
+        val name = "lock-${randomName().substringAfterLast(':')}"
         val config = LockConfig()
         keys = deriveDistributedLockKeys(name, config, StringCodec.UTF8)
         deleteKeys()
+
         adapter = createAdapter(connection, name, config)
     }
 
@@ -93,9 +103,11 @@ internal abstract class LockContract : AbstractLettuceTest() {
     @Test
     fun `request replay and owner reentry preserve one generation`() = runSuspendIO {
         val outerRequest = LockRequestId.from("outer-request")
+
         val first = adapter.tryAcquire(owner, outerRequest, lease)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
         val replay = adapter.tryAcquire(owner, outerRequest, lease)
+
         val inner = adapter.tryAcquire(owner, LockRequestId.from("inner-request"), lease)
             .shouldBeInstanceOf<LockAcquireResult.Reentered<LockHandle>>()
         val lateOuterReplay = adapter.tryAcquire(owner, outerRequest, lease)
@@ -104,9 +116,11 @@ internal abstract class LockContract : AbstractLettuceTest() {
         lateOuterReplay.shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle shouldBeEqualTo first.handle
         inner.handle.generation shouldBeEqualTo first.handle.generation
         inner.holdCount shouldBeEqualTo 2
+
         adapter.inspect(inner.handle)
             .shouldBeInstanceOf<LockInspectResult.Owned<LockHandle>>()
             .holdCount shouldBeEqualTo 2
+
         adapter.reconcile(owner, outerRequest)
             .shouldBeInstanceOf<LockReconcileResult.Owned<LockHandle>>()
             .handle shouldBeEqualTo first.handle
@@ -120,6 +134,7 @@ internal abstract class LockContract : AbstractLettuceTest() {
         adapter.tryAcquire(contender, LockRequestId.from("contender-now"), lease)
             .shouldBeInstanceOf<LockAcquireResult.Contended>()
             .remainingTtlMillis shouldBeGreaterThan 0L
+
         adapter.acquire(
             contender,
             LockRequestId.from("contender-wait"),
@@ -138,6 +153,7 @@ internal abstract class LockContract : AbstractLettuceTest() {
         adapter.reconcile(owner, zeroRequestId) shouldBeEqualTo LockReconcileResult.NotFound
 
         val overMaximumRequestId = LockRequestId.from("over-maximum-wait-request")
+
         assertFailsWith<IllegalArgumentException> {
             adapter.acquire(
                 owner,
@@ -154,15 +170,18 @@ internal abstract class LockContract : AbstractLettuceTest() {
         val outer = adapter.tryAcquire(owner, LockRequestId.from("outer-release"), lease)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
             .handle
+
         val inner = adapter.tryAcquire(owner, LockRequestId.from("inner-release"), lease)
             .shouldBeInstanceOf<LockAcquireResult.Reentered<LockHandle>>()
             .handle
 
         adapter.release(inner) shouldBeEqualTo LockMutationResult.Released(1)
         adapter.release(inner) shouldBeEqualTo LockMutationResult.AlreadyReleased
+
         adapter.inspect(outer)
             .shouldBeInstanceOf<LockInspectResult.Owned<LockHandle>>()
             .holdCount shouldBeEqualTo 1
+
         adapter.release(outer) shouldBeEqualTo LockMutationResult.Released(0)
         adapter.release(outer) shouldBeEqualTo LockMutationResult.AlreadyReleased
         adapter.inspect(outer) shouldBeEqualTo LockInspectResult.Released
@@ -170,26 +189,35 @@ internal abstract class LockContract : AbstractLettuceTest() {
 
     @Test
     fun `releasing outer twice never consumes the inner hold`() = runSuspendIO {
-        val outer = adapter.tryAcquire(owner, LockRequestId.from("outer-first"), lease)
-            .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
-            .handle
-        val inner = adapter.tryAcquire(owner, LockRequestId.from("inner-second"), lease)
-            .shouldBeInstanceOf<LockAcquireResult.Reentered<LockHandle>>()
-            .handle
+        val outer = adapter.tryAcquire(
+            owner,
+            LockRequestId.from("outer-first"),
+            lease
+        ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
+
+        val inner = adapter.tryAcquire(
+            owner,
+            LockRequestId.from("inner-second"),
+            lease
+        ).shouldBeInstanceOf<LockAcquireResult.Reentered<LockHandle>>().handle
 
         adapter.release(outer) shouldBeEqualTo LockMutationResult.Released(1)
         adapter.release(outer) shouldBeEqualTo LockMutationResult.AlreadyReleased
+
         adapter.inspect(inner)
             .shouldBeInstanceOf<LockInspectResult.Owned<LockHandle>>()
             .holdCount shouldBeEqualTo 1
+
         adapter.release(inner) shouldBeEqualTo LockMutationResult.Released(0)
     }
 
     @Test
     fun `missing terminal evidence distinguishes expiry from release replay`() = runSuspendIO {
-        val handle = adapter.tryAcquire(owner, LockRequestId.from("terminal-request"), lease)
-            .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
-            .handle
+        val handle = adapter.tryAcquire(
+            owner,
+            LockRequestId.from("terminal-request"),
+            lease
+        ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
 
         adapter.release(handle) shouldBeEqualTo LockMutationResult.Released(0)
         adapter.release(handle) shouldBeEqualTo LockMutationResult.AlreadyReleased
@@ -199,25 +227,28 @@ internal abstract class LockContract : AbstractLettuceTest() {
 
     @Test
     fun `renew replaces the ttl instead of cumulatively adding it`() = runSuspendIO {
-        val handle = adapter.tryAcquire(owner, LockRequestId.from("renew-request"), lease)
-            .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
-            .handle
+        val handle = adapter.tryAcquire(
+            owner,
+            LockRequestId.from("renew-request"),
+            lease
+        ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
+
         val extension = Duration.ofMillis(700)
 
         adapter.renew(handle, extension)
             .shouldBeInstanceOf<LockMutationResult.Renewed<LockHandle>>()
-        val beforeReplay = withTimeout(Duration.ofSeconds(2).toMillis()) {
+
+        val beforeReplay = withTimeout(2.seconds) {
             var remainingTtl = commands.pttl(keys.state)
             while (remainingTtl > extension.toMillis() - RENEW_REPLAY_DECAY_MILLIS) {
-                delay(20)
+                delay(20.milliseconds)
                 remainingTtl = commands.pttl(keys.state)
             }
             remainingTtl
         }
-        adapter.renew(handle, extension)
-            .shouldBeInstanceOf<LockMutationResult.Renewed<LockHandle>>()
-        val afterReplay = commands.pttl(keys.state)
+        adapter.renew(handle, extension).shouldBeInstanceOf<LockMutationResult.Renewed<LockHandle>>()
 
+        val afterReplay = commands.pttl(keys.state)
         afterReplay shouldBeGreaterOrEqualTo beforeReplay
         afterReplay shouldBeLessOrEqualTo extension.toMillis()
     }
@@ -225,18 +256,25 @@ internal abstract class LockContract : AbstractLettuceTest() {
     @Test
     fun `expiry permits takeover only with a greater generation`() = runSuspendIO {
         val shortLease = LeasePolicy.Fixed(Duration.ofMillis(100))
-        val expired = adapter.tryAcquire(owner, LockRequestId.from("expiring-request"), shortLease)
-            .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
-            .handle
+        val expired = adapter.tryAcquire(
+            owner,
+            LockRequestId.from("expiring-request"),
+            shortLease
+        ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
+        log.debug { "expired: $expired" }
 
-        withTimeout(Duration.ofSeconds(5).toMillis()) {
+        withTimeout(5.seconds) {
             while (adapter.inspect(expired) != LockInspectResult.Expired) {
-                delay(20)
+                delay(20.milliseconds)
             }
         }
-        val replacement = adapter.tryAcquire(contender, LockRequestId.from("takeover-request"), lease)
-            .shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>()
-            .handle
+
+        val replacement = adapter.tryAcquire(
+            contender,
+            LockRequestId.from("takeover-request"),
+            lease
+        ).shouldBeInstanceOf<LockAcquireResult.Acquired<LockHandle>>().handle
+        log.debug { "replacement = $replacement" }
 
         replacement.generation shouldBeGreaterThan expired.generation
         adapter.release(expired) shouldBeEqualTo LockMutationResult.StaleGeneration
@@ -246,5 +284,3 @@ internal abstract class LockContract : AbstractLettuceTest() {
         commands.del(keys.state, keys.generation, keys.holds, keys.terminal)
     }
 }
-
-private const val RENEW_REPLAY_DECAY_MILLIS = 200L

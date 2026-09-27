@@ -9,13 +9,17 @@ class NetCdfAuxiliarySerializerTest {
 
     @Test
     fun `empty auxiliary map is represented as SQL null`() {
-        serializeAuxiliaryAttributes(emptyMap<String, Double>()) shouldBeEqualTo null
+        serializeAuxiliaryAttributes(emptyMap()) shouldBeEqualTo null
     }
 
     @Test
     fun `numeric auxiliary values use deterministic JSON`() {
-        serializeAuxiliaryAttributes(linkedMapOf("altitude" to 100.0, "pressure" to 850.0))
-            .shouldBeEqualTo("{\"altitude\":100.0,\"pressure\":850.0}")
+        serializeAuxiliaryAttributes(
+            linkedMapOf(
+                "altitude" to 100.0,
+                "pressure" to 850.0
+            )
+        ) shouldBeEqualTo "{\"altitude\":100.0,\"pressure\":850.0}"
     }
 
     @Test

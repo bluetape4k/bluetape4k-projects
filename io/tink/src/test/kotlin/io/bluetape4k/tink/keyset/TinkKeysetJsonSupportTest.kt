@@ -1,22 +1,24 @@
 package io.bluetape4k.tink.keyset
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.tink.aeadKeysetHandle
-import io.bluetape4k.tink.aead.TinkAead
-import io.bluetape4k.tink.daeadKeysetHandle
-import io.bluetape4k.tink.daead.TinkDeterministicAead
-import io.bluetape4k.tink.macKeysetHandle
-import io.bluetape4k.tink.mac.TinkMac
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.tink.AbstractTinkTest
+import io.bluetape4k.tink.aead.TinkAead
+import io.bluetape4k.tink.aeadKeysetHandle
+import io.bluetape4k.tink.daead.TinkDeterministicAead
+import io.bluetape4k.tink.daeadKeysetHandle
+import io.bluetape4k.tink.mac.TinkMac
+import io.bluetape4k.tink.macKeysetHandle
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
-class TinkKeysetJsonSupportTest {
+class TinkKeysetJsonSupportTest: AbstractTinkTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `AEAD KeysetHandle JSON 직렬화 후 복원하면 동일 키 사용`() {
         val original = aeadKeysetHandle()
         val json = original.toJsonKeyset()
@@ -27,14 +29,14 @@ class TinkKeysetJsonSupportTest {
         val aead1 = TinkAead(original)
         val aead2 = TinkAead(restored)
 
-        val plaintext = "JSON 직렬화 키셋 테스트"
+        val plaintext = faker.lorem().paragraph()
         val ciphertext = aead1.encrypt(plaintext)
 
         // 복원된 키셋으로 복호화 가능
         aead2.decrypt(ciphertext) shouldBeEqualTo plaintext
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `DAEAD KeysetHandle JSON 직렬화 후 복원하면 동일 키 사용`() {
         val original = daeadKeysetHandle()
         val json = original.toJsonKeyset()
@@ -45,13 +47,13 @@ class TinkKeysetJsonSupportTest {
         val daead1 = TinkDeterministicAead(original)
         val daead2 = TinkDeterministicAead(restored)
 
-        val plaintext = "결정적 암호화 직렬화 테스트"
+        val plaintext = faker.lorem().paragraph()
         val ciphertext = daead1.encryptDeterministically(plaintext)
 
         daead2.decryptDeterministically(ciphertext) shouldBeEqualTo plaintext
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `MAC KeysetHandle JSON 직렬화 후 복원하면 동일 키 사용`() {
         val original = macKeysetHandle()
         val json = original.toJsonKeyset()
@@ -62,7 +64,7 @@ class TinkKeysetJsonSupportTest {
         val mac1 = TinkMac(original)
         val mac2 = TinkMac(restored)
 
-        val data = "MAC 직렬화 테스트"
+        val data = faker.lorem().paragraph()
         val tag = mac1.computeMac(data)
 
         // 복원된 키셋으로 MAC 검증 가능

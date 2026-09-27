@@ -1,9 +1,10 @@
 package io.bluetape4k.rule.core
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeLessThan
+import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.lang.reflect.Method
 
@@ -25,8 +26,8 @@ class ActionMethodOrderBeanTest {
         val method = getMethod("action1")
         val bean1 = ActionMethodOrderBean(method, order = 1)
         val bean2 = ActionMethodOrderBean(method, order = 2)
-        (bean1.compareTo(bean2) < 0).shouldBeTrue()
-        (bean2.compareTo(bean1) > 0).shouldBeTrue()
+        bean1 shouldBeLessThan bean2
+        bean2 shouldBeGreaterThan bean1
     }
 
     @Test
@@ -43,7 +44,7 @@ class ActionMethodOrderBeanTest {
         val method2 = getMethod("action2")
         val bean1 = ActionMethodOrderBean(method1, order = 1)
         val bean2 = ActionMethodOrderBean(method2, order = 1)
-        (bean1.compareTo(bean2) != 0).shouldBeTrue()
+        bean1.compareTo(bean2) shouldNotBeEqualTo 0
     }
 
     @Test
@@ -51,7 +52,7 @@ class ActionMethodOrderBeanTest {
         val method = getMethod("action1")
         val bean1 = ActionMethodOrderBean(method, order = 1)
         val bean2 = ActionMethodOrderBean(method, order = 1)
-        (bean1 == bean2).shouldBeTrue()
+        bean1 shouldBeEqualTo bean2
     }
 
     @Test
@@ -59,7 +60,7 @@ class ActionMethodOrderBeanTest {
         val method = getMethod("action1")
         val bean1 = ActionMethodOrderBean(method, order = 1)
         val bean2 = ActionMethodOrderBean(method, order = 2)
-        (bean1 == bean2).shouldBeFalse()
+        bean1 shouldNotBeEqualTo bean2
     }
 
     @Test
@@ -67,7 +68,7 @@ class ActionMethodOrderBeanTest {
         val method = getMethod("action1")
         val bean1 = ActionMethodOrderBean(method, order = 1)
         val bean2 = ActionMethodOrderBean(method, order = 1)
-        (bean1.hashCode() == bean2.hashCode()).shouldBeTrue()
+        bean1.hashCode() shouldBeEqualTo bean2.hashCode()
     }
 
     @Test

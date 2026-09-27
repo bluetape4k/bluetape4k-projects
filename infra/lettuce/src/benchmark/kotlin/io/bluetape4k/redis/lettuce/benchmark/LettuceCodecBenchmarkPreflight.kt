@@ -322,7 +322,7 @@ private fun executeCell(
                 }
                 count
             }
-            is JsonSerializer -> {
+            is JsonSerializer   -> {
                 val counting = CountingJsonSerializer(serializer)
                 val count = when (path) {
                     PreflightPath.BASELINE -> {
@@ -346,7 +346,7 @@ private fun executeCell(
                 }
                 count
             }
-            else              -> error("Unsupported issue 756 serializer: $backendClass")
+            else                -> error("Unsupported issue 756 serializer: $backendClass")
         }
         check(written > 0) { "Issue 756 preflight wire must be non-empty." }
         check(target.writerIndex() == ISSUE756_START_INDEX + written) {

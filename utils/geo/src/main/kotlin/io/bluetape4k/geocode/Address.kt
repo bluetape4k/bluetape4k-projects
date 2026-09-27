@@ -25,6 +25,10 @@ abstract class Address(
     val city: String? = null,
 ): AbstractValueObject() {
 
+    companion object {
+        private const val serialVersionUID = 1L
+    }
+
     override fun equalProperties(other: Any): Boolean =
         other is Address && country == other.country && city == other.city
 

@@ -3,8 +3,10 @@ package io.bluetape4k.jwt.provider
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.jwt.keychain.repository.inmemory.InMemoryKeyChainRepository
+import io.bluetape4k.logging.KLogging
 import io.jsonwebtoken.JwtParser
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.Execution
@@ -13,6 +15,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 @Execution(ExecutionMode.SAME_THREAD)
 class JwtParserSupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `parser cache reuses one parser concurrently and removes it when provider closes`() {
@@ -28,10 +32,12 @@ class JwtParserSupportTest {
             MultithreadingTester()
                 .workers(8)
                 .rounds(16)
-                .add { parsers += provider.currentJwtParser() }
+                .add {
+                    parsers += provider.currentJwtParser()
+                }
                 .run()
 
-            parsers.distinct().size.shouldBeEqualTo(1)
+            parsers.distinct() shouldHaveSize 1
             jwtParserCache.containsKey(provider).shouldBeTrue()
         } finally {
             provider.close()
@@ -39,7 +45,7 @@ class JwtParserSupportTest {
         }
 
         jwtParserCache.containsKey(provider).shouldBeFalse()
-        jwtParserCache.size.shouldBeEqualTo(initialCacheSize)
+        jwtParserCache shouldHaveSize initialCacheSize
     }
 
     @Test
@@ -59,7 +65,7 @@ class JwtParserSupportTest {
             providers.forEach { it.close() }
         }
 
-        providers.count(jwtParserCache::containsKey).shouldBeEqualTo(0)
-        jwtParserCache.size.shouldBeEqualTo(initialCacheSize)
+        providers.count(jwtParserCache::containsKey) shouldBeEqualTo 0
+        jwtParserCache shouldHaveSize initialCacheSize
     }
 }

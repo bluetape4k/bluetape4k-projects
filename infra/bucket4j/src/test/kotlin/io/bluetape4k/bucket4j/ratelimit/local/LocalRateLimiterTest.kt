@@ -1,5 +1,7 @@
 package io.bluetape4k.bucket4j.ratelimit.local
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.bucket4j.local.LocalBucketProvider
 import io.bluetape4k.bucket4j.ratelimit.AbstractRateLimiterTest
 import io.bluetape4k.bucket4j.ratelimit.RateLimitStatus
@@ -8,9 +10,7 @@ import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CancellationException
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 class LocalRateLimiterTest: AbstractRateLimiterTest() {
 

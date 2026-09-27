@@ -38,19 +38,20 @@ class FakeValueExtension: TestInstancePostProcessor, ParameterResolver {
             log.trace { "resolve targetType=$targetType, annotation=$annotation" }
 
             return when {
-                targetType.isAssignableFrom(List::class.java) || targetType.isAssignableFrom(Collection::class.java) ->
+                targetType.isAssignableFrom(List::class.java)
+                        || targetType.isAssignableFrom(Collection::class.java) ->
                     faker.getValues(annotation).toList()
 
-                targetType.isAssignableFrom(Set::class.java)                                                         ->
+                targetType.isAssignableFrom(Set::class.java)                   ->
                     faker.getValues(annotation).toSet()
 
-                targetType.isAssignableFrom(Stream::class.java)                                                      ->
+                targetType.isAssignableFrom(Stream::class.java)                ->
                     faker.getValues(annotation).toList().stream()
 
-                targetType.isAssignableFrom(Sequence::class.java)                                                    ->
+                targetType.isAssignableFrom(Sequence::class.java)              ->
                     faker.getValues(annotation)
 
-                else                                                                                                 ->
+                else                                                           ->
                     faker.getValues(annotation).first()
             }
         }

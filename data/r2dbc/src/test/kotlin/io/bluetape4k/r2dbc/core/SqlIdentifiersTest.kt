@@ -72,13 +72,15 @@ class SqlIdentifiersTest {
     }
 
     @ParameterizedTest(name = "무효한 SQL injection 식별자: [{0}]")
-    @ValueSource(strings = [
-        "users; DROP TABLE users--",
-        "users' OR '1'='1",
-        "`users`",
-        "123invalid",
-        "users WHERE 1=1",
-    ])
+    @ValueSource(
+        strings = [
+            "users; DROP TABLE users--",
+            "users' OR '1'='1",
+            "`users`",
+            "123invalid",
+            "users WHERE 1=1",
+        ]
+    )
     fun `SQL injection 패턴을 포함한 식별자는 예외를 발생시킨다`(identifier: String) {
         assertFailsWith<IllegalArgumentException> {
             requireValidIdentifier(identifier)

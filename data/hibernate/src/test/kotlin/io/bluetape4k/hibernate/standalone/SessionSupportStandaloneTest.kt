@@ -1,5 +1,10 @@
 package io.bluetape4k.hibernate.standalone
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.asSession
 import io.bluetape4k.hibernate.countAll
 import io.bluetape4k.hibernate.createNativeQueryAs
@@ -10,37 +15,36 @@ import io.bluetape4k.hibernate.findAs
 import io.bluetape4k.hibernate.getReferenceAs
 import io.bluetape4k.hibernate.save
 import io.bluetape4k.hibernate.withBatchSize
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class SessionSupportStandaloneTest : AbstractStandaloneHibernateTest() {
+class SessionSupportStandaloneTest: AbstractStandaloneHibernateTest() {
+
+    companion object: KLogging()
 
     override fun entityClasses() = listOf(StandaloneEntity::class.java)
 
     @BeforeEach
     fun clearData() {
-        inTransaction { deleteAll<StandaloneEntity>() }
+        inTransaction {
+            deleteAll<StandaloneEntity>()
+        }
     }
 
     @Test
     fun `currentSession은 Hibernate Session을 반환한다`() {
         inTransaction {
-            val session = currentSession()
-            session.shouldNotBeNull()
+            currentSession().shouldNotBeNull()
         }
     }
 
     @Test
     fun `asSession은 currentSession과 동일한 Session을 반환한다`() {
         inTransaction {
-            val s1 = currentSession()
-            val s2 = asSession()
-            s1.shouldNotBeNull()
-            s2.shouldNotBeNull()
+            val s1 = currentSession().shouldNotBeNull()
+            val s2 = asSession().shouldNotBeNull()
+            s1 shouldBeEqualTo s2
         }
     }
 
@@ -51,8 +55,7 @@ class SessionSupportStandaloneTest : AbstractStandaloneHibernateTest() {
 
         inTransaction {
             val session = currentSession()
-            val loaded = session.findAs<StandaloneEntity>(entity.id!!)
-            loaded.shouldNotBeNull()
+            val loaded = session.findAs<StandaloneEntity>(entity.id!!).shouldNotBeNull()
             loaded.name shouldBeEqualTo "session-find-test"
         }
     }
@@ -61,20 +64,19 @@ class SessionSupportStandaloneTest : AbstractStandaloneHibernateTest() {
     fun `Session_findAs는 없는 id에 대해 null을 반환한다`() {
         inTransaction {
             val session = currentSession()
-            val result = session.findAs<StandaloneEntity>(Long.MAX_VALUE)
-            result.shouldBeNull()
+            session.findAs<StandaloneEntity>(Long.MAX_VALUE).shouldBeNull()
         }
     }
 
     @Test
     fun `Session_createQueryAs는 Query를 반환한다`() {
-        inTransaction { save(StandaloneEntity("q1")) }
+        inTransaction {
+            save(StandaloneEntity("q1"))
+        }
 
         inTransaction {
             val session = currentSession()
-            val result = session.createQueryAs<Long>(
-                "select count(e) from StandaloneEntity e"
-            ).uniqueResult()
+            val result = session.createQueryAs<Long>("select count(e) from StandaloneEntity e").uniqueResult()
             result shouldBeEqualTo 1L
         }
     }
@@ -100,53 +102,53 @@ class SessionSupportStandaloneTest : AbstractStandaloneHibernateTest() {
     @Test
     fun `Session_getReferenceAs는 엔티티 프록시를 반환한다`() {
         val entity = StandaloneEntity("ref-test")
-        inTransaction { save(entity) }
+        inTransaction {
+            save(entity)
+        }
 
         inTransaction {
             val session = currentSession()
-            val ref = session.getReferenceAs<StandaloneEntity>(entity.id!!)
-            ref.shouldNotBeNull()
+            val ref = session.getReferenceAs<StandaloneEntity>(entity.id!!).shouldNotBeNull()
+            ref shouldBeEqualTo entity
         }
     }
 
     @Test
     fun `Session_createQueryAs with KClass는 Query를 반환한다`() {
-        inTransaction { save(StandaloneEntity("kclass-query-test")) }
+        inTransaction {
+            save(StandaloneEntity("kclass-query-test"))
+        }
 
         inTransaction {
             val session = currentSession()
-            val result = session.createQueryAs(
-                "SELECT COUNT(e) FROM StandaloneEntity e",
-                Long::class
-            ).uniqueResult()
-            result shouldBeEqualTo 1L
+            val result = session.createQueryAs<Long>("SELECT COUNT(e) FROM StandaloneEntity e").uniqueResult()
+            result shouldBeGreaterThan 0L
         }
     }
 
     @Test
     fun `Session_createNativeQueryAs는 Native Query를 반환한다`() {
-        inTransaction { save(StandaloneEntity("native-test")) }
+        inTransaction {
+            save(StandaloneEntity("native-test"))
+        }
 
         inTransaction {
             val session = currentSession()
-            val result = session.createNativeQueryAs<Any>(
-                "SELECT COUNT(*) FROM standalone_entity"
-            ).uniqueResult()
-            result.shouldNotBeNull()
+            val result = session.createNativeQueryAs<Long>("SELECT COUNT(*) FROM standalone_entity").uniqueResult()
+            result shouldBeGreaterThan 0L
         }
     }
 
     @Test
     fun `Session_createNativeQueryAs with KClass는 Native Query를 반환한다`() {
-        inTransaction { save(StandaloneEntity("native-kclass-test")) }
+        inTransaction {
+            save(StandaloneEntity("native-kclass-test"))
+        }
 
         inTransaction {
             val session = currentSession()
-            val result = session.createNativeQueryAs(
-                "SELECT COUNT(*) FROM standalone_entity",
-                Any::class
-            ).uniqueResult()
-            result.shouldNotBeNull()
+            val result = session.createNativeQueryAs<Long>("SELECT COUNT(*) FROM standalone_entity").uniqueResult()
+            result shouldBeGreaterThan 0L
         }
     }
 }

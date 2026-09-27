@@ -3,16 +3,20 @@ package io.bluetape4k.cache.nearcache
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.io.serializer.BinarySerializers
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.redis.redisson.codec.RedissonCodecs
+import io.bluetape4k.redis.redisson.options.codec
 import org.junit.jupiter.api.Test
 import org.redisson.api.options.LocalCachedMapOptions
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
 import java.io.ObjectStreamClass
 import java.time.Duration
 
 class RedissonNearCacheConfigTest {
+
+    companion object: KLogging()
 
     @Test
     fun `유효한 near cache 설정은 그대로 생성된다`() {
@@ -90,6 +94,13 @@ class RedissonNearCacheConfigTest {
     }
 
     @Test
+    fun `near cache options preserve the compatible LZ4 Fory default`() {
+        val options = buildLocalCachedMapOptions<String, String>(RedissonNearCacheConfig(cacheName = "compat"))
+
+        options.codec shouldBeSameInstanceAs RedissonCodecs.LZ4Fory
+    }
+
+    @Test
     fun `redissonNearCacheConfig DSL 빌더 - 잘못된 값은 예외를 던진다`() {
         assertFailsWith<IllegalArgumentException> {
             redissonNearCacheConfig { cacheName = "" }
@@ -115,11 +126,9 @@ class RedissonNearCacheConfigTest {
         ObjectStreamClass.lookup(RedissonNearCacheConfig::class.java).serialVersionUID shouldBeEqualTo 1L
     }
 
-    private fun serialize(value: Any): ByteArray = ByteArrayOutputStream().use { bytes ->
-        ObjectOutputStream(bytes).use { output -> output.writeObject(value) }
-        bytes.toByteArray()
-    }
+    private fun serialize(value: Any): ByteArray =
+        BinarySerializers.FastFory.serialize(value)
 
-    private inline fun <reified T> deserialize(bytes: ByteArray): T =
-        ObjectInputStream(ByteArrayInputStream(bytes)).use { input -> input.readObject() as T }
+    private inline fun <reified T: Any> deserialize(bytes: ByteArray): T =
+        BinarySerializers.FastFory.deserialize<T>(bytes).shouldNotBeNull()
 }

@@ -1,9 +1,9 @@
 package io.bluetape4k.protobuf.serializers
 
 import io.bluetape4k.io.serializer.AbstractBinarySerializer
+import io.bluetape4k.io.serializer.BinarySerializationException
 import io.bluetape4k.io.serializer.BinarySerializer
 import io.bluetape4k.io.serializer.BinarySerializers
-import io.bluetape4k.io.serializer.BinarySerializationException
 import io.bluetape4k.logging.debug
 import io.bluetape4k.protobuf.ProtoAny
 import io.bluetape4k.protobuf.ProtoMessage
@@ -82,7 +82,7 @@ class ProtobufSerializer(
             fallback?.serialize(graph)
                 ?: throw IllegalArgumentException(
                     "Strict Protobuf serializer can encode only Protobuf messages. " +
-                        "Use ProtobufSerializer.trustedInternalProtobuf() for trusted fallback payloads."
+                            "Use ProtobufSerializer.trustedInternalProtobuf() for trusted fallback payloads."
                 )
         }
 
@@ -107,7 +107,10 @@ class ProtobufSerializer(
                 is BufferOverflowException,
                 is BinarySerializationException,
                 is Error -> throw failure
-                else -> throw BinarySerializationException("Fail to serialize. graphType=${graph.javaClass.name}", failure)
+                else -> throw BinarySerializationException(
+                    "Fail to serialize. graphType=${graph.javaClass.name}",
+                    failure
+                )
             }
         }
     }

@@ -2,9 +2,11 @@ package io.bluetape4k.cache.memoizer
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import okio.withLock
 import org.redisson.api.RMap
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * [RMap]을 사용하는 동기 메모이저 확장 함수입니다.
@@ -75,6 +77,7 @@ class RedissonMemoizer<T: Any, R: Any>(
     companion object: KLogging()
 
     private val inFlight = ConcurrentHashMap<T, CompletableFuture<R>>()
+    private val lock = ReentrantLock()
 
     /**
      * 주어진 [key]에 대한 결과를 반환한다.
@@ -88,29 +91,33 @@ class RedissonMemoizer<T: Any, R: Any>(
      * @param key 조회할 키
      * @return 키에 대응하는 값
      */
+    @Suppress("TooGenericExceptionCaught")
     override fun invoke(key: T): R {
         inFlight[key]?.let { return it.join() }
 
-        val promise = CompletableFuture<R>()
-        val existing = inFlight.putIfAbsent(key, promise)
-        if (existing != null) return existing.join()
+        lock.withLock {
+            val promise = CompletableFuture<R>()
+            val existing = inFlight.putIfAbsent(key, promise)
+            if (existing != null) return existing.join()
 
-        try {
-            val cached = map.get(key)
-            if (cached != null) {
-                promise.complete(cached)
-                return cached
+            try {
+                val cached = map.get(key)
+                if (cached != null) {
+                    promise.complete(cached)
+                    return cached
+                }
+
+                val evaluated = evaluator(key)
+                val winner = map.putIfAbsent(key, evaluated) ?: evaluated
+                promise.complete(winner)
+                return winner
+            } catch (e: Throwable) {
+                // 대기 중인 호출자에게 모든 실패를 전달한 뒤 원래 실패를 호출자에게 다시 던집니다.
+                promise.completeExceptionally(e)
+                throw e
+            } finally {
+                inFlight.remove(key, promise)
             }
-
-            val evaluated = evaluator(key)
-            val winner = map.putIfAbsent(key, evaluated) ?: evaluated
-            promise.complete(winner)
-            return winner
-        } catch (e: Throwable) {
-            promise.completeExceptionally(e)
-            throw e
-        } finally {
-            inFlight.remove(key, promise)
         }
     }
 
@@ -119,6 +126,8 @@ class RedissonMemoizer<T: Any, R: Any>(
      */
     override fun clear() {
         log.debug { "모든 메모이제이션 값 삭제: map=${map.name}" }
-        map.clear()
+        lock.withLock {
+            map.clear()
+        }
     }
 }

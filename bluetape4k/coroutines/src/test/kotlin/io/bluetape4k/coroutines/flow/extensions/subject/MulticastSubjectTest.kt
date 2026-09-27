@@ -13,6 +13,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -88,6 +89,7 @@ class MulticastSubjectTest {
         val collectorJob1 = launch {
             subject.collect(received1::add)
         }.log("collectorJob1")
+
         val collectorJob2 = launch {
             subject.collect(received2::add)
         }.log("collectorJob2")
@@ -99,6 +101,7 @@ class MulticastSubjectTest {
             .rounds(rounds)
             .add { subject.emit(produced.incrementAndGet()) }
             .run()
+
         subject.complete()
         collectorJob1.join()
         collectorJob2.join()
@@ -171,7 +174,7 @@ class MulticastSubjectTest {
         completedSubject.complete()
         completedSubject.emitError(failure)
 
-        completedSubject.collect {}
+        completedSubject.collect()
     }
 
     @Test
@@ -204,6 +207,7 @@ class MulticastSubjectTest {
             job1.join()
             job2.join()
         }
+
         counter1.get() shouldBeEqualTo n
         counter2.get() shouldBeEqualTo n
     }

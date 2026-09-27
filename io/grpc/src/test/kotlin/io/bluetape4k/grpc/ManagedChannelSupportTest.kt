@@ -1,16 +1,18 @@
 package io.bluetape4k.grpc
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.grpc.examples.helloworld.GreeterService
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 
 /**
  * [managedChannel] 및 [grpcServer]/[grpcServerBuilder] 팩토리 함수 검증 테스트
  */
 class ManagedChannelSupportTest {
-    companion object : KLogging()
+
+    companion object: KLogging()
 
     @Test
     fun `managedChannel - host port 기반 채널을 생성한다`() {
@@ -24,6 +26,7 @@ class ManagedChannelSupportTest {
         val channel = managedChannel("localhost:50052") { usePlaintext() }
         channel.shouldNotBeNull()
         channel.shutdownNow()
+        channel.isShutdown.shouldBeTrue()
     }
 
     @Test
@@ -62,6 +65,7 @@ class ManagedChannelSupportTest {
         val channel = managedChannel("localhost", 1) { usePlaintext() }
         channel.shouldNotBeNull()
         channel.shutdownNow()
+        channel.isShutdown.shouldBeTrue()
     }
 
     @Test
@@ -69,6 +73,7 @@ class ManagedChannelSupportTest {
         val channel = managedChannel("localhost", 65535) { usePlaintext() }
         channel.shouldNotBeNull()
         channel.shutdownNow()
+        channel.isShutdown.shouldBeTrue()
     }
 
     @Test

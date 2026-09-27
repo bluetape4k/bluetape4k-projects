@@ -5,9 +5,9 @@ import feign.Request.Options
 import io.bluetape4k.feign.feignResponseBuilder
 import io.bluetape4k.io.compressor.Compressor
 import io.bluetape4k.io.compressor.Compressors
-import io.bluetape4k.logging.KotlinLogging
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.error
-import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.isNullOrEmpty
 import io.vertx.core.buffer.Buffer
@@ -18,7 +18,7 @@ import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.RequestOptions
 import java.util.concurrent.CompletableFuture
 
-private val log by lazy { KotlinLogging.logger { } }
+private object VertxFeignLogger: KLogging()
 
 private const val VERTX_HTTP_CLIENT_USER_AGENT = "VertxHttpClient/bluetape4k"
 
@@ -76,7 +76,7 @@ internal fun HttpClientResponse.convertToFeignResponse(
     val self = this
     body()
         .onSuccess { buffer ->
-            log.trace { "Convert Vertx HttpClientResponse to Feign Response." }
+            VertxFeignLogger.log.debug { "Convert Vertx HttpClientResponse to Feign Response." }
 
             val responseHeaders = self.headers()
             val headers = responseHeaders
@@ -113,7 +113,7 @@ internal fun HttpClientResponse.convertToFeignResponse(
             responsePromise.complete(builder.build())
         }
         .onFailure { error ->
-            log.warn(error) { "Fail to retrieve body." }
+            VertxFeignLogger.log.warn(error) { "Fail to retrieve body." }
             responsePromise.completeExceptionally(error)
         }
 }
@@ -122,7 +122,7 @@ internal fun decompress(compressor: Compressor, buffer: Buffer) =
     runCatching {
         compressor.decompress(buffer.bytes)
     }.getOrElse { error ->
-        log.warn(error) { "Fail to decompress response. fallback to raw bytes." }
+        VertxFeignLogger.log.warn(error) { "Fail to decompress response. fallback to raw bytes." }
         buffer.bytes
     }
 
@@ -146,7 +146,7 @@ internal fun HttpClient.sendAsync(
             val vertxRequest = request.apply { parseFromFeignRequest(feignRequest) }
             val requestBody = feignRequest.body()
 
-            log.trace { "Send vertx httpclient request ..." }
+            VertxFeignLogger.log.debug { "Send vertx httpclient request ..." }
 
             val sendAction = if (requestBody.isNullOrEmpty()) {
                 vertxRequest.send()
@@ -155,16 +155,16 @@ internal fun HttpClient.sendAsync(
             }
             sendAction
                 .onSuccess { response ->
-                    log.trace { "Build feign response ... " }
+                    VertxFeignLogger.log.debug { "Build feign response ... " }
                     response.convertToFeignResponse(feignRequest, promise)
                 }
                 .onFailure { error ->
-                    log.error(error) { "Fail to send vertx httpclient request." }
+                    VertxFeignLogger.log.error(error) { "Fail to send vertx httpclient request." }
                     promise.completeExceptionally(error)
                 }
         }
         .onFailure { error ->
-            log.error(error) { "Fail to build vertx httpclient request." }
+            VertxFeignLogger.log.error(error) { "Fail to build vertx httpclient request." }
             promise.completeExceptionally(error)
         }
 

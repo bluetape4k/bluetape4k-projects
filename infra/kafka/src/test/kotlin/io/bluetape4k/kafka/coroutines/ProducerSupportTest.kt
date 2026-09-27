@@ -1,5 +1,9 @@
 package io.bluetape4k.kafka.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.concurrent.asCompletableFuture
 import io.bluetape4k.concurrent.sequence
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
@@ -12,6 +16,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.support.asDouble
 import io.bluetape4k.testcontainers.mq.KafkaServer
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
@@ -19,22 +24,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
-import io.bluetape4k.assertions.shouldBeTrue
 import org.apache.kafka.clients.producer.Callback
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
@@ -54,6 +56,13 @@ class ProducerSupportTest: AbstractKafkaTest() {
     }
 
     private val producer = KafkaServer.Launcher.createStringProducer()
+
+    private val mockProducer = mockk<Producer<String, String>>()
+
+    @BeforeEach
+    fun beforeEach() {
+        clearMocks(mockProducer)
+    }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `send one message with future`(@RandomValue message: String) = runSuspendIO {
@@ -76,9 +85,8 @@ class ProducerSupportTest: AbstractKafkaTest() {
     @Test
     fun `suspendSend propagates callback exception`() = runTest {
         val failure = TimeoutException("send failed")
-        val producer = mockk<Producer<String, String>>()
 
-        every { producer.send(any(), any()) } answers {
+        every { mockProducer.send(any(), any()) } answers {
             secondArg<Callback>().onCompletion(null, failure)
             CompletableFuture<RecordMetadata>().apply {
                 completeExceptionally(failure)
@@ -86,19 +94,18 @@ class ProducerSupportTest: AbstractKafkaTest() {
         }
 
         assertFailsWith<TimeoutException> {
-            producer.suspendSend(ProducerRecord(TEST_TOPIC_NAME, "key", "value"))
+            mockProducer.suspendSend(ProducerRecord(TEST_TOPIC_NAME, "key", "value"))
         }
     }
 
     @Test
     fun `suspendSend cancels kafka future when coroutine is cancelled`() = runTest {
         val future = RecordingFuture<RecordMetadata>()
-        val producer = mockk<Producer<String, String>>()
 
-        every { producer.send(any(), any()) } returns future
+        every { mockProducer.send(any(), any()) } returns future
 
         val job = launch {
-            producer.suspendSend(ProducerRecord(TEST_TOPIC_NAME, "key", "value"))
+            mockProducer.suspendSend(ProducerRecord(TEST_TOPIC_NAME, "key", "value"))
         }
 
         yield()
@@ -110,9 +117,8 @@ class ProducerSupportTest: AbstractKafkaTest() {
     @Test
     fun `suspendSend remains stable under SuspendedJobTester`() = runSuspendIO {
         val metadata = recordMetadata()
-        val producer = mockk<Producer<String, String>>()
 
-        every { producer.send(any(), any()) } answers {
+        every { mockProducer.send(any(), any()) } answers {
             secondArg<Callback>().onCompletion(metadata, null)
             CompletableFuture.completedFuture(metadata)
         }
@@ -121,7 +127,7 @@ class ProducerSupportTest: AbstractKafkaTest() {
             .workers(4)
             .rounds(32)
             .add {
-                producer.suspendSend(ProducerRecord(TEST_TOPIC_NAME, "key", "value"))
+                mockProducer.suspendSend(ProducerRecord(TEST_TOPIC_NAME, "key", "value"))
                     .verifyRecordMetadata()
             }
             .run()
@@ -186,8 +192,11 @@ class ProducerSupportTest: AbstractKafkaTest() {
 
         measureSendRecords(MESSAGE_SIZE) {
             val sendTime = measureTimeMillis {
-                val records = messages.asFlow()
-                    .map { ProducerRecord<String, String>(TEST_TOPIC_NAME, null, it) }
+                val records = messages
+                    .asFlow()
+                    .map {
+                        ProducerRecord<String, String>(TEST_TOPIC_NAME, null, it)
+                    }
 
                 val lastResult = producer.sendAsFlowParallel(records)
                 lastResult.verifyRecordMetadata()
@@ -202,8 +211,11 @@ class ProducerSupportTest: AbstractKafkaTest() {
         val prevSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
 
         val sendTime = measureTimeMillis {
-            val records = messages.asFlow()
-                .map { ProducerRecord<String, String>(TEST_TOPIC_NAME, null, it) }
+            val records = messages
+                .asFlow()
+                .map {
+                    ProducerRecord<String, String>(TEST_TOPIC_NAME, null, it)
+                }
 
             producer.sendAndForget(records, true)
         }
@@ -216,10 +228,10 @@ class ProducerSupportTest: AbstractKafkaTest() {
     private suspend fun measureSendRecords(
         expectCount: Int = MESSAGE_SIZE,
         block: suspend CoroutineScope.() -> Unit,
-    ) {
+    ) = coroutineScope {
         val prevSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble()
 
-        coroutineScope { block() }
+        block()
 
         val currSentTotal = producer.getMetricValueOrNull("record-send-total").asDouble() - prevSentTotal
         log.debug { "Current sent count=$currSentTotal" }

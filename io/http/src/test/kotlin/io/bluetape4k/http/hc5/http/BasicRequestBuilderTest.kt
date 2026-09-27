@@ -1,8 +1,8 @@
 package io.bluetape4k.http.hc5.http
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.core5.http.HttpHost
 import org.apache.hc.core5.http.Method
 import org.apache.hc.core5.http.message.BasicHeader
@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 
 class BasicRequestBuilderTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `basicHttpRequest(String) - GET 메서드 이름 검증`() {
@@ -43,6 +43,7 @@ class BasicRequestBuilderTest {
 
         request.shouldNotBeNull()
         request.method shouldBeEqualTo "DELETE"
+        request.path shouldBeEqualTo "/api/v1/users/1"
     }
 
     @Test
@@ -54,6 +55,7 @@ class BasicRequestBuilderTest {
 
         request.shouldNotBeNull()
         request.method shouldBeEqualTo "PUT"
+        request.path shouldBeEqualTo "/api/v1/items/42"
     }
 
     @Test

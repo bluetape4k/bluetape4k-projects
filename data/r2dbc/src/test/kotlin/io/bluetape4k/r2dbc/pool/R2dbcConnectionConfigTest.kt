@@ -1,26 +1,28 @@
 package io.bluetape4k.r2dbc.pool
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.r2dbc.pool.ConnectionPool
-import io.r2dbc.spi.ConnectionFactory
-import io.r2dbc.spi.ConnectionFactoryOptions
-import io.r2dbc.spi.Option
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
+import io.r2dbc.pool.ConnectionPool
+import io.r2dbc.spi.ConnectionFactory
+import io.r2dbc.spi.ConnectionFactoryOptions
+import io.r2dbc.spi.Option
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
-
-private fun h2R2dbcUrl(dbName: String = "url_test_${System.nanoTime()}") =
-    "r2dbc:h2:mem:///$dbName;DB_CLOSE_DELAY=-1"
 
 class R2dbcConnectionConfigTest {
 
-    companion object : KLogging()
+    companion object: KLoggingChannel()
+
+    private fun h2R2dbcUrl(dbName: String = "url_test_${System.nanoTime()}") =
+        "r2dbc:h2:mem:///$dbName;DB_CLOSE_DELAY=-1"
 
     @Test
     fun `connectionFactoryOptionsOf - H2 인메모리 설정`() {
@@ -31,13 +33,12 @@ class R2dbcConnectionConfigTest {
             option(Option.valueOf("DB_CLOSE_DELAY"), "-1")
             lockWaitTimeout = Duration.ofSeconds(2)
         }
+        log.debug { "options: $options" }
 
         options.shouldNotBeNull()
         options.getRequiredValue(ConnectionFactoryOptions.DRIVER) shouldBeEqualTo "h2"
         options.getRequiredValue(ConnectionFactoryOptions.PROTOCOL) shouldBeEqualTo "mem"
         options.getRequiredValue(ConnectionFactoryOptions.LOCK_WAIT_TIMEOUT) shouldBeEqualTo Duration.ofSeconds(2)
-
-        log.debug { "H2 ConnectionFactoryOptions: $options" }
     }
 
     @Test
@@ -54,6 +55,7 @@ class R2dbcConnectionConfigTest {
             option(Option.valueOf("useServerPrepareStatement"), true)
             option(Option.valueOf("tcpKeepAlive"), true)
         }
+        log.debug { "options: $options" }
 
         options.getRequiredValue(ConnectionFactoryOptions.DRIVER) shouldBeEqualTo "mysql"
         options.getRequiredValue(ConnectionFactoryOptions.HOST) shouldBeEqualTo "localhost"
@@ -76,6 +78,7 @@ class R2dbcConnectionConfigTest {
             connectTimeout = Duration.ofSeconds(10)
             statementTimeout = Duration.ofSeconds(30)
         }
+        log.debug { "options: $options" }
 
         options.getRequiredValue(ConnectionFactoryOptions.DRIVER) shouldBeEqualTo "postgresql"
         options.getRequiredValue(ConnectionFactoryOptions.HOST) shouldBeEqualTo "localhost"
@@ -101,6 +104,7 @@ class R2dbcConnectionConfigTest {
             protocol = "mem"
             database = "test"
         }
+        log.debug { "options: $options" }
 
         options.getRequiredValue(ConnectionFactoryOptions.SSL) shouldBeEqualTo false
     }
@@ -112,6 +116,7 @@ class R2dbcConnectionConfigTest {
             protocol = "mem"
             database = "test"
         }
+        log.debug { "options: $options" }
 
         options.getValue(ConnectionFactoryOptions.HOST).shouldBeNull()
         options.getValue(ConnectionFactoryOptions.PORT).shouldBeNull()
@@ -134,7 +139,7 @@ class R2dbcConnectionConfigTest {
     }
 
     @Test
-    fun `r2dbcConnectionPool - 연결과 풀을 한 번에 구성`() {
+    fun `r2dbcConnectionPool - 연결과 풀을 한 번에 구성`() = runSuspendIO {
         val pool = r2dbcConnectionPool {
             connection {
                 driver = "h2"
@@ -149,17 +154,18 @@ class R2dbcConnectionConfigTest {
                 maxIdleTime = Duration.ofMinutes(5)
             }
         }
+        log.debug { "pool: $pool" }
 
         pool.shouldNotBeNull()
         pool.shouldBeInstanceOf<ConnectionPool>()
         pool.isDisposed.shouldBeFalse()
 
         log.debug { "통합 DSL ConnectionPool 생성 완료. isDisposed=${pool.isDisposed}" }
-        pool.close()
+        pool.close().awaitSingleOrNull()
     }
 
     @Test
-    fun `r2dbcConnectionPool - pool 블록 생략 시 기본 풀 설정 사용`() {
+    fun `r2dbcConnectionPool - pool 블록 생략 시 기본 풀 설정 사용`() = runSuspendIO {
         val pool = r2dbcConnectionPool {
             connection {
                 driver = "h2"
@@ -172,7 +178,7 @@ class R2dbcConnectionConfigTest {
 
         pool.shouldNotBeNull()
         pool.shouldBeInstanceOf<ConnectionPool>()
-        pool.close()
+        pool.close().awaitSingleOrNull()
     }
 
     // ─── URL 기반 API ───────────────────────────────────────────────
@@ -181,10 +187,9 @@ class R2dbcConnectionConfigTest {
     fun `connectionFactoryOptionsOf(url) - H2 URL 파싱`() {
         val options = connectionFactoryOptionsOf(h2R2dbcUrl())
 
+        log.debug { "URL 파싱 ConnectionFactoryOptions: $options" }
         options.shouldNotBeNull()
         options.getRequiredValue(ConnectionFactoryOptions.DRIVER) shouldBeEqualTo "h2"
-
-        log.debug { "URL 파싱 ConnectionFactoryOptions: $options" }
     }
 
     @Test
@@ -196,17 +201,17 @@ class R2dbcConnectionConfigTest {
     }
 
     @Test
-    fun `r2dbcConnectionPool(url) - URL로 ConnectionPool 생성`() {
+    fun `r2dbcConnectionPool(url) - URL로 ConnectionPool 생성`() = runSuspendIO {
         val pool = r2dbcConnectionPool(h2R2dbcUrl())
 
         pool.shouldNotBeNull()
         pool.shouldBeInstanceOf<ConnectionPool>()
         pool.isDisposed.shouldBeFalse()
-        pool.close()
+        pool.close().awaitSingleOrNull()
     }
 
     @Test
-    fun `r2dbcConnectionPool(url) - URL + 풀 설정 람다`() {
+    fun `r2dbcConnectionPool(url) - URL + 풀 설정 람다`() = runSuspendIO {
         val pool = r2dbcConnectionPool(h2R2dbcUrl()) {
             maxSize = 20
             initialSize = 4
@@ -219,7 +224,7 @@ class R2dbcConnectionConfigTest {
         pool.isDisposed.shouldBeFalse()
 
         log.debug { "URL 기반 ConnectionPool 생성 완료. isDisposed=${pool.isDisposed}" }
-        pool.close()
+        pool.close().awaitSingleOrNull()
     }
 
     @Test
@@ -231,6 +236,7 @@ class R2dbcConnectionConfigTest {
             user = "sa"
             password = "mySecret123"   // String 직접 할당
         }
+        log.debug { "options: $options" }
 
         options.getRequiredValue(ConnectionFactoryOptions.USER) shouldBeEqualTo "sa"
         // password는 sensitive option이라 CharSequence로 저장됨

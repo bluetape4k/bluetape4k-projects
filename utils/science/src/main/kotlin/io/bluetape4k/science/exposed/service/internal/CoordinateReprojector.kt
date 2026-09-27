@@ -125,7 +125,7 @@ internal sealed class CoordinateReprojector {
                 val gridMappingAttribute = mapping.findAttribute("grid_mapping_name")
                 val gridMappingName = gridMappingAttribute?.stringValue?.trim()
                     ?: if (gridMappingAttribute == null) null else
-                    throw NetCdfException.UnsupportedProjection("grid_mapping_name")
+                        throw NetCdfException.UnsupportedProjection("grid_mapping_name")
                 if (gridMappingName.isNullOrEmpty() && gridMappingAttribute != null) {
                     throw NetCdfException.UnsupportedProjection("grid_mapping_name")
                 }
@@ -168,13 +168,13 @@ internal sealed class CoordinateReprojector {
             val geographicNames = setOf("latitude", "longitude", "grid_latitude", "grid_longitude")
             val geographicAxes =
                 (latStandardName in geographicNames || latUnits.contains("degrees_north")) &&
-                    (lonStandardName in geographicNames || lonUnits.contains("degrees_east"))
+                        (lonStandardName in geographicNames || lonUnits.contains("degrees_east"))
             return if (geographicAxes) WGS84 else throw NetCdfException.UnsupportedProjection("missing-grid-mapping")
         }
 
         private fun parseEpsgAttribute(attribute: ucar.nc2.Attribute): String {
             val raw = attribute.stringValue ?: attribute.numericValue?.toString()
-                ?: throw NetCdfException.UnsupportedProjection(attribute.shortName)
+            ?: throw NetCdfException.UnsupportedProjection(attribute.shortName)
             val digits = raw.removePrefix("EPSG:")
             if (digits.isEmpty() || digits.any { it !in '0'..'9' }) {
                 throw NetCdfException.UnsupportedProjection(raw)
@@ -191,12 +191,12 @@ internal sealed class CoordinateReprojector {
         private fun parseSpatialRefEpsg(raw: String): String? {
             val directMatches = SPATIAL_REF_EPSG_PATTERN.findAll(raw).toList()
             val structuredMatches = (
-                SPATIAL_REF_AUTHORITY_EPSG_PATTERN.findAll(raw).map { match ->
-                    match to (match.groupValues[1].ifEmpty { match.groupValues[2] })
-                } + SPATIAL_REF_ID_EPSG_PATTERN.findAll(raw).map { match ->
-                    match to (match.groupValues[1].ifEmpty { match.groupValues[2] })
-                }
-                ).sortedBy { it.first.range.first }
+                    SPATIAL_REF_AUTHORITY_EPSG_PATTERN.findAll(raw).map { match ->
+                        match to (match.groupValues[1].ifEmpty { match.groupValues[2] })
+                    } + SPATIAL_REF_ID_EPSG_PATTERN.findAll(raw).map { match ->
+                        match to (match.groupValues[1].ifEmpty { match.groupValues[2] })
+                    }
+                    ).sortedBy { it.first.range.first }
                 .toList()
             val markerCount = SPATIAL_REF_EPSG_MARKER_PATTERN.findAll(raw).count()
             if (markerCount != directMatches.size + structuredMatches.size) {
@@ -212,8 +212,8 @@ internal sealed class CoordinateReprojector {
             if (rootCode == null) throw NetCdfException.UnsupportedProjection("conflicting-spatial-ref")
             val directDistinct = directCodes.filterNotNull().distinct()
             if (directDistinct.size > 1 || (directDistinct.singleOrNull() != null &&
-                    structuredCodes.lastOrNull() != null && directDistinct.single() != structuredCodes.last()
-                )
+                        structuredCodes.lastOrNull() != null && directDistinct.single() != structuredCodes.last()
+                        )
             ) {
                 throw NetCdfException.UnsupportedProjection("conflicting-spatial-ref")
             }
@@ -320,9 +320,17 @@ internal sealed class CoordinateReprojector {
         ): Double {
             return if (binding.isTwoDimensional) {
                 val gridRowDim = axisMap.gridRowDim
-                    ?: throw NetCdfException.UnsupportedCoordinateAxis(binding.name, binding.name, "missing-row-dimension")
+                    ?: throw NetCdfException.UnsupportedCoordinateAxis(
+                        binding.name,
+                        binding.name,
+                        "missing-row-dimension"
+                    )
                 val gridColumnDim = axisMap.gridColumnDim
-                    ?: throw NetCdfException.UnsupportedCoordinateAxis(binding.name, binding.name, "missing-column-dimension")
+                    ?: throw NetCdfException.UnsupportedCoordinateAxis(
+                        binding.name,
+                        binding.name,
+                        "missing-column-dimension"
+                    )
                 val rowAxis = binding.dimensionIndices.indexOf(gridRowDim)
                 val columnAxis = binding.dimensionIndices.indexOf(gridColumnDim)
                 if (rowAxis < 0 || columnAxis < 0) {

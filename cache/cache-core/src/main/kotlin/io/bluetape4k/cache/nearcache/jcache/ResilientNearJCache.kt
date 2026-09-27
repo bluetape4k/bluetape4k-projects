@@ -154,7 +154,9 @@ class ResilientNearJCache<K: Any, V: Any>(
     }
 
     private fun completeCommand(queued: QueuedCommand<K, V>, failed: Boolean, failure: Throwable? = null) {
-        if (!queued.completed.compareAndSet(false, true)) return
+        if (!queued.completed.compareAndSet(false, true))
+            return
+
         when (val command = queued.command) {
             is BackJCacheCommand.Put       -> completePut(queued, setOf(command.key), failed)
             is BackJCacheCommand.PutAll    -> completePut(queued, command.entries.keys, failed)
@@ -300,6 +302,7 @@ class ResilientNearJCache<K: Any, V: Any>(
      */
     fun putIfAbsent(key: K, value: V): V? {
         key.requireNotNull("key")
+
         return writeStateLock.withLock {
             frontCache.get(key)?.let { return it }
             val pendingMutation = pendingMutationTokens[key]
@@ -355,8 +358,7 @@ class ResilientNearJCache<K: Any, V: Any>(
      */
     fun replace(key: K, oldValue: V, newValue: V): Boolean {
         val current = get(key) ?: return false
-        if (current != oldValue) return false
-        return replace(key, newValue)
+        return current == oldValue && replace(key, newValue)
     }
 
     /**
@@ -451,7 +453,7 @@ class ResilientNearJCache<K: Any, V: Any>(
      */
     override fun close() {
         val shouldClose = writeStateLock.withLock {
-            closed.compareAndSet(false, true).also { changed ->
+            closed.compareAndSet(expect = false, update = true).also { changed ->
                 if (changed) {
                     runCatching { consumerThread.interrupt() }
                 }

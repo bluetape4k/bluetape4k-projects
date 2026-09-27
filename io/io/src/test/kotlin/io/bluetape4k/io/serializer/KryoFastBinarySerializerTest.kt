@@ -1,10 +1,9 @@
 package io.bluetape4k.io.serializer
 
-import io.bluetape4k.junit5.faker.Fakers
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.junit5.faker.Fakers
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
@@ -56,7 +55,7 @@ class KryoFastBinarySerializerTest {
         bytes.shouldNotBeEmpty()
 
         val actual = serializer.deserialize<NonNullableProduct>(bytes)
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -67,7 +66,7 @@ class KryoFastBinarySerializerTest {
         bytes.shouldNotBeEmpty()
 
         val actual = serializer.deserialize<String>(bytes)
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -78,7 +77,7 @@ class KryoFastBinarySerializerTest {
         bytes.shouldNotBeEmpty()
 
         val actual = serializer.deserialize<Long>(bytes)
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 
     @RepeatedTest(REPEAT_SIZE)
@@ -97,7 +96,7 @@ class KryoFastBinarySerializerTest {
         bytes.shouldNotBeEmpty()
 
         val actual = serializer.deserialize<List<NonNullableProduct>>(bytes)
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 
     @Test
@@ -116,6 +115,6 @@ class KryoFastBinarySerializerTest {
         val bytes = serializer1.serialize(expected)
         val actual = serializer2.deserialize<NonNullableProduct>(bytes)
 
-        actual.shouldNotBeNull() shouldBeEqualTo expected
+        actual shouldBeEqualTo expected
     }
 }

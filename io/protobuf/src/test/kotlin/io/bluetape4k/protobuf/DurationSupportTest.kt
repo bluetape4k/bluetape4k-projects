@@ -129,7 +129,7 @@ class DurationSupportTest {
     fun `compareTo - 짧은 Duration이 긴 Duration보다 작다`() {
         val short = protoDurationOfSeconds(1L)
         val long = protoDurationOfSeconds(2L)
-        (short.compareTo(long) < 0).shouldBeTrue()
+        (short < long).shouldBeTrue()
     }
 
     @Test

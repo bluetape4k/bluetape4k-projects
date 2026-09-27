@@ -1,17 +1,18 @@
 package io.bluetape4k.redis.lettuce.benchmark
 
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceClients
 import io.bluetape4k.redis.lettuce.withPipeline
-import io.bluetape4k.redis.lettuce.awaitAll as redisAwaitAll
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll as coAwaitAll
 import kotlinx.coroutines.future.await
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import java.io.File
+import io.bluetape4k.redis.lettuce.awaitAll as redisAwaitAll
+import kotlinx.coroutines.awaitAll as coAwaitAll
 
 /**
  * Lettuce async throughput 벤치마크.
@@ -20,9 +21,9 @@ import java.io.File
  * 결과는 `.omc/self-improve-lettuce/state/benchmark_last.json`에 기록됩니다.
  */
 @Tag("benchmark")
-class LettuceThroughputBenchmark : AbstractLettuceTest() {
+class LettuceThroughputBenchmark: AbstractLettuceTest() {
 
-    companion object : KLogging() {
+    companion object: KLogging() {
         private const val OPS_COUNT = 5_000
         private const val VALUE_SIZE = 64
 
@@ -38,20 +39,23 @@ class LettuceThroughputBenchmark : AbstractLettuceTest() {
 
     @Test
     fun measureAsyncThroughput() = runSuspendIO {
-        val keyPrefix = "bench:async:${System.currentTimeMillis()}:"
+        val keyPrefix = "bench:async:${Base58.randomString(8)}:"
         val value = "v".repeat(VALUE_SIZE)
 
         // Warmup
-        repeat(200) { i -> asyncCommands.set("${keyPrefix}warm:$i", value).await() }
+        repeat(100) { i ->
+            asyncCommands.set("${keyPrefix}warm:$i", value).await()
+        }
 
         val start = System.currentTimeMillis()
 
         // MERGED PIPELINE: single flush covers all SET+GET commands
-        val (setFutures, getFutures) = connection.withPipeline { cmd ->
-            val sets = (0 until OPS_COUNT).map { i -> cmd.set("$keyPrefix$i", value) }
-            val gets = (0 until OPS_COUNT).map { i -> cmd.get("$keyPrefix$i") }
-            sets to gets
-        }
+        val (setFutures, getFutures) = connection
+            .withPipeline { cmd ->
+                val sets = List(OPS_COUNT) { i -> cmd.set("$keyPrefix$i", value) }
+                val gets = List(OPS_COUNT) { i -> cmd.get("$keyPrefix$i") }
+                sets to gets
+            }
         // Bulk await via CompletableFuture.allOf (single continuation vs 20K coroutine spawns)
         setFutures.redisAwaitAll()
         getFutures.redisAwaitAll()
@@ -60,10 +64,11 @@ class LettuceThroughputBenchmark : AbstractLettuceTest() {
         val opsPerSec = if (elapsedMs > 0) (OPS_COUNT * 2 * 1000L / elapsedMs) else 0L
 
         // Cleanup
-        (0 until OPS_COUNT).map { i ->
+        List(OPS_COUNT) { i ->
             async { asyncCommands.del("$keyPrefix$i").await() }
         }.coAwaitAll()
-        repeat(200) { i -> asyncCommands.del("${keyPrefix}warm:$i").await() }
+
+        repeat(100) { i -> asyncCommands.del("${keyPrefix}warm:$i").await() }
 
         val result = mapOf(
             "throughput_ops_per_sec" to opsPerSec,

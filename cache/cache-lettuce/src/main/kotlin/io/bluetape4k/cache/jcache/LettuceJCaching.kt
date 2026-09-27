@@ -51,9 +51,10 @@ object LettuceJCaching: KLogging() {
         redisClient: RedisClient,
         cacheName: String,
         ttlSeconds: Long? = null,
-        codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.lz4Fory<Any>(),
+        codec: LettuceBinaryCodec<*> = LettuceBinaryCodecs.default<Any>(),
     ): JCache<K, V> {
         val manager = cacheManagerOf(redisClient)
+
         return manager.getCache(cacheName)
             ?: manager.createCache(
                 cacheName,

@@ -1,24 +1,24 @@
 package io.bluetape4k.r2dbc.pool
 
-import io.bluetape4k.logging.KLogging
-import io.r2dbc.pool.ConnectionPool
-import io.r2dbc.spi.ConnectionFactories
-import io.r2dbc.spi.Option
-import io.r2dbc.spi.ValidationDepth
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeInstanceOf
-import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.r2dbc.pool.ConnectionPool
+import io.r2dbc.spi.Option
+import io.r2dbc.spi.ValidationDepth
 import org.junit.jupiter.api.Test
 import java.time.Duration
-import io.bluetape4k.assertions.assertFailsWith
 
 class R2dbcPoolConfigTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private fun h2DbName() = "pool_cfg_${System.nanoTime()}"
 
@@ -47,6 +47,8 @@ class R2dbcPoolConfigTest {
     @Test
     fun `기본 설정으로 생성 시 DEFAULT 값이 적용된다`() {
         val config = R2dbcPoolConfig()
+
+        log.debug { "config: $config" }
 
         config.maxIdleTime shouldBeEqualTo R2dbcPoolConfig.DEFAULT_MAX_IDLE_TIME
         config.maxLifeTime shouldBeEqualTo R2dbcPoolConfig.DEFAULT_MAX_LIFE_TIME
@@ -152,6 +154,8 @@ class R2dbcPoolConfigTest {
     fun `highThroughput 프리셋 기본값 확인`() {
         val config = R2dbcPoolConfig.highThroughput()
 
+        log.debug { "config: $config" }
+
         config.maxIdleTime shouldBeEqualTo R2dbcPoolConfig.HIGH_THROUGHPUT_MAX_IDLE_TIME
         config.maxCreateConnectionTime shouldBeEqualTo R2dbcPoolConfig.HIGH_THROUGHPUT_MAX_CREATE_CONNECTION_TIME
         config.acquireRetry shouldBeEqualTo R2dbcPoolConfig.HIGH_THROUGHPUT_ACQUIRE_RETRY
@@ -165,6 +169,8 @@ class R2dbcPoolConfigTest {
         val maxSize = 10
         val config = R2dbcPoolConfig.highThroughput(maxSize = maxSize, warmupSize = 100)
 
+        log.debug { "config: $config" }
+
         config.initialSize shouldBeLessOrEqualTo maxSize
         config.minIdle shouldBeLessOrEqualTo maxSize
     }
@@ -172,6 +178,7 @@ class R2dbcPoolConfigTest {
     @Test
     fun `highThroughput - poolName 을 지정할 수 있다`() {
         val config = R2dbcPoolConfig.highThroughput(poolName = "my-pool")
+        log.debug { "config: $config" }
         config.poolName shouldBeEqualTo "my-pool"
     }
 
@@ -181,8 +188,10 @@ class R2dbcPoolConfigTest {
     fun `toConnectionPoolConfiguration - ConnectionPool 을 생성할 수 있다`() {
         val factory = h2Factory()
         val config = R2dbcPoolConfig(maxSize = 10, initialSize = 2, minIdle = 1)
-        val poolConfig = config.toConnectionPoolConfiguration(factory)
+        log.debug { "config: $config" }
 
+        val poolConfig = config.toConnectionPoolConfiguration(factory)
+        log.debug { "poolConfig: $poolConfig" }
         poolConfig.shouldNotBeNull()
     }
 
@@ -194,11 +203,12 @@ class R2dbcPoolConfigTest {
             initialSize = 2
             minIdle = 1
         }
+        log.debug { "pool: $pool" }
 
         pool.shouldNotBeNull()
         pool.shouldBeInstanceOf<ConnectionPool>()
         pool.isDisposed.shouldBeFalse()
-        pool.close()
+        pool.close().block()
     }
 
     @Test
@@ -209,11 +219,12 @@ class R2dbcPoolConfigTest {
             initialSize = 4
             minIdle = 2
         }
+        log.debug { "pool: $pool" }
 
         pool.shouldNotBeNull()
         pool.shouldBeInstanceOf<ConnectionPool>()
         pool.isDisposed.shouldBeFalse()
-        pool.close()
+        pool.close().block()
     }
 
     @Test
@@ -227,7 +238,7 @@ class R2dbcPoolConfigTest {
         pool.shouldNotBeNull()
         pool.shouldBeInstanceOf<ConnectionPool>()
         pool.isDisposed.shouldBeFalse()
-        pool.close()
+        pool.close().block()
     }
 
     @Test
@@ -237,7 +248,7 @@ class R2dbcPoolConfigTest {
 
         pool.shouldNotBeNull()
         pool.shouldBeInstanceOf<ConnectionPool>()
-        pool.close()
+        pool.close().block()
     }
 
     @Test
@@ -246,7 +257,7 @@ class R2dbcPoolConfigTest {
 
         pool.shouldNotBeNull()
         pool.shouldBeInstanceOf<ConnectionPool>()
-        pool.close()
+        pool.close().block()
     }
 
     // ─── maxPendingAcquire 경계값 ────────────────────────────────────
@@ -262,7 +273,7 @@ class R2dbcPoolConfigTest {
         }
 
         pool.shouldNotBeNull()
-        pool.close()
+        pool.close().block()
     }
 
     // ─── validationQuery 설정 ────────────────────────────────────────
@@ -278,7 +289,7 @@ class R2dbcPoolConfigTest {
         }
 
         pool.shouldNotBeNull()
-        pool.close()
+        pool.close().block()
     }
 
     // ─── highThroughput + pool creation ──────────────────────────────
@@ -291,7 +302,7 @@ class R2dbcPoolConfigTest {
 
         pool.shouldNotBeNull()
         pool.shouldBeInstanceOf<ConnectionPool>()
-        pool.close()
+        pool.close().block()
     }
 
     // ─── Duration defaults ────────────────────────────────────────────

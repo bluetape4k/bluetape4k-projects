@@ -5,25 +5,34 @@ import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.csv.CsvSettings
 import io.bluetape4k.csv.TsvSettings
+import io.bluetape4k.logging.KLogging
 import okio.buffer
 import okio.source
 import org.junit.jupiter.api.Test
 
 class KotlinSafetyContractTest {
 
+    companion object: KLogging()
+
     @Test
     fun `all lexer implementations preserve Iterator EOF contract`() {
         CsvLexer("".reader(), CsvSettings.DEFAULT).use { lexer ->
             lexer.hasNext().shouldBeFalse()
-            assertFailsWith<NoSuchElementException> { lexer.next() }
+            assertFailsWith<NoSuchElementException> {
+                lexer.next()
+            }
         }
         TsvLexer("".reader(), TsvSettings.DEFAULT).use { lexer ->
             lexer.hasNext().shouldBeFalse()
-            assertFailsWith<NoSuchElementException> { lexer.next() }
+            assertFailsWith<NoSuchElementException> {
+                lexer.next()
+            }
         }
         OkioCsvLexer("".byteInputStream().source().buffer(), CsvSettings.DEFAULT).use { lexer ->
             lexer.hasNext().shouldBeFalse()
-            assertFailsWith<NoSuchElementException> { lexer.next() }
+            assertFailsWith<NoSuchElementException> {
+                lexer.next()
+            }
         }
     }
 
@@ -49,7 +58,13 @@ class KotlinSafetyContractTest {
             CsvSettings.DEFAULT,
             skipHeaders = true,
         )
-        csv.use { lexer -> lexer.hasNext().shouldBeTrue() }
-        okio.use { lexer -> lexer.hasNext().shouldBeTrue() }
+
+        csv.use { lexer ->
+            lexer.hasNext().shouldBeTrue()
+        }
+
+        okio.use { lexer ->
+            lexer.hasNext().shouldBeTrue()
+        }
     }
 }

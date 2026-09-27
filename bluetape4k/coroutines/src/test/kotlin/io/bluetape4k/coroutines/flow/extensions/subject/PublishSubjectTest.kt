@@ -166,7 +166,7 @@ class PublishSubjectTest {
             job.join()
 
             counter.get() shouldBeEqualTo 0
-            error.get() shouldBeInstanceOf RuntimeException::class
+            error.get().shouldBeInstanceOf<RuntimeException>()
         }
     }
 
@@ -230,6 +230,7 @@ class PublishSubjectTest {
         val pendingEmit = async(start = CoroutineStart.UNDISPATCHED) {
             subject.emit(2)
         }
+
         val terminal = async(start = CoroutineStart.UNDISPATCHED) {
             subject.complete()
         }

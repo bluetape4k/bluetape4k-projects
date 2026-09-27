@@ -5,6 +5,8 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import java.time.Duration
 
@@ -14,6 +16,8 @@ import java.time.Duration
  * Redis 연결 없이 순수 설정 파싱 / 검증 동작을 확인한다.
  */
 class LettuceNearCachePropertiesTest {
+
+    companion object: KLogging()
 
     @Test
     fun `기본값으로 생성 시 모든 필드가 합리적인 초기값을 가진다`() {
@@ -35,6 +39,7 @@ class LettuceNearCachePropertiesTest {
             mapOf("hibernate.cache.lettuce.redis_ttl.default" to "500ms")
         )
 
+        log.debug { "props.redisTtlDefault: ${props.redisTtlDefault}" }
         props.redisTtlDefault shouldBeEqualTo Duration.ofMillis(500)
     }
 
@@ -44,6 +49,7 @@ class LettuceNearCachePropertiesTest {
             mapOf("hibernate.cache.lettuce.redis_ttl.default" to "90s")
         )
 
+        log.debug { "props.redisTtlDefault: ${props.redisTtlDefault}" }
         props.redisTtlDefault shouldBeEqualTo Duration.ofSeconds(90)
     }
 
@@ -53,6 +59,7 @@ class LettuceNearCachePropertiesTest {
             mapOf("hibernate.cache.lettuce.local.expire_after_write" to "15m")
         )
 
+        log.debug { "props.localExpireAfterWrite: ${props.localExpireAfterWrite}" }
         props.localExpireAfterWrite shouldBeEqualTo Duration.ofMinutes(15)
     }
 
@@ -62,6 +69,7 @@ class LettuceNearCachePropertiesTest {
             mapOf("hibernate.cache.lettuce.local.expire_after_write" to "2h")
         )
 
+        log.debug { "props.localExpireAfterWrite: ${props.localExpireAfterWrite}" }
         props.localExpireAfterWrite shouldBeEqualTo Duration.ofHours(2)
     }
 
@@ -71,6 +79,7 @@ class LettuceNearCachePropertiesTest {
             mapOf("hibernate.cache.lettuce.redis_ttl.default" to "300")
         )
 
+        log.debug { "props.redisTtlDefault: ${props.redisTtlDefault}" }
         props.redisTtlDefault shouldBeEqualTo Duration.ofSeconds(300)
     }
 
@@ -82,9 +91,13 @@ class LettuceNearCachePropertiesTest {
                 "hibernate.cache.lettuce.redis_ttl.mySpecialRegion" to "600s",
             )
         )
+        log.debug { "props.redisTtlDefault: ${props.redisTtlDefault}" }
 
         val generalConfig = props.buildNearCacheConfig("someOtherRegion")
         val specialConfig = props.buildNearCacheConfig("mySpecialRegion")
+
+        log.debug { "generalConfig.redisTtl: ${generalConfig.redisTtl}" }
+        log.debug { "specialConfig.redisTtl: ${specialConfig.redisTtl}" }
 
         generalConfig.redisTtl shouldBeEqualTo Duration.ofSeconds(60)
         specialConfig.redisTtl shouldBeEqualTo Duration.ofSeconds(600)
@@ -95,11 +108,13 @@ class LettuceNearCachePropertiesTest {
         val props = LettuceNearCacheProperties.from(
             mapOf("hibernate.cache.lettuce.redis_ttl.default" to "120s")
         )
+        log.debug { "props.redisTtlDefault: ${props.redisTtlDefault}" }
 
         val tsConfig = props.buildNearCacheConfig(
             org.hibernate.cache.spi.RegionFactory.DEFAULT_UPDATE_TIMESTAMPS_REGION_UNQUALIFIED_NAME
         )
 
+        log.debug { "tsConfig.redisTtl: ${tsConfig.redisTtl}" }
         tsConfig.redisTtl.shouldBeNull()
     }
 
@@ -110,6 +125,7 @@ class LettuceNearCachePropertiesTest {
 
         val config = props.buildNearCacheConfig(regionName)
 
+        log.debug { "config.cacheName: ${config.cacheName}" }
         config.cacheName shouldBeEqualTo regionName
     }
 
@@ -119,6 +135,7 @@ class LettuceNearCachePropertiesTest {
         val props = LettuceNearCacheProperties(redisTtlDefault = null)
         val config = props.buildNearCacheConfig("anyRegion")
 
+        log.debug { "config.redisTtl: ${config.redisTtl}" }
         config.redisTtl.shouldBeNull()
     }
 
@@ -135,12 +152,14 @@ class LettuceNearCachePropertiesTest {
         codecs.forEach { codecName ->
             val props = LettuceNearCacheProperties(codec = codecName)
             props.createCodec().shouldNotBeNull()
+            log.debug { "props.codec: ${props.codec}" }
         }
     }
 
     @Test
     fun `FastFory codec 5종은 설정 이름으로 생성해 값을 직렬화 왕복한다`() {
         val codecs = listOf(
+            "default",
             "fastfory",
             "gzipfastfory",
             "lz4fastfory",
@@ -154,6 +173,7 @@ class LettuceNearCachePropertiesTest {
 
         codecs.forEach { codecName ->
             val codec = LettuceNearCacheProperties(codec = codecName).createCodec()
+            log.debug { "codec: $codec" }
             codec.decodeValue(codec.encodeValue(original)) shouldBeEqualTo original
         }
     }
@@ -164,6 +184,7 @@ class LettuceNearCachePropertiesTest {
             mapOf("hibernate.cache.lettuce.codec" to "LZ4FASTFORY")
         )
 
+        log.debug { "propsUpper.codec: ${propsUpper.codec}" }
         propsUpper.createCodec().shouldNotBeNull()
     }
 

@@ -1,6 +1,6 @@
 package io.bluetape4k.states.core
 
-import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
@@ -54,7 +54,7 @@ class StateMachineDslTest {
             initialState = L.RED
             transition(L.RED, on<E.Next>(), to = L.GREEN)
         }
-        m.finalStates shouldBeEqualTo emptySet()
+        m.finalStates.shouldBeEmpty()
         m.isInFinalState().shouldBeFalse()
     }
 

@@ -9,8 +9,7 @@ Near Cache**를 제공합니다.
 
 ## 패키지 / import 안정성
 
-cache 폴더 재편으로 소스 위치는 `cache/cache-hazelcast/`가 되었지만 Gradle 프로젝트 이름, Maven artifact,
-Kotlin package는 유지됩니다.
+cache 폴더 재편으로 소스 위치는 `cache/cache-hazelcast/`가 되었지만 Gradle 프로젝트 이름, Maven artifact, Kotlin package는 유지됩니다.
 
 - Gradle project: `:bluetape4k-cache-hazelcast`
 - Maven artifact: `io.github.bluetape4k:bluetape4k-cache-hazelcast`
@@ -20,22 +19,22 @@ Kotlin package는 유지됩니다.
 
 ## 제공 기능
 
-| 클래스                                     | 설명                                                                 |
-|-----------------------------------------|--------------------------------------------------------------------|
-| `HazelcastJCaching`                     | Hazelcast JCache Provider                                          |
-| `HazelcastSuspendCache`                 | JCache 기반 코루틴 캐시                                                   |
-| `HazelcastNearCache<V>`                 | Caffeine(front) + IMap(back) 2-Tier Near Cache (동기, write-through) |
-| `HazelcastSuspendNearCache<V>`          | Near Cache 코루틴 구현 (write-through)                                  |
-| `ResilientHazelcastNearCache<V>`        | write-behind + retry + graceful degradation 동기 구현                  |
-| `ResilientHazelcastSuspendNearCache<V>` | write-behind + retry + graceful degradation 코루틴 구현                 |
-| `HazelcastNearCacheConfig`              | Near Cache 설정 data class + DSL 빌더                                  |
-| `ResilientHazelcastNearCacheConfig`     | Resilient NearCache 추가 설정 (retry, queue 등)                         |
-| `HazelcastLocalCache<V>`                | front cache 추상 인터페이스                                               |
-| `CaffeineHazelcastLocalCache<V>`        | Caffeine 기반 LocalCache 구현                                          |
-| `HazelcastEntryEventListener`           | IMap EntryListener 기반 invalidation 리스너                             |
-| `HazelcastMemoizer<K,V>`                | IMap 기반 함수 결과 메모이제이션 (sync, `Memoizer` 인터페이스)                      |
-| `AsyncHazelcastMemoizer<K,V>`           | IMap.getAsync() 기반 비동기 메모이제이션 (`AsyncMemoizer` 인터페이스)              |
-| `SuspendHazelcastMemoizer<K,V>`         | IMap.getAsync().await() 기반 코루틴 메모이제이션 (`SuspendMemoizer` 인터페이스)    |
+| 클래스                                  | 설명                                                                            |
+|-----------------------------------------|---------------------------------------------------------------------------------|
+| `HazelcastJCaching`                     | Hazelcast JCache Provider                                                       |
+| `HazelcastSuspendCache`                 | JCache 기반 코루틴 캐시                                                         |
+| `HazelcastNearCache<V>`                 | Caffeine(front) + IMap(back) 2-Tier Near Cache (동기, write-through)            |
+| `HazelcastSuspendNearCache<V>`          | Near Cache 코루틴 구현 (write-through)                                          |
+| `ResilientHazelcastNearCache<V>`        | write-behind + retry + graceful degradation 동기 구현                           |
+| `ResilientHazelcastSuspendNearCache<V>` | write-behind + retry + graceful degradation 코루틴 구현                         |
+| `HazelcastNearCacheConfig`              | Near Cache 설정 data class + DSL 빌더                                           |
+| `ResilientHazelcastNearCacheConfig`     | Resilient NearCache 추가 설정 (retry, queue 등)                                 |
+| `HazelcastLocalCache<V>`                | front cache 추상 인터페이스                                                     |
+| `CaffeineHazelcastLocalCache<V>`        | Caffeine 기반 LocalCache 구현                                                   |
+| `HazelcastEntryEventListener`           | IMap EntryListener 기반 invalidation 리스너                                     |
+| `HazelcastMemoizer<K,V>`                | IMap 기반 함수 결과 메모이제이션 (sync, `Memoizer` 인터페이스)                  |
+| `AsyncHazelcastMemoizer<K,V>`           | IMap.getAsync() 기반 비동기 메모이제이션 (`AsyncMemoizer` 인터페이스)           |
+| `SuspendHazelcastMemoizer<K,V>`         | IMap.getAsync().await() 기반 코루틴 메모이제이션 (`SuspendMemoizer` 인터페이스) |
 
 `HazelcastNearCacheConfig` 제약:
 
@@ -131,7 +130,7 @@ val resilient = HazelcastCaches.resilientNearCache<String>(hazelcastInstance, ne
 ## JCache 기반 NearCache (nearcache.jcache 패키지)
 
 `NearJCache<K,V>` /
-`SuspendNearJCache<K,V>`는 JCache 인터페이스를 직접 구현하는 2-tier 캐시입니다. Caffeine(front) + Hazelcast IMap(back) 구조입니다.
+`SuspendNearJCache<K,V>`는 JCache 인터페이스를 직접 구현하는 2-tier 캐시입니다. Caffeine (front) + Hazelcast IMap (back) 구조입니다.
 
 > Hazelcast client JCache는 리스너를 클러스터에 직렬화해서 전파하므로, `SuspendNearJCache`는 `withoutListener(front, back)`로 생성됩니다.
 
@@ -140,20 +139,15 @@ val resilient = HazelcastCaches.resilientNearCache<String>(hazelcastInstance, ne
 Hazelcast IMap native NearCache는 공통 `NearCacheOperations` /
 `SuspendNearCacheOperations` conformance suite에서 supported로 검증됩니다.
 
-`HazelcastCaches.nearJCache(...)`와 `HazelcastNearJCache(...)`를 포함한 Hazelcast JCache
-NearCache factory는 listener 없이 생성되는 degraded 모드입니다. read-through와
-write-through는 지원하지만 peer front-cache propagation은 보장하지 않습니다.
-직접 listener-backed `NearJCache` / `SuspendNearJCache` 생성은 unsupported이며 active test로 고정합니다.
+`HazelcastCaches.nearJCache(...)`와 `HazelcastNearJCache(...)`를 포함한 Hazelcast JCache NearCache factory는 listener 없이 생성되는 degraded 모드입니다. read-through와 write-through는 지원하지만 peer front-cache propagation은 보장하지 않습니다. 직접 listener-backed `NearJCache` / `SuspendNearJCache` 생성은 unsupported이며 active test로 고정합니다.
 
 팩토리가 반환한 wrapper가 lifecycle 관점에서 소유하는 것은 front cache뿐입니다.
-`close()`를 호출해도 전달받은 Hazelcast 인스턴스나 back cache는 닫지 않습니다.
-정리 실패는 첫 번째 실패를 주 예외로, 이후 실패를 suppressed 예외로 보존해
-전달하며, 성공한 close는 idempotent입니다. front 생성 이후 팩토리 생성이
-실패하면 동일한 예외 정책으로 rollback합니다.
+`close()`를 호출해도 전달받은 Hazelcast 인스턴스나 back cache는 닫지 않습니다. 정리 실패는 첫 번째 실패를 주 예외로, 이후 실패를 suppressed 예외로 보존해 전달하며, 성공한 close는 idempotent입니다. front 생성 이후 팩토리 생성이 실패하면 동일한 예외 정책으로 rollback합니다.
 
 전체 행렬은 [Near-Cache Backend Capability Matrix](../../docs/cache/near-cache-capability-matrix.md)를 참고하세요.
 
 <!-- issue-1369-bulk-policy:start -->
+
 ## Bulk 결과의 front 저장 상한
 
 <!-- contract: default-bypass; bounded-all-or-nothing; single-key-get-unchanged; repeated-back-read; legacy-safe-default -->
@@ -165,27 +159,19 @@ val cache = HazelcastCaches.nearJCache<String, User>(hazelcastInstance) {
 }
 ```
 
-`BulkFrontPopulationPolicy.BypassFront`는 새 설정과 복원한 legacy stream의 안전한
-기본값입니다. 모든 hit를 반환하지만 반복 `getAll`에서 back을 반복 조회할 수 있습니다.
-`BulkFrontPopulationPolicy.PopulateIfAtMost(n)`은 `backValues.size <= n`일 때만
-bulk back hit 전체를 저장하며 초과 batch의 일부는 저장하지 않습니다. 이 entry 수는
-메모리에 상주하는 byte 크기나 back 조회 크기 제한이 아닙니다. single-key `get()` 저장은
-바뀌지 않습니다.
+`BulkFrontPopulationPolicy.BypassFront`는 새 설정과 복원한 legacy stream의 안전한 기본값입니다. 모든 hit를 반환하지만 반복 `getAll`에서 back을 반복 조회할 수 있습니다.
+`BulkFrontPopulationPolicy.PopulateIfAtMost(n)`은 `backValues.size <= n`일 때만 bulk back hit 전체를 저장하며 초과 batch의 일부는 저장하지 않습니다. 이 entry 수는 메모리에 상주하는 byte 크기나 back 조회 크기 제한이 아닙니다. single-key `get()` 저장은 바뀌지 않습니다.
 
 Configuration MXBean은 `BYPASS_FRONT` 또는 `POPULATE_IF_AT_MOST`와
-`bulkFrontPopulationMaximumEntryCount`를 노출합니다. `0`은 bypass 정책에 상한을
-적용하지 않는다는 뜻입니다. Caffeine 용량과 로컬 heap 예산을 검토한 뒤 상한을 선택합니다.
+`bulkFrontPopulationMaximumEntryCount`를 노출합니다. `0`은 bypass 정책에 상한을 적용하지 않는다는 뜻입니다. Caffeine 용량과 로컬 heap 예산을 검토한 뒤 상한을 선택합니다.
 <!-- issue-1369-bulk-policy:end -->
 
 <!-- nearjcache-clear-authority-contract -->
+
 ### #1368 Hazelcast NearJCache clear authority
 
-`HazelcastCaches.nearJCache`의 기본값은 `NearJCacheClearAuthority.DENY`이며
-Hazelcast namespace ownership을 추론하지 않습니다. `clear()`, `clearAllCache()`, 인자
-없는 `removeAll()`은 `SecurityException`을 발생시키며, 독점 owner만
-`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE`로 opt-in합니다. 공유 namespace에는
-key-scoped `removeAll(keys)`를 사용합니다. Listener-free factory 생성은 권한을 바꾸지
-않으며 `close()`는 wrapper front만 닫고 Hazelcast back과 instance는 닫지 않습니다.
+`HazelcastCaches.nearJCache`의 기본값은 `NearJCacheClearAuthority.DENY`이며 Hazelcast namespace ownership을 추론하지 않습니다. `clear()`, `clearAllCache()`, 인자 없는 `removeAll()`은 `SecurityException`을 발생시키며, 독점 owner만
+`NearJCacheClearAuthority.EXCLUSIVE_BACK_CACHE`로 opt-in합니다. 공유 namespace에는 key-scoped `removeAll(keys)`를 사용합니다. Listener-free factory 생성은 권한을 바꾸지 않으며 `close()`는 wrapper front만 닫고 Hazelcast back과 instance는 닫지 않습니다.
 
 ```kotlin
 val shared = HazelcastCaches.nearJCache<String, User>(hazelcastInstance)
@@ -196,6 +182,7 @@ val owner = HazelcastCaches.nearJCache<String, User>(
 ) { cacheName = "users-owner" }
 owner.clear()
 ```
+
 <!-- /nearjcache-clear-authority-contract -->
 
 ### NearJCache 사용 예
@@ -344,24 +331,24 @@ cache.close()
 
 ## HazelcastNearCacheConfig 옵션
 
-| 옵션                       | 기본값                      | 설명                                |
-|--------------------------|--------------------------|-----------------------------------|
-| `cacheName`              | `"hazelcast-near-cache"` | 캐시(IMap) 이름                       |
-| `maxLocalSize`           | `10_000`                 | Caffeine 최대 항목 수                  |
-| `frontExpireAfterWrite`  | `30분`                    | 로컬 캐시 write 후 만료 시간               |
+| 옵션                     | 기본값                   | 설명                                            |
+|--------------------------|--------------------------|-------------------------------------------------|
+| `cacheName`              | `"hazelcast-near-cache"` | 캐시(IMap) 이름                                 |
+| `maxLocalSize`           | `10_000`                 | Caffeine 최대 항목 수                           |
+| `frontExpireAfterWrite`  | `30분`                   | 로컬 캐시 write 후 만료 시간                    |
 | `frontExpireAfterAccess` | `null`                   | 로컬 캐시 access 후 만료 시간 (null이면 비활성) |
-| `recordStats`            | `false`                  | Caffeine 통계 수집 여부                 |
+| `recordStats`            | `false`                  | Caffeine 통계 수집 여부                         |
 
 ## ResilientHazelcastNearCacheConfig 옵션
 
-| 옵션                        | 기본값                          | 설명                   |
-|---------------------------|------------------------------|----------------------|
-| `base`                    | `HazelcastNearCacheConfig()` | 기본 NearCache 설정      |
-| `writeQueueCapacity`      | `1024`                       | write-behind 큐 최대 용량 |
-| `retryMaxAttempts`        | `3`                          | IMap 쓰기 최대 재시도 횟수    |
-| `retryWaitDuration`       | `500ms`                      | 재시도 대기 시간            |
-| `retryExponentialBackoff` | `true`                       | 지수 백오프 사용 여부         |
-| `getFailureStrategy`      | `RETURN_FRONT_OR_NULL`       | IMap GET 실패 시 동작 전략  |
+| 옵션                      | 기본값                       | 설명                       |
+|---------------------------|------------------------------|----------------------------|
+| `base`                    | `HazelcastNearCacheConfig()` | 기본 NearCache 설정        |
+| `writeQueueCapacity`      | `1024`                       | write-behind 큐 최대 용량  |
+| `retryMaxAttempts`        | `3`                          | IMap 쓰기 최대 재시도 횟수 |
+| `retryWaitDuration`       | `500ms`                      | 재시도 대기 시간           |
+| `retryExponentialBackoff` | `true`                       | 지수 백오프 사용 여부      |
+| `getFailureStrategy`      | `RETURN_FRONT_OR_NULL`       | IMap GET 실패 시 동작 전략 |
 
 ### 7. HazelcastMemoizer — 함수 결과 Hazelcast 캐싱
 

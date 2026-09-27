@@ -1,20 +1,24 @@
 package io.bluetape4k.nats.client
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.nats.AbstractNatsTest
 import io.mockk.every
 import io.mockk.mockk
 import io.nats.client.Consumer
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.assertions.shouldNotBeNull
-import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.seconds
 
-class ConsumerExtensionsTest {
+class ConsumerExtensionsTest: AbstractNatsTest() {
+
+    companion object: KLogging()
 
     private lateinit var consumer: Consumer
 

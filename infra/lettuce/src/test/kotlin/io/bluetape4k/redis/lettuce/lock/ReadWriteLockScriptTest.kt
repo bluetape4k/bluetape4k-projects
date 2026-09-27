@@ -1,23 +1,32 @@
 package io.bluetape4k.redis.lettuce.lock
 
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.concurrent.get
+import io.bluetape4k.junit5.coroutines.runSuspendIO
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.redis.lettuce.AbstractLettuceTest
 import io.bluetape4k.redis.lettuce.LettuceTestUtils
 import io.bluetape4k.redis.lettuce.lock.internal.deriveReadWriteLockKeys
-import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.codec.StringCodec
-import org.awaitility.Awaitility.await
+import org.awaitility.kotlin.atMost
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.untilAsserted
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
-internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
+internal class ReadWriteLockScriptTest: AbstractLettuceTest() {
+
+    companion object: KLogging()
 
     private lateinit var connection: StatefulRedisConnection<String, String>
     private lateinit var lock: LettuceReadWriteLock
@@ -28,7 +37,7 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
     @BeforeEach
     fun setUp() {
         connection = LettuceTestUtils.client.connect(StringCodec.UTF8)
-        lockName = "read-write-script-${randomName().substringAfter(':')}"
+        lockName = "read-write-script-${randomName().substringAfterLast(':')}"
         lock = LettuceReadWriteLock.create(connection, lockName)
     }
 
@@ -43,15 +52,24 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
         val first = acquireRead("reader-1", "read-1")
         val second = acquireRead("reader-2", "read-2")
 
+        log.debug { "first=$first" }
+        log.debug { "second=$second" }
+
         lock.writeLock().tryAcquire(owner("writer"), request("write"), lease)
             .shouldBeInstanceOf<LockAcquireResult.Contended>()
 
         lock.readLock().release(first) shouldBeEqualTo LockMutationResult.Released(0)
         lock.readLock().release(second) shouldBeEqualTo LockMutationResult.Released(0)
-        val writer = acquireWrite("writer", "write")
 
-        lock.readLock().tryAcquire(owner("reader-3"), request("read-3"), lease)
-            .shouldBeInstanceOf<LockAcquireResult.Contended>()
+        val writer = acquireWrite("writer", "write")
+        log.debug { "writer=$writer" }
+
+        lock.readLock().tryAcquire(
+            owner("reader-3"),
+            request("read-3"),
+            lease
+        ).shouldBeInstanceOf<LockAcquireResult.Contended>()
+
         lock.writeLock().release(writer) shouldBeEqualTo LockMutationResult.Released(0)
     }
 
@@ -66,23 +84,32 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
         awaitQueued(lock.writeLock(), "writer-2", "write-2")
 
         lock.readLock().release(activeReader) shouldBeEqualTo LockMutationResult.Released(0)
-        val firstWriterHandle = firstWriter.get(2, TimeUnit.SECONDS)
+
+        val firstWriterHandle = firstWriter.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
             .handle
+        log.debug { "firstWriterHandle=$firstWriterHandle" }
+
         lock.readLock().reconcile(owner("late-reader"), request("late-read"))
             .shouldBeInstanceOf<LockReconcileResult.Queued>()
         lock.writeLock().reconcile(owner("writer-2"), request("write-2"))
             .shouldBeInstanceOf<LockReconcileResult.Queued>()
 
         lock.writeLock().release(firstWriterHandle) shouldBeEqualTo LockMutationResult.Released(0)
-        val lateReaderHandle = lateReader.get(2, TimeUnit.SECONDS)
+
+        val lateReaderHandle = lateReader.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
             .handle
-        secondWriter.isDone shouldBeEqualTo false
+        log.debug { "lateReaderHandle=$lateReaderHandle" }
+
+        secondWriter.isDone.shouldBeFalse()
+
         lock.readLock().release(lateReaderHandle) shouldBeEqualTo LockMutationResult.Released(0)
-        val secondWriterHandle = secondWriter.get(2, TimeUnit.SECONDS)
+
+        val secondWriterHandle = secondWriter.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
             .handle
+        log.debug { "secondWriterHandle=$secondWriterHandle" }
         lock.writeLock().release(secondWriterHandle) shouldBeEqualTo LockMutationResult.Released(0)
     }
 
@@ -99,42 +126,65 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
         awaitQueued(lock.readLock(), "late-reader", "late-read")
 
         lock.writeLock().release(activeWriter) shouldBeEqualTo LockMutationResult.Released(0)
-        val first = firstReader.get(2, TimeUnit.SECONDS)
+        val first = firstReader.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
             .handle
-        val second = secondReader.get(2, TimeUnit.SECONDS)
+        log.debug { "first=$first" }
+        val second = secondReader.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
             .handle
-        nextWriter.isDone shouldBeEqualTo false
-        lateReader.isDone shouldBeEqualTo false
+        log.debug { "second=$second" }
+
+        nextWriter.isDone.shouldBeFalse()
+        lateReader.isDone.shouldBeFalse()
 
         lock.readLock().release(first) shouldBeEqualTo LockMutationResult.Released(0)
         lock.readLock().release(second) shouldBeEqualTo LockMutationResult.Released(0)
-        val writer = nextWriter.get(2, TimeUnit.SECONDS)
+
+        val writer = nextWriter.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
             .handle
+        log.debug { "writer=$writer" }
+
         lock.writeLock().release(writer) shouldBeEqualTo LockMutationResult.Released(0)
-        val late = lateReader.get(2, TimeUnit.SECONDS)
+        val late = lateReader.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
             .handle
+        log.debug { "late=$late" }
         lock.readLock().release(late) shouldBeEqualTo LockMutationResult.Released(0)
     }
 
     @Test
     fun `same owner reenters only within its current mode`() {
         val first = acquireRead("reader", "read-1")
-        val second = lock.readLock().tryAcquire(owner("reader"), request("read-2"), lease)
+        val second = lock
+            .readLock()
+            .tryAcquire(
+                owner("reader"),
+                request("read-2"),
+                lease
+            )
             .shouldBeInstanceOf<LockAcquireResult.Reentered<ReadLockHandle>>()
+        log.debug { "second=$second" }
+
         second.holdCount shouldBeEqualTo 2
 
-        lock.writeLock().tryAcquire(owner("reader"), request("write"), lease)
-            .shouldBeInstanceOf<LockAcquireResult.Contended>()
+        lock.writeLock().tryAcquire(
+            owner("reader"),
+            request("write"),
+            lease
+        ).shouldBeInstanceOf<LockAcquireResult.Contended>()
+
         lock.readLock().release(second.handle) shouldBeEqualTo LockMutationResult.Released(1)
         lock.readLock().release(first) shouldBeEqualTo LockMutationResult.Released(0)
 
         val writer = acquireWrite("writer", "write-1")
-        val reentered = lock.writeLock().tryAcquire(owner("writer"), request("write-2"), lease)
+        val reentered = lock
+            .writeLock()
+            .tryAcquire(owner("writer"), request("write-2"), lease)
             .shouldBeInstanceOf<LockAcquireResult.Reentered<WriteLockHandle>>()
+        log.debug { "reentered=$reentered" }
+
         reentered.holdCount shouldBeEqualTo 2
         lock.writeLock().release(reentered.handle) shouldBeEqualTo LockMutationResult.Released(1)
         lock.writeLock().release(writer) shouldBeEqualTo LockMutationResult.Released(0)
@@ -150,7 +200,7 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
             .shouldBeInstanceOf<LockAcquireResult.Contended>()
         lock.readLock().release(reader) shouldBeEqualTo LockMutationResult.Released(0)
 
-        val writerHandle = writer.get(2, TimeUnit.SECONDS)
+        val writerHandle = writer.get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
             .handle
         lock.writeLock().release(writerHandle) shouldBeEqualTo LockMutationResult.Released(0)
@@ -206,7 +256,7 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
         lock.close()
         lock = LettuceReadWriteLock.create(
             connection,
-            "read-write-expiry-${randomName().substringAfter(':')}",
+            "read-write-expiry-${randomName().substringAfterLast(':')}",
             ReadWriteLockConfig(),
         )
         acquireRead(
@@ -215,7 +265,7 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
             LeasePolicy.Fixed(Duration.ofMillis(100)),
         )
 
-        await().atMost(Duration.ofSeconds(2)).untilAsserted {
+        await atMost 2.seconds untilAsserted {
             val writer = lock.writeLock().tryAcquire(owner("writer"), request("write"), lease)
                 .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
                 .handle
@@ -244,13 +294,13 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
     @Test
     fun `reconcile and closed surfaces return typed terminal outcomes`() {
         lock.readLock().reconcile(owner("missing-owner"), request("missing-request")) shouldBeEqualTo
-            LockReconcileResult.NotFound
+                LockReconcileResult.NotFound
 
         val reader = acquireRead("close-reader", "close-read")
         lock.close()
 
         lock.readLock().tryAcquire(owner("after-close"), request("after-close"), lease) shouldBeEqualTo
-            LockAcquireResult.Closed
+                LockAcquireResult.Closed
         lock.readLock().inspect(reader) shouldBeEqualTo LockInspectResult.Closed
         lock.readLock().release(reader) shouldBeEqualTo LockMutationResult.Closed
     }
@@ -258,7 +308,8 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
     @Test
     fun `bounded acquire paths reject foreign handles and time out`() = runSuspendIO {
         val writer = acquireWrite("bounded-writer", "bounded-write")
-        val other = LettuceReadWriteLock.create(connection, "read-write-foreign-${randomName().substringAfter(':')}")
+        val other =
+            LettuceReadWriteLock.create(connection, "read-write-foreign-${randomName().substringAfterLast(':')}")
         val foreignHandle = other.writeLock().tryAcquire(owner("foreign-owner"), request("foreign-write"), lease)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
             .handle
@@ -281,7 +332,7 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
                 request("async-timeout"),
                 Duration.ofMillis(35),
                 lease,
-            ).get(2, TimeUnit.SECONDS) shouldBeEqualTo LockAcquireResult.TimedOut
+            ).get(2.seconds) shouldBeEqualTo LockAcquireResult.TimedOut
 
             val suspendLock = LettuceSuspendReadWriteLock.create(
                 connection,
@@ -317,34 +368,34 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
     @Test
     fun `async and suspend views preserve read write lifecycle parity`() = runSuspendIO {
         val asyncReader = lock.readLock().tryAcquireAsync(owner("async-reader"), request("async-read"), lease)
-            .get(2, TimeUnit.SECONDS)
+            .get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<ReadLockHandle>>()
             .handle
-        lock.readLock().inspectAsync(asyncReader).get(2, TimeUnit.SECONDS)
+        lock.readLock().inspectAsync(asyncReader).get(2.seconds)
             .shouldBeInstanceOf<LockInspectResult.Owned<ReadLockHandle>>()
         lock.readLock().reconcileAsync(owner("async-reader"), request("async-read"))
-            .get(2, TimeUnit.SECONDS)
+            .get(2.seconds)
             .shouldBeInstanceOf<LockReconcileResult.Owned<ReadLockHandle>>()
-        lock.readLock().renewAsync(asyncReader, Duration.ofSeconds(1)).get(2, TimeUnit.SECONDS)
+        lock.readLock().renewAsync(asyncReader, Duration.ofSeconds(1)).get(2.seconds)
             .shouldBeInstanceOf<LockMutationResult.Renewed<ReadLockHandle>>()
-        lock.readLock().releaseAsync(asyncReader).get(2, TimeUnit.SECONDS) shouldBeEqualTo
-            LockMutationResult.Released(0)
+        lock.readLock().releaseAsync(asyncReader).get(2.seconds) shouldBeEqualTo
+                LockMutationResult.Released(0)
 
         val asyncWriter = lock.writeLock().tryAcquireAsync(owner("async-writer"), request("async-write"), lease)
-            .get(2, TimeUnit.SECONDS)
+            .get(2.seconds)
             .shouldBeInstanceOf<LockAcquireResult.Acquired<WriteLockHandle>>()
             .handle
-        lock.writeLock().inspectAsync(asyncWriter).get(2, TimeUnit.SECONDS)
+        lock.writeLock().inspectAsync(asyncWriter).get(2.seconds)
             .shouldBeInstanceOf<LockInspectResult.Owned<WriteLockHandle>>()
         lock.writeLock().reconcileAsync(owner("async-writer"), request("async-write"))
-            .get(2, TimeUnit.SECONDS)
+            .get(2.seconds)
             .shouldBeInstanceOf<LockReconcileResult.Owned<WriteLockHandle>>()
-        lock.writeLock().renewAsync(asyncWriter, Duration.ofSeconds(1)).get(2, TimeUnit.SECONDS)
+        lock.writeLock().renewAsync(asyncWriter, Duration.ofSeconds(1)).get(2.seconds)
             .shouldBeInstanceOf<LockMutationResult.Renewed<WriteLockHandle>>()
-        lock.writeLock().releaseAsync(asyncWriter).get(2, TimeUnit.SECONDS) shouldBeEqualTo
-            LockMutationResult.Released(0)
+        lock.writeLock().releaseAsync(asyncWriter).get(2.seconds) shouldBeEqualTo
+                LockMutationResult.Released(0)
 
-        val suspendName = "read-write-suspend-${randomName().substringAfter(':')}"
+        val suspendName = "read-write-suspend-${randomName().substringAfterLast(':')}"
         val suspendLock = LettuceSuspendReadWriteLock.create(connection, suspendName)
         try {
             val suspendReader = suspendLock.readLock().tryAcquire(
@@ -384,7 +435,7 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
     @Test
     fun `bounded stale waiter cleanup fails closed without bypassing the remaining boundary`() {
         lock.close()
-        val name = "read-write-cleanup-${randomName().substringAfter(':')}"
+        val name = "read-write-cleanup-${randomName().substringAfterLast(':')}"
         val config = ReadWriteLockConfig(cleanupBatchSize = 1)
         lock = LettuceReadWriteLock.create(connection, name, config)
         val keys = deriveReadWriteLockKeys(name, config, connection.codec)
@@ -404,7 +455,7 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
         commands.set(keys.sequence, "2")
 
         lock.readLock().tryAcquire(owner("candidate"), request("candidate-read"), lease) shouldBeEqualTo
-            LockAcquireResult.CleanupPending
+                LockAcquireResult.CleanupPending
         commands.zcard(keys.queue) shouldBeEqualTo 1L
 
         val acquired = acquireRead("candidate", "candidate-read")
@@ -416,11 +467,11 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
     fun `public and internal surfaces expose no read-to-write upgrade`() {
         LettuceReadWriteLock::class.java.methods.none {
             it.name.contains("upgrade", ignoreCase = true)
-        } shouldBeEqualTo true
+        }.shouldBeTrue()
         LettuceReadWriteLock.ReadLockView::class.java.methods
-            .none { it.name.contains("upgrade", ignoreCase = true) } shouldBeEqualTo true
+            .none { it.name.contains("upgrade", ignoreCase = true) }.shouldBeTrue()
         LettuceSuspendReadWriteLock::class.java.methods
-            .none { it.name.contains("upgrade", ignoreCase = true) } shouldBeEqualTo true
+            .none { it.name.contains("upgrade", ignoreCase = true) }.shouldBeTrue()
     }
 
     private fun acquireRead(
@@ -468,9 +519,11 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
         owner: String,
         request: String,
     ) {
-        await().atMost(Duration.ofSeconds(2)).untilAsserted {
-            view.reconcile(owner(owner), request(request))
-                .shouldBeInstanceOf<LockReconcileResult.Queued>()
+        await atMost 2.seconds untilAsserted {
+            view.reconcile(
+                owner(owner),
+                request(request)
+            ).shouldBeInstanceOf<LockReconcileResult.Queued>()
         }
     }
 
@@ -479,9 +532,11 @@ internal class ReadWriteLockScriptTest : AbstractLettuceTest() {
         owner: String,
         request: String,
     ) {
-        await().atMost(Duration.ofSeconds(2)).untilAsserted {
-            view.reconcile(owner(owner), request(request))
-                .shouldBeInstanceOf<LockReconcileResult.Queued>()
+        await atMost 2.seconds untilAsserted {
+            view.reconcile(
+                owner(owner),
+                request(request)
+            ).shouldBeInstanceOf<LockReconcileResult.Queued>()
         }
     }
 

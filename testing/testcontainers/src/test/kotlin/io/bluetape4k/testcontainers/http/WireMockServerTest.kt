@@ -1,12 +1,13 @@
 package io.bluetape4k.testcontainers.http
 
 import com.github.tomakehurst.wiremock.client.WireMock
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.debug
-import io.bluetape4k.testcontainers.AbstractContainerTest
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
+import io.bluetape4k.testcontainers.AbstractContainerTest
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.net.HttpURLConnection
 import java.net.URI
-import io.bluetape4k.assertions.assertFailsWith
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class WireMockServerTest: AbstractContainerTest() {
@@ -36,7 +36,7 @@ class WireMockServerTest: AbstractContainerTest() {
 
     @AfterAll
     fun afterAll() {
-        if(this::wireMock.isInitialized && wireMock.isRunning) {
+        if (this::wireMock.isInitialized && wireMock.isRunning) {
             wireMock.close()
         }
     }

@@ -1,18 +1,20 @@
 package io.bluetape4k.concurrent.virtualthread.jdk25
 
-import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.debug
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeAllContractTest
 import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
+import io.bluetape4k.logging.coroutines.KLoggingChannel
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
 import org.junit.jupiter.api.condition.JRE
 import java.time.Instant
 import java.util.concurrent.TimeoutException
-import io.bluetape4k.concurrent.virtualthread.api.StructuredTaskScopeAllContractTest
-import io.bluetape4k.assertions.assertFailsWith
 
 @EnabledForJreRange(min = JRE.JAVA_25)
 class Jdk25StructuredTaskScopeProviderTest: StructuredTaskScopeAllContractTest() {
@@ -58,7 +60,7 @@ class Jdk25StructuredTaskScopeProviderTest: StructuredTaskScopeAllContractTest()
 
     @Test
     fun `withSupervised 일부 성공 일부 실패 시 결과를 분리해야 한다`() {
-        val (successes, failures) = provider.withSupervised<Int, Pair<List<Int>, List<Throwable>>> { scope ->
+        val (successes, failures) = provider.withSupervised { scope ->
             scope.fork { 1 }
             scope.fork { throw RuntimeException("fail") }
             scope.fork { 3 }
@@ -66,26 +68,26 @@ class Jdk25StructuredTaskScopeProviderTest: StructuredTaskScopeAllContractTest()
             scope.successfulResults() to scope.failedExceptions()
         }
         successes.sorted() shouldBeEqualTo listOf(1, 3)
-        failures.size shouldBeEqualTo 1
+        failures shouldHaveSize 1
         failures[0].shouldBeInstanceOf<RuntimeException>()
     }
 
     @Test
     fun `withSupervised 모두 성공 시 successfulResults 에 전부 포함되어야 한다`() {
-        val (successes, failures) = provider.withSupervised<Int, Pair<List<Int>, List<Throwable>>> { scope ->
+        val (successes, failures) = provider.withSupervised { scope ->
             scope.fork { 10 }
             scope.fork { 20 }
             scope.join()
             scope.successfulResults() to scope.failedExceptions()
         }
         successes.sorted() shouldBeEqualTo listOf(10, 20)
-        failures.size shouldBeEqualTo 0
+        failures.shouldBeEmpty()
     }
 
     @Test
     fun `withSupervised joinUntil 데드라인 초과 시 TimeoutException 이 발생해야 한다`() {
         assertFailsWith<TimeoutException> {
-            provider.withSupervised<Int, Unit> { scope ->
+            provider.withSupervised { scope ->
                 scope.fork { Thread.sleep(200); 42 }
                 scope.joinUntil(Instant.now().plusMillis(100))
             }
@@ -94,28 +96,28 @@ class Jdk25StructuredTaskScopeProviderTest: StructuredTaskScopeAllContractTest()
 
     @Test
     fun `withSupervised results 일부 성공 일부 실패 시 Result 리스트를 반환해야 한다`() {
-        val allResults = provider.withSupervised<Int, List<Result<Int>>> { scope ->
+        val allResults = provider.withSupervised { scope ->
             scope.fork { 1 }
             scope.fork { throw RuntimeException("fail") }
             scope.fork { 3 }
             scope.join()
             scope.results()
         }
-        allResults.size shouldBeEqualTo 3
+        allResults shouldHaveSize 3
         allResults.filter { it.isSuccess }.map { it.getOrThrow() }.sorted() shouldBeEqualTo listOf(1, 3)
         allResults.mapNotNull { it.exceptionOrNull() }.size shouldBeEqualTo 1
     }
 
     @Test
     fun `withSupervised results nullable T null 성공도 Result success 로 포함되어야 한다`() {
-        val allResults = provider.withSupervised<Int?, List<Result<Int?>>> { scope ->
+        val allResults = provider.withSupervised { scope ->
             scope.fork { 1 }
             scope.fork { null }
             scope.fork { 3 }
             scope.join()
             scope.results()
         }
-        allResults.size shouldBeEqualTo 3
+        allResults shouldHaveSize 3
         allResults.all { it.isSuccess }.shouldBeTrue()
     }
 

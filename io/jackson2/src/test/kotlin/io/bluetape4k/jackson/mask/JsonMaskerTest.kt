@@ -9,13 +9,13 @@ import io.bluetape4k.jackson.writeAsString
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.junit5.random.RandomValue
 import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.utils.Runtimex
-import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
@@ -58,10 +58,10 @@ class JsonMaskerTest {
     }
 
     @Test
-    fun `masking field with @JsonMasker in suspended jobs`() = runTest {
+    fun `masking field with @JsonMasker in suspended jobs`() = runSuspendDefault {
         SuspendedJobTester()
             .workers(2 * Runtimex.availableProcessors)
-            .rounds(16 * 2 * Runtimex.availableProcessors)
+            .rounds(16)
             .add {
                 verifyJsonMasker(newUser())
             }

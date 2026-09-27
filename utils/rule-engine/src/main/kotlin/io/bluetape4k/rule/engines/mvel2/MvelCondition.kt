@@ -21,7 +21,7 @@ class MvelCondition(val expression: String): Condition {
 
     companion object: KLogging()
 
-    private val compiledExpression by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+    private val compiledExpression by lazy {
         MVEL.compileExpression(expression)
     }
 
@@ -31,9 +31,8 @@ class MvelCondition(val expression: String): Condition {
         return try {
             MVEL.executeExpression(compiledExpression, facts.asMap()) as Boolean
         } catch (e: Exception) {
-            log.warn {
-                "Fail to evaluate MVEL expression. ${expression.toRuleSourceLogContext()}, " +
-                        "exceptionType=${e.javaClass.name}, factCount=${facts.size}"
+            log.warn(e) {
+                "Fail to evaluate MVEL expression. ${expression.toRuleSourceLogContext()}, factCount=${facts.size}"
             }
             false
         }

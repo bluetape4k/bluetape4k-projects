@@ -101,7 +101,7 @@ class BoundedWaitHttpIdempotencyConformanceLifecycleTest {
         guardedWorkStarted.await()
         liveWatchdogThreadCount() shouldBeEqualTo 1
         val failure = run.await()
-        failure.message.orEmpty() shouldContain "scenario=pre-suspension-stall"
+        failure.message shouldContain "scenario=pre-suspension-stall"
         liveWatchdogThreadCount() shouldBeEqualTo 0
     }
 
@@ -185,8 +185,8 @@ class BoundedWaitHttpIdempotencyConformanceLifecycleTest {
             )
         }
 
-        failure.message.orEmpty() shouldContain "scenario=success-cleanup"
-        failure.suppressed.single().message.orEmpty() shouldContain "scenario=final-cleanup"
+        failure.message shouldContain "scenario=success-cleanup"
+        failure.suppressed.single().message shouldContain "scenario=final-cleanup"
         liveWatchdogThreadCount() shouldBeEqualTo 0
     }
 

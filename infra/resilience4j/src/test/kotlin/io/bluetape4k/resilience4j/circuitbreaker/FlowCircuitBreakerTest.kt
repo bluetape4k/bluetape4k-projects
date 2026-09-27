@@ -5,7 +5,7 @@ import io.bluetape4k.assertions.shouldBeEmpty
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
-import io.bluetape4k.junit5.coroutines.runSuspendTest
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException
 import io.github.resilience4j.circuitbreaker.CircuitBreaker
@@ -29,7 +29,7 @@ class FlowCircuitBreakerTest {
     companion object: KLoggingChannel()
 
     @Test
-    fun `should collect successfully`() = runSuspendTest {
+    fun `should collect successfully`() = runSuspendIO {
         val circuitBreaker = CircuitBreaker.ofDefaults("testName")
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
@@ -55,7 +55,7 @@ class FlowCircuitBreakerTest {
     }
 
     @Test
-    fun `circuit breaker가 open 시에는 flow collect가 되지 않습니다`() = runSuspendTest {
+    fun `circuit breaker가 open 시에는 flow collect가 되지 않습니다`() = runSuspendIO {
         val circuitBreaker = CircuitBreaker.ofDefaults("testName")
         circuitBreaker.transitionToOpenState()
         val metrics = circuitBreaker.metrics
@@ -82,7 +82,7 @@ class FlowCircuitBreakerTest {
     }
 
     @Test
-    fun `circuit breaker가 open 시에는 flow는 시작하지 않습니다`() = runSuspendTest {
+    fun `circuit breaker가 open 시에는 flow는 시작하지 않습니다`() = runSuspendIO {
         var wasStarted = false
         val circuitBreaker = CircuitBreaker.ofDefaults("testName")
         circuitBreaker.transitionToOpenState()
@@ -112,7 +112,7 @@ class FlowCircuitBreakerTest {
     }
 
     @Test
-    fun `예외발생 시 기록에 남깁니다`() = runSuspendTest {
+    fun `예외발생 시 기록에 남깁니다`() = runSuspendIO {
         val circuitBreaker = CircuitBreaker.ofDefaults("testName")
         val metrics = circuitBreaker.metrics
         metrics.numberOfBufferedCalls shouldBeEqualTo 0
@@ -139,7 +139,7 @@ class FlowCircuitBreakerTest {
     }
 
     @Test
-    fun `Job 취소 시에는 fail로 기록하지 않습니다`() = runSuspendTest(timeout = 10.seconds) {
+    fun `Job 취소 시에는 fail로 기록하지 않습니다`() = runSuspendIO(timeout = 10.seconds) {
         val started = CompletableDeferred<Unit>()
         var flowCompleted = false
         val circuitBreaker = CircuitBreaker.ofDefaults("testName")
@@ -171,7 +171,7 @@ class FlowCircuitBreakerTest {
     }
 
     @Test
-    fun `Job 예외 취소 시에는 fail로 기록하지 않습니다`() = runSuspendTest(timeout = 10.seconds) {
+    fun `Job 예외 취소 시에는 fail로 기록하지 않습니다`() = runSuspendIO(timeout = 10.seconds) {
         val parentJob = Job()
         val started = CompletableDeferred<Unit>()
         var flowCompleted = false

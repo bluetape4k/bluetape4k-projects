@@ -7,7 +7,6 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.redis.lettuce.codec.LettuceBinaryCodecs
-import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.testcontainers.utility.Base58
 import java.time.Duration
@@ -85,8 +84,8 @@ class LettuceNearCacheFactoryTest {
     }
 
     @Test
-    fun `suspend top-level factory creates a configured cache`() = runTest {
-        val cacheName = "factory-suspend-${Base58.randomString(6)}"
+    fun `suspend top-level factory creates a configured cache`() = runSuspendIO {
+        val cacheName = "factory-suspend-${Base58.randomString(8)}"
         val cache: SuspendNearCacheOperations<String> = lettuceSuspendNearCacheOf(
             RedisServers.redisClient,
             LettuceBinaryCodecs.default(),
@@ -99,7 +98,7 @@ class LettuceNearCacheFactoryTest {
             cache.put("order:1", "created")
             cache.get("order:1") shouldBeEqualTo "created"
         } finally {
-            runSuspendIO { cache.close() }
+            cache.close()
         }
 
         cache.isClosed.shouldBeTrue()

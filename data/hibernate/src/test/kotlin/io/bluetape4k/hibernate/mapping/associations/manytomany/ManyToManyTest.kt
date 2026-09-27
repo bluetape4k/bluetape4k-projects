@@ -1,6 +1,9 @@
 package io.bluetape4k.hibernate.mapping.associations.manytomany
 
 import io.bluetape4k.ToStringBuilder
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContainSame
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.hibernate.model.IntJpaEntity
 import io.bluetape4k.logging.KLogging
@@ -16,9 +19,6 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.JoinTable
 import jakarta.persistence.ManyToMany
 import jakarta.validation.constraints.NotBlank
-import io.bluetape4k.assertions.shouldBeEmpty
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldContainSame
 import org.hibernate.annotations.DynamicInsert
 import org.hibernate.annotations.DynamicUpdate
 import org.junit.jupiter.api.Test

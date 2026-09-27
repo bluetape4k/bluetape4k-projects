@@ -4,7 +4,6 @@ import io.bluetape4k.http.vertx.defaultVertxHttpClient
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
-import io.bluetape4k.logging.warn
 import io.bluetape4k.okio.toTimeout
 import io.bluetape4k.retrofit2.toIOException
 import io.vertx.core.http.HttpClient
@@ -233,7 +232,7 @@ class VertxCallFactory private constructor(
         }
 
         override fun cancel() {
-            if (!cancelledRef.compareAndSet(false, true)) {
+            if (!cancelledRef.compareAndSet(expect = false, update = true)) {
                 return
             }
             eventListeners.forEach { it.canceled(this) }
@@ -285,7 +284,7 @@ class VertxCallFactory private constructor(
 
         private fun Throwable.isTimeoutLikeFailure(): Boolean =
             this is TimeoutException ||
-                message?.contains("timeout", ignoreCase = true) == true ||
-                message?.contains("timed out", ignoreCase = true) == true
+                    message?.contains("timeout", ignoreCase = true) == true ||
+                    message?.contains("timed out", ignoreCase = true) == true
     }
 }

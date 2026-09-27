@@ -1,5 +1,6 @@
 package io.bluetape4k.mockserver.httpbin
 
+import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.mockserver.MockServerApplication
@@ -28,7 +29,7 @@ import org.springframework.web.context.WebApplicationContext
 @SpringBootTest(classes = [MockServerApplication::class])
 class HttpbinContractTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Autowired
     private lateinit var ctx: WebApplicationContext
@@ -163,7 +164,7 @@ class HttpbinContractTest {
      * E06: PATCH /httpbin/patch → 200, 요청 body가 그대로 반향됨
      */
     @Test
-    fun `patch_echoes_body`() {
+    fun `patch echoes body`() {
         mockMvc.perform(
             patch("/httpbin/patch")
                 .contentType(MediaType.TEXT_PLAIN)
@@ -178,7 +179,7 @@ class HttpbinContractTest {
      * E07: DELETE /httpbin/delete → 200, 요청 정보가 반향됨
      */
     @Test
-    fun `delete_echoes_request`() {
+    fun `delete echoes request`() {
         mockMvc.perform(delete("/httpbin/delete"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.url").exists())
@@ -189,7 +190,7 @@ class HttpbinContractTest {
      * E10: GET /httpbin/user-agent → 200, 요청 User-Agent 반환
      */
     @Test
-    fun `user_agent_endpoint_returns_ua`() {
+    fun `user agent endpoint returns ua`() {
         mockMvc.perform(
             get("/httpbin/user-agent")
                 .header("User-Agent", "ContractTest/1.0")
@@ -202,7 +203,7 @@ class HttpbinContractTest {
      * E12: GET /httpbin/anything/... → 요청 메서드와 경로가 반향됨
      */
     @Test
-    fun `anything_echoes_method_and_path`() {
+    fun `anything echoes method and path`() {
         mockMvc.perform(get("/httpbin/anything/foo/bar"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.method").value("GET"))
@@ -213,11 +214,11 @@ class HttpbinContractTest {
      * E14: GET /httpbin/bytes/{n} → n 바이트의 랜덤 바이트 반환
      */
     @Test
-    fun `bytes_endpoint_returns_n_random_bytes`() {
+    fun `bytes endpoint returns n random bytes`() {
         val result = mockMvc.perform(get("/httpbin/bytes/100"))
             .andExpect(status().isOk)
             .andReturn()
         val body = result.response.contentAsByteArray
-        require(body.size == 100) { "Expected 100 bytes, got ${body.size}" }
+        body.size shouldBeEqualTo 100
     }
 }

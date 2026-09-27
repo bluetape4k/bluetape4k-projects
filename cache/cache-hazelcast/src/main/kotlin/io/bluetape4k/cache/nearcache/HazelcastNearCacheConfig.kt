@@ -34,7 +34,7 @@ data class HazelcastNearCacheConfig(
     val frontExpireAfterWrite: Duration = Duration.ofMinutes(30),
     val frontExpireAfterAccess: Duration? = null,
     val recordStats: Boolean = false,
-) : Serializable {
+): Serializable {
     companion object {
         private const val serialVersionUID: Long = 1L
     }

@@ -1,6 +1,6 @@
 package io.bluetape4k.jwt.provider
 
-import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.jwt.keychain.KeyChain
 import io.bluetape4k.jwt.keychain.repository.AbstractKeyChainRepository
 import io.bluetape4k.jwt.keychain.repository.KeyChainRepository
@@ -18,27 +18,38 @@ class DefaultJwtProviderTest: AbstractJwtProviderTest() {
 
     override val repository: KeyChainRepository = InMemoryKeyChainRepository()
 
-    override val provider: JwtProvider =
-        JwtProviderFactory.default(keyChainRepository = repository)
+    override val provider: JwtProvider = JwtProviderFactory.default(keyChainRepository = repository)
 
     @Test
     fun `key chain repository exposes close and stops its timer`() {
         val lifecycleRepository = LifecycleKeyChainRepository(refreshIntervalMillis = 25)
         val timerName = lifecycleRepository.javaClass.name
 
-        try {
-            await.atMost(Duration.ofSeconds(2)).until { lifecycleRepository.refreshCount.get() > 0 }
-            await.atMost(Duration.ofSeconds(2)).until { hasLiveThread(timerName) }
+        lifecycleRepository.use { lifecycleRepository ->
+            await
+                .atMost(Duration.ofSeconds(2))
+                .until {
+                    lifecycleRepository.refreshCount.get() > 0
+                }
+            await
+                .atMost(Duration.ofSeconds(2))
+                .until {
+                    hasLiveThread(timerName)
+                }
 
             lifecycleRepository.close()
 
             val refreshCountAfterClose = lifecycleRepository.refreshCount.get()
-            await.during(Duration.ofMillis(100)).until {
-                lifecycleRepository.refreshCount.get() == refreshCountAfterClose
-            }
-            await.atMost(Duration.ofSeconds(2)).until { !hasLiveThread(timerName) }
-        } finally {
-            lifecycleRepository.close()
+            await
+                .atLeast(Duration.ofMillis(100))
+                .until {
+                    lifecycleRepository.refreshCount.get() == refreshCountAfterClose
+                }
+            await
+                .atMost(Duration.ofSeconds(2))
+                .until {
+                    !hasLiveThread(timerName)
+                }
         }
     }
 
@@ -52,19 +63,34 @@ class DefaultJwtProviderTest: AbstractJwtProviderTest() {
         val repositoryTimerName = lifecycleRepository.javaClass.name
 
         try {
-            await.atMost(Duration.ofSeconds(2)).until { lifecycleRepository.rotateCount.get() > 1 }
-            await.atMost(Duration.ofSeconds(2)).until { hasLiveThread(repositoryTimerName) }
+            await
+                .atMost(Duration.ofSeconds(2))
+                .until {
+                    lifecycleRepository.rotateCount.get() > 1
+                }
+            await
+                .atMost(Duration.ofSeconds(2))
+                .until {
+                    hasLiveThread(repositoryTimerName)
+                }
 
             lifecycleProvider.close()
 
             val rotationCountAfterClose = lifecycleRepository.rotateCount.get()
-            await.during(Duration.ofMillis(100)).until {
-                lifecycleRepository.rotateCount.get() == rotationCountAfterClose
-            }
-            hasLiveThread(repositoryTimerName).shouldBeEqualTo(true)
+            await
+                .during(Duration.ofMillis(100))
+                .until {
+                    lifecycleRepository.rotateCount.get() == rotationCountAfterClose
+                }
+
+            hasLiveThread(repositoryTimerName).shouldBeTrue()
 
             lifecycleRepository.close()
-            await.atMost(Duration.ofSeconds(2)).until { !hasLiveThread(repositoryTimerName) }
+            await
+                .atMost(Duration.ofSeconds(2))
+                .until {
+                    !hasLiveThread(repositoryTimerName)
+                }
         } finally {
             lifecycleProvider.close()
             lifecycleRepository.close()

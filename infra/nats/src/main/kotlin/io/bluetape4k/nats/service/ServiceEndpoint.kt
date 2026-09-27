@@ -24,7 +24,7 @@ fun serviceEndpointOf(
     endpoint: Endpoint? = null,
     builder: ServiceEndpoint.Builder.() -> Unit = {},
 ): ServiceEndpoint = serviceEndpoint {
-    group?.let { group(it) }
-    endpoint?.let { endpoint(it) }
+    group?.run { group(this) }
+    endpoint?.run { endpoint(this) }
     builder()
 }

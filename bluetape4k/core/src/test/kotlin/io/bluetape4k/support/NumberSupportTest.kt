@@ -102,8 +102,8 @@ class NumberSupportTest {
         "42.4".parseNumber<BigDecimal>() shouldBeEqualTo 42.4.toBigDecimal()
 
         // hex 문자열을 BigInteger, BigDecimal로 파싱
-        "0x42".parseNumber<BigInteger>() shouldBeEqualTo BigInteger.valueOf(0x42L)
-        "0x42".parseNumber<BigDecimal>() shouldBeEqualTo BigDecimal.valueOf(0x42L)
+        "0x42".parseNumber<BigInteger>() shouldBeEqualTo 0x42L.toBigInteger()
+        "0x42".parseNumber<BigDecimal>() shouldBeEqualTo 0x42.toBigDecimal()
     }
 
     @Test
@@ -114,7 +114,9 @@ class NumberSupportTest {
         "1,234".parseNumber<Long>(format) shouldBeEqualTo 1234L
         "1,234.5".parseNumber<Double>(format) shouldBeEqualTo 1234.5
         "1,234.5".parseNumber<Float>(format) shouldBeEqualTo 1234.5F
-        "1,234.5".parseNumber<BigDecimal>(format).compareTo(BigDecimal("1234.5")) shouldBeEqualTo 0
+
+        "1,234.5".parseNumber<BigDecimal>(format) shouldBeEqualTo "1234.5".toBigDecimal()
+        "1,234".parseNumber<BigInteger>(format) shouldBeEqualTo "1234".toBigInteger()
     }
 
     @Test
@@ -151,7 +153,7 @@ class NumberSupportTest {
         42.toTargetClass<BigDecimal>() shouldBeEqualTo 42.toBigDecimal()
 
         // Float/Double → BigInteger 변환 (오버플로우 없이 동작)
-        1.0E18.toTargetClass<BigInteger>() shouldBeEqualTo BigDecimal("1.0E18").toBigInteger()
+        1.0E18.toTargetClass<BigInteger>() shouldBeEqualTo "1.0E18".toBigDecimal().toBigInteger()
         123.45F.toTargetClass<BigInteger>() shouldBeEqualTo 123.45F.toBigDecimal().toBigInteger()
     }
 

@@ -59,6 +59,7 @@ class LettuceSuspendNearCache<V: Any>(
     codec: RedisCodec<String, V> = LettuceBinaryCodecs.default(),
     private val config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
 ): SuspendNearCacheOperations<V> {
+
     companion object: KLoggingChannel() {
         // 개선: sync 구현과 동일하게 [NearCacheScripts.COMPARE_AND_SET] 를 재사용한다.
         //       매 호출마다 원문 전송 대신 EVALSHA → NOSCRIPT fallback 으로 네트워크 비용을 줄인다.
@@ -70,7 +71,8 @@ class LettuceSuspendNearCache<V: Any>(
         operator fun <V: Any> invoke(
             redisClient: RedisClient,
             config: LettuceNearCacheConfig<String, V> = LettuceNearCacheConfig(),
-        ): LettuceSuspendNearCache<V> = LettuceSuspendNearCache(redisClient, LettuceBinaryCodecs.default(), config)
+        ): LettuceSuspendNearCache<V> =
+            LettuceSuspendNearCache(redisClient, LettuceBinaryCodecs.default(), config)
     }
 
     override val cacheName: String get() = config.cacheName
@@ -117,6 +119,7 @@ class LettuceSuspendNearCache<V: Any>(
         frontCache.get(key)?.let { return it }
 
         val backValue = commands.get(config.redisKey(key))
+
         return if (backValue != null) {
             backHitCount.incrementAndGet()
             frontCache.put(key, backValue)
@@ -304,8 +307,7 @@ class LettuceSuspendNearCache<V: Any>(
      * 해당 키가 캐시에 존재하는지 확인한다 (front or Redis).
      */
     override suspend fun containsKey(key: String): Boolean {
-        if (frontCache.containsKey(key)) return true
-        return (commands.exists(config.redisKey(key)) ?: 0L) > 0L
+        return frontCache.containsKey(key) || (commands.exists(config.redisKey(key)) ?: 0L) > 0L
     }
 
     /**

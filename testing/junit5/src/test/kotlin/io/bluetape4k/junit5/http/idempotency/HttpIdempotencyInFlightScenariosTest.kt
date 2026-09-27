@@ -48,18 +48,28 @@ class HttpIdempotencyInFlightScenariosTest {
         val limits = config(maxWaitersPerKey = 1)
         val adapter = InMemoryBoundedWaitHttpIdempotencyAdapter(limits)
         val command = request(idempotencyKeys = listOf("contended-cancellation-key"))
-        val owner = async { exchangeChecked(adapter, limits, command) }
+
+        val owner = async {
+            exchangeChecked(adapter, limits, command)
+        }
         adapter.awaitOwnerStarted(command)
-        val waiter = async { exchangeChecked(adapter, limits, command) }
+
+        val waiter = async {
+            exchangeChecked(adapter, limits, command)
+        }
         adapter.awaitWaiterCount(command, 1)
         val cleanupAttempt = adapter.observeNextWaiterCleanupAttempt()
 
         val entered = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
-        val lockHolder = launch { adapter.holdStateLockForTest(entered, release) }
+
+        val lockHolder = launch {
+            adapter.holdStateLockForTest(entered, release)
+        }
         entered.await()
         waiter.cancel()
         cleanupAttempt.await()
+
         try {
             waiter.isCompleted.shouldBeFalse()
         } finally {
@@ -69,6 +79,7 @@ class HttpIdempotencyInFlightScenariosTest {
         joinAll(waiter, lockHolder)
         adapter.awaitWaiterCount(command, 0)
         adapter.completeOwner(command, createdResponse())
+
         owner.await() shouldBeEqualTo createdResponse().withReplayFlag(false)
         adapter.quiescence() shouldBeEqualTo HttpIdempotencyQuiescence(0, 0, 0)
     }
@@ -79,6 +90,7 @@ class HttpIdempotencyInFlightScenariosTest {
         val adapter = InMemoryBoundedWaitHttpIdempotencyAdapter(limits)
         val command = request(idempotencyKeys = listOf("contended-owner-cancellation-key"))
         val observedCancellation = CompletableDeferred<CancellationException>()
+
         val owner = async {
             try {
                 exchangeChecked(adapter, limits, command)
@@ -92,11 +104,15 @@ class HttpIdempotencyInFlightScenariosTest {
 
         val entered = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
-        val lockHolder = launch { adapter.holdStateLockForTest(entered, release) }
+        val lockHolder = launch {
+            adapter.holdStateLockForTest(entered, release)
+        }
         entered.await()
+
         val cancellation = CancellationException("owner disconnected")
         owner.cancel(cancellation)
         cleanupAttempt.await()
+
         try {
             owner.isCompleted.shouldBeFalse()
         } finally {
@@ -107,16 +123,23 @@ class HttpIdempotencyInFlightScenariosTest {
         generateSequence<Throwable>(observedCancellation.await()) { failure -> failure.cause }
             .any { failure -> failure === cancellation }
             .shouldBeTrue()
+
         adapter.quiescence() shouldBeEqualTo HttpIdempotencyQuiescence(0, 0, 0)
 
-        val retries = List(2) { async { exchangeChecked(adapter, limits, command) } }
+        val retries = List(2) {
+            async {
+                exchangeChecked(adapter, limits, command)
+            }
+        }
         adapter.awaitOwnerStarted(command)
         adapter.awaitWaiterCount(command, 1)
         adapter.sideEffectCount(command) shouldBeEqualTo 2
         adapter.completeOwner(command, createdResponse())
+
         retries.map { retry ->
             checkNotNull(retry.await().headers["idempotency-replayed"]?.single())
         }.sorted() shouldBeEqualTo listOf("false", "true")
+
         adapter.quiescence() shouldBeEqualTo HttpIdempotencyQuiescence(0, 0, 0)
     }
 
@@ -136,7 +159,9 @@ class HttpIdempotencyInFlightScenariosTest {
         val owner = async { exchangeChecked(adapter, limits, pendingWaiter) }
         adapter.awaitOwnerStarted(pendingWaiter)
         val waiterObservation = async(start = CoroutineStart.UNDISPATCHED) {
-            coInvoking { adapter.awaitWaiterCount(pendingWaiter, 1) } shouldThrow IllegalStateException::class
+            coInvoking {
+                adapter.awaitWaiterCount(pendingWaiter, 1)
+            } shouldThrow IllegalStateException::class
         }
 
         adapter.resetScenario()

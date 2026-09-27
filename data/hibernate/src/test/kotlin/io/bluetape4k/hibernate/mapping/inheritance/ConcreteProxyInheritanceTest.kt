@@ -1,5 +1,8 @@
 package io.bluetape4k.hibernate.mapping.inheritance
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.hibernate.model.IntJpaEntity
 import io.bluetape4k.support.uninitialized
@@ -10,9 +13,6 @@ import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
 import org.hibernate.Hibernate
 import org.hibernate.annotations.ConcreteProxy
 import org.junit.jupiter.api.Test

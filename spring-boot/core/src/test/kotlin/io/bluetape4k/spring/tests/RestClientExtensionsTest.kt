@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -16,24 +17,23 @@ import org.springframework.web.client.toEntity
 import kotlin.test.Test
 
 class RestClientExtensionsTest: AbstractSpringTest() {
+
     companion object: KLogging()
 
-    private val client: RestClient =
-        RestClient
-            .builder()
-            .baseUrl(baseUrl)
-            .build()
+    private val client: RestClient = RestClient
+        .builder()
+        .baseUrl(baseUrl)
+        .build()
 
     @Nested
     inner class Get {
         @Test
         fun `httGet httpbin`() {
-            val response =
-                client
-                    .httpGet("/get")
-                    .toEntity<String>()
-                    .body
-                    .shouldNotBeNull()
+            val response = client
+                .httpGet("/get")
+                .toEntity<String>()
+                .body
+                .shouldNotBeEmpty()
 
             log.debug { "response=$response" }
             response shouldContain "$baseUrl/get"
@@ -41,12 +41,11 @@ class RestClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httGet httpbin anything`() {
-            val response =
-                client
-                    .httpGet("/anything")
-                    .toEntity<String>()
-                    .body
-                    .shouldNotBeNull()
+            val response = client
+                .httpGet("/anything")
+                .toEntity<String>()
+                .body
+                .shouldNotBeEmpty()
 
             log.debug { "response=$response" }
             response shouldContain "$baseUrl/anything"
@@ -66,12 +65,11 @@ class RestClientExtensionsTest: AbstractSpringTest() {
     inner class Post {
         @Test
         fun `httpPost httpbin`() {
-            val response =
-                client
-                    .httpPost("/post")
-                    .toEntity<String>()
-                    .body
-                    .shouldNotBeNull()
+            val response = client
+                .httpPost("/post")
+                .toEntity<String>()
+                .body
+                .shouldNotBeEmpty()
 
             log.debug { "response=$response" }
             response shouldContain "$baseUrl/post"
@@ -79,12 +77,11 @@ class RestClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPost httpbin with body`() {
-            val response =
-                client
-                    .httpPost("/post", "Hello, World!")
-                    .toEntity<String>()
-                    .body
-                    .shouldNotBeNull()
+            val response = client
+                .httpPost("/post", "Hello, World!")
+                .toEntity<String>()
+                .body
+                .shouldNotBeEmpty()
 
             log.debug { "response=$response" }
             response shouldContain "$baseUrl/post"
@@ -93,12 +90,11 @@ class RestClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPost httpbin with flow`() {
-            val response =
-                client
-                    .httpPost("/post", flowOf("Hello", ",", "World!"))
-                    .toEntity<String>()
-                    .body
-                    .shouldNotBeNull()
+            val response = client
+                .httpPost("/post", flowOf("Hello", ",", "World!"))
+                .toEntity<String>()
+                .body
+                .shouldNotBeEmpty()
 
             log.debug { "response=$response" }
             response shouldContain "$baseUrl/post"
@@ -109,12 +105,11 @@ class RestClientExtensionsTest: AbstractSpringTest() {
     inner class Patch {
         @Test
         fun `httpPatch httpbin`() {
-            val response =
-                client
-                    .httpPatch("/patch")
-                    .toEntity<String>()
-                    .body
-                    .shouldNotBeNull()
+            val response = client
+                .httpPatch("/patch")
+                .toEntity<String>()
+                .body
+                .shouldNotBeEmpty()
 
             log.debug { "response=$response" }
             response shouldContain "$baseUrl/patch"
@@ -122,12 +117,11 @@ class RestClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPatch httpbin with body`() {
-            val response =
-                client
-                    .httpPatch("/patch", "Hello, World!")
-                    .toEntity<String>()
-                    .body
-                    .shouldNotBeNull()
+            val response = client
+                .httpPatch("/patch", "Hello, World!")
+                .toEntity<String>()
+                .body
+                .shouldNotBeEmpty()
 
             log.debug { "response=$response" }
             response shouldContain "$baseUrl/patch"
@@ -139,12 +133,11 @@ class RestClientExtensionsTest: AbstractSpringTest() {
     inner class Put {
         @Test
         fun `httpPut httpbin`() {
-            val response =
-                client
-                    .httpPut("/put")
-                    .toEntity<String>()
-                    .body
-                    .shouldNotBeNull()
+            val response = client
+                .httpPut("/put")
+                .toEntity<String>()
+                .body
+                .shouldNotBeEmpty()
 
             log.debug { "response=$response" }
             response shouldContain "$baseUrl/put"
@@ -152,12 +145,11 @@ class RestClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPut httpbin with body`() {
-            val response =
-                client
-                    .httpPut("/put", "Hello, World!")
-                    .toEntity<String>()
-                    .body
-                    .shouldNotBeNull()
+            val response = client
+                .httpPut("/put", "Hello, World!")
+                .toEntity<String>()
+                .body
+                .shouldNotBeEmpty()
 
             log.debug { "response=$response" }
             response shouldContain "$baseUrl/put"
@@ -166,12 +158,11 @@ class RestClientExtensionsTest: AbstractSpringTest() {
 
         @Test
         fun `httpPut httpbin with flow`() {
-            val response =
-                client
-                    .httpPut("/put", flowOf("Hello", ",", "World!"))
-                    .toEntity<String>()
-                    .body
-                    .shouldNotBeNull()
+            val response = client
+                .httpPut("/put", flowOf("Hello", ",", "World!"))
+                .toEntity<String>()
+                .body
+                .shouldNotBeEmpty()
 
             log.debug { "response=$response" }
             response shouldContain "$baseUrl/put"
@@ -182,12 +173,11 @@ class RestClientExtensionsTest: AbstractSpringTest() {
     inner class Delete {
         @Test
         fun `httpDelete httpbin`() {
-            val response =
-                client
-                    .httpDelete("/delete")
-                    .toEntity<String>()
-                    .body
-                    .shouldNotBeNull()
+            val response = client
+                .httpDelete("/delete")
+                .toEntity<String>()
+                .body
+                .shouldNotBeEmpty()
 
             log.debug { "response=$response" }
             response shouldContain "$baseUrl/delete"
@@ -198,10 +188,10 @@ class RestClientExtensionsTest: AbstractSpringTest() {
     inner class Head {
         @Test
         fun `httpHead httpbin`() {
-            val response =
-                client
-                    .httpHead("/get")
-                    .toBodilessEntity()
+            val response = client
+                .httpHead("/get")
+                .toBodilessEntity()
+                .shouldNotBeNull()
 
             log.debug { "response=$response" }
             response.statusCode.is2xxSuccessful.shouldBeTrue()

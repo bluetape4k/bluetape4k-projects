@@ -6,10 +6,12 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.idgenerators.ulid.utils.MockRandom
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 
 class ULIDStatefulMonotonicTest: AbstractULIDTest() {
+
     companion object: KLogging()
 
     @RepeatedTest(REPEAT_SIZE)
@@ -62,9 +64,11 @@ class ULIDStatefulMonotonicTest: AbstractULIDTest() {
 
         // First call: generates ULID with all random bits set (MSB lower 16 bits = 0xFFFF, LSB = -1)
         val first = generator.nextULIDStrict(timestamp = 1000).shouldNotBeNull()
+        log.debug { "first=$first" }
 
         // Second call: overflow, should return null
         val second = generator.nextULIDStrict(timestamp = 1000).shouldBeNull()
+        log.debug { "second=$second" }
     }
 
     @RepeatedTest(REPEAT_SIZE)

@@ -1,16 +1,18 @@
 package io.bluetape4k.rule.core
 
+import io.bluetape4k.assertions.shouldBeEmpty
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.rule.api.Condition
-import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.api.Rule
 import io.bluetape4k.rule.api.RuleSet
 import io.bluetape4k.rule.api.ruleSetOf
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 
+@Suppress("EmptyFunctionBlock", "FunctionOnlyReturningConstant")
 class RuleSetTest {
 
     companion object: KLogging()
@@ -21,8 +23,7 @@ class RuleSetTest {
     @Test
     fun `빈 RuleSet 생성`() {
         val ruleSet = RuleSet()
-        ruleSet.isEmpty().shouldBeTrue()
-        ruleSet.size shouldBeEqualTo 0
+        ruleSet.shouldBeEmpty()
     }
 
     @Test
@@ -30,15 +31,14 @@ class RuleSetTest {
         val rule1 = makeRule("a")
         val rule2 = makeRule("b")
         val ruleSet = ruleSetOf(rule1, rule2)
-        ruleSet.size shouldBeEqualTo 2
-        ruleSet.isNotEmpty().shouldBeTrue()
+        ruleSet shouldHaveSize 2
     }
 
     @Test
     fun `ruleSetOf Collection으로 생성`() {
         val rules = listOf(makeRule("a"), makeRule("b"), makeRule("c"))
         val ruleSet = ruleSetOf(rules)
-        ruleSet.size shouldBeEqualTo 3
+        ruleSet shouldHaveSize 3
     }
 
     @Test
@@ -46,7 +46,7 @@ class RuleSetTest {
         val ruleSet = RuleSet()
         val rule = makeRule("test")
         ruleSet.register(rule)
-        ruleSet.size shouldBeEqualTo 1
+        ruleSet shouldHaveSize 1
     }
 
     @Test
@@ -55,7 +55,7 @@ class RuleSetTest {
         val rule2 = makeRule("b")
         val ruleSet = ruleSetOf(rule1, rule2)
         ruleSet.unregister(rule1)
-        ruleSet.size shouldBeEqualTo 1
+        ruleSet shouldHaveSize 1
     }
 
     @Test
@@ -64,7 +64,7 @@ class RuleSetTest {
         val rule2 = makeRule("beta")
         val ruleSet = ruleSetOf(rule1, rule2)
         ruleSet.unregister("alpha")
-        ruleSet.size shouldBeEqualTo 1
+        ruleSet shouldHaveSize 1
     }
 
     @Test
@@ -79,8 +79,7 @@ class RuleSetTest {
     fun `clear removes all rules`() {
         val ruleSet = ruleSetOf(makeRule("a"), makeRule("b"), makeRule("c"))
         ruleSet.clear()
-        ruleSet.isEmpty().shouldBeTrue()
-        ruleSet.size shouldBeEqualTo 0
+        ruleSet.shouldBeEmpty()
     }
 
     @Test
@@ -103,12 +102,13 @@ class RuleSetTest {
             fun check(): Boolean = true
 
             @io.bluetape4k.rule.annotation.Action
-            fun doSomething() {}
+            fun doSomething() {
+            }
         }
 
         val ruleSet = RuleSet()
         ruleSet.registerProxy(AnnotatedRule())
-        ruleSet.size shouldBeEqualTo 1
+        ruleSet shouldHaveSize 1
     }
 
     @Test
@@ -116,7 +116,7 @@ class RuleSetTest {
         val rule = makeRule("myRule")
         val ruleSet = ruleSetOf(rule)
         val str = ruleSet.toString()
-        str.contains("myRule").shouldBeTrue()
+        str shouldContain "myRule"
     }
 
     @Test
@@ -128,6 +128,6 @@ class RuleSetTest {
         for (rule in ruleSet) {
             collected.add(rule)
         }
-        collected.size shouldBeEqualTo 2
+        collected shouldHaveSize 2
     }
 }

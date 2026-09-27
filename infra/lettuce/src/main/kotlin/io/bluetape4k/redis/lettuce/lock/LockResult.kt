@@ -1,5 +1,7 @@
 package io.bluetape4k.redis.lettuce.lock
 
+import io.bluetape4k.support.requireGe
+import io.bluetape4k.support.requirePositiveNumber
 import java.io.Serializable
 
 /** Outcomes of acquiring an exclusive, read, write, fenced, spin, fair, or multi-lock handle. */
@@ -529,6 +531,6 @@ sealed interface FencedBootstrapResult: Serializable {
 }
 
 private fun validateOwnedPayload(holdCount: Int, remainingTtlMillis: Long) {
-    require(holdCount > 0) { "Hold count must be positive." }
-    require(remainingTtlMillis >= 0L) { "Remaining TTL must not be negative." }
+    holdCount.requirePositiveNumber("holdCount")
+    remainingTtlMillis.requireGe(0L, "remainingTtlMillis")
 }

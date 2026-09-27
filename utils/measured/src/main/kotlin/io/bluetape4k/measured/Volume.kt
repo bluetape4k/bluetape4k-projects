@@ -1,7 +1,5 @@
 package io.bluetape4k.measured
 
-import io.bluetape4k.measured.Volume.Companion.cubicMeters
-
 /**
  * 부피 단위를 나타냅니다.
  *

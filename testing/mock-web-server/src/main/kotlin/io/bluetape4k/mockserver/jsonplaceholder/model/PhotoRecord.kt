@@ -18,8 +18,8 @@ data class PhotoRecord(
     val title: String = "",
     val url: String = "",
     val thumbnailUrl: String = "",
-) : Serializable {
-    companion object : KLogging() {
+): Serializable {
+    companion object: KLogging() {
         private const val serialVersionUID = 1L
     }
 }

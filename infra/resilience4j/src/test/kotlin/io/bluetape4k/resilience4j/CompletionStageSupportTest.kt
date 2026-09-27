@@ -3,12 +3,15 @@ package io.bluetape4k.resilience4j
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.IOException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
 
 class CompletionStageSupportTest {
+
+    companion object: KLogging()
 
     @Test
     fun `recover with exceptionTypes 는 CompletionException cause 가 null 이어도 NPE 를 내지 않는다`() {

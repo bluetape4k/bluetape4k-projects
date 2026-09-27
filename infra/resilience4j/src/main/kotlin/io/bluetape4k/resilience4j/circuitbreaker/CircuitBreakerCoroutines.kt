@@ -18,9 +18,9 @@ import io.github.resilience4j.kotlin.circuitbreaker.executeSuspendFunction
  * @param block suspend 함수
  * @return suspend 함수 실행 결과
  */
-suspend inline fun <R> withCircuitBreaker(
+suspend fun <R> withCircuitBreaker(
     circuitBreaker: CircuitBreaker,
-    crossinline block: suspend () -> R,
+    block: suspend () -> R,
 ): R {
     return circuitBreaker.executeSuspendFunction { block() }
 }
@@ -41,10 +41,10 @@ suspend inline fun <R> withCircuitBreaker(
  * @param func suspend 함수
  * @return suspend 함수 실행 결과
  */
-suspend inline fun <T, R> withCircuitBreaker(
+suspend fun <T, R> withCircuitBreaker(
     circuitBreaker: CircuitBreaker,
     param: T,
-    crossinline func: suspend (T) -> R,
+    func: suspend (T) -> R,
 ): R {
     return circuitBreaker.decorateSuspendFunction1(func).invoke(param)
 }
@@ -66,11 +66,11 @@ suspend inline fun <T, R> withCircuitBreaker(
  * @param bifunc suspend 함수
  * @return suspend 함수 실행 결과
  */
-suspend inline fun <T, U, R> withCircuitBreaker(
+suspend fun <T, U, R> withCircuitBreaker(
     circuitBreaker: CircuitBreaker,
     param1: T,
     param2: U,
-    crossinline bifunc: suspend (T, U) -> R,
+    bifunc: suspend (T, U) -> R,
 ): R {
     return circuitBreaker.decorateSuspendBiFunction(bifunc).invoke(param1, param2)
 }
@@ -91,8 +91,8 @@ suspend inline fun <T, U, R> withCircuitBreaker(
  * @param func suspend 함수
  * @return [CircuitBreaker] 를 적용한 suspend 함수
  */
-inline fun <T, R> CircuitBreaker.decorateSuspendFunction1(
-    crossinline func: suspend (T) -> R,
+fun <T, R> CircuitBreaker.decorateSuspendFunction1(
+    func: suspend (T) -> R,
 ): suspend (T) -> R = { input: T ->
     decorateSuspendFunction { func(input) }.invoke()
 }
@@ -113,8 +113,8 @@ inline fun <T, R> CircuitBreaker.decorateSuspendFunction1(
  * @param bifunc suspend 함수
  * @return [CircuitBreaker] 를 적용한 suspend 함수
  */
-inline fun <T, U, R> CircuitBreaker.decorateSuspendBiFunction(
-    crossinline bifunc: suspend (T, U) -> R,
+fun <T, U, R> CircuitBreaker.decorateSuspendBiFunction(
+    bifunc: suspend (T, U) -> R,
 ): suspend (T, U) -> R = { t: T, u: U ->
     decorateSuspendFunction { bifunc(t, u) }.invoke()
 }

@@ -1,52 +1,55 @@
 package io.bluetape4k.tink.aead
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.tink.aeadKeysetHandle
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEqualTo
-import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.tink.AbstractTinkTest
+import io.bluetape4k.tink.aeadKeysetHandle
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.security.GeneralSecurityException
 
-class TinkAeadTest {
+class TinkAeadTest: AbstractTinkTest() {
+
     companion object: KLogging()
 
     private val aead = TinkAead(aeadKeysetHandle())
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `바이트 배열 encrypt decrypt 라운드트립`() {
-        val plaintext = "Hello, World!".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
         val ciphertext = aead.encrypt(plaintext)
 
         ciphertext shouldNotBeEqualTo plaintext
         aead.decrypt(ciphertext) shouldBeEqualTo plaintext
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `문자열 encrypt decrypt 라운드트립`() {
-        val plaintext = "안녕하세요, Tink!"
+        val plaintext = faker.lorem().paragraph()
         val ciphertext = aead.encrypt(plaintext)
 
         ciphertext shouldNotBeEqualTo plaintext
         aead.decrypt(ciphertext) shouldBeEqualTo plaintext
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `associatedData가 있는 encrypt decrypt 라운드트립`() {
-        val plaintext = "비밀 데이터".toByteArray()
-        val associatedData = "context-id=42".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
+        val associatedData = "context-id=42".toUtf8Bytes()
 
         val ciphertext = aead.encrypt(plaintext, associatedData)
         aead.decrypt(ciphertext, associatedData) shouldBeEqualTo plaintext
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `잘못된 associatedData로 decrypt시 예외 발생`() {
-        val plaintext = "비밀 데이터".toByteArray()
-        val associatedData = "올바른-컨텍스트".toByteArray()
-        val wrongAssociatedData = "잘못된-컨텍스트".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
+        val associatedData = "올바른-컨텍스트".toUtf8Bytes()
+        val wrongAssociatedData = "잘못된-컨텍스트".toUtf8Bytes()
 
         val ciphertext = aead.encrypt(plaintext, associatedData)
 
@@ -55,20 +58,20 @@ class TinkAeadTest {
         }
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `빈 associatedData 없이 암호화한 것을 associatedData로 decrypt시 예외 발생`() {
-        val plaintext = "비밀".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
         val ciphertext = aead.encrypt(plaintext) // associatedData = EMPTY_BYTES
-        val wrongAd = "context".toByteArray()
+        val wrongAd = "context".toUtf8Bytes()
 
         assertFailsWith<GeneralSecurityException> {
             aead.decrypt(ciphertext, wrongAd)
         }
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `동일 평문에 대해 nonce 랜덤화로 다른 암호문 생성`() {
-        val plaintext = "같은 메시지".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
         val ct1 = aead.encrypt(plaintext)
         val ct2 = aead.encrypt(plaintext)
 
@@ -84,10 +87,10 @@ class TinkAeadTest {
         decrypted shouldBeEqualTo plaintext
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `다른 키로 decrypt시 예외 발생`() {
         val aead2 = TinkAead(aeadKeysetHandle())
-        val plaintext = "비밀 데이터".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
         val ciphertext = aead.encrypt(plaintext)
 
         assertFailsWith<GeneralSecurityException> {
@@ -95,29 +98,32 @@ class TinkAeadTest {
         }
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `변조된 암호문으로 decrypt시 예외 발생`() {
-        val plaintext = "변조 테스트".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
         val ciphertext = aead.encrypt(plaintext)
         val tampered = ciphertext.copyOf()
-            .apply { this[ciphertext.size / 2] = (this[ciphertext.size / 2].toInt() xor 0xFF).toByte() }
+            .apply {
+                this[ciphertext.size / 2] = (this[ciphertext.size / 2].toInt() xor 0xFF).toByte()
+            }
 
         assertFailsWith<GeneralSecurityException> {
             aead.decrypt(tampered)
         }
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `빈 바이트 배열 encrypt decrypt 라운드트립`() {
         val plaintext = ByteArray(0)
         val ciphertext = aead.encrypt(plaintext)
         aead.decrypt(ciphertext) shouldBeEqualTo plaintext
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `AES128_GCM encrypt decrypt 라운드트립`() {
         val aead128 = TinkAeads.AES128_GCM
-        val plaintext = "AES128 테스트"
+        val plaintext = faker.lorem().paragraph()
+
         val encrypted = aead128.encrypt(plaintext)
         aead128.decrypt(encrypted) shouldBeEqualTo plaintext
     }

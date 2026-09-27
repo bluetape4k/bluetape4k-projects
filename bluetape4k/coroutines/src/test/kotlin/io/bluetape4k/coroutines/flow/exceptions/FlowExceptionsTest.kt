@@ -4,7 +4,6 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import kotlinx.coroutines.CancellationException
 import org.junit.jupiter.api.Test
@@ -49,20 +48,17 @@ class FlowExceptionsTest {
     fun `FlowNoElementException은 직렬화 가능하다`() {
         val original = FlowNoElementException("serializable")
 
-        val bytes =
-            ByteArrayOutputStream().use { baos ->
-                ObjectOutputStream(baos).use { oos -> oos.writeObject(original) }
-                baos.toByteArray()
-            }
+        val bytes = ByteArrayOutputStream().use { baos ->
+            ObjectOutputStream(baos).use { oos -> oos.writeObject(original) }
+            baos.toByteArray()
+        }
 
-        val deserialized =
-            ByteArrayInputStream(bytes).use { bais ->
-                ObjectInputStream(bais).use { ois -> ois.readObject() }
-            }
+        val deserialized = ByteArrayInputStream(bytes).use { bais ->
+            ObjectInputStream(bais).use { ois -> ois.readObject() }
+        }
 
-        (deserialized is FlowNoElementException).shouldBeTrue()
-        @Suppress("USELESS_CAST")
-        (deserialized as FlowNoElementException).message shouldBeEqualTo "serializable"
+        deserialized.shouldBeInstanceOf<FlowNoElementException>()
+        deserialized.message shouldBeEqualTo "serializable"
     }
 
     @Test
@@ -95,9 +91,8 @@ class FlowExceptionsTest {
                 ObjectInputStream(bais).use { ois -> ois.readObject() }
             }
 
-        (deserialized is FlowOperationException).shouldBeTrue()
-        @Suppress("USELESS_CAST")
-        (deserialized as FlowOperationException).message shouldBeEqualTo "serializable op"
+        deserialized.shouldBeInstanceOf<FlowOperationException>()
+        deserialized.message shouldBeEqualTo "serializable op"
     }
 
     @Test

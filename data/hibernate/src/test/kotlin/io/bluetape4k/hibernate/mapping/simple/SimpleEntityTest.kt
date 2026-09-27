@@ -1,18 +1,18 @@
 package io.bluetape4k.hibernate.mapping.simple
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
+import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.hibernate.findAll
 import io.bluetape4k.logging.KLogging
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldHaveSize
-import io.bluetape4k.assertions.shouldNotBeEmpty
-import io.bluetape4k.assertions.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DataIntegrityViolationException
-import io.bluetape4k.assertions.assertFailsWith
 
 class SimpleEntityTest(
     @param:Autowired private val simpleRepo: SimpleEntityRepository,

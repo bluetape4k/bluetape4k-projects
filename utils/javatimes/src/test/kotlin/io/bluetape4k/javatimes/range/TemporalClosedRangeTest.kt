@@ -1,5 +1,10 @@
 package io.bluetape4k.javatimes.range
 
+import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.javatimes.add
 import io.bluetape4k.javatimes.days
 import io.bluetape4k.javatimes.hours
@@ -14,9 +19,6 @@ import io.bluetape4k.logging.trace
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -28,7 +30,6 @@ import java.time.OffsetTime
 import java.time.ZonedDateTime
 import java.time.temporal.Temporal
 import java.time.temporal.TemporalAmount
-import io.bluetape4k.assertions.assertFailsWith
 
 abstract class TemporalClosedRangeTest<T> where T: Temporal, T: Comparable<T> {
 
@@ -60,8 +61,8 @@ abstract class TemporalClosedRangeTest<T> where T: Temporal, T: Comparable<T> {
     @Test
     fun `single element range`() {
         val single = temporalClosedRangeOf(start, start)
-        single.isEmpty().shouldBeFalse()
-        single.contains(start).shouldBeTrue()
+        single.shouldNotBeEmpty()
+        single shouldContain start
     }
 
     @Test
@@ -84,7 +85,7 @@ abstract class TemporalClosedRangeTest<T> where T: Temporal, T: Comparable<T> {
             .onEach { log.trace { "windowed $it" } }
             .toList()
 
-        windowed.size shouldBeEqualTo 6
+        windowed shouldHaveSize 6
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -95,7 +96,8 @@ abstract class TemporalClosedRangeTest<T> where T: Temporal, T: Comparable<T> {
             .chunkedFlowHours(3)
             .onEach { log.trace { "chunked $it" } }
             .toList()
-        chunked.size shouldBeEqualTo 2
+
+        chunked shouldHaveSize 2
     }
 }
 

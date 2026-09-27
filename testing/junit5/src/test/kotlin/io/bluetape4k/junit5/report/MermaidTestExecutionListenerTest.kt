@@ -1,8 +1,11 @@
 package io.bluetape4k.junit5.report
 
 import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldBeFalse
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldHaveSize
+import io.bluetape4k.assertions.shouldNotContain
+import io.bluetape4k.assertions.shouldStartWith
+import io.bluetape4k.logging.KLogging
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -17,6 +20,8 @@ import java.time.ZoneOffset
 import java.util.*
 
 class MermaidTestExecutionListenerTest {
+
+    companion object: KLogging()
 
     @Test
     fun `finished 상태는 mermaid 상태 문자열로 렌더링된다`() {
@@ -34,9 +39,9 @@ class MermaidTestExecutionListenerTest {
         listener.executionFinished(failed, TestExecutionResult.failed(IllegalStateException("boom")))
 
         val chart = listener.mermaidGanttChart()
-        chart.contains("section io.sample.DemoTest").shouldBeTrue()
-        chart.contains("success-task(✅) : active").shouldBeTrue()
-        chart.contains("failed-task(🔥) : crit").shouldBeTrue()
+        chart shouldContain "section io.sample.DemoTest"
+        chart shouldContain "success-task(✅) : active"
+        chart shouldContain "failed-task(🔥) : crit"
     }
 
     @Test
@@ -52,9 +57,9 @@ class MermaidTestExecutionListenerTest {
         listener.executionFinished(test, TestExecutionResult.successful())
         listener.testPlanExecutionFinished(mockk<TestPlan>(relaxed = true))
 
-        outputs.size shouldBeEqualTo 2
+        outputs shouldHaveSize 2
         outputs[0] shouldBeEqualTo "Test execution completed."
-        outputs[1].startsWith("gantt").shouldBeTrue()
+        outputs[1] shouldStartWith "gantt"
     }
 
     @Test
@@ -69,7 +74,7 @@ class MermaidTestExecutionListenerTest {
         listener.executionFinished(nonTest, TestExecutionResult.successful())
 
         val chart = listener.mermaidGanttChart()
-        chart.contains("container").shouldBeFalse()
+        chart shouldNotContain "container"
     }
 
     private fun testIdentifier(

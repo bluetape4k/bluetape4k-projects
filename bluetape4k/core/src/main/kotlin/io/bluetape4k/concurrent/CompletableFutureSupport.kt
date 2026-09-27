@@ -4,6 +4,7 @@ package io.bluetape4k.concurrent
 
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
+import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -512,7 +513,7 @@ val <V> CompletableFuture<V>.isSuccess: Boolean
     get() = this.isDone && !this.isCompletedExceptionally && !this.isCancelled
 
 /**
- * 제한된 사간([duration]) ]안에 [CompletableFuture]의 결과값을 반환합니다.
+ * 제한된 시간([duration]) 안에 [CompletableFuture]의 결과값을 반환합니다.
  *
  * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { Thread.sleep(1000); 42 }
@@ -526,13 +527,14 @@ val <V> CompletableFuture<V>.isSuccess: Boolean
 fun <V> CompletableFuture<V>.join(duration: Duration): V {
     return try {
         get(duration.inWholeNanoseconds, TimeUnit.NANOSECONDS)
-    } catch (e: Throwable) {
+    } catch (e: ExecutionException) {
         throw e.cause ?: e
     }
 }
 
 /**
- * 제한된 사간안에 [CompletableFuture]의 결과값을 반환하거나, [defaultValue]를 반환합니다.
+ * 제한된 시간 안에 [CompletableFuture]의 결과값을 반환합니다. 제한 시간 안에 완료되지 않으면
+ * [defaultValue]를 반환합니다.
  *
  * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { Thread.sleep(1000); 42 }
@@ -542,15 +544,14 @@ fun <V> CompletableFuture<V>.join(duration: Duration): V {
  * @param duration 최대 대기 시간
  * @param defaultValue 기본값
  * @return V 결과값
- * @throws [java.util.concurrent.TimeoutException] 제한된 시간 내에 결과값을 얻지 못한 경우
  */
-fun <V> CompletableFuture<V>.join(duration: Duration, defaultValue: V): V {
-    return try {
+@Suppress("SwallowedException")
+fun <V> CompletableFuture<V>.join(duration: Duration, defaultValue: V): V =
+    try {
         join(duration) ?: defaultValue
     } catch (e: TimeoutException) {
         defaultValue
     }
-}
 
 /**
  * 제한된 사간안에 [CompletableFuture]의 결과값을 반환하거나, null을 반환합니다.
@@ -563,10 +564,22 @@ fun <V> CompletableFuture<V>.join(duration: Duration, defaultValue: V): V {
  * @param duration 최대 대기 시간
  * @return V? 결과값 또는 null
  */
-fun <V> CompletableFuture<V>.joinOrNull(duration: Duration): V? {
-    return try {
-        get(duration.inWholeNanoseconds, TimeUnit.NANOSECONDS)
+fun <V> CompletableFuture<V>.joinOrNull(duration: Duration): V? = getOrNull(duration)
+
+fun <V> CompletableFuture<V>.get(duration: Duration): V =
+    get(duration.inWholeNanoseconds, TimeUnit.NANOSECONDS)
+
+@Suppress("SwallowedException")
+fun <V> CompletableFuture<V>.get(duration: Duration, defaultValue: V): V =
+    try {
+        get(duration)
+    } catch (e: TimeoutException) {
+        defaultValue
+    }
+
+fun <V> CompletableFuture<V>.getOrNull(duration: Duration): V? =
+    try {
+        get(duration)
     } catch (e: TimeoutException) {
         null
     }
-}

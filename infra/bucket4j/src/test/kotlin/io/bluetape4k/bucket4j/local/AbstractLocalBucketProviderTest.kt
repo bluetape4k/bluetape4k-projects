@@ -1,11 +1,12 @@
 package io.bluetape4k.bucket4j.local
 
-import io.bluetape4k.bucket4j.MAX_BUCKET_KEY_BYTES
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.bucket4j.DEFAULT_KEY_PREFIX
+import io.bluetape4k.bucket4j.MAX_BUCKET_KEY_BYTES
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
 import io.github.bucket4j.local.LocalBucket
@@ -17,9 +18,9 @@ abstract class AbstractLocalBucketProviderTest {
         internal const val INITIAL_CAPACITY = 10L
     }
 
-    abstract val bucketProvider: AbstractLocalBucketProvider<out LocalBucket>
+    protected abstract val bucketProvider: AbstractLocalBucketProvider<out LocalBucket>
 
-    protected fun randomKey(): String = "bucket-" + Base58.randomString(6)
+    protected fun randomKey(): String = "bucket-" + Base58.randomString(8)
 
     @Test
     fun `Custom key에 해당하는 Bucket을 제공한다`() {
@@ -72,7 +73,7 @@ abstract class AbstractLocalBucketProviderTest {
 
     @Test
     fun `serialized bucket key size cap 은 prefix 포함 경계값으로 적용한다`() {
-        val prefixBytes = AbstractLocalBucketProvider.DEFAULT_KEY_PREFIX.toByteArray().size
+        val prefixBytes = DEFAULT_KEY_PREFIX.toByteArray().size
         val maxKey = "x".repeat(MAX_BUCKET_KEY_BYTES - prefixBytes)
         val oversizedKey = "x".repeat(MAX_BUCKET_KEY_BYTES - prefixBytes + 1)
 

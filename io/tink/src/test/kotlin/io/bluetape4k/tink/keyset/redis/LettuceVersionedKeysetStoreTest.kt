@@ -6,25 +6,30 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.RedisServer
+import io.bluetape4k.tink.AbstractTinkTest
 import io.bluetape4k.tink.aead.TinkAeads
 import io.bluetape4k.tink.keyset.VersionedTinkDaead
 import io.lettuce.core.RedisClient
 import io.lettuce.core.SetArgs
 import io.lettuce.core.codec.StringCodec
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
 
-class LettuceVersionedKeysetStoreTest {
+class LettuceVersionedKeysetStoreTest: AbstractTinkTest() {
 
-    companion object {
+    companion object: KLogging() {
         private val redis by lazy { RedisServer.Launcher.redis }
         private val client: RedisClient by lazy { RedisServer.Launcher.LettuceLib.getRedisClient(redis.url) }
-        private fun randomName(): String = "tink:keyring:${System.nanoTime()}"
+        private fun randomName(): String = "tink:keyring:${Base58.randomString(8)}"
     }
 
     @Test
@@ -38,20 +43,23 @@ class LettuceVersionedKeysetStoreTest {
         store2.current().version shouldBeEqualTo 1L
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `versioned aead decrypts ciphertext encrypted before rotation`() {
         val keyring = randomName()
         val connection = client.connect(StringCodec.UTF8)
         val store = LettuceVersionedKeysetStore(connection, keyring, AesGcmKeyManager.aes256GcmTemplate())
         val aead = TinkAeads.versioned(store)
 
-        val beforeRotation = aead.encrypt("hello")
+        val beforeText = faker.lorem().paragraph()
+        val afterText = faker.lorem().paragraph()
+
+        val beforeRotation = aead.encrypt(beforeText)
         val rotated = aead.rotate()
-        val afterRotation = aead.encrypt("world")
+        val afterRotation = aead.encrypt(afterText)
 
         rotated.version shouldBeEqualTo 2L
-        aead.decrypt(beforeRotation) shouldBeEqualTo "hello"
-        aead.decrypt(afterRotation) shouldBeEqualTo "world"
+        aead.decrypt(beforeRotation) shouldBeEqualTo beforeText
+        aead.decrypt(afterRotation) shouldBeEqualTo afterText
     }
 
     @Test
@@ -66,22 +74,25 @@ class LettuceVersionedKeysetStoreTest {
         result.version shouldBeEqualTo current.version
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `versioned deterministic aead keeps old ciphertext decryptable after rotation`() {
         val keyring = randomName()
         val connection = client.connect(StringCodec.UTF8)
         val store = LettuceVersionedKeysetStore(connection, keyring, AesSivKeyManager.aes256SivTemplate())
         val daead = VersionedTinkDaead(store)
 
-        val ct1 = daead.encryptDeterministically("hello")
-        val ct2 = daead.encryptDeterministically("hello")
+        val plaintext = faker.lorem().paragraph()
+
+        val ct1 = daead.encryptDeterministically(plaintext)
+        val ct2 = daead.encryptDeterministically(plaintext)
         ct1 shouldBeEqualTo ct2
 
         store.rotate()
 
-        daead.decryptDeterministically(ct1) shouldBeEqualTo "hello"
-        val ct3 = daead.encryptDeterministically("hello")
-        (ct3 != ct1).shouldBeTrue()
+        daead.decryptDeterministically(ct1) shouldBeEqualTo plaintext
+        val ct3 = daead.encryptDeterministically(plaintext)
+
+        ct3 shouldNotBeEqualTo ct1
     }
 
     @Test
@@ -166,7 +177,7 @@ class LettuceVersionedKeysetStoreTest {
         // 모든 worker가 같은 due window에서 rotateIfDue를 호출해도 active version은 한 번만 증가해야 한다.
         MultithreadingTester()
             .workers(8)
-            .rounds(2)
+            .rounds(4)
             .add {
                 store.rotateIfDue(Duration.ofDays(1))
             }

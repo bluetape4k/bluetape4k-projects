@@ -10,6 +10,10 @@ import java.io.OutputStream
 
 class BinarySerializerOutputStreamContractTest {
 
+    private companion object {
+        val BINARY_PAYLOAD: ByteArray = byteArrayOf(1, 3, 5, 7)
+    }
+
     @Test
     fun `default stream serialization preserves ByteArray parity and reports the written count`() {
         val serializer = binarySerializer()
@@ -158,7 +162,4 @@ class BinarySerializerOutputStreamContractTest {
         fun toByteArray(): ByteArray = output.toByteArray()
     }
 
-    private companion object {
-        val BINARY_PAYLOAD: ByteArray = byteArrayOf(1, 3, 5, 7)
-    }
 }

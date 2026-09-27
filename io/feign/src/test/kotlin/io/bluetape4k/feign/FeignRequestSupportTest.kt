@@ -2,10 +2,13 @@ package io.bluetape4k.feign
 
 import feign.Request.HttpMethod
 import io.bluetape4k.assertions.assertFailsWith
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldNotBeEmpty
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
 
 /**
@@ -35,6 +38,8 @@ class FeignRequestSupportTest {
 
         request.httpMethod() shouldBeEqualTo HttpMethod.POST
         request.body().shouldNotBeNull()
+        request.body().contentToString().shouldNotBeEmpty()
+        log.debug { "request body=${request.body().contentToString()}" }
     }
 
     @Test
@@ -95,6 +100,6 @@ class FeignRequestSupportTest {
         val second = defaultRequestOptions
 
         // Reference equality – same singleton instance
-        (first === second) shouldBeEqualTo true
+        first shouldBe second
     }
 }

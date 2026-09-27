@@ -14,8 +14,7 @@ import io.bluetape4k.logging.KLogging
 import java.io.Serializable
 import java.time.Duration
 import java.time.ZonedDateTime
-import java.util.Collections
-import java.util.Comparator
+import java.util.*
 import java.util.function.Predicate
 import java.util.function.UnaryOperator
 
@@ -126,7 +125,9 @@ private class TimeLineMomentCollectionStorage(
     private var nextOccurrenceId: Long = 0
     private val periods: MutableList<StoredPeriod> = mutableListOf()
     val mutable: MutableList<ITimeLineMoment> = mutableListOf()
-    val guarded: MutableList<ITimeLineMoment> = Collections.unmodifiableList(mutable)
+
+    @Suppress("KotlinConstantConditions")
+    val guarded: MutableList<ITimeLineMoment> = Collections.unmodifiableList(mutable) as MutableList<ITimeLineMoment>
 
     init {
         periods.addAll(validateAndSnapshot(initialMoments))
@@ -452,5 +453,8 @@ private class ImmutableTimePeriodCollectionStorage(
     periods: Collection<StoredPeriod>,
 ): Serializable {
     val entries: List<StoredPeriod> = periods.toList()
-    val guarded: MutableList<ITimePeriod> = Collections.unmodifiableList(entries.map { it.snapshot }.toMutableList())
+
+    @Suppress("UNCHECKED_CAST")
+    val guarded: MutableList<ITimePeriod> =
+        Collections.unmodifiableList(entries.map { it.snapshot }.toMutableList()) as MutableList<ITimePeriod>
 }

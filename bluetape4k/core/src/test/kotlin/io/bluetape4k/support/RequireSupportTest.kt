@@ -1,9 +1,11 @@
 package io.bluetape4k.support
 
-import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldFailRequire
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 class RequireSupportTest {
@@ -13,7 +15,8 @@ class RequireSupportTest {
     @Test
     fun `assertion status flags`() {
         RequireSupportTest::class.java.classLoader.setClassAssertionStatus(
-            RequireSupportTest::class.qualifiedName, false)
+            RequireSupportTest::class.qualifiedName, false
+        )
         RequireSupportTest::class.java.desiredAssertionStatus().shouldBeFalse()
 
         class TestClass
@@ -25,7 +28,9 @@ class RequireSupportTest {
     fun `require null and not-null checks`() {
         var x: Long? = null
         shouldFailRequire { x.requireNotNull("x") }
-        x = 12L; x.requireNotNull("x")
+
+        x = 12L
+        x.requireNotNull("x")
 
         val s: String? = null
         s.requireNull("x")
@@ -36,6 +41,7 @@ class RequireSupportTest {
     fun `require string emptiness and blankness`() {
         var x: String? = null
         shouldFailRequire { x.requireNotEmpty("x") }
+
         x = ""; shouldFailRequire { x.requireNotEmpty("x") }
         x = "    "; x.requireNotEmpty("x")
         x = "  \t "; x.requireNotEmpty("x")
@@ -49,6 +55,7 @@ class RequireSupportTest {
     @Test
     fun `require null-or-empty and null-or-blank`() {
         val empty: String? = null
+
         empty.requireNullOrEmpty("x"); "".requireNullOrEmpty("x")
         shouldFailRequire { "hello".requireNullOrEmpty("x") }
 
@@ -73,29 +80,30 @@ class RequireSupportTest {
     @Test
     fun `require bounded lengths and sizes`() {
         val text: String? = "blue"
-        (text.requireLengthInRange(4, 4, "text") === text).shouldBeTrue()
+
+        text.requireLengthInRange(4, 4, "text") shouldBe text
         shouldFailRequire { "".requireLengthInRange(1, 4, "text") }
         shouldFailRequire { "bluebird".requireLengthInRange(1, 4, "text") }
         shouldFailRequire { (null as String?).requireLengthInRange(1, 4, "text") }
 
         val array = arrayOf(1, 2)
-        (array.requireSizeInRange(1, 2, "items") === array).shouldBeTrue()
+        array.requireSizeInRange(1, 2, "items") shouldBe array
         shouldFailRequire { emptyArray<Int>().requireSizeInRange(1, 2, "items") }
         shouldFailRequire { (null as Array<Int>?).requireSizeInRange(1, 2, "items") }
 
         val collection = listOf(1, 2)
-        (collection.requireSizeInRange(1, 2, "items") === collection).shouldBeTrue()
+        collection.requireSizeInRange(1, 2, "items") shouldBe collection
         shouldFailRequire { listOf(1, 2, 3).requireSizeInRange(1, 2, "items") }
 
         val map = mapOf("one" to 1)
-        (map.requireSizeInRange(1, 2, "items") === map).shouldBeTrue()
+        map.requireSizeInRange(1, 2, "items") shouldBe map
         shouldFailRequire { emptyMap<String, Int>().requireSizeInRange(1, 2, "items") }
     }
 
     @Test
     fun `require regex and finite checks`() {
         val value: String? = "SKU-42"
-        (value.requireMatches(Regex("SKU-\\d+"), "sku") === value).shouldBeTrue()
+        value.requireMatches(Regex("SKU-\\d+"), "sku") shouldBe value
         val failure = shouldFailRequire { "secret".requireMatches(Regex("SKU-\\d+"), "sku") }
         failure.message.orEmpty().contains("secret").shouldBeFalse()
 
@@ -126,54 +134,68 @@ class RequireSupportTest {
 
     @Test
     fun `require comparable ordering and equality`() {
-        42.requireEquals(42, "x"); shouldFailRequire { 42.requireEquals(99, "x") }
+        42.requireEquals(42, "x")
+        shouldFailRequire { 42.requireEquals(99, "x") }
 
         10.requireGt(5, "x")
-        shouldFailRequire { 5.requireGt(10, "x") }; shouldFailRequire { 5.requireGt(5, "x") }
+        shouldFailRequire { 5.requireGt(10, "x") }
+        shouldFailRequire { 5.requireGt(5, "x") }
 
-        10.requireGe(5, "x"); 5.requireGe(5, "x")
+        10.requireGe(5, "x")
+        5.requireGe(5, "x")
         shouldFailRequire { 4.requireGe(5, "x") }
 
         5.requireLt(10, "x")
-        shouldFailRequire { 10.requireLt(5, "x") }; shouldFailRequire { 5.requireLt(5, "x") }
+        shouldFailRequire { 10.requireLt(5, "x") }
+        shouldFailRequire { 5.requireLt(5, "x") }
 
-        5.requireLe(10, "x"); 5.requireLe(5, "x")
+        5.requireLe(10, "x")
+        5.requireLe(5, "x")
         shouldFailRequire { 6.requireLe(5, "x") }
     }
 
     @Test
     fun `require in range and in open range`() {
-        5.requireInRange(1, 10, "x"); 1.requireInRange(1, 10, "x"); 10.requireInRange(1, 10, "x")
-        shouldFailRequire { 0.requireInRange(1, 10, "x") }; shouldFailRequire { 11.requireInRange(1, 10, "x") }
+        5.requireInRange(1, 10, "x")
+        1.requireInRange(1, 10, "x")
+        10.requireInRange(1, 10, "x")
+        shouldFailRequire { 0.requireInRange(1, 10, "x") }
+        shouldFailRequire { 11.requireInRange(1, 10, "x") }
 
-        5.requireInOpenRange(1, 10, "x"); 1.requireInOpenRange(1, 10, "x")
+        5.requireInOpenRange(1, 10, "x")
+        1.requireInOpenRange(1, 10, "x")
         shouldFailRequire { 10.requireInOpenRange(1, 10, "x") }
     }
 
     @Test
     fun `require number sign variants`() {
-        1.requirePositiveNumber("x"); 0.1.requirePositiveNumber("x")
-        shouldFailRequire { 0.requirePositiveNumber("x") }; shouldFailRequire { (-1).requirePositiveNumber("x") }
+        1.requirePositiveNumber("x")
+        0.1.requirePositiveNumber("x")
+        shouldFailRequire { 0.requirePositiveNumber("x") }
+        shouldFailRequire { (-1).requirePositiveNumber("x") }
 
-        0.requireZeroOrPositiveNumber("x"); 1.requireZeroOrPositiveNumber("x")
+        0.requireZeroOrPositiveNumber("x")
+        1.requireZeroOrPositiveNumber("x")
         shouldFailRequire { (-1).requireZeroOrPositiveNumber("x") }
 
         (-1).requireNegativeNumber("x")
-        shouldFailRequire { 0.requireNegativeNumber("x") }; shouldFailRequire { 1.requireNegativeNumber("x") }
+        shouldFailRequire { 0.requireNegativeNumber("x") }
+        shouldFailRequire { 1.requireNegativeNumber("x") }
 
-        0.requireZeroOrNegativeNumber("x"); (-1).requireZeroOrNegativeNumber("x")
+        0.requireZeroOrNegativeNumber("x")
+        (-1).requireZeroOrNegativeNumber("x")
         shouldFailRequire { 1.requireZeroOrNegativeNumber("x") }
     }
 
     @Test
     fun `require collection and array not empty`() {
         val array = arrayOf(1, 2, 3)
-        (array.requireNotEmpty("x") === array).shouldBeTrue()
+        array.requireNotEmpty("x") shouldBe array
         shouldFailRequire { emptyArray<Int>().requireNotEmpty("x") }
         shouldFailRequire { (null as Array<Int>?).requireNotEmpty("x") }
 
         val list = listOf(1, 2, 3)
-        (list.requireNotEmpty("x") === list).shouldBeTrue()
+        list.requireNotEmpty("x") shouldBe list
         shouldFailRequire { emptyList<Int>().requireNotEmpty("x") }
         shouldFailRequire { (null as List<Int>?).requireNotEmpty("x") }
     }
@@ -196,7 +218,7 @@ class RequireSupportTest {
     @Test
     fun `require map operations`() {
         val map = mapOf("a" to 1)
-        (map.requireNotEmpty("x") === map).shouldBeTrue()
+        map.requireNotEmpty("x") shouldBe map
         shouldFailRequire { emptyMap<String, Int>().requireNotEmpty("x") }
         shouldFailRequire { (null as Map<String, Int>?).requireNotEmpty("x") }
 

@@ -5,6 +5,7 @@ import io.bluetape4k.csv.internal.OkioDelimitedWriter
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.warn
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
@@ -79,7 +80,7 @@ internal class FlowCsvWriterImpl(
         skipHeaders: Boolean,
         headers: List<String>,
         rows: Flow<Iterable<*>>,
-    ): Long {
+    ): Long = coroutineScope {
         var count = 0L
         FileOutputStream(path.toFile(), append).sink().buffer().use { sink ->
             val fileWriter = OkioDelimitedWriter(sink, delimiter, quote, settings.quoteEscape, lineSeparator)
@@ -92,7 +93,7 @@ internal class FlowCsvWriterImpl(
                 count++
             }
         }
-        return count
+        count
     }
 
     private suspend fun writeFileWithWriter(
@@ -102,7 +103,7 @@ internal class FlowCsvWriterImpl(
         skipHeaders: Boolean,
         headers: List<String>,
         rows: Flow<Iterable<*>>,
-    ): Long {
+    ): Long = coroutineScope {
         var count = 0L
         OutputStreamWriter(FileOutputStream(path.toFile(), append), encoding).use { fw ->
             // 행마다 DelimitedWriter 재생성을 피하기 위해 파일 전용 인스턴스 1개 생성
@@ -116,7 +117,7 @@ internal class FlowCsvWriterImpl(
                 count++
             }
         }
-        return count
+        count
     }
 
     override fun close() {

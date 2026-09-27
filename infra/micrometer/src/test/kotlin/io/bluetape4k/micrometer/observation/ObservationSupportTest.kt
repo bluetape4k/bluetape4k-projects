@@ -1,11 +1,12 @@
 package io.bluetape4k.micrometer.observation
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.logging.info
+import io.bluetape4k.logging.debug
 import io.micrometer.observation.tck.ObservationContextAssert
 import io.micrometer.observation.tck.ObservationRegistryAssert
-import io.bluetape4k.assertions.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class ObservationSupportTest: AbstractObservationTest() {
@@ -24,7 +25,7 @@ class ObservationSupportTest: AbstractObservationTest() {
         val observation = observationRegistry.start(observationName)
 
         observation.observe {
-            log.info { "observation: ${observation.context.name}" }
+            log.debug { "observation: ${observation.context.name}" }
             observation.context.name shouldBeEqualTo observationName
         }
     }
@@ -34,8 +35,8 @@ class ObservationSupportTest: AbstractObservationTest() {
         val observationName = "withObserver.method"
 
         val result = withObservation(observationName, observationRegistry) {
-            val observation = observationRegistry.currentObservation!!
-            log.info { "observation context: ${observation.context}" }
+            val observation = observationRegistry.currentObservation.shouldNotBeNull()
+            log.debug { "observation context: ${observation.context}" }
 
             ObservationContextAssert.assertThat(observation.context)
                 .hasNameEqualTo(observationName)
@@ -53,6 +54,6 @@ class ObservationSupportTest: AbstractObservationTest() {
         ObservationRegistryAssert.assertThat(observationRegistry)
             .doesNotHaveAnyRemainingCurrentObservation()
 
-        println(observationRegistry)
+        log.debug { "observation registry=$observationRegistry" }
     }
 }

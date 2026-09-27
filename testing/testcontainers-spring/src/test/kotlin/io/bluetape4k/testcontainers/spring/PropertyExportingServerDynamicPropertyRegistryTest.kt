@@ -121,7 +121,7 @@ class PropertyExportingServerDynamicPropertyRegistryTest {
         }
 
         error.message shouldBeEqualTo
-            "PropertyExportingServer 'bridge-contract' did not provide property 'port'"
+                "PropertyExportingServer 'bridge-contract' did not provide property 'port'"
     }
 
     @Test

@@ -1,11 +1,11 @@
 package io.bluetape4k.measured
 
-import io.bluetape4k.junit5.random.RandomizedTest
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeLessThan
 import io.bluetape4k.assertions.shouldBeNear
+import io.bluetape4k.junit5.random.RandomizedTest
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 
 @RandomizedTest

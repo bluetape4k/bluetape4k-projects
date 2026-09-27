@@ -22,7 +22,6 @@ import io.bluetape4k.logging.trace
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.asyncRunWithTimeout
 import java.time.Duration
-import java.util.LinkedHashSet
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
@@ -31,8 +30,8 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeoutException
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
@@ -113,7 +112,7 @@ class NearJCache<K: Any, V: Any> private constructor(
         backCache: JCache<K, V>,
         config: NearJCacheConfig<K, V>,
         timeSource: NearJCacheTimeSource,
-    ) : this(frontCache, backCache, config, NearJCacheClearAuthority.DENY, timeSource)
+    ): this(frontCache, backCache, config, NearJCacheClearAuthority.DENY, timeSource)
 
     internal val configurationSnapshot: NearJCacheConfigurationSnapshot
     internal val statisticsRecorder: NearJCacheStatisticsRecorder
@@ -131,13 +130,13 @@ class NearJCache<K: Any, V: Any> private constructor(
         backCache: JCache<K, V>,
         config: NearJCacheConfig<K, V>,
         clearAuthority: NearJCacheClearAuthority,
-    ) : this(frontCache, backCache, config, clearAuthority, SystemNearJCacheTimeSource)
+    ): this(frontCache, backCache, config, clearAuthority, SystemNearJCacheTimeSource)
 
     constructor(
         frontCache: JCache<K, V>,
         backCache: JCache<K, V>,
         config: NearJCacheConfig<K, V>,
-    ) : this(frontCache, backCache, config, SystemNearJCacheTimeSource)
+    ): this(frontCache, backCache, config, SystemNearJCacheTimeSource)
 
     init {
         require(!config.frontCacheConfiguration.isStoreByValue) {
@@ -270,6 +269,7 @@ class NearJCache<K: Any, V: Any> private constructor(
     private val frontCloseCompleted = AtomicBoolean(false)
     private val closeStarted = AtomicBoolean(false)
     private val closeCompleted = AtomicBoolean(false)
+
     @get:JvmSynthetic
     internal val mBeanOperationGuard = NearJCacheMBeanOperationGuard()
     private val pendingMBeanRegistrations = LinkedHashSet<MBeanRegistrationReservation>()
@@ -277,28 +277,31 @@ class NearJCache<K: Any, V: Any> private constructor(
     private var activeCloseAttempt: CompletableFuture<Throwable?>? = null
     private val mutationEpoch = AtomicLong()
     private val backWriteGeneration = AtomicLong()
+
     private class BackCacheListenerRegistration<K: Any, V: Any>(
         val configuration: CacheEntryListenerConfiguration<K, V>,
         val active: AtomicReference<Boolean> = AtomicReference(true),
     )
+
     private class MBeanRegistrationReservation(
         val completion: CompletableFuture<Unit> = CompletableFuture(),
     )
+
     private data class CacheCloseAttempt(
         val completion: CompletableFuture<Throwable?>,
         val owner: Boolean,
         val pendingRegistrations: List<MBeanRegistrationReservation>,
     )
+
     private class SelfEventMatcher<K: Any, V: Any>(
         val keys: Set<K>,
         private val eventTypes: Set<EventType>,
         private val values: Map<K, V>? = null,
     ) {
         fun matches(eventType: EventType, events: List<CacheEntryEvent<out K, out V>>): Boolean {
-            if (events.isEmpty() || eventType !in eventTypes) return false
-            return events.all { event ->
+            return !(events.isEmpty() || eventType !in eventTypes) && events.all { event ->
                 event.key in keys &&
-                    (values == null || (values.containsKey(event.key) && values[event.key] == event.value))
+                        (values == null || (values.containsKey(event.key) && values[event.key] == event.value))
             }
         }
     }
@@ -318,6 +321,7 @@ class NearJCache<K: Any, V: Any> private constructor(
 
     private val backCacheListener = AtomicReference<BackCacheListenerRegistration<K, V>?>(null)
     private val activeSelfEventContexts = CopyOnWriteArrayList<ActiveSelfEventContext<K, V>>()
+
     private data class BackCacheWriteState(
         val operationId: Long,
         val operation: String,
@@ -384,11 +388,7 @@ class NearJCache<K: Any, V: Any> private constructor(
      */
     fun addBackCacheWriteListener(listener: (BackCacheWriteCompletion) -> Unit): AutoCloseable {
         backCacheWriteListeners += listener
-        return object: AutoCloseable {
-            override fun close() {
-                backCacheWriteListeners.remove(listener)
-            }
-        }
+        return AutoCloseable { backCacheWriteListeners.remove(listener) }
     }
 
     override fun iterator(): MutableIterator<Cache.Entry<K, V>> = frontCache.iterator()
@@ -636,10 +636,7 @@ class NearJCache<K: Any, V: Any> private constructor(
      * 값 자체를 읽거나 Front Cache를 채우지 않고 Front, Back 순서로 확인합니다.
      */
     override fun containsKey(key: K): Boolean {
-        if (mutationGate.withLock { frontCache.containsKey(key) }) {
-            return true
-        }
-        return backCache.containsKey(key)
+        return mutationGate.withLock { frontCache.containsKey(key) } || backCache.containsKey(key)
     }
 
     /**
@@ -1087,7 +1084,7 @@ class NearJCache<K: Any, V: Any> private constructor(
     ): CompletableFuture<Unit> {
         val completion = CompletableFuture<Unit>()
         publishBackCacheWrite(operation, completion)
-        val reconcileInlineSelfEvent = synchronous && mutationGate.isHeldByCurrentThread()
+        val reconcileInlineSelfEvent = synchronous && mutationGate.isHeldByCurrentThread
         val guardedSyncTask = {
             runGuardedBackCacheWrite(
                 expectedBackWriteGeneration = expectedBackWriteGeneration,

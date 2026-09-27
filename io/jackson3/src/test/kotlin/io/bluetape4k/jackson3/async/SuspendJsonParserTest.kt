@@ -62,78 +62,74 @@ class SuspendJsonParserTest {
         }
 
     @Test
-    fun `parse one byte`() =
-        runTest {
-            val parsed = AtomicInteger(0)
-            val parser = getSingleModelParser(parsed)
+    fun `parse one byte`() = runTest {
+        val parsed = AtomicInteger(0)
+        val parser = getSingleModelParser(parsed)
 
-            val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
-            // 1 byte 씩 consume 한다
-            val flow = bytes.map { byteArrayOf(it) }.asFlow()
-            parser.consume(flow)
+        val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
+        // 1 byte 씩 consume 한다
+        val flow = bytes.map { byteArrayOf(it) }.asFlow()
+        parser.consume(flow)
 
-            parsed.get() shouldBeEqualTo 1
-        }
+        parsed.get() shouldBeEqualTo 1
+    }
 
     @Test
-    fun `parse chunks`() =
-        runTest {
-            val parsed = AtomicInteger(0)
-            val parser = getSingleModelParser(parsed)
+    fun `parse chunks`() = runTest {
+        val parsed = AtomicInteger(0)
+        val parser = getSingleModelParser(parsed)
 
-            val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
-            val chunkSize = 20
+        val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
+        val chunkSize = 20
 
-            val flow: Flow<ByteArray> =
+        val flow: Flow<ByteArray> =
+            bytes
+                .toList()
+                .chunked(chunkSize)
+                .map { it.toByteArray() }
+                .asFlow()
+
+        parser.consume(flow)
+
+        parsed.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `parse object sequence`() = runTest {
+        val parsed = AtomicInteger(0)
+        val parser = getSingleModelParser(parsed)
+
+        val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
+        val repeatSize = 3
+        repeat(repeatSize) {
+            val flow = bytes.map { byteArrayOf(it) }.asFlow()
+            parser.consume(flow)
+        }
+        parsed.get() shouldBeEqualTo repeatSize
+    }
+
+    @Test
+    fun `parse chunk sequence`() = runTest {
+        val parsed = AtomicInteger(0)
+        val parser = getSingleModelParser(parsed)
+
+        val bytes: ByteArray = mapper.writeAsBytes(model)!!
+        val repeatSize = 3
+        val chunkSize = 20
+        repeat(repeatSize) {
+            val flow =
                 bytes
                     .toList()
                     .chunked(chunkSize)
                     .map { it.toByteArray() }
                     .asFlow()
+                    .onEach { log.debug { it.toUtf8String() } }
 
             parser.consume(flow)
-
-            parsed.get() shouldBeEqualTo 1
         }
 
-    @Test
-    fun `parse object sequence`() =
-        runTest {
-            val parsed = AtomicInteger(0)
-            val parser = getSingleModelParser(parsed)
-
-            val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
-            val repeatSize = 3
-            repeat(repeatSize) {
-                val flow = bytes.map { byteArrayOf(it) }.asFlow()
-                parser.consume(flow)
-            }
-            parsed.get() shouldBeEqualTo repeatSize
-        }
-
-    @Test
-    fun `parse chunk sequence`() =
-        runTest {
-            val parsed = AtomicInteger(0)
-            val parser = getSingleModelParser(parsed)
-
-            val bytes: ByteArray = mapper.writeAsBytes(model)!!
-            val repeatSize = 3
-            val chunkSize = 20
-            repeat(repeatSize) {
-                val flow =
-                    bytes
-                        .toList()
-                        .chunked(chunkSize)
-                        .map { it.toByteArray() }
-                        .asFlow()
-                        .onEach { log.debug { it.toUtf8String() } }
-
-                parser.consume(flow)
-            }
-
-            parsed.get() shouldBeEqualTo repeatSize
-        }
+        parsed.get() shouldBeEqualTo repeatSize
+    }
 
     private fun getSingleModelParser(parsed: AtomicInteger): SuspendJsonParser =
         SuspendJsonParser { root ->
@@ -146,145 +142,134 @@ class SuspendJsonParserTest {
         }
 
     @Test
-    fun `parse array object`() =
-        runTest {
-            val parsed = AtomicInteger(0)
-            val modelSize = 5
+    fun `parse array object`() = runTest {
+        val parsed = AtomicInteger(0)
+        val modelSize = 5
 
-            val parser =
-                SuspendJsonParser { root ->
-                    parsed.incrementAndGet()
+        val parser = SuspendJsonParser { root ->
+            parsed.incrementAndGet()
 
-                    val deserialized: Array<Model> = mapper.treeToValue<Array<Model>>(root)
-                    log.debug { deserialized.contentToString() }
-                    deserialized shouldHaveSize modelSize
-                    deserialized shouldBeEqualTo Array(modelSize) { model }
-                }
-
-            val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
-            parser.consume(flowOf("[".toByteArray()))
-
-            repeat(modelSize) {
-                val flow = bytes.map { b -> byteArrayOf(b) }.asFlow()
-                parser.consume(flow)
-
-                if (it != modelSize - 1) {
-                    parser.consume(flowOf(",".toByteArray()))
-                }
-            }
-            parser.consume(flowOf("]".toByteArray()))
-
-            parsed.get() shouldBeEqualTo 1
+            val deserialized: Array<Model> = mapper.treeToValue<Array<Model>>(root)
+            log.debug { deserialized.contentToString() }
+            deserialized shouldHaveSize modelSize
+            deserialized shouldBeEqualTo Array(modelSize) { model }
         }
 
-    @Test
-    fun `빈 Flow consume 시 노드가 생성되지 않는다`() =
-        runTest {
-            val parsed = AtomicInteger(0)
-            val parser = SuspendJsonParser { parsed.incrementAndGet() }
+        val bytes = mapper.writeAsBytes(model).shouldNotBeNull()
+        parser.consume(flowOf("[".toByteArray()))
 
-            parser.consume(emptyFlow())
-
-            parsed.get() shouldBeEqualTo 0
-        }
-
-    @Test
-    fun `빈 바이트 배열 Flow consume 시 노드가 생성되지 않는다`() =
-        runTest {
-            val parsed = AtomicInteger(0)
-            val parser = SuspendJsonParser { parsed.incrementAndGet() }
-
-            parser.consume(flowOf(byteArrayOf()))
-
-            parsed.get() shouldBeEqualTo 0
-        }
-
-    @Test
-    fun `잘못된 JSON 입력 시 StreamReadException 이 발생한다`() =
-        runTest {
-            val parser = SuspendJsonParser { /* 도달하지 않아야 함 */ }
-
-            assertFailsWith<tools.jackson.core.exc.StreamReadException> {
-                val flow = "{not-json".toByteArray().map { byteArrayOf(it) }.asFlow()
-                parser.consume(flow)
-            }
-        }
-
-    @Test
-    fun `완성된 Flow 입력은 consumeComplete 로 종료 검증까지 수행한다`() =
-        runTest {
-            val parsed = AtomicInteger(0)
-            val parser = SuspendJsonParser { parsed.incrementAndGet() }
-
-            parser.consumeComplete(flowOf("""{"key":"value"}""".toByteArray()))
-
-            parsed.get() shouldBeEqualTo 1
-        }
-
-    @Test
-    fun `잘린 Flow 입력을 consumeComplete 로 처리하면 StreamReadException 이 발생한다`() =
-        runTest {
-            val parser = SuspendJsonParser { /* 도달하지 않아야 함 */ }
-
-            assertFailsWith<tools.jackson.core.exc.StreamReadException> {
-                parser.consumeComplete(flowOf("""{"key":""".toByteArray()))
-            }
-        }
-
-    @Test
-    fun `여러 형태의 잘린 Flow 입력을 consumeComplete 로 처리하면 StreamReadException 이 발생한다`() =
-        runTest {
-            val truncatedInputs =
-                listOf(
-                    """{"id":12""",
-                    """"unterm""",
-                    "{\"a\":\"b\\",
-                )
-
-            truncatedInputs.forEach { input ->
-                val parser = SuspendJsonParser { /* 도달하지 않아야 함 */ }
-
-                assertFailsWith<tools.jackson.core.exc.StreamReadException> {
-                    parser.consumeComplete(flowOf(input.toByteArray()))
-                }
-            }
-        }
-
-    @Test
-    fun `증분 consume 후 잘린 입력 종료를 알리면 StreamReadException 이 발생한다`() =
-        runTest {
-            val parser = SuspendJsonParser { /* 도달하지 않아야 함 */ }
-
-            parser.consume(flowOf("""{"key":""".toByteArray()))
-
-            assertFailsWith<tools.jackson.core.exc.StreamReadException> {
-                parser.endOfInput()
-            }
-        }
-
-    @Test
-    fun `단순 JSON 객체를 올바르게 파싱한다`() =
-        runTest {
-            val parsed = AtomicInteger(0)
-            val parser = SuspendJsonParser { parsed.incrementAndGet() }
-
-            val flow = flowOf("""{"key":"value"}""".toByteArray())
+        repeat(modelSize) {
+            val flow = bytes.map { b -> byteArrayOf(b) }.asFlow()
             parser.consume(flow)
 
-            parsed.get() shouldBeEqualTo 1
+            if (it != modelSize - 1) {
+                parser.consume(flowOf(",".toByteArray()))
+            }
         }
+        parser.consume(flowOf("]".toByteArray()))
+
+        parsed.get() shouldBeEqualTo 1
+    }
 
     @Test
-    fun `루트 스칼라 문자열도 올바르게 파싱한다`() =
-        runTest {
-            var rootValue: String? = null
-            val parser = SuspendJsonParser { root ->
-                root.isString.shouldBeTrue()
-                rootValue = root.asString()
-            }
+    fun `빈 Flow consume 시 노드가 생성되지 않는다`() = runTest {
+        val parsed = AtomicInteger(0)
+        val parser = SuspendJsonParser { parsed.incrementAndGet() }
 
-            parser.consume("\"root-value\"".toByteArray().map { byteArrayOf(it) }.asFlow())
+        parser.consume(emptyFlow())
 
-            rootValue shouldBeEqualTo "root-value"
+        parsed.get() shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `빈 바이트 배열 Flow consume 시 노드가 생성되지 않는다`() = runTest {
+        val parsed = AtomicInteger(0)
+        val parser = SuspendJsonParser { parsed.incrementAndGet() }
+
+        parser.consume(flowOf(byteArrayOf()))
+
+        parsed.get() shouldBeEqualTo 0
+    }
+
+    @Test
+    fun `잘못된 JSON 입력 시 StreamReadException 이 발생한다`() = runTest {
+        val parser = SuspendJsonParser { /* 도달하지 않아야 함 */ }
+
+        assertFailsWith<tools.jackson.core.exc.StreamReadException> {
+            val flow = "{not-json".toByteArray().map { byteArrayOf(it) }.asFlow()
+            parser.consume(flow)
         }
+    }
+
+    @Test
+    fun `완성된 Flow 입력은 consumeComplete 로 종료 검증까지 수행한다`() = runTest {
+        val parsed = AtomicInteger(0)
+        val parser = SuspendJsonParser { parsed.incrementAndGet() }
+
+        parser.consumeComplete(flowOf("""{"key":"value"}""".toByteArray()))
+
+        parsed.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `잘린 Flow 입력을 consumeComplete 로 처리하면 StreamReadException 이 발생한다`() = runTest {
+        val parser = SuspendJsonParser { /* 도달하지 않아야 함 */ }
+
+        assertFailsWith<tools.jackson.core.exc.StreamReadException> {
+            parser.consumeComplete(flowOf("""{"key":""".toByteArray()))
+        }
+    }
+
+    @Test
+    fun `여러 형태의 잘린 Flow 입력을 consumeComplete 로 처리하면 StreamReadException 이 발생한다`() = runTest {
+        val truncatedInputs =
+            listOf(
+                """{"id":12""",
+                """"unterm""",
+                "{\"a\":\"b\\",
+            )
+
+        truncatedInputs.forEach { input ->
+            val parser = SuspendJsonParser { /* 도달하지 않아야 함 */ }
+
+            assertFailsWith<tools.jackson.core.exc.StreamReadException> {
+                parser.consumeComplete(flowOf(input.toByteArray()))
+            }
+        }
+    }
+
+    @Test
+    fun `증분 consume 후 잘린 입력 종료를 알리면 StreamReadException 이 발생한다`() = runTest {
+        val parser = SuspendJsonParser { /* 도달하지 않아야 함 */ }
+
+        parser.consume(flowOf("""{"key":""".toByteArray()))
+
+        assertFailsWith<tools.jackson.core.exc.StreamReadException> {
+            parser.endOfInput()
+        }
+    }
+
+    @Test
+    fun `단순 JSON 객체를 올바르게 파싱한다`() = runTest {
+        val parsed = AtomicInteger(0)
+        val parser = SuspendJsonParser { parsed.incrementAndGet() }
+
+        val flow = flowOf("""{"key":"value"}""".toByteArray())
+        parser.consume(flow)
+
+        parsed.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `루트 스칼라 문자열도 올바르게 파싱한다`() = runTest {
+        var rootValue: String? = null
+        val parser = SuspendJsonParser { root ->
+            root.isString.shouldBeTrue()
+            rootValue = root.asString()
+        }
+
+        parser.consume("\"root-value\"".toByteArray().map { byteArrayOf(it) }.asFlow())
+
+        rootValue shouldBeEqualTo "root-value"
+    }
 }

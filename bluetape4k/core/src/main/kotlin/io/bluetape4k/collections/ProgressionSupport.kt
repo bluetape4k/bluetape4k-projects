@@ -2,8 +2,7 @@ package io.bluetape4k.collections
 
 import io.bluetape4k.support.requirePositiveNumber
 import java.math.BigInteger
-import java.util.Spliterator
-import java.util.Spliterators
+import java.util.*
 import java.util.function.IntConsumer
 import java.util.function.LongConsumer
 import java.util.stream.IntStream
@@ -85,7 +84,7 @@ fun intProgressionOf(start: Int, endInclusive: Int, step: Int = 1): IntProgressi
 
 private fun IntProgression.toStreamSpliterator(): Spliterator.OfInt {
     val progressionIterator = iterator()
-    return object : Spliterators.AbstractIntSpliterator(Long.MAX_VALUE, Spliterator.ORDERED) {
+    return object: Spliterators.AbstractIntSpliterator(Long.MAX_VALUE, Spliterator.ORDERED) {
         override fun tryAdvance(action: IntConsumer): Boolean {
             if (!progressionIterator.hasNext()) return false
             action.accept(progressionIterator.nextInt())
@@ -208,7 +207,7 @@ fun longProgressionOf(start: Long, endInclusive: Long, step: Long = 1L): LongPro
 
 private fun LongProgression.toStreamSpliterator(): Spliterator.OfLong {
     val progressionIterator = iterator()
-    return object : Spliterators.AbstractLongSpliterator(Long.MAX_VALUE, Spliterator.ORDERED) {
+    return object: Spliterators.AbstractLongSpliterator(Long.MAX_VALUE, Spliterator.ORDERED) {
         override fun tryAdvance(action: LongConsumer): Boolean {
             if (!progressionIterator.hasNext()) return false
             action.accept(progressionIterator.nextLong())

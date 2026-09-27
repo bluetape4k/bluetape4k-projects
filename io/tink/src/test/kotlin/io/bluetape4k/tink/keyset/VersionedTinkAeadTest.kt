@@ -1,55 +1,60 @@
 package io.bluetape4k.tink.keyset
 
-import io.bluetape4k.logging.KLogging
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldBeGreaterThan
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.logging.KLogging
+import io.bluetape4k.support.toUtf8Bytes
+import io.bluetape4k.tink.AbstractTinkTest
+import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import io.bluetape4k.assertions.assertFailsWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.time.Duration
 
-class VersionedTinkAeadTest {
+class VersionedTinkAeadTest: AbstractTinkTest() {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     private fun newVersionedAead() = VersionedTinkAead(InMemoryVersionedKeysetStore())
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `바이트 배열 encrypt decrypt 라운드트립`() {
         val va = newVersionedAead()
-        val plaintext = "Hello, VersionedTinkAead!".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
         val ciphertext = va.encrypt(plaintext)
 
         ciphertext shouldNotBeEqualTo plaintext
         va.decrypt(ciphertext) shouldBeEqualTo plaintext
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `문자열 encrypt decrypt 라운드트립`() {
         val va = newVersionedAead()
-        val plaintext = "버전 키셋 암호화 테스트"
+        val plaintext = faker.lorem().paragraph()
         val encrypted = va.encrypt(plaintext)
 
         encrypted shouldNotBeEqualTo plaintext
         va.decrypt(encrypted) shouldBeEqualTo plaintext
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `associatedData를 포함한 encrypt decrypt 라운드트립`() {
         val va = newVersionedAead()
-        val plaintext = "컨텍스트 포함 암호화".toByteArray()
-        val ad = "user-id=42".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
+        val ad = "user-id=42".toUtf8Bytes()
 
         val ciphertext = va.encrypt(plaintext, ad)
         va.decrypt(ciphertext, ad) shouldBeEqualTo plaintext
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `암호문에 버전 정보가 포함되어 있음`() {
         val va = newVersionedAead()
-        val plaintext = "버전 포함 테스트".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
         val ciphertext = va.encrypt(plaintext)
 
         // 버전 정보(Long = 8 bytes) + ciphertext
@@ -68,16 +73,16 @@ class VersionedTinkAeadTest {
         va.currentVersion() // ensure store initialised
         val newHandle = va.rotate()
 
-        (newHandle.version > 1L).shouldBeTrue()
-        (va.currentVersion() >= 2L).shouldBeTrue()
+        newHandle.version shouldBeGreaterThan 1L
+        va.currentVersion() shouldBeGreaterOrEqualTo 2L
     }
 
-    @Test
+    @RepeatedTest(REPEAT_SIZE)
     fun `rotate 후 새 키로 암호화, 이전 키로 복호화 불가`() {
         val store = InMemoryVersionedKeysetStore()
         val va = VersionedTinkAead(store)
 
-        val plaintext = "이전 버전 테스트".toByteArray()
+        val plaintext = faker.lorem().paragraph().toUtf8Bytes()
         val oldCiphertext = va.encrypt(plaintext)
 
         va.rotate()
@@ -87,6 +92,7 @@ class VersionedTinkAeadTest {
 
         // 새 버전으로 암호화된 것은 현재 keyset으로 복호화 가능
         va.decrypt(newCiphertext) shouldBeEqualTo plaintext
+
         // 이전 버전으로 암호화된 것도 store가 보유하므로 복호화 가능
         va.decrypt(oldCiphertext) shouldBeEqualTo plaintext
     }
@@ -94,8 +100,9 @@ class VersionedTinkAeadTest {
     @Test
     fun `알 수 없는 버전으로 복호화시 예외 발생`() {
         val va = newVersionedAead()
+
         // 버전 99를 가리키는 가짜 payload 생성
-        val fakePayload = packVersionedCiphertext(99L, "garbage".toByteArray())
+        val fakePayload = packVersionedCiphertext(99L, "garbage".toUtf8Bytes())
 
         assertFailsWith<IllegalArgumentException> {
             va.decrypt(fakePayload)
@@ -115,6 +122,7 @@ class VersionedTinkAeadTest {
     fun `다양한 문자열 encrypt decrypt 라운드트립`(plaintext: String) {
         val va = newVersionedAead()
         val encrypted = va.encrypt(plaintext)
+
         va.decrypt(encrypted) shouldBeEqualTo plaintext
     }
 }

@@ -1,10 +1,12 @@
 package io.bluetape4k.hibernate.converter
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeNull
+import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.hibernate.AbstractHibernateTest
 import io.bluetape4k.hibernate.findAs
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.util.*
@@ -25,6 +27,7 @@ class ConverterTest: AbstractHibernateTest() {
         val entity = buildEntity()
 
         val loaded = tem.persistFlushFind(entity)
+        loaded shouldBeEqualTo entity
         loaded.isSame(entity).shouldBeTrue()
 
         tem.remove(loaded)
@@ -43,7 +46,9 @@ class ConverterTest: AbstractHibernateTest() {
         val query = em.createQuery("select cv from convertable_entity cv where cv.password = :password")
         query.setParameter("password", entity.password)
 
-        val loaded = query.singleResult as ConvertableEntity
+        val loaded = query.singleResult as? ConvertableEntity
+        loaded.shouldNotBeNull()
+        loaded shouldBeEqualTo entity
         loaded.isSame(entity).shouldBeTrue()
     }
 

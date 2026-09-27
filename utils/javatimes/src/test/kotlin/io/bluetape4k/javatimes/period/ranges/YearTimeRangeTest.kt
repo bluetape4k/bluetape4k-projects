@@ -1,11 +1,11 @@
 package io.bluetape4k.javatimes.period.ranges
 
+import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.javatimes.MonthsPerYear
 import io.bluetape4k.javatimes.QuartersPerYear
 import io.bluetape4k.javatimes.period.AbstractPeriodTest
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.shouldBeEqualTo
-import io.bluetape4k.assertions.shouldHaveSize
 import org.junit.jupiter.api.Test
 
 class YearTimeRangeTest: AbstractPeriodTest() {

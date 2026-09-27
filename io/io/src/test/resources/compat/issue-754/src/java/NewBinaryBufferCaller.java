@@ -1,6 +1,7 @@
 package io.bluetape4k.io.serializer.compat.issue754.java;
 
 import io.bluetape4k.io.serializer.BinarySerializer;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
@@ -18,7 +19,7 @@ public final class NewBinaryBufferCaller {
 
         verifyDefaults(serializer);
         BinarySerializer kotlinSerializer = (BinarySerializer) Class.forName(
-            "io.bluetape4k.io.serializer.compat.issue754.kotlin.LegacyBinaryImplementation"
+                "io.bluetape4k.io.serializer.compat.issue754.kotlin.LegacyBinaryImplementation"
         ).getDeclaredConstructor().newInstance();
         verifyDefaults(kotlinSerializer);
 

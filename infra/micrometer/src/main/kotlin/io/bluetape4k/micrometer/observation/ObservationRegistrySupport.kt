@@ -1,5 +1,6 @@
 package io.bluetape4k.micrometer.observation
 
+import io.bluetape4k.support.requireNotBlank
 import io.micrometer.observation.Observation
 import io.micrometer.observation.ObservationRegistry
 
@@ -30,7 +31,9 @@ val NoopObservationRegistry: ObservationRegistry get() = ObservationRegistry.NOO
  * // registry != ObservationRegistry.NOOP
  * ```
  */
-inline fun observationRegistryOf(crossinline observationHandler: (Observation.Context) -> Boolean = { true }): ObservationRegistry =
+inline fun observationRegistryOf(
+    crossinline observationHandler: (Observation.Context) -> Boolean = { true }
+): ObservationRegistry =
     ObservationRegistry.create().apply {
         this.observationConfig().observationHandler { observationHandler(it) }
     }
@@ -48,7 +51,9 @@ inline fun observationRegistryOf(crossinline observationHandler: (Observation.Co
  * // registry != ObservationRegistry.NOOP
  * ```
  */
-inline fun simpleObservationRegistryOf(crossinline observationHandler: (Observation.Context) -> Unit = { }): ObservationRegistry =
+inline fun simpleObservationRegistryOf(
+    crossinline observationHandler: (Observation.Context) -> Unit = { }
+): ObservationRegistry =
     ObservationRegistry.create().apply {
         this.observationConfig().observationHandler {
             observationHandler(it)
@@ -74,12 +79,17 @@ fun ObservationRegistry.start(
     name: String,
     contextualName: String = name,
 ): Observation {
-    val context =
-        Observation.Context().apply {
-            put("name", name)
-            put("contextualName", contextualName)
-        }
-    return Observation.start(name, { context }, this)
+    name.requireNotBlank("name")
+
+    val context = Observation.Context().apply {
+        put("name", name)
+        put("contextualName", contextualName)
+    }
+    return Observation.start(
+        name,
+        { context },
+        this
+    )
 }
 
 /**
@@ -100,11 +110,12 @@ fun ObservationRegistry.createNotStarted(
     name: String,
     contextualName: String = name,
 ): Observation {
-    val context =
-        Observation.Context().apply {
-            put("name", name)
-            put("contextualName", contextualName)
-        }
+    name.requireNotBlank("name")
+
+    val context = Observation.Context().apply {
+        put("name", name)
+        put("contextualName", contextualName)
+    }
 
     return Observation.createNotStarted(
         name,

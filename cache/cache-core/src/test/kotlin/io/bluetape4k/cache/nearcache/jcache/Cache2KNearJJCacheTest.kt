@@ -1,10 +1,10 @@
 package io.bluetape4k.cache.nearcache.jcache
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.cache.jcache.JCache
 import io.bluetape4k.cache.jcache.JCaching
 import io.bluetape4k.cache.jcache.jcacheConfiguration
 import io.bluetape4k.logging.KLogging
-import io.bluetape4k.assertions.assertFailsWith
 import org.awaitility.core.ConditionTimeoutException
 import org.junit.jupiter.api.Test
 import javax.cache.expiry.EternalExpiryPolicy

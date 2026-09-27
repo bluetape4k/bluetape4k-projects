@@ -9,7 +9,6 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
-
 HERE = Path(__file__).resolve().parent
 
 
@@ -121,10 +120,10 @@ class RunnerContractTest(unittest.TestCase):
             )
 
             for entries, expected_project in (
-                ([root], jackson),
-                ([root / "missing.jar"], jackson),
-                ([jackson, jackson], jackson),
-                ([jackson, dependency], dependency),
+                    ([root], jackson),
+                    ([root / "missing.jar"], jackson),
+                    ([jackson, jackson], jackson),
+                    ([jackson, dependency], dependency),
             ):
                 with self.subTest(entries=entries):
                     self.assert_reason(
@@ -213,9 +212,9 @@ class RunnerContractTest(unittest.TestCase):
         parsed = runner.parse_preflight_stdout(json.dumps(fixture))
         self.assertEqual("passed", parsed["status"])
         for changed in (
-            {**fixture, "status": "failed"},
-            {**fixture, "cells": fixture["cells"][:-1]},
-            {**fixture, "schema_version": 2},
+                {**fixture, "status": "failed"},
+                {**fixture, "cells": fixture["cells"][:-1]},
+                {**fixture, "schema_version": 2},
         ):
             self.assert_reason(
                 "PREFLIGHT_MISMATCH",
@@ -307,7 +306,7 @@ class RunnerContractTest(unittest.TestCase):
             )
             completed = SimpleNamespace(returncode=0, stdout="", stderr=probe)
             with mock.patch.object(runner.shutil, "which", return_value="/usr/bin/java"), mock.patch.object(
-                runner.subprocess, "run", return_value=completed
+                    runner.subprocess, "run", return_value=completed
             ):
                 identity = runner.java_launcher_identity()
 

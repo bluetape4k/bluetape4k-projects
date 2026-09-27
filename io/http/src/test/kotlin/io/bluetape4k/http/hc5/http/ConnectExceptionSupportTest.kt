@@ -1,8 +1,8 @@
 package io.bluetape4k.http.hc5.http
 
-import io.bluetape4k.logging.KLogging
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.logging.KLogging
 import org.apache.hc.client5.http.ConnectTimeoutException
 import org.apache.hc.client5.http.HttpHostConnectException
 import org.apache.hc.core5.net.URIAuthority
@@ -11,7 +11,7 @@ import java.io.IOException
 
 class ConnectExceptionSupportTest {
 
-    companion object : KLogging()
+    companion object: KLogging()
 
     @Test
     fun `IOException toConnectTimeoutException - ConnectTimeoutException 타입 반환 검증`() {
@@ -21,7 +21,7 @@ class ConnectExceptionSupportTest {
         val result = cause.toConnectTimeoutException(endpoint)
 
         result.shouldNotBeNull()
-        result shouldBeInstanceOf ConnectTimeoutException::class
+        result.shouldBeInstanceOf<ConnectTimeoutException>()
     }
 
     @Test
@@ -32,7 +32,7 @@ class ConnectExceptionSupportTest {
         val result = cause.toConnectTimeoutException(endpoint)
 
         result.shouldNotBeNull()
-        result shouldBeInstanceOf ConnectTimeoutException::class
+        result.shouldBeInstanceOf<ConnectTimeoutException>()
     }
 
     @Test
@@ -43,7 +43,7 @@ class ConnectExceptionSupportTest {
         val result = cause.toHttpHostConnectException(endpoint)
 
         result.shouldNotBeNull()
-        result shouldBeInstanceOf HttpHostConnectException::class
+        result.shouldBeInstanceOf<HttpHostConnectException>()
     }
 
     @Test
@@ -54,7 +54,7 @@ class ConnectExceptionSupportTest {
         val result = cause.toHttpHostConnectException(endpoint)
 
         result.shouldNotBeNull()
-        result shouldBeInstanceOf HttpHostConnectException::class
+        result.shouldBeInstanceOf<HttpHostConnectException>()
     }
 
     @Test
@@ -65,7 +65,7 @@ class ConnectExceptionSupportTest {
         val result = cause.enhance(endpoint)
 
         result.shouldNotBeNull()
-        result shouldBeInstanceOf IOException::class
+        result.shouldBeInstanceOf<IOException>()
     }
 
     @Test
@@ -76,6 +76,6 @@ class ConnectExceptionSupportTest {
         val result = cause.enhance(endpoint)
 
         result.shouldNotBeNull()
-        result shouldBeInstanceOf IOException::class
+        result.shouldBeInstanceOf<IOException>()
     }
 }

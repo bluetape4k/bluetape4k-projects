@@ -10,8 +10,7 @@ Apache HttpComponents 5, OkHttp3, Vert.x HttpClient, Ktor Client 등을 일관�
 
 ## 엄격한 상한을 적용한 전체 응답 본문
 
-전체 본문이 필요하고 상한 초과 시 prefix를 반환하지 않고 실패해야 한다면 bounded adapter를
-사용합니다.
+전체 본문이 필요하고 상한 초과 시 prefix를 반환하지 않고 실패해야 한다면 bounded adapter를 사용합니다.
 
 ```kotlin
 import io.bluetape4k.http.hc5.entity.readBodyBytes
@@ -31,42 +30,30 @@ val response: HttpResponse<InputStream> =
 val body = response.readBodyBytes(maxBytes = 64 * 1024)
 ```
 
-HC5 adapter는 획득한 entity stream을 닫지만, 상위 response는 호출자가 닫아야 합니다.
-null HC5 entity는 빈 본문이 되며, null을 보존하려면
+HC5 adapter는 획득한 entity stream을 닫지만, 상위 response는 호출자가 닫아야 합니다. null HC5 entity는 빈 본문이 되며, null을 보존하려면
 `response.entity?.let { it.readBodyBytes(maxBytes = 64 * 1024) }`를 사용합니다. JDK adapter는
-`HttpResponse.body()`만 닫고 client나 executor는 닫지 않습니다. 두 adapter 모두 status code를
-해석하지 않습니다.
+`HttpResponse.body()`만 닫고 client나 executor는 닫지 않습니다. 두 adapter 모두 status code를 해석하지 않습니다.
 
-| 요구 사항 | API |
-|---|---|
-| 전체 JSON/schema 본문, 초과 시 거부 | `readBodyBytes` / `readBodyString` |
-| 진단 또는 preview prefix | 기존 HC5 `toByteArrayOrNull` / `toStringOrNull` |
-| null HC5 entity 보존 | `entity?.let { ... }` |
-| 호출자 소유 일반 stream | `inputStream.use { it.readAllBytes(maxBytes) }` |
+| 요구 사항                           | API                                             |
+|-------------------------------------|-------------------------------------------------|
+| 전체 JSON/schema 본문, 초과 시 거부 | `readBodyBytes` / `readBodyString`              |
+| 진단 또는 preview prefix            | 기존 HC5 `toByteArrayOrNull` / `toStringOrNull` |
+| null HC5 entity 보존                | `entity?.let { ... }`                           |
+| 호출자 소유 일반 stream             | `inputStream.use { it.readAllBytes(maxBytes) }` |
 
-이 호출과 1-byte EOF 확인, `close()`는 blocking이며 coroutine 취소만으로 cancellable해지지
-않습니다. connect, response, read timeout을 설정하고 event loop가 아니라 blocking I/O 경계에서
-호출하세요. 작업이 멈추면 supervisor가 stream이나 상위 response를 닫아 중단할 수 있어야 합니다.
-transport별 abort 동작은 이 helper의 범위가 아닙니다.
+이 호출과 1-byte EOF 확인, `close()`는 blocking이며 coroutine 취소만으로 cancellable해지지 않습니다. connect, response, read timeout을 설정하고 event loop가 아니라 blocking I/O 경계에서 호출하세요. 작업이 멈추면 supervisor가 stream이나 상위 response를 닫아 중단할 수 있어야 합니다. transport별 abort 동작은 이 helper의 범위가 아닙니다.
 
-상한은 adapter가 노출한 byte에 적용됩니다. 압축 해제 뒤에는 decoded byte 상한을 별도로
-적용하세요. 일시적인 heap 사용량은 대략
-`동시 read 수 * (2 * maxBytes + segment overhead)`로 잡습니다. library는 log나 metric을
-기록하지 않습니다. application은 payload와 예외 message를 제외하고 endpoint/operation,
-max, overflow/read/close 분류만 low-cardinality로 집계할 수 있습니다.
+상한은 adapter가 노출한 byte에 적용됩니다. 압축 해제 뒤에는 decoded byte 상한을 별도로 적용하세요. 일시적인 heap 사용량은 대략
+`동시 read 수 * (2 * maxBytes + segment overhead)`로 잡습니다. library는 log나 metric을 기록하지 않습니다. application은 payload와 예외 message를 제외하고 endpoint/operation, max, overflow/read/close 분류만 low-cardinality로 집계할 수 있습니다.
 
-도입 순서는 library `2.1.0` publish, 중앙 catalog 또는 허용된 repo-local override로 버전 선택,
-compile 및 targeted smoke, 소비자별 독립 PR입니다. 전환이 끝날 때까지 기존 수동 strict read
-loop를 유지하세요. 회귀 시 이전 dependency와 수동 loop로 rollback하며, truncation preview
-API를 strict read의 대체재로 사용하지 않습니다.
+도입 순서는 library `2.1.0` publish, 중앙 catalog 또는 허용된 repo-local override로 버전 선택, compile 및 targeted smoke, 소비자별 독립 PR입니다. 전환이 끝날 때까지 기존 수동 strict read loop를 유지하세요. 회귀 시 이전 dependency와 수동 loop로 rollback하며, truncation preview API를 strict read의 대체재로 사용하지 않습니다.
 
 ## 저장용 outbound HTTP 오류 정제
 
 외부 HTTP 오류를 DB 같은 제한된 저장소에 남길 때는
 `sanitizeOutboundHttpError(statusCode, rawMessage)`를 사용합니다.
 
-정제기는 status prefix를 포함해 최대 240자만 반환하며, 원문도 이 출력 예산까지만
-검사합니다. 첫 줄 뒤의 stack trace와 `Authorization`, `Cookie`, `Token`, `Secret`,
+정제기는 status prefix를 포함해 최대 240자만 반환하며, 원문도 이 출력 예산까지만 검사합니다. 첫 줄 뒤의 stack trace와 `Authorization`, `Cookie`, `Token`, `Secret`,
 `API-Key` 계열 label 뒤의 나머지는 저장하지 않습니다.
 
 ```kotlin
@@ -79,14 +66,10 @@ val storedError = sanitizeOutboundHttpError(
 // HTTP 503 Authorization:[redacted]
 ```
 
-결과는 항상 `HTTP <statusCode>`로 시작하고 전체 길이를 240자로 제한합니다. null 또는
-blank 메시지는 status만 반환하며, 여러 줄 입력은 첫 줄만 사용합니다. 첫 줄에서
-`Authorization`, `Cookie`, `Token`, `Secret`, `API-Key` 계열 label을 발견하면 malformed,
-quoted, 공백 포함 값에서도 credential이 남지 않도록 그 뒤의 내용을 fail-closed로
-제거합니다. 이는 header logging redaction API가 아니라 저장용 오류 문자열 계약입니다.
+결과는 항상 `HTTP <statusCode>`로 시작하고 전체 길이를 240자로 제한합니다. null 또는 blank 메시지는 status만 반환하며, 여러 줄 입력은 첫 줄만 사용합니다. 첫 줄에서
+`Authorization`, `Cookie`, `Token`, `Secret`, `API-Key` 계열 label을 발견하면 malformed, quoted, 공백 포함 값에서도 credential이 남지 않도록 그 뒤의 내용을 fail-closed로 제거합니다. 이는 header logging redaction API가 아니라 저장용 오류 문자열 계약입니다.
 
-HTTP status 분류, retry/permanent-failure 판단, DB 저장, logging, transaction과 coroutine
-cancellation은 호출자가 관리해야 합니다. 정제 전 원문을 로그나 예외에 다시 기록하지 마세요.
+HTTP status 분류, retry/permanent-failure 판단, DB 저장, logging, transaction과 coroutine cancellation은 호출자가 관리해야 합니다. 정제 전 원문을 로그나 예외에 다시 기록하지 마세요.
 
 ## 아키텍처
 
@@ -188,16 +171,16 @@ val client = productionHttpClientOf(
 val client = productionVirtualThreadHttpClientOf()
 ```
 
-| 파라미터 | 기본값 | 설명 |
-|---------|--------|------|
-| `maxConnTotal` | 200 | 전체 풀 커넥션 수 |
-| `maxConnPerRoute` | 100 | 라우트별 풀 커넥션 수 |
-| `connectionRequestTimeout` | 5초 | 풀에서 커넥션 획득 대기 시간 |
-| `connectTimeout` | 10초 | TCP 연결 시간 |
-| `responseTimeout` | 30초 | 첫 응답 바이트 수신 시간 |
-| `maxIdleTime` | 60초 | 유휴 커넥션 제거 임계값 |
-| keep-alive 폴백 | 60초 | `Keep-Alive` 헤더 없는 서버에 적용 |
-| `maxRetries` | 3 | 일시적 장애 재시도 횟수 |
+| 파라미터                   | 기본값 | 설명                               |
+|----------------------------|--------|------------------------------------|
+| `maxConnTotal`             | 200    | 전체 풀 커넥션 수                  |
+| `maxConnPerRoute`          | 100    | 라우트별 풀 커넥션 수              |
+| `connectionRequestTimeout` | 5초    | 풀에서 커넥션 획득 대기 시간       |
+| `connectTimeout`           | 10초   | TCP 연결 시간                      |
+| `responseTimeout`          | 30초   | 첫 응답 바이트 수신 시간           |
+| `maxIdleTime`              | 60초   | 유휴 커넥션 제거 임계값            |
+| keep-alive 폴백            | 60초   | `Keep-Alive` 헤더 없는 서버에 적용 |
+| `maxRetries`               | 3      | 일시적 장애 재시도 횟수            |
 
 **비동기 운영 환경용 클라이언트:**
 
@@ -242,16 +225,16 @@ Square의 OkHttp3 클라이언트를 Kotlin DSL로 간편하게 생성하고 사
 
 **DSL 빌더 함수 (`OkHttp3Support.kt`):**
 
-| 함수 | 설명 |
-|-----|------|
-| `okhttp3Client(connectionPool, dispatcher, block)` | `OkHttpClient` 생성 (pool/dispatcher 선택 설정) |
-| `okHttp3ConnectionPool(maxIdleConnections, keepAliveDuration)` | `ConnectionPool` 생성 |
-| `okhttp3DispatcherWithVirtualThread(maxRequests, maxRequestsPerHost)` | Virtual Thread 기반 `Dispatcher` 생성 |
-| `okhttp3DispatcherOf(executor, maxRequests, maxRequestsPerHost)` | 커스텀 `ExecutorService` 기반 `Dispatcher` 생성 |
-| `okhttp3ClientBuilderOf(connectionPool, dispatcher, block)` | 사전 구성된 `OkHttpClient.Builder` 반환 |
-| `okhttp3RequestOf(url, block)` | `okhttp3.Request` DSL 생성 |
-| `okhttp3CacheControl(block)` | `CacheControl` DSL 생성 |
-| `okhttp3CacheControlOf(maxAge, maxStale, minFresh)` | 기간 파라미터 기반 `CacheControl` 생성 |
+| 함수                                                                  | 설명                                            |
+|-----------------------------------------------------------------------|-------------------------------------------------|
+| `okhttp3Client(connectionPool, dispatcher, block)`                    | `OkHttpClient` 생성 (pool/dispatcher 선택 설정) |
+| `okHttp3ConnectionPool(maxIdleConnections, keepAliveDuration)`        | `ConnectionPool` 생성                           |
+| `okhttp3DispatcherWithVirtualThread(maxRequests, maxRequestsPerHost)` | Virtual Thread 기반 `Dispatcher` 생성           |
+| `okhttp3DispatcherOf(executor, maxRequests, maxRequestsPerHost)`      | 커스텀 `ExecutorService` 기반 `Dispatcher` 생성 |
+| `okhttp3ClientBuilderOf(connectionPool, dispatcher, block)`           | 사전 구성된 `OkHttpClient.Builder` 반환         |
+| `okhttp3RequestOf(url, block)`                                        | `okhttp3.Request` DSL 생성                      |
+| `okhttp3CacheControl(block)`                                          | `CacheControl` DSL 생성                         |
+| `okhttp3CacheControlOf(maxAge, maxStale, minFresh)`                   | 기간 파라미터 기반 `CacheControl` 생성          |
 
 ```kotlin
 import io.bluetape4k.http.okhttp3.*
@@ -311,8 +294,7 @@ val options = httpClientOptionsOf(
 val vertxClient = vertxHttpClientOf(vertx, options)
 ```
 
-`defaultVertxHttpClient`는 `bluetape4k-vertx`의 관리되는 기본 Vert.x 인스턴스를 사용합니다. 애플리케이션 종료
-또는 테스트 정리 시에는 기본 Vert.x를 닫기 전에 관리되는 기본 클라이언트를 닫으세요.
+`defaultVertxHttpClient`는 `bluetape4k-vertx`의 관리되는 기본 Vert.x 인스턴스를 사용합니다. 애플리케이션 종료 또는 테스트 정리 시에는 기본 Vert.x를 닫기 전에 관리되는 기본 클라이언트를 닫으세요.
 
 ```kotlin
 import io.bluetape4k.http.vertx.closeDefaultVertxHttpClient
@@ -357,38 +339,38 @@ val response: HealthResponse = client.get("https://example.com/health").body()
 
 ![HTTP 클라이언트 주요 권장 선택 다이어그램](../../docs/images/readme-diagrams/io-http-diagram-04.png)
 
-**Apache HttpComponents 5 (HC5)** 가 `bluetape4k-http`의 **1순위 권장 프로덕션 HTTP 클라이언트**입니다. 프로덕션 튜닝 팩토리, RFC 7234 인메모리 캐싱, Virtual Thread 지원, Coroutines 통합 등 가장 풍부한 기능을 제공합니다.
+**Apache HttpComponents 5 (HC5)** 가 `bluetape4k-http`의 **1순위 권장 프로덕션 HTTP
+클라이언트**입니다. 프로덕션 튜닝 팩토리, RFC 7234 인메모리 캐싱, Virtual Thread 지원, Coroutines 통합 등 가장 풍부한 기능을 제공합니다.
 
-| 시나리오 | 권장 클라이언트 | 팩토리 함수 |
-|---------|--------------|-----------|
-| 고처리량 동기 백엔드 호출 | HC5 Classic + VirtualThread | `productionVirtualThreadHttpClientOf()` |
-| 코루틴 기반 비동기 호출 | HC5 Async + Coroutines | `productionHttpAsyncClientOf()` |
-| 캐싱 가능한 GET 최고 처리량 | HC5 CachingHttpClient (인메모리) | `memoryCachingHttpClientOf()` |
-| 재시작 간 캐시 유지 | OkHttp3 + DiskLruCache | `okhttp3ClientWithCache()` |
-| Ktor 기반 앱 | Ktor CIO | — |
-| Vert.x 기반 앱 | Vert.x WebClient | — |
-| 의존성 없는 JVM 서비스 | JDK HttpClient | — |
+| 시나리오                    | 권장 클라이언트                  | 팩토리 함수                             |
+|-----------------------------|----------------------------------|-----------------------------------------|
+| 고처리량 동기 백엔드 호출   | HC5 Classic + VirtualThread      | `productionVirtualThreadHttpClientOf()` |
+| 코루틴 기반 비동기 호출     | HC5 Async + Coroutines           | `productionHttpAsyncClientOf()`         |
+| 캐싱 가능한 GET 최고 처리량 | HC5 CachingHttpClient (인메모리) | `memoryCachingHttpClientOf()`           |
+| 재시작 간 캐시 유지         | OkHttp3 + DiskLruCache           | `okhttp3ClientWithCache()`              |
+| Ktor 기반 앱                | Ktor CIO                         | —                                       |
+| Vert.x 기반 앱              | Vert.x WebClient                 | —                                       |
+| 의존성 없는 JVM 서비스      | JDK HttpClient                   | —                                       |
 
 비-HC5 백엔드는 해당 생태계에서 **완전 지원**되는 1등급 옵션입니다. 기존 코드나 API는 deprecated 되지 않습니다.
 
 ## HTTP 클라이언트 비교
 
-| 클라이언트             | 역할       | 프로토콜             | 특성                                 | 용도                  |
-|-------------------|----------|------------------|------------------------------------|---------------------|
-| HC5 Classic       | **주요**   | HTTP/1.1         | 프로덕션 튜닝, 재시도, keep-alive          | 동기 백엔드 호출           |
-| HC5 Async         | **주요**   | HTTP/1.1, HTTP/2 | 비동기, Coroutines 통합                 | 고성능 비동기 통신          |
-| HC5 CachingClient | **주요**   | HTTP/1.1         | RFC 7234 인메모리 캐시 (813K ops/s)     | 캐싱 가능한 GET 집중 워크로드  |
-| OkHttp3           | 호환성      | HTTP/1.1, HTTP/2 | 디스크 캐시, 인터셉터, Android 호환          | 캐시 영속성, Android     |
-| JDK HttpClient    | 호환성      | HTTP/1.1, HTTP/2 | 추가 의존성 없음                          | 의존성 최소화 서비스         |
-| Vert.x HttpClient | 생태계 전용   | HTTP/1.1, HTTP/2 | 이벤트 루프 기반                          | Vert.x 생태계          |
-| Ktor CIO          | 생태계 전용   | HTTP/1.x         | suspend-native, Ktor 플러그인 생태계     | Ktor 기반 앱           |
+| 클라이언트        | 역할        | 프로토콜         | 특성                                 | 용도                          |
+|-------------------|-------------|------------------|--------------------------------------|-------------------------------|
+| HC5 Classic       | **주요**    | HTTP/1.1         | 프로덕션 튜닝, 재시도, keep-alive    | 동기 백엔드 호출              |
+| HC5 Async         | **주요**    | HTTP/1.1, HTTP/2 | 비동기, Coroutines 통합              | 고성능 비동기 통신            |
+| HC5 CachingClient | **주요**    | HTTP/1.1         | RFC 7234 인메모리 캐시 (813K ops/s)  | 캐싱 가능한 GET 집중 워크로드 |
+| OkHttp3           | 호환성      | HTTP/1.1, HTTP/2 | 디스크 캐시, 인터셉터, Android 호환  | 캐시 영속성, Android          |
+| JDK HttpClient    | 호환성      | HTTP/1.1, HTTP/2 | 추가 의존성 없음                     | 의존성 최소화 서비스          |
+| Vert.x HttpClient | 생태계 전용 | HTTP/1.1, HTTP/2 | 이벤트 루프 기반                     | Vert.x 생태계                 |
+| Ktor CIO          | 생태계 전용 | HTTP/1.x         | suspend-native, Ktor 플러그인 생태계 | Ktor 기반 앱                  |
 
 > **참고**: Ktor CIO는 HTTP/2를 지원하지 않습니다. HTTP/2가 필요한 경우 HC5 Async, JDK, 또는 OkHttp3를 사용하세요.
 
 ## 성능 벤치마크
 
-JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트별 처리량을 측정합니다.
-모든 벤치마크는 별도의 Docker 컨테이너 서버에 요청하여 서버 JVM과 클라이언트 JVM을 분리합니다.
+JMH (Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트별 처리량을 측정합니다. 모든 벤치마크는 별도의 Docker 컨테이너 서버에 요청하여 서버 JVM과 클라이언트 JVM을 분리합니다.
 
 ```bash
 # 전체 벤치마크 실행
@@ -404,14 +386,13 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
 
 ![Profiling mode comparison](../../docs/images/readme-diagrams/io-http-diagram-06.png)
 
-`-PbenchmarkProfile=<profiler>` 를 추가하면 벤치마크 실행 중 프로파일링이 활성화됩니다.
-출력 파일은 `build/benchmark-profiling/` 에 저장됩니다.
+`-PbenchmarkProfile=<profiler>` 를 추가하면 벤치마크 실행 중 프로파일링이 활성화됩니다. 출력 파일은 `build/benchmark-profiling/` 에 저장됩니다.
 
-| 속성 값 | 방식 | 출력 파일 | 측정 항목 |
-|--------|------|---------|----------|
-| `gc` | JVM GC 로깅 (`-Xlog:gc*`) | `gc.log` | GC 일시 정지 시간, 할당 이벤트, 세이프포인트 |
-| `jfr` | Java Flight Recorder (`-XX:StartFlightRecording`) | `benchmark.jfr` | CPU 플레임 그래프, GC 이벤트, 락 경합, 메모리 할당 |
-| `async` | async-profiler 에이전트 (`-PasyncProfilerLib=` 필요) | `async-cpu.html` | CPU 플레임 그래프 (저오버헤드 샘플링) |
+| 속성 값 | 방식                                                 | 출력 파일        | 측정 항목                                          |
+|---------|------------------------------------------------------|------------------|----------------------------------------------------|
+| `gc`    | JVM GC 로깅 (`-Xlog:gc*`)                            | `gc.log`         | GC 일시 정지 시간, 할당 이벤트, 세이프포인트       |
+| `jfr`   | Java Flight Recorder (`-XX:StartFlightRecording`)    | `benchmark.jfr`  | CPU 플레임 그래프, GC 이벤트, 락 경합, 메모리 할당 |
+| `async` | async-profiler 에이전트 (`-PasyncProfilerLib=` 필요) | `async-cpu.html` | CPU 플레임 그래프 (저오버헤드 샘플링)              |
 
 ```bash
 # 전체 벤치마크의 GC 로깅
@@ -429,7 +410,7 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
   -PbenchmarkInclude="HttpClientBenchmark"
 ```
 
-> **JFR**: `build/benchmark-profiling/benchmark.jfr` 파일을 JDK Mission Control(`jmc`) 또는
+> **JFR**: `build/benchmark-profiling/benchmark.jfr` 파일을 JDK Mission Control (`jmc`) 또는
 > IntelliJ IDEA 내장 JFR 뷰어로 열어 CPU 플레임 그래프와 메모리 할당 분석을 확인하세요.
 
 > **async-profiler**: [async-profiler 릴리스](https://github.com/async-profiler/async-profiler/releases)에서
@@ -446,20 +427,20 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
 
 경량 `/ping` 응답으로 순수 연결 처리량을 측정합니다.
 
-| 클라이언트 | 방식 | 특징 |
-|-----------|------|------|
-| OkHttp3 Sync | 동기 | 플랫폼 스레드 |
-| OkHttp3 VirtualThread | 동기 | Virtual Thread Dispatcher |
-| OkHttp3 Coroutines | 비동기 | `Call.executeAsync()` (공식 okhttp-coroutines) |
-| Java HttpClient Sync | 동기 | JDK 내장 |
-| Java HttpClient VirtualThread | 동기 | Virtual Thread executor |
-| Java HttpClient H2 Sync | 동기 | HTTP/2 |
-| HC5 Classic | 동기 | Apache HttpComponents 5 |
-| HC5 Classic VirtualThread | 동기 | VT 기반 커넥션 매니저 |
-| HC5 Classic Coroutines | 코루틴 | `Dispatchers.IO` |
-| HC5 Async Coroutines | 비동기 | `executeSuspending()` |
-| Vert.x WebClient Coroutines | 비동기 | 이벤트 루프 |
-| Ktor CIO Coroutines | 코루틴 | CIO 3.5는 pipelining 비활성 시 dedicated HTTP/1 request를 생성 |
+| 클라이언트                    | 방식   | 특징                                                           |
+|-------------------------------|--------|----------------------------------------------------------------|
+| OkHttp3 Sync                  | 동기   | 플랫폼 스레드                                                  |
+| OkHttp3 VirtualThread         | 동기   | Virtual Thread Dispatcher                                      |
+| OkHttp3 Coroutines            | 비동기 | `Call.executeAsync()` (공식 okhttp-coroutines)                 |
+| Java HttpClient Sync          | 동기   | JDK 내장                                                       |
+| Java HttpClient VirtualThread | 동기   | Virtual Thread executor                                        |
+| Java HttpClient H2 Sync       | 동기   | HTTP/2                                                         |
+| HC5 Classic                   | 동기   | Apache HttpComponents 5                                        |
+| HC5 Classic VirtualThread     | 동기   | VT 기반 커넥션 매니저                                          |
+| HC5 Classic Coroutines        | 코루틴 | `Dispatchers.IO`                                               |
+| HC5 Async Coroutines          | 비동기 | `executeSuspending()`                                          |
+| Vert.x WebClient Coroutines   | 비동기 | 이벤트 루프                                                    |
+| Ktor CIO Coroutines           | 코루틴 | CIO 3.5는 pipelining 비활성 시 dedicated HTTP/1 request를 생성 |
 
 > **참고**: 지연 없는 경량 응답이므로 동기/비동기 방식 모두 유사한 처리량을 냅니다.
 > 차이는 주로 커넥션 풀 설정과 스레드 모델에서 발생합니다.
@@ -471,71 +452,70 @@ JMH(Java Microbenchmark Harness) 기반 벤치마크 3종으로 클라이언트�
 **이론값**: 100 threads × (1000ms / 50ms) = **2,000 ops/s** (동기 상한)
 비동기/코루틴 방식은 스레드 블로킹 없이 이 상한을 초과합니다.
 
-| 클라이언트 | 방식 | 비고 |
-|-----------|------|------|
-| OkHttp3 Sync | 동기 | 100 플랫폼 스레드 차단 |
-| OkHttp3 VirtualThread | 동기 | VT로 차단 비용 감소 |
-| OkHttp3 Coroutines | 비동기 | `Dispatchers.IO` + `executeAsync()` |
-| Java HttpClient Sync | 동기 | — |
-| Java HttpClient VirtualThread | 동기 | — |
-| Java HttpClient Coroutines | 비동기 | `sendAwait()` |
-| HC5 Classic | 동기 | — |
-| HC5 Classic VirtualThread | 동기 | — |
-| HC5 Classic Coroutines | 코루틴 | `Dispatchers.IO` |
-| HC5 Async Coroutines | 비동기 | `executeSuspending()` |
-| Vert.x WebClient Coroutines | 비동기 | — |
-| Ktor CIO Coroutines | 코루틴 | 동일 `@Threads(100)` 조건으로 측정 |
+| 클라이언트                    | 방식   | 비고                                |
+|-------------------------------|--------|-------------------------------------|
+| OkHttp3 Sync                  | 동기   | 100 플랫폼 스레드 차단              |
+| OkHttp3 VirtualThread         | 동기   | VT로 차단 비용 감소                 |
+| OkHttp3 Coroutines            | 비동기 | `Dispatchers.IO` + `executeAsync()` |
+| Java HttpClient Sync          | 동기   | —                                   |
+| Java HttpClient VirtualThread | 동기   | —                                   |
+| Java HttpClient Coroutines    | 비동기 | `sendAwait()`                       |
+| HC5 Classic                   | 동기   | —                                   |
+| HC5 Classic VirtualThread     | 동기   | —                                   |
+| HC5 Classic Coroutines        | 코루틴 | `Dispatchers.IO`                    |
+| HC5 Async Coroutines          | 비동기 | `executeSuspending()`               |
+| Vert.x WebClient Coroutines   | 비동기 | —                                   |
+| Ktor CIO Coroutines           | 코루틴 | 동일 `@Threads(100)` 조건으로 측정  |
 
 ### 2026-05-21 HTTP 클라이언트 벤치마크 스냅샷
 
-환경: 로컬 Colima Docker, `bluetape4k/mock-webflux-server:latest`, Docker server 29.2.1, JMH via `:bluetape4k-http:testBenchmark`.
-명령, 실패한 접근, 원시 근거는 [벤치마크 리포트](../../docs/benchmarks/2026-05-21-io-http-client-benchmark.md)에 기록했습니다.
+환경: 로컬 Colima Docker, `bluetape4k/mock-webflux-server:latest`, Docker server 29.2.1, JMH via `:bluetape4k-http:testBenchmark`. 명령, 실패한 접근, 원시 근거는 [벤치마크 리포트](../../docs/benchmarks/2026-05-21-io-http-client-benchmark.md)에 기록했습니다.
 
-각 벤치마크 안의 모든 행은 같은 JMH thread 수로 측정했습니다.
-Ktor CIO만 1 thread로 낮춘 예외 행이 아니며, CIO 3.5가 pipelining 비활성 시 dedicated HTTP/1 connection을 열기 때문에 전체 행을 짧은 동일 조건 window로 맞췄습니다.
+각 벤치마크 안의 모든 행은 같은 JMH thread 수로 측정했습니다. Ktor CIO만 1 thread로 낮춘 예외 행이 아니며, CIO 3.5가 pipelining 비활성 시 dedicated HTTP/1 connection을 열기 때문에 전체 행을 짧은 동일 조건 window로 맞췄습니다.
 
 #### 기본 처리량 스냅샷
 
-| 벤치마크 행 | ops/s |
-|-------------|------:|
-| `HttpClientBenchmark.javaHttpSync` | 7,276.492 |
-| `HttpClientBenchmark.hc5ClassicVirtualThread` | 7,246.690 |
-| `HttpClientBenchmark.okhttp3VirtualThread` | 6,955.796 |
-| `HttpClientBenchmark.javaHttpVirtualThread` | 6,562.497 |
-| `HttpClientBenchmark.hc5Classic` | 6,490.422 |
-| `HttpClientBenchmark.javaHttpH2VirtualThread` | 6,275.262 |
-| `HttpClientBenchmark.hc5ClassicCoroutines` | 6,230.735 |
+| 벤치마크 행                                    |     ops/s |
+|------------------------------------------------|----------:|
+| `HttpClientBenchmark.javaHttpSync`             | 7,276.492 |
+| `HttpClientBenchmark.hc5ClassicVirtualThread`  | 7,246.690 |
+| `HttpClientBenchmark.okhttp3VirtualThread`     | 6,955.796 |
+| `HttpClientBenchmark.javaHttpVirtualThread`    | 6,562.497 |
+| `HttpClientBenchmark.hc5Classic`               | 6,490.422 |
+| `HttpClientBenchmark.javaHttpH2VirtualThread`  | 6,275.262 |
+| `HttpClientBenchmark.hc5ClassicCoroutines`     | 6,230.735 |
 | `HttpClientBenchmark.vertxWebClientCoroutines` | 6,043.906 |
-| `HttpClientBenchmark.javaHttpH2Sync` | 6,027.618 |
-| `HttpClientBenchmark.okhttp3Sync` | 5,771.310 |
-| `HttpClientBenchmark.okhttp3Coroutines` | 5,752.350 |
-| `HttpClientBenchmark.hc5AsyncCoroutines` | 5,520.183 |
-| `HttpClientBenchmark.javaHttpH2Coroutines` | 5,481.592 |
-| `HttpClientBenchmark.javaHttpCoroutines` | 4,739.894 |
-| `HttpClientBenchmark.ktorCioCoroutines` | 2,052.281 |
+| `HttpClientBenchmark.javaHttpH2Sync`           | 6,027.618 |
+| `HttpClientBenchmark.okhttp3Sync`              | 5,771.310 |
+| `HttpClientBenchmark.okhttp3Coroutines`        | 5,752.350 |
+| `HttpClientBenchmark.hc5AsyncCoroutines`       | 5,520.183 |
+| `HttpClientBenchmark.javaHttpH2Coroutines`     | 5,481.592 |
+| `HttpClientBenchmark.javaHttpCoroutines`       | 4,739.894 |
+| `HttpClientBenchmark.ktorCioCoroutines`        | 2,052.281 |
 
 ![HTTP client base throughput chart](../../docs/images/readme-diagrams/io-http-chart-01.png)
 
 #### 고지연 처리량 스냅샷
 
-| 벤치마크 행 | ops/s |
-|-------------|------:|
-| `HttpClientLatencyBenchmark.okhttp3VirtualThread` | 1,902.171 |
-| `HttpClientLatencyBenchmark.hc5ClassicVirtualThread` | 1,888.018 |
-| `HttpClientLatencyBenchmark.javaHttpVirtualThread` | 1,883.634 |
-| `HttpClientLatencyBenchmark.hc5Classic` | 1,880.023 |
-| `HttpClientLatencyBenchmark.okhttp3Sync` | 1,870.124 |
-| `HttpClientLatencyBenchmark.javaHttpSync` | 1,865.997 |
-| `HttpClientLatencyBenchmark.javaHttpCoroutines` | 1,863.948 |
-| `HttpClientLatencyBenchmark.hc5AsyncCoroutines` | 1,860.655 |
+| 벤치마크 행                                           |     ops/s |
+|-------------------------------------------------------|----------:|
+| `HttpClientLatencyBenchmark.okhttp3VirtualThread`     | 1,902.171 |
+| `HttpClientLatencyBenchmark.hc5ClassicVirtualThread`  | 1,888.018 |
+| `HttpClientLatencyBenchmark.javaHttpVirtualThread`    | 1,883.634 |
+| `HttpClientLatencyBenchmark.hc5Classic`               | 1,880.023 |
+| `HttpClientLatencyBenchmark.okhttp3Sync`              | 1,870.124 |
+| `HttpClientLatencyBenchmark.javaHttpSync`             | 1,865.997 |
+| `HttpClientLatencyBenchmark.javaHttpCoroutines`       | 1,863.948 |
+| `HttpClientLatencyBenchmark.hc5AsyncCoroutines`       | 1,860.655 |
 | `HttpClientLatencyBenchmark.vertxWebClientCoroutines` | 1,859.003 |
-| `HttpClientLatencyBenchmark.okhttp3Coroutines` | 1,856.895 |
-| `HttpClientLatencyBenchmark.ktorCioCoroutines` | 1,515.026 |
-| `HttpClientLatencyBenchmark.hc5ClassicCoroutines` | 1,216.306 |
+| `HttpClientLatencyBenchmark.okhttp3Coroutines`        | 1,856.895 |
+| `HttpClientLatencyBenchmark.ktorCioCoroutines`        | 1,515.026 |
+| `HttpClientLatencyBenchmark.hc5ClassicCoroutines`     | 1,216.306 |
 
 ![HTTP client high-latency benchmark chart](../../docs/images/readme-diagrams/io-http-chart-02.png)
 
 **메모**:
+
 - 이전 Vert.x 결과는 주로 Vert.x 5 기본 HTTP/1 pool cap을 측정했습니다. 이제 `PoolOptions`를 명시해 다른 클라이언트와 조건을 맞췄습니다.
 - Ktor CIO 기본 경로는 `/ping`에서 여전히 느립니다. CIO pipelining을 강제하면 mock fixture에서 EOF 또는 hang이 발생했으므로, 비교 가능한 실행은 기본 CIO 동작을 유지하고 모든 행의 측정 window를 동일하게 짧게 둡니다.
 - `/ping` 기본 처리량은 로컬 Docker 환경에서 분산이 큽니다. 결정 근거로는 고지연 표가 더 강합니다.
@@ -544,43 +524,39 @@ Ktor CIO만 1 thread로 낮춘 예외 행이 아니며, CIO 3.5가 pipelining �
 
 **환경**: `WireMockServer` (Docker, 10ms 고정 지연) · gzip 1KB 응답 · `Cache-Control: public, max-age=3600` · `@Threads(8)` · warmup 2×3s · measurement 3×5s
 
-**이론값(캐시 없음)**: 8 threads × (1000ms / 10ms) = **800 ops/s**
+**이론값 (캐시 없음)**: 8 threads × (1000ms / 10ms) = **800 ops/s**
 
-| 클라이언트 | 캐시 | ops/s | 배율 |
-|-----------|------|------:|------|
-| HC5 Classic + InMemoryCache | 인메모리 (Heap) | **813,906** | ×1,233 |
-| OkHttp3 + DiskLruCache | 디스크 (OS 페이지 캐시) | **35,359** | ×53 |
-| HC5 Classic (캐시 없음) | — | 682 | ×1 |
-| HC5 Classic VirtualThread (캐시 없음) | — | 668 | — |
-| OkHttp3 (캐시 없음) | — | 661 | — |
+| 클라이언트                            | 캐시                    |       ops/s | 배율   |
+|---------------------------------------|-------------------------|------------:|--------|
+| HC5 Classic + InMemoryCache           | 인메모리 (Heap)         | **813,906** | ×1,233 |
+| OkHttp3 + DiskLruCache                | 디스크 (OS 페이지 캐시) |  **35,359** | ×53    |
+| HC5 Classic (캐시 없음)               | —                       |         682 | ×1     |
+| HC5 Classic VirtualThread (캐시 없음) | —                       |         668 | —      |
+| OkHttp3 (캐시 없음)                   | —                       |         661 | —      |
 
 ![HTTP Cache Benchmark Throughput chart](../../docs/images/readme-charts/io-http-cache-throughput-chart-01.png)
 
 **인사이트**:
+
 - **캐시 효과**: 10ms 네트워크 지연 제거만으로 35K–813K ops/s 달성
 - **HC5 MemCache vs OkHttp DiskCache (23배 차이)**:
-  - HC5: `ConcurrentHashMap` 직접 조회 → ~1–10 μs/op
-  - OkHttp: `DiskLruCache` `synchronized` + journal write + gzip 재해제 → ~200–230 μs/op
-- OkHttp 캐시 파일(1KB)은 워밍업 후 OS 페이지 캐시(RAM)에 올라가므로 실제 디스크 I/O는 없으나, 파일 시스템 계층 오버헤드가 남음
+    - HC5: `ConcurrentHashMap` 직접 조회 → ~1–10 μs/op
+    - OkHttp: `DiskLruCache` `synchronized` + journal write + gzip 재해제 → ~200–230 μs/op
+- OkHttp 캐시 파일 (1KB)은 워밍업 후 OS 페이지 캐시 (RAM)에 올라가므로 실제 디스크 I/O는 없으나, 파일 시스템 계층 오버헤드가 남음
 
 **권장 선택** ([주요 권장 클라이언트](#주요-권장-클라이언트) 전체 표 참조):
 
-| 상황 | 권장 | 팩토리 |
-|------|------|--------|
-| 반복 GET + 캐시 최우선 | **HC5 CachingHttpClient (MemCache)** | `memoryCachingHttpClientOf()` |
-| 재시작 후 캐시 유지 필요 | OkHttp3 + DiskLruCache | `okhttp3ClientWithCache()` |
-| 범용 고성능 동기 | **HC5 Classic VirtualThread** | `productionVirtualThreadHttpClientOf()` |
-| 고지연 비동기 대량 요청 | **HC5 Async Coroutines** | `productionHttpAsyncClientOf()` |
+| 상황                     | 권장                                 | 팩토리                                  |
+|--------------------------|--------------------------------------|-----------------------------------------|
+| 반복 GET + 캐시 최우선   | **HC5 CachingHttpClient (MemCache)** | `memoryCachingHttpClientOf()`           |
+| 재시작 후 캐시 유지 필요 | OkHttp3 + DiskLruCache               | `okhttp3ClientWithCache()`              |
+| 범용 고성능 동기         | **HC5 Classic VirtualThread**        | `productionVirtualThreadHttpClientOf()` |
+| 고지연 비동기 대량 요청  | **HC5 Async Coroutines**             | `productionHttpAsyncClientOf()`         |
 
 ## Outbound 오류 정제
 
-`sanitizeOutboundError`는 outbound 실패를 저장하거나 log에 남길 때 사용하는
-framework-neutral 순수 함수입니다. 항상 `HTTP <status>` prefix를 유지하고,
-양 끝을 정리한 첫 줄만 사용하며, null·blank·문법이 깨진 credential marker는
-prefix만 반환합니다. `Authorization`, `Cookie`, `Token`, `Secret`,
-`API-Key`/`API_Key`/`API Key` marker를 `:`/`=` 구분자, 선택적 `Bearer`,
-quoted/escaped value와 함께 인식해 `[redacted]`로 치환합니다. 최종 결과는
-최대 240 UTF-16 code units이며 surrogate pair를 분할하지 않습니다.
+`sanitizeOutboundError`는 outbound 실패를 저장하거나 log에 남길 때 사용하는 framework-neutral 순수 함수입니다. 항상 `HTTP <status>` prefix를 유지하고, 양 끝을 정리한 첫 줄만 사용하며, null·blank·문법이 깨진 credential marker는 prefix만 반환합니다. `Authorization`, `Cookie`, `Token`, `Secret`,
+`API-Key`/`API_Key`/`API Key` marker를 `:`/`=` 구분자, 선택적 `Bearer`, quoted/escaped value와 함께 인식해 `[redacted]`로 치환합니다. 최종 결과는 최대 240 UTF-16 code units이며 surrogate pair를 분할하지 않습니다.
 
 ```kotlin
 import io.bluetape4k.http.sanitizeOutboundError
@@ -595,9 +571,7 @@ val statusOnly = sanitizeOutboundError(422, "Authorization: Bearer")
 // HTTP 422
 ```
 
-호출자가 retry, status 분류, transaction, cancellation 동작을 소유합니다.
-원본 `Throwable`을 log나 persistence에 전달하지 말고 반환된 summary를
-사용해야 합니다.
+호출자가 retry, status 분류, transaction, cancellation 동작을 소유합니다. 원본 `Throwable`을 log나 persistence에 전달하지 말고 반환된 summary를 사용해야 합니다.
 
 ## Coroutines 지원
 
@@ -678,20 +652,20 @@ dependencies {
 
 라인 커버리지: **72%** (목표: ≥ 70%)
 
-| 패키지 | 커버리지 | 테스트 클래스 |
-|--------|----------|---------------|
-| `hc5/async` | ✅ | `AsyncHttpClientTest`, `AsyncHttpClientCoroutinesTest`, `MinimalHttpAsyncClientTest` |
-| `hc5/async/methods` | ✅ | `SimpleHttpRequestTest`, `SimpleHttpResponseTest`, `AsyncMethodsTest` |
-| `hc5/cache` | ✅ | `CachingHttpClientBuilderTest`, `CachingHttpAsyncClientBuilderTest` |
-| `hc5/classic` | ✅ | `ClassicHttpClientTest`, `MinimalAndVirtualThreadHttpClientTest` |
-| `hc5/fluent` | ✅ | `RequestTest` |
-| `hc5/http` | ✅ | `ContextBuilderTest`, `CookieSpecSupportTest`, `PoolingHttpClientConnectionManagerBuilderTest`, `BasicRequestProducerTest` |
-| `hc5/protocol` | ✅ | `HttpClientContextTest` |
-| `hc5/routing` | ✅ | `RoutingSupportTest` |
-| `hc5/ssl` | ✅ | `SslSupportTest` |
-| `jdk` | ✅ | `JdkHttpClientSupportTest`, `JdkHttpClientCoroutinesTest` |
-| `okhttp3` | ✅ | 다수의 테스트 |
-| `ktor` | ✅ | `KtorHttpClientSupportTest` |
+| 패키지              | 커버리지 | 테스트 클래스                                                                                                              |
+|---------------------|----------|----------------------------------------------------------------------------------------------------------------------------|
+| `hc5/async`         | ✅       | `AsyncHttpClientTest`, `AsyncHttpClientCoroutinesTest`, `MinimalHttpAsyncClientTest`                                       |
+| `hc5/async/methods` | ✅       | `SimpleHttpRequestTest`, `SimpleHttpResponseTest`, `AsyncMethodsTest`                                                      |
+| `hc5/cache`         | ✅       | `CachingHttpClientBuilderTest`, `CachingHttpAsyncClientBuilderTest`                                                        |
+| `hc5/classic`       | ✅       | `ClassicHttpClientTest`, `MinimalAndVirtualThreadHttpClientTest`                                                           |
+| `hc5/fluent`        | ✅       | `RequestTest`                                                                                                              |
+| `hc5/http`          | ✅       | `ContextBuilderTest`, `CookieSpecSupportTest`, `PoolingHttpClientConnectionManagerBuilderTest`, `BasicRequestProducerTest` |
+| `hc5/protocol`      | ✅       | `HttpClientContextTest`                                                                                                    |
+| `hc5/routing`       | ✅       | `RoutingSupportTest`                                                                                                       |
+| `hc5/ssl`           | ✅       | `SslSupportTest`                                                                                                           |
+| `jdk`               | ✅       | `JdkHttpClientSupportTest`, `JdkHttpClientCoroutinesTest`                                                                  |
+| `okhttp3`           | ✅       | 다수의 테스트                                                                                                              |
+| `ktor`              | ✅       | `KtorHttpClientSupportTest`                                                                                                |
 
 ## 참고
 

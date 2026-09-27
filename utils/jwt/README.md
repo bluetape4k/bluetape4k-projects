@@ -158,15 +158,11 @@ try {
 ```
 
 The parser cache is process-wide and keyed by provider. Observe `jwtParserCache.size`
-alongside provider creation and close counts in diagnostics; repeated create/parse/close
-cycles should not cause the size or retained heap to grow.
+alongside provider creation and close counts in diagnostics; repeated create/parse/close cycles should not cause the size or retained heap to grow.
 
 Cache providers borrow their delegate; close the original delegate separately when it owns a rotation timer. Implementations without background work may keep the default `close()` implementation, which still removes the provider parser cache entry.
 
-For a Redis-backed provider, both the `RedissonClient` and the delegate remain
-application-owned. `RedissonJwtProvider` borrows the delegate and cache, so close
-the wrapper, then the delegate's rotation work, then the repository refresh work,
-and finally the client:
+For a Redis-backed provider, both the `RedissonClient` and the delegate remain application-owned. `RedissonJwtProvider` borrows the delegate and cache, so close the wrapper, then the delegate's rotation work, then the repository refresh work, and finally the client:
 
 ```kotlin
 val repository = RedisKeyChainRepository(redissonClient)
@@ -183,10 +179,7 @@ try {
 }
 ```
 
-The JWT module's Redis shutdown integration test uses Redis and ToxiProxy on a
-shared Testcontainers network. It disables and re-enables the proxy to verify a
-bounded failure and recovery while keeping the borrowed delegate/client ownership
-order explicit.
+The JWT module's Redis shutdown integration test uses Redis and ToxiProxy on a shared Testcontainers network. It disables and re-enables the proxy to verify a bounded failure and recovery while keeping the borrowed delegate/client ownership order explicit.
 
 ### Compression
 

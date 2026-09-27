@@ -1,5 +1,6 @@
 package io.bluetape4k.http.hc5.examples
 
+import io.bluetape4k.concurrent.awaitTermination
 import io.bluetape4k.http.hc5.AbstractHc5Test
 import io.bluetape4k.http.hc5.classic.defaultHttpClient
 import io.bluetape4k.http.hc5.classic.httpClient
@@ -15,6 +16,7 @@ import org.apache.hc.core5.http.message.StatusLine
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class Hc5Examples: AbstractHc5Test() {
 
@@ -47,7 +49,7 @@ class Hc5Examples: AbstractHc5Test() {
             } finally {
                 runCatching {
                     executor.shutdown()
-                    executor.awaitTermination(1, TimeUnit.SECONDS)
+                    executor.awaitTermination(1.seconds)
                 }
             }
         }

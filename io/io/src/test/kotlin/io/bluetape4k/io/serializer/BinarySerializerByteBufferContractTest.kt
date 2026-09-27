@@ -6,6 +6,7 @@ import io.bluetape4k.assertions.expectThat
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldContentEqual
+import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.nio.BufferOverflowException
 import java.nio.ByteBuffer
@@ -14,6 +15,11 @@ import java.nio.ReadOnlyBufferException
 import java.util.concurrent.atomic.AtomicInteger
 
 class BinarySerializerByteBufferContractTest {
+
+    private companion object: KLogging() {
+        val PAYLOAD = byteArrayOf(1, 2, 3, 4)
+        const val FILL: Byte = 0x55
+    }
 
     @Test
     fun `default serializeTo preserves target metadata and writes only the bounded range`() {
@@ -42,7 +48,7 @@ class BinarySerializerByteBufferContractTest {
                 target.fullBytes().copyOfRange(limit, capacity).toList()
             }
             target.reset()
-            expectThat(start, "$name mark") { target.position() }
+            target.position() shouldBeEqualTo start
         }
     }
 
@@ -55,7 +61,9 @@ class BinarySerializerByteBufferContractTest {
         })
         val target = ByteBuffer.allocate(16).asReadOnlyBuffer()
 
-        assertFailsWith<ReadOnlyBufferException> { serializer.serializeTo(null, target) }
+        assertFailsWith<ReadOnlyBufferException> {
+            serializer.serializeTo(null, target)
+        }
 
         invocations.get() shouldBeEqualTo 0
         target.position() shouldBeEqualTo 0
@@ -93,7 +101,8 @@ class BinarySerializerByteBufferContractTest {
     fun `ordinary and fatal backend failures restore position and preserve fatal identity`() {
         val ordinary = IllegalStateException("ordinary")
         val fatal = AssertionError("fatal")
-        listOf<Throwable>(ordinary, fatal).forEach { expected ->
+
+        listOf(ordinary, fatal).forEach { expected ->
             val serializer = binarySerializer(serialize = { throw expected })
             val target = configuredTarget(PAYLOAD.size)
             val start = target.position()
@@ -102,7 +111,6 @@ class BinarySerializerByteBufferContractTest {
                 serializer.serializeTo("value", target)
             }
 
-            actual::class shouldBeEqualTo expected::class
             actual shouldBeSameInstanceAs expected
             target.position() shouldBeEqualTo start
         }
@@ -260,9 +268,4 @@ class BinarySerializerByteBufferContractTest {
 
     private fun ByteBuffer.fullBytes(): ByteArray =
         duplicate().clear().let { view -> ByteArray(view.remaining()).also(view::get) }
-
-    private companion object {
-        val PAYLOAD = byteArrayOf(1, 2, 3, 4)
-        const val FILL: Byte = 0x55
-    }
 }

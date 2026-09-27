@@ -194,11 +194,11 @@ versionless `spring-boot/*` modules publish the current Spring Boot 4 artifacts.
 - **[core](./spring-boot/core/README.md)**: Spring Boot common utilities — WebFlux + Coroutines, RestClient DSL (
   `suspendGet`, `suspendPost`, etc.), Jackson 2 customizer, Retrofit2 integration, WebTestClient test utilities
 - **[cassandra](./spring-boot/cassandra/README.md)**: Spring Data Cassandra with Coroutines extensions
-- **[cassandra-demo](./spring-boot/cassandra-demo/README.md)**: Cassandra usage example
+- **[cassandra-demo](./examples/cassandra-demo/README.md)**: Cassandra usage example
 - **[data-redis](./spring-boot/redis/README.md)**: High-performance Spring Data Redis serialization —
   `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
 - **[hibernate-lettuce](./spring-boot/hibernate-lettuce/README.md)**: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration
-- **[hibernate-lettuce-demo](./spring-boot/hibernate-lettuce-demo/README.md)**: Hibernate Lettuce NearCache + Spring MVC integration demo
+- **[hibernate-lettuce-demo](./examples/hibernate-lettuce-demo/README.md)**: Hibernate Lettuce NearCache + Spring MVC integration demo
 - **[idgenerator-spring-boot-demo](./examples/spring-boot/idgenerator-spring-boot-demo/README.md)**: Spring Boot REST demo for `bluetape4k-idgenerators`
 - **[observability-spring-boot-demo](./examples/spring-boot/observability-spring-boot-demo/README.md)**: Spring Boot 4 Actuator Prometheus and OTLP observability demo
 - **[mongodb](./spring-boot/mongodb/README.md)**: Spring Data MongoDB Reactive with Coroutines extensions, Criteria/Query/Update infix DSL
