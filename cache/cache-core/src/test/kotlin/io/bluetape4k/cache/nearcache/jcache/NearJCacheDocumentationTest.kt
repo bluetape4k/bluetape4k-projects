@@ -6,16 +6,14 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheConfigurationMXBean
 import io.bluetape4k.cache.nearcache.jcache.management.NearJCacheTierStatisticsMXBean
 import io.bluetape4k.cache.nearcache.jcache.management.registerMBeans
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.*
+import java.util.UUID
 import javax.cache.configuration.MutableConfiguration
 import javax.management.JMX
 import javax.management.MBeanServerFactory
 
-@Disabled("문서 포맷 작업에 테스트가 불안정하다")
 class NearJCacheDocumentationTest {
 
     @Test
@@ -69,7 +67,6 @@ class NearJCacheDocumentationTest {
         }
     }
 
-    @Disabled("문서 포맷 변경에 따른 테스트 실패")
     @Test
     fun `README와 manual locale은 같은 management API 경계를 설명한다`() {
         val documents = listOf(
@@ -222,7 +219,6 @@ class NearJCacheDocumentationTest {
         ).forEach { token -> guide.contains(token).shouldBeTrue() }
     }
 
-    @Disabled("문서 포맷 변경에 따른 테스트 실패")
     @Test
     fun `bulk getAll residency 정책은 문서와 provider DSL에서 양언어 동등하다`() {
         val documents = BULK_POLICY_DOCUMENTS.associateWith { path ->
@@ -290,7 +286,6 @@ class NearJCacheDocumentationTest {
         }
     }
 
-    @Disabled("문서 포맷 변경에 따른 테스트 실패")
     @Test
     fun `clear authority marker는 EN KO 문서 쌍의 계약을 동일하게 고정한다`() {
         AUTHORITY_CONTRACT_DOCUMENTS.forEach { (englishPath, koreanPath) ->

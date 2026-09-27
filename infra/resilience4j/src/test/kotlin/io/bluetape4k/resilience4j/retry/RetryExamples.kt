@@ -63,7 +63,7 @@ class RetryExamples {
     @BeforeEach
     fun setup() {
         clearMocks(service)
-        
+
         successEvents = 0
         retryEvents = 0
         errorEvents = 0

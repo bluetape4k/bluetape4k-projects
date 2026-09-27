@@ -28,7 +28,8 @@ import javax.cache.configuration.MutableConfiguration
 /**
  * Hazelcast 기반 캐시 인스턴스를 생성하는 팩토리 오브젝트입니다.
  *
- * [JCache], [io.bluetape4k.cache.jcache.SuspendJCache], [HazelcastNearCache], [HazelcastSuspendNearCache]를 편리하게 생성할 수 있습니다.
+ * [JCache], [io.bluetape4k.cache.jcache.SuspendJCache], [HazelcastNearCache],
+ * [HazelcastSuspendNearCache]를 편리하게 생성할 수 있습니다.
  *
  * ```kotlin
  * val cache = HazelcastCaches.jcache<String, String>("my-cache")

@@ -45,7 +45,7 @@ object RedissonCodecs: KLogging() {
      * 기본 Codec으로, [Fory] (Apache Fory 직렬화)를 사용합니다.
      */
     @JvmStatic
-    val Default: Codec by lazy { FastFory }
+    val Default: Codec by lazy { Fory }
 
     /** Redis 정수 값 전용 Codec ([IntegerCodec]) */
     val Int: Codec by lazy { IntegerCodec() }

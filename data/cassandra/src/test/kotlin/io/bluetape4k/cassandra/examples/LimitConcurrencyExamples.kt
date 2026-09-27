@@ -96,7 +96,10 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
 
             requestLatch.await(10.seconds)
 
-            log.debug { "Finish executing ${insertsCounter.get()} queries with a concurrency level of $CONCURRENCY_LEVEL" }
+            log.debug {
+                "Finish executing ${insertsCounter.get()} queries " +
+                    "with a concurrency level of $CONCURRENCY_LEVEL"
+            }
         } finally {
             executor.shutdown()
             executor.awaitTermination(3.seconds)
@@ -123,7 +126,10 @@ class LimitConcurrencyExamples: AbstractCassandraTest() {
         }
 
         CompletableFuture.allOf(*pending.map { it.toCompletableFuture() }.toTypedArray()).get()
-        log.debug { "Finish executing coroutines $insertAsyncCount queries with a concurrency level of $CONCURRENCY_LEVEL" }
+        log.debug {
+            "Finish executing coroutines $insertAsyncCount queries " +
+                "with a concurrency level of $CONCURRENCY_LEVEL"
+        }
     }
 
     private fun executeOneAtATime(

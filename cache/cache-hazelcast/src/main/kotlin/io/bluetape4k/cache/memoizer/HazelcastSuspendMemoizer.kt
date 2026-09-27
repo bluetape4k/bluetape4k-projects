@@ -6,9 +6,11 @@ import io.bluetape4k.logging.debug
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -94,7 +96,7 @@ class SuspendHazelcastMemoizer<K: Any, V: Any>(
             val evaluated = evaluator(key)
             val winner = mutex.withLock {
                 if (capturedGeneration == generation) {
-                    imap.putIfAbsent(key, evaluated) ?: evaluated
+                    withContext(Dispatchers.IO) { imap.putIfAbsent(key, evaluated) } ?: evaluated
                 } else evaluated
             }
             deferred.complete(winner)
@@ -115,7 +117,7 @@ class SuspendHazelcastMemoizer<K: Any, V: Any>(
         mutex.withLock {
             generation++
             inFlight.clear()
-            imap.clear()
+            withContext(Dispatchers.IO) { imap.clear() }
         }
     }
 }

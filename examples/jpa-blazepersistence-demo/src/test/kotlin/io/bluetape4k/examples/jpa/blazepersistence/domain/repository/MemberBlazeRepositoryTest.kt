@@ -55,7 +55,7 @@ class MemberBlazeRepositoryTest(
         val page = memberRepository.findPage(condition, firstResult = 0, maxResults = 5)
 
         page.content.forEach { log.debug { "Memober name=${it.name}, Team name=${it.teamName}" } }
-        
+
         page.content shouldHaveSize 5
         page.totalSize shouldBeEqualTo 11L
         page.totalPages shouldBeEqualTo 3
@@ -80,7 +80,7 @@ class MemberBlazeRepositoryTest(
         )
 
         secondPage.content.forEach { log.debug { "Memober name=${it.name}, Team name=${it.teamName}" } }
-        
+
         secondPage.content shouldHaveSize 10
         secondPage.totalSize shouldBeEqualTo 21L
         secondPage.content.first().name shouldBeEqualTo "member-20"

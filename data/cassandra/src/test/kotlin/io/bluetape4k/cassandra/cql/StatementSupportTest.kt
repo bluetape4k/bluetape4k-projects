@@ -54,7 +54,7 @@ class StatementSupportTest {
         batchStatementOf(BatchType.UNLOGGED, listOf(first, second)).size() shouldBeEqualTo 2
 
         val template = batchStatementOf(BatchType.LOGGED, first)
-        batchStatementOf(template) { addStatement(second) }.size() shouldBeEqualTo 2
+        batchStatement(template) { addStatement(second) }.size() shouldBeEqualTo 2
         batchStatementOf(template) { addStatement(second) }.size() shouldBeEqualTo 2
     }
 
@@ -64,13 +64,14 @@ class StatementSupportTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `deprecated statement 함수는 호환 동작한다`() {
-        val statement = simpleStatementOf("SELECT now() FROM system.local") {
+        val statement = simpleStatement("SELECT now() FROM system.local") {
             setPageSize(64)
         }
         statement.pageSize shouldBeEqualTo 64
 
-        val batch = batchStatementOf(BatchType.LOGGED) {
+        val batch = batchStatement(BatchType.LOGGED) {
             addStatement(statement)
         }
         batch.size() shouldBeEqualTo 1

@@ -55,7 +55,7 @@ class PulsarClientSupportTest: AbstractPulsarTest() {
     fun `withPulsarClient - setup-only 오버로드`() = runSuspendIO(120.seconds) {
         val url = pulsar.url
         log.debug { "pulsar url=$url" }
-        
+
         withPulsarClient({ serviceUrl(url) }) {
             shouldNotBeNull()
             // 생성된 클라이언트로 간단한 동작 검증

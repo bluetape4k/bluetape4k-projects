@@ -267,5 +267,9 @@ class KafkaStreamsTests {
         }
     }
 
-    data class Foo(var name: String): Serializable
+    data class Foo(var name: String): Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
 }

@@ -52,7 +52,7 @@ class AsyncHttpClientCoroutinesTest: AbstractHc5Test() {
     }
 
     @Test
-    @Suppress("DEPRECATION")
+    @Suppress("DEPRECATION", "LongMethod")
     fun `executeSuspending and deprecated execute overloads support request producer context and target`() =
         runSuspendIO {
             httpAsyncClient {}.use { client ->

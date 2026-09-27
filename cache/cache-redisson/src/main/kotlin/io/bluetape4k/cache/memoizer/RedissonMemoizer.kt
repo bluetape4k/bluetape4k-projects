@@ -91,6 +91,7 @@ class RedissonMemoizer<T: Any, R: Any>(
      * @param key 조회할 키
      * @return 키에 대응하는 값
      */
+    @Suppress("TooGenericExceptionCaught")
     override fun invoke(key: T): R {
         inFlight[key]?.let { return it.join() }
 
@@ -111,6 +112,7 @@ class RedissonMemoizer<T: Any, R: Any>(
                 promise.complete(winner)
                 return winner
             } catch (e: Throwable) {
+                // 대기 중인 호출자에게 모든 실패를 전달한 뒤 원래 실패를 호출자에게 다시 던집니다.
                 promise.completeExceptionally(e)
                 throw e
             } finally {

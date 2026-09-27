@@ -30,7 +30,7 @@ import org.redisson.client.codec.Codec
 class RedissonSuspendNearCache<V: Any>(
     private val redisson: RedissonClient,
     private val config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
-    private val codec: Codec = RedissonCodecs.Default,
+    private val codec: Codec = RedissonCodecs.LZ4Fory,
 ): SuspendNearCacheOperations<V> {
 
     companion object: KLoggingChannel()
@@ -222,6 +222,6 @@ class RedissonSuspendNearCache<V: Any>(
 fun <V: Any> redissonSuspendNearCacheOf(
     redisson: RedissonClient,
     config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
-    codec: Codec = RedissonCodecs.Default,
+    codec: Codec = RedissonCodecs.LZ4Fory,
 ): SuspendNearCacheOperations<V> =
     RedissonSuspendNearCache(redisson, config, codec)

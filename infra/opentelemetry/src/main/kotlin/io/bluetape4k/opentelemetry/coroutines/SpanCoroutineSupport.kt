@@ -170,7 +170,8 @@ suspend inline fun <T> withSpanContext(
     waitTimeout: Long? = null,
     crossinline block: suspend (Span) -> T,
 ): T {
-    // HINT: javaagent + coroutine 환경에서 Context.current().with(span) 가 AgentContextWrapper 에 의해 무시되는 경우가 있어 storeInContext 사용
+    // HINT: javaagent + coroutine 환경에서 Context.current().with(span) 가
+    // AgentContextWrapper 에 의해 무시되는 경우가 있어 storeInContext 사용
     return try {
         val otelContext: Context = span.storeInContext(Context.current())
         withContext(coroutineContext.getOrCurrent() + otelContext.asContextElement()) {

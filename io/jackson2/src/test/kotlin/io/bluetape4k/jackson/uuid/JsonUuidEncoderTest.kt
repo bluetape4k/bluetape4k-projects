@@ -26,6 +26,13 @@ import java.util.*
 @RandomizedTest
 class JsonUuidEncodeTest {
 
+    @Suppress("DEPRECATION")
+    @Test
+    fun `legacy introspector typo alias remains source compatible`() {
+        JsonUuidEncoderAnnotationInterospector::class.java shouldBeEqualTo
+            JsonUuidEncoderAnnotationIntrospector::class.java
+    }
+
     companion object: KLogging() {
         private const val REPEAT_COUNT = 5
         private val faker = Faker(Locale.getDefault())

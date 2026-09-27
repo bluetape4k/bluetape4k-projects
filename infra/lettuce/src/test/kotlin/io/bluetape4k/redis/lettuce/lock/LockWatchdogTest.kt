@@ -144,7 +144,7 @@ class LockWatchdogTest {
         val reconciled = lock.reconcile(owner, request)
             .shouldBeInstanceOf<LockReconcileResult.Owned<LockHandle>>()
         log.debug { "reconciled=$reconciled" }
-        
+
         reconciled.handle.requestId shouldBeEqualTo request
         harness.runtime.activeWatchdogs shouldBeEqualTo 1
         lock.release(reconciled.handle) shouldBeEqualTo LockMutationResult.Released(0)

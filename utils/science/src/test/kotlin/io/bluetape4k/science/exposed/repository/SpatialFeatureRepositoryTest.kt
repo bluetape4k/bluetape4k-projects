@@ -37,7 +37,7 @@ class SpatialFeatureRepositoryTest: AbstractPostgisTest() {
 
     companion object: KLogging() {
         private const val EPSILON = 1e-5
-        
+
         private const val SRID = 4326
         private val geometryFactory = GeometryFactory()
 

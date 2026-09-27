@@ -5,7 +5,7 @@ configurations {
 dependencies {
     api(bt4k.qdrant.client)
 
-    // Bluetape4k 
+    // Bluetape4k
     api(project(":bluetape4k-core"))
     testImplementation(project(":bluetape4k-junit5"))
 

@@ -13,6 +13,7 @@ import io.bluetape4k.rule.api.Facts
 import io.bluetape4k.rule.exception.InvalidRuleDefinitionException
 import org.junit.jupiter.api.Test
 
+@Suppress("EmptyFunctionBlock", "FunctionOnlyReturningConstant", "UnusedParameter")
 class RuleDefinitionValidatorTest {
 
     companion object: KLogging()

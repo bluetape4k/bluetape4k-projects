@@ -245,7 +245,7 @@ class HazelcastSuspendNearCache<V: Any>(
      */
     override suspend fun clearAll() {
         clearLocal()
-        imap.clear()
+        withContext(Dispatchers.IO) { imap.clear() }
     }
 
     /**

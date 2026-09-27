@@ -57,7 +57,7 @@ interface RuleReader<Source> {
     @Suppress("UNCHECKED_CAST")
     fun createRuleDefinition(map: Map<String, Any?>): RuleDefinition {
         log.debug { "Creating RuleDefinition from map: $map" }
-        
+
         val name = map["name"] as? String ?: DEFAULT_RULE_NAME
 
         val condition = map["condition"] as? String ?: ""
@@ -78,12 +78,14 @@ interface RuleReader<Source> {
     /**
      * Map으로부터 [RuleDefinition] 생성을 시도합니다. 실패 시 null을 반환합니다.
      */
+    @Suppress("TooGenericExceptionCaught")
     fun tryGetRuleDefinition(map: Map<String, Any?>): RuleDefinition? {
         return try {
             createRuleDefinition(map)
         } catch (e: Exception) {
             log.warn(e) {
-                "Fail to convert map to RuleDefinition. ruleName=${map["name"] ?: DEFAULT_RULE_NAME}, fieldCount=${map.size}"
+                "Fail to convert map to RuleDefinition. " +
+                    "ruleName=${map["name"] ?: DEFAULT_RULE_NAME}, fieldCount=${map.size}"
             }
             null
         }

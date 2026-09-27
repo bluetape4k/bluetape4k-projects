@@ -373,7 +373,7 @@ class SuspendDecoratorsTest {
 
             result.isFailure.shouldBeTrue()
             result.exceptionOrNull().shouldBeInstanceOf<IOException>()
-            
+
             coVerify(exactly = retry.retryConfig.maxAttempts) { service.execute(input) }
             confirmVerified(service)
         }
@@ -392,7 +392,7 @@ class SuspendDecoratorsTest {
 
             result.isFailure.shouldBeTrue()
             result.exceptionOrNull().shouldBeInstanceOf<IOException>()
-            
+
             coVerify(exactly = retry.retryConfig.maxAttempts) { service.execute(input) }
             confirmVerified(service)
         }
@@ -487,7 +487,7 @@ class SuspendDecoratorsTest {
 
             result.isFailure.shouldBeTrue()
             result.exceptionOrNull().shouldBeInstanceOf<IOException>()
-            
+
             coVerify(exactly = retry.retryConfig.maxAttempts) { service.bifunction(input1, input2) }
             confirmVerified(service)
         }
@@ -506,7 +506,7 @@ class SuspendDecoratorsTest {
 
             result.isFailure.shouldBeTrue()
             result.exceptionOrNull().shouldBeInstanceOf<IOException>()
-            
+
             coVerify(exactly = retry.retryConfig.maxAttempts) { service.bifunction(input1, input2) }
             confirmVerified(service)
         }

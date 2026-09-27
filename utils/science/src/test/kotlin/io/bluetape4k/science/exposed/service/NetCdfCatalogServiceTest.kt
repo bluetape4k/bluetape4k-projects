@@ -71,6 +71,7 @@ import kotlin.use
  * 모든 NetCDF 파일은 [NetCdfSampleWriter] 로 `@TempDir` 에 동적 생성.
  * 단 #29 는 Unidata 공개 CF-1.x 샘플 회귀 (`@Tag("slow-netcdf")` — nightly only).
  */
+@Suppress("LargeClass")
 class NetCdfCatalogServiceTest: AbstractPostgisTest() {
 
     companion object: KLogging()
@@ -1062,7 +1063,10 @@ class NetCdfCatalogServiceTest: AbstractPostgisTest() {
                             Double.doubleToLongBits(it.longitude) == Double.doubleToLongBits(longitude) &&
                                     Double.doubleToLongBits(it.latitude) == Double.doubleToLongBits(latitude)
                         }
-                            ?: error("Unexpected spatial tuple: time=$timeIdx level=$levelIdx lon=$longitude lat=$latitude")
+                            ?: error(
+                                "Unexpected spatial tuple: " +
+                                    "time=$timeIdx level=$levelIdx lon=$longitude lat=$latitude",
+                            )
                         add(fixtureTuple.copy(timeIdx = timeIdx, levelIdx = levelIdx, value = rs.getDouble(5)))
                     }
                 }.sortedWith(compareBy({ it.timeIdx }, { it.levelIdx }, { it.row }, { it.column }))

@@ -1,3 +1,5 @@
+@file:Suppress("MatchingDeclarationName")
+
 package io.bluetape4k.elasticsearch.coroutines
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient

@@ -545,9 +545,12 @@ private class SpringFakeIdempotencyApplication(
     private fun validateIngress(request: HttpIdempotencyRequest): HttpIdempotencyResponse? {
         if (request.idempotencyKeys.size != 1) return idempotencyResponse(400, "invalid_idempotency_request")
         val key = request.idempotencyKeys.single()
-        if (key.toUtf8Bytes().size > config.maxIdempotencyKeyBytes || key.isEmpty() ||
-            key.any { character -> character.code !in 0x21..0x7e } || canonicalPayloadOrNull(request.requestBody) == null
-        ) return idempotencyResponse(400, "invalid_idempotency_request")
+        val invalidKey = key.toUtf8Bytes().size > config.maxIdempotencyKeyBytes ||
+            key.isEmpty() ||
+            key.any { character -> character.code !in 0x21..0x7e }
+        if (invalidKey || canonicalPayloadOrNull(request.requestBody) == null) {
+            return idempotencyResponse(400, "invalid_idempotency_request")
+        }
         return null
     }
 

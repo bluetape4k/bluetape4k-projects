@@ -44,7 +44,7 @@ private val log by lazy { KotlinLogging.logger {} }
 fun DatabaseClient.GenericExecuteSpec.bindMap(parameters: Map<String, Any?>): DatabaseClient.GenericExecuteSpec =
     parameters.entries.fold(this) { spec, entry ->
         log.debug { "bind map. name=${entry.key}, valueType=${entry.value?.javaClass?.name ?: "null"}" }
-        
+
         when (val value = entry.value) {
             null -> throw rawNullBindingException(entry.key)
             else -> spec.bind(entry.key, value.toParameter())
@@ -90,7 +90,7 @@ fun DatabaseClient.GenericExecuteSpec.bindIndexedMap(parameters: Map<Int, Any?>)
     parameters.entries.fold(this) { spec, entry ->
         val index = entry.key.requireZeroOrPositiveNumber("index")
         log.trace { "bind indexed map. index=$index, valueType=${entry.value?.javaClass?.name ?: "null"}" }
-        
+
         when (val value = entry.value) {
             null -> throw rawNullBindingException("index $index")
             else -> spec.bind(index, value.toParameter())

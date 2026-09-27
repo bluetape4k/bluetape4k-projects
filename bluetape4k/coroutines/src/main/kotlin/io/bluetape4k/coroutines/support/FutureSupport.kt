@@ -101,15 +101,16 @@ suspend fun <T> Iterable<Future<T>>.awaitAllUntil(timeout: kotlin.time.Duration 
  * 원격 실행 취소까지 보장하는 helper는 아니며, 원래의 cancellation 원인은 그대로 다시 던진다.
  */
 suspend fun <T: Any> Future<T>.awaitUntilOrNull(timeout: kotlin.time.Duration = 5.seconds): T? {
-    return try {
+    val result = try {
         withTimeoutOrNull(timeout) { this@awaitUntilOrNull.awaitSuspending() }
-    } catch (cause: TimeoutCancellationException) {
-        cancel(false)
-        throw cause
     } catch (cause: kotlinx.coroutines.CancellationException) {
         cancel(false)
         throw cause
     }
+
+    // withTimeoutOrNull can return without entering the block (for example, for a zero timeout).
+    if (result == null) cancel(false)
+    return result
 }
 
 /**
@@ -123,5 +124,14 @@ suspend fun <T: Any> Future<T>.awaitUntilOrNull(timeout: kotlin.time.Duration = 
  * 테스트 종료 뒤의 pending wait를 줄인다.
  * 원격 실행 취소까지 보장하는 helper는 아니며, 원래의 cancellation 원인은 그대로 다시 던진다.
  */
-suspend fun <T: Any> Iterable<Future<T>>.awaitAllUntilOrNull(timeout: kotlin.time.Duration = 5.seconds): List<T>? =
-    map { it.asCompletableFuture() }.sequence().awaitUntilOrNull(timeout)
+suspend fun <T: Any> Iterable<Future<T>>.awaitAllUntilOrNull(timeout: kotlin.time.Duration = 5.seconds): List<T>? {
+    val futures = toList()
+    return try {
+        val result = futures.map { it.asCompletableFuture() }.sequence().awaitUntilOrNull(timeout)
+        if (result == null) futures.forEach { if (!it.isDone) it.cancel(false) }
+        result
+    } catch (cause: kotlinx.coroutines.CancellationException) {
+        futures.forEach { if (!it.isDone) it.cancel(false) }
+        throw cause
+    }
+}

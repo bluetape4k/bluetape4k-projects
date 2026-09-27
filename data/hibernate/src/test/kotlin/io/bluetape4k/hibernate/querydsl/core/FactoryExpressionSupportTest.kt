@@ -58,5 +58,9 @@ class FactoryExpressionSupportTest {
     data class DummyClass(
         val name: String? = null,
         val id: Long? = null
-    ): Serializable
+    ): Serializable {
+        companion object {
+            private const val serialVersionUID = 1L
+        }
+    }
 }

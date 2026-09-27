@@ -82,7 +82,7 @@ class SuspendCacheImpl<K, V>(override val jcache: Cache<K, V>): SuspendCache<K, 
      * @return cached or loaded value.
      */
     override suspend fun computeIfAbsent(cacheKey: K, loader: suspend () -> V): V {
-        val key = cacheKey.requireNotNull("cacheKey") 
+        val key = cacheKey.requireNotNull("cacheKey")
 
         // 빠른 경로: 이미 캐시된 값이 있으면 Mutex 없이 즉시 반환합니다.
         // hit 메트릭은 getValueFromCache 내부에서 기록됩니다.

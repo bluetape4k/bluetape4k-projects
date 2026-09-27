@@ -6,7 +6,7 @@ import kotlinx.coroutines.future.await
 import java.time.Duration
 
 internal class LettuceFencingLeaseTest: FencingLeaseContract() {
-    
+
     override fun createAdapter(
         connection: StatefulRedisConnection<String, String>,
         config: LettuceFencingLeaseConfig,
@@ -31,7 +31,7 @@ internal class LettuceFencingLeaseTest: FencingLeaseContract() {
 }
 
 internal class LettuceFencingLeaseFutureTest: FencingLeaseContract() {
-    
+
     override fun createAdapter(
         connection: StatefulRedisConnection<String, String>,
         config: LettuceFencingLeaseConfig,

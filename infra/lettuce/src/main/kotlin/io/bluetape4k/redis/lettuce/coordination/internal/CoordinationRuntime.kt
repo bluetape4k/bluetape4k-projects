@@ -467,7 +467,11 @@ internal class CoordinationRuntime(
 
     private fun validateWatchdogCapacity(ttlNanos: Long, renewalNanos: Long) {
         ttlNanos.requireGe(MIN_WATCHDOG_TTL.inWholeNanoseconds, "ttlNanos")
-        renewalNanos.requireInRange(1L, ttlNanos / 3L, "renewalNanos")
+        renewalNanos.requireInRange(
+            MIN_WATCHDOG_RENEWAL_NANOS,
+            ttlNanos / WATCHDOG_RENEWAL_TTL_DIVISOR,
+            "renewalNanos",
+        )
 
         val prospectiveWatchdogs = tasks.values.count { it.kind == TaskKind.WATCHDOG } + 1
         val drainBatches = ceil(prospectiveWatchdogs.toDouble() / limits.maxWatchdogsPerTick).toLong()
@@ -713,6 +717,9 @@ internal class CoordinationRuntime(
     }
 
     companion object: KLogging() {
+        private const val MIN_WATCHDOG_RENEWAL_NANOS = 1L
+        private const val WATCHDOG_RENEWAL_TTL_DIVISOR = 3L
+
         private val FINGERPRINT_PATTERN = Regex("[A-Za-z0-9._-]{1,64}")
         private val MIN_WATCHDOG_TTL = 3.seconds
         private val REQUIRED_REDIS_MARGIN = 1.seconds

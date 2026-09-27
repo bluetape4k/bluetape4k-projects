@@ -95,7 +95,10 @@ class Fastjson2Codec(
             buf.writeBytes(jsonbBytes)
             buf
         } catch (e: Exception) {
-            log.warn(e) { "Encoding failed for Fastjson2Codec. Using fallbackCodec[$fallbackCodec]. Value class=${graph.javaClass}" }
+            log.warn(e) {
+                "Encoding failed for Fastjson2Codec. " +
+                    "Using fallbackCodec[$fallbackCodec]. Value class=${graph.javaClass}"
+            }
             fallbackCodec.valueEncoder.encode(graph)
         }
     }

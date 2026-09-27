@@ -170,7 +170,7 @@ const sourceModels = {
   },
   "spring-boot-hibernate-lettuce-demo-diagram-02": {
     intent: "Redesign the demo runtime flow from source: Product REST requests use Spring Data JPA/Hibernate 2LC; L1 Caffeine, L2 Redis, H2, cache management, and actuator stats have distinct paths.",
-    evidence: ["spring-boot/hibernate-lettuce-demo/README.md", "spring-boot/hibernate-lettuce-demo/src/main/kotlin/io/bluetape4k/examples/cache/lettuce"],
+    evidence: ["examples/hibernate-lettuce-demo/README.md", "examples/hibernate-lettuce-demo/src/main/kotlin/io/bluetape4k/examples/cache/lettuce"],
   },
   "spring-boot-mongodb-diagram-01": {
     intent: "Redesign the class overview so Reactive Mongo operations extensions sit below their receiver, while Criteria/Query/Update DSL helpers stay grouped by responsibility.",
@@ -198,7 +198,7 @@ const sourceModels = {
   },
   "spring-boot-cassandra-demo-diagram-01": {
     intent: "Show the Cassandra demo request path from web entrypoint to coroutine service, repository DSL, CqlSession, and Cassandra cluster.",
-    evidence: ["examples/spring-boot/cassandra-demo/README.md", "examples/spring-boot/cassandra-demo/src/main"],
+    evidence: ["examples/cassandra-demo/README.md", "examples/cassandra-demo/src/test"],
   },
   "examples-spring-boot-observability-spring-boot-demo-architecture-01": {
     intent: "Explain the Spring Boot observability demo request path: controller delegates to OrderEventService, observeSpring wraps the HTTP boundary, EventTelemetry records publish/consume observations, and Actuator/OTLP expose metrics and optional traces.",

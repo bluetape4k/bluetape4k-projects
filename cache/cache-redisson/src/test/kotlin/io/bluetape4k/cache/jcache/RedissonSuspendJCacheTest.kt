@@ -1,5 +1,6 @@
 package io.bluetape4k.cache.jcache
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.cache.RedisServers
 import io.bluetape4k.codec.Base58
@@ -37,6 +38,28 @@ class RedissonSuspendJCacheTest: AbstractSuspendJCacheTest() {
             reopened.get("close-key") shouldBeEqualTo "close-value"
         } finally {
             reopened.clear()
+        }
+    }
+
+    @Test
+    fun `typed lookup surfaces an existing cache type mismatch`() = runSuspendIO {
+        val cacheName = "redis-suspend-cache-type-mismatch-" + Base58.randomString(8)
+        val stringConfiguration = MutableConfiguration<String, String>().apply {
+            setTypes(String::class.java, String::class.java)
+        }
+        val intConfiguration = MutableConfiguration<Int, Int>().apply {
+            setTypes(Int::class.java, Int::class.java)
+        }
+
+        val stringCache = RedissonSuspendJCache(cacheName, RedisServers.redisson, stringConfiguration)
+        try {
+            val error = assertFailsWith<Exception> {
+                RedissonSuspendJCache(cacheName, RedisServers.redisson, intConfiguration)
+            }
+            error::class.java.name shouldBeEqualTo "java.lang.ClassCastException"
+        } finally {
+            stringCache.clear()
+            stringCache.close()
         }
     }
 }

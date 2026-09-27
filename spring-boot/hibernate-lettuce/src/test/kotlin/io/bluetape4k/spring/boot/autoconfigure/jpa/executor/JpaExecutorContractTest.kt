@@ -222,6 +222,10 @@ class ExecutorProbe(
     var id: Long? = null,
     var name: String = "",
 ): Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+
     override fun toString(): String =
         ToStringBuilder(this)
             .add("id", id)

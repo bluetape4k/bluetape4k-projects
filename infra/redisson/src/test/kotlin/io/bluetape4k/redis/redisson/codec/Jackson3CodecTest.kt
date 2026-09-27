@@ -21,9 +21,17 @@ class Jackson3CodecTest: AbstractRedissonTest() {
         private const val REPEAT_SIZE = 5
     }
 
-    data class Sample(val id: Long, val name: String, val tags: List<String>): Serializable
+    data class Sample(val id: Long, val name: String, val tags: List<String>): Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
 
-    data class Nested(val value: Int, val child: Sample): Serializable
+    data class Nested(val value: Int, val child: Sample): Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
 
     private fun newSample(): Sample = Sample(
         faker.random().nextLong(),

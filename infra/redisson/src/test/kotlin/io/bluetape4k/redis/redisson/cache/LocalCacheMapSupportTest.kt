@@ -71,7 +71,7 @@ class LocalCacheMapSupportTest {
 
         opts.codec.shouldNotBeNull()
         opts.codec shouldBe codec
-    }   
+    }
 
     @Test
     fun `LocalCachedMapOptions codec extension - codec 미지정 시 null 반환`() {

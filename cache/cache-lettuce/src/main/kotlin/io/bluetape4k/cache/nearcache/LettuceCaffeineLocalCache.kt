@@ -16,6 +16,8 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats
  * cache.close()
  * ```
  */
+// 이 adapter는 LettuceLocalCache의 모든 연산을 Caffeine 구현에 연결합니다.
+@Suppress("TooManyFunctions")
 class LettuceCaffeineLocalCache<K: Any, V: Any>(
     private val config: LettuceNearCacheConfig<K, V>
 ): LettuceLocalCache<K, V> {

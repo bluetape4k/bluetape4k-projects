@@ -149,6 +149,7 @@ internal fun Span.recordFailure(error: Throwable) {
  * @param block Span을 인자로 받는 실행 블록
  * @return [block]의 실행 결과
  */
+@Suppress("TooGenericExceptionCaught")
 inline fun <T> Tracer.withSpan(
     spanName: String,
     configure: SpanBuilder.() -> Unit = {},

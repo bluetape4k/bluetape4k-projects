@@ -90,9 +90,9 @@ class StructuredConcurrencyTest {
     fun `taskScope - getOrNull은 실패 subtask에 null 반환`() = runSuspendIO {
         val captured = ConcurrentLinkedQueue<StructuredSubtask<Int>>()
 
-        assertFailsWith<RuntimeException> {
+        assertFailsWith<IllegalStateException> {
             taskScope<Int> {
-                captured += fork { throw RuntimeException("실패") }
+                captured += fork { throw IllegalStateException("실패") }
                 fork { 42 }
                 join().throwIfFailed()
                 0

@@ -12,6 +12,7 @@ import io.bluetape4k.hibernate.stateless.createQueryAs
 import io.bluetape4k.hibernate.stateless.createSelectionQueryAs
 import io.bluetape4k.hibernate.stateless.getAs
 import io.bluetape4k.hibernate.stateless.withStateless
+import io.bluetape4k.hibernate.stateless.withStatelss
 import io.bluetape4k.logging.KLogging
 import org.hibernate.LockMode
 import org.junit.jupiter.api.BeforeEach
@@ -39,6 +40,18 @@ class StatelessSessionStandaloneTest: AbstractStandaloneHibernateTest() {
 
         inTransaction {
             countAll<StandaloneEntity>() shouldBeEqualTo 2L
+        }
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun `SessionFactory_withStatelss 오타 alias는 withStateless로 위임한다`() {
+        sessionFactory.withStatelss { ss ->
+            ss.insert(StandaloneEntity("statelss-alias"))
+        }
+
+        inTransaction {
+            countAll<StandaloneEntity>() shouldBeEqualTo 1L
         }
     }
 

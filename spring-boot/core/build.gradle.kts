@@ -22,7 +22,7 @@ dependencies {
     }
     testImplementation("org.springframework.boot:spring-boot-starter-actuator")
 
-    // Bluetape4k 
+    // Bluetape4k
     api(project(":bluetape4k-core"))
     compileOnly(project(":bluetape4k-io"))
 

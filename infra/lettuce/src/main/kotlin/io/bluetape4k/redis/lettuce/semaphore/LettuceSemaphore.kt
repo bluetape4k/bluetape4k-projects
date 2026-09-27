@@ -281,7 +281,10 @@ class LettuceSemaphore(
                         )
                         .thenApply { remaining ->
                             handleReleaseResult(release, remaining)
-                            log.debug { "Semaphore releaseAsync: key=$semaphoreKey, permits=${release.permits}, remaining=$remaining" }
+                            log.debug {
+                                "Semaphore releaseAsync: key=$semaphoreKey, " +
+                                        "permits=${release.permits}, remaining=$remaining"
+                            }
                         }
                 }
         }

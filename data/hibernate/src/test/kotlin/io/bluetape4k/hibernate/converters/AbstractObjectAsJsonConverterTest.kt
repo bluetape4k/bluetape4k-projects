@@ -19,7 +19,11 @@ class AbstractObjectAsJsonConverterTest {
         val street: String,
         val city: String,
         val zip: String
-    ): Serializable
+    ): Serializable {
+        companion object {
+            private const val serialVersionUID = 1L
+        }
+    }
 
     class AddressConverter: AbstractObjectAsJsonConverter<Address>(Address::class.java)
 

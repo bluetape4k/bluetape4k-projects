@@ -53,7 +53,9 @@ jobs:
           set -euo pipefail
 
           compile_tasks=(
+            :bluetape4k-examples-cassandra-demo:compileKotlin
             :bluetape4k-examples-coroutines-demo:compileKotlin
+            :bluetape4k-examples-hibernate-lettuce-demo:compileKotlin
             :bluetape4k-examples-jpa-blazepersistence-demo:compileKotlin
             :bluetape4k-examples-jpa-querydsl-demo:compileKotlin
             :bluetape4k-examples-redisson-demo:compileKotlin
@@ -95,7 +97,9 @@ jobs:
           set -euo pipefail
 
           test_tasks=(
+            :bluetape4k-examples-cassandra-demo:test
             :bluetape4k-examples-coroutines-demo:test
+            :bluetape4k-examples-hibernate-lettuce-demo:test
             :bluetape4k-examples-jpa-blazepersistence-demo:test
             :bluetape4k-examples-jpa-querydsl-demo:test
             :bluetape4k-examples-redisson-demo:test
@@ -116,8 +120,12 @@ jobs:
           fi
 
           report_paths=(
+            --report-path examples/cassandra-demo/build/test-results/test
+            --report-path examples/cassandra-demo/build/reports/tests/test
             --report-path examples/coroutines-demo/build/test-results/test
             --report-path examples/coroutines-demo/build/reports/tests/test
+            --report-path examples/hibernate-lettuce-demo/build/test-results/test
+            --report-path examples/hibernate-lettuce-demo/build/reports/tests/test
             --report-path examples/jpa-blazepersistence-demo/build/test-results/test
             --report-path examples/jpa-blazepersistence-demo/build/reports/tests/test
             --report-path examples/jpa-querydsl-demo/build/test-results/test

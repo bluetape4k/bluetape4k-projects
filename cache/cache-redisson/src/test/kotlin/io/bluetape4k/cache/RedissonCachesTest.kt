@@ -30,7 +30,7 @@ class RedissonCachesTest {
         val cache = RedissonCaches.jcache<String, String>(redisson, name)
 
         cache.use { cache ->
-            cache.shouldBeInstanceOf<JCache<String, String>>() 
+            cache.shouldBeInstanceOf<JCache<String, String>>()
         }
     }
 
@@ -55,7 +55,7 @@ class RedissonCachesTest {
         val cache = RedissonCaches.jcache<String, String>(name, config)
 
         cache.use { cache ->
-            cache.shouldBeInstanceOf<JCache<String, String>>() 
+            cache.shouldBeInstanceOf<JCache<String, String>>()
             cache.put("config-key", "config-value")
         }
     }
@@ -80,7 +80,7 @@ class RedissonCachesTest {
         val name = RedisServers.randomName()
         val cache = RedissonCaches.nearJCache<String, String>(name, redisson)
         cache.use { cache ->
-            cache.shouldBeInstanceOf<NearJCache<String, String>>() 
+            cache.shouldBeInstanceOf<NearJCache<String, String>>()
         }
     }
 
@@ -100,7 +100,7 @@ class RedissonCachesTest {
         val cache = RedissonCaches.nearCache<String>(redisson)
         try {
             cache.shouldBeInstanceOf<NearCacheOperations<String>>()
-            cache.shouldBeInstanceOf<RedissonNearCache<String>>() 
+            cache.shouldBeInstanceOf<RedissonNearCache<String>>()
         } finally {
             cache.close()
         }

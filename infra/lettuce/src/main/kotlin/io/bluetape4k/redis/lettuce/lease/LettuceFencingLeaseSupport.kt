@@ -585,7 +585,7 @@ internal object FencingLeaseScripts {
                 if lease.present then
                   return {'ALREADY_INITIALIZED', '0', '0', '-1'}
                 end
-    
+
                 local counter = readCounter()
                 if counter.failure then
                   return integrityFailure(counter.failure)
@@ -593,7 +593,7 @@ internal object FencingLeaseScripts {
                 if counter.present then
                   return {'ALREADY_INITIALIZED', '0', '0', '-1'}
                 end
-    
+
                 redis.call('SET', counterKey, '0')
                 return {'INITIALIZED', '0', '0', '-1'}
                 """.trimIndent(),
@@ -616,7 +616,7 @@ internal object FencingLeaseScripts {
                   end
                   return {'CONTENDED', '0', '0', formatInteger(lease.ttl)}
                 end
-    
+
                 local counter = readCounter()
                 if counter.failure then
                   return integrityFailure(counter.failure)
@@ -627,7 +627,7 @@ internal object FencingLeaseScripts {
                 if counter.text == MAX_LONG_DECIMAL then
                   return {'SEQUENCE_EXHAUSTED', '0', '0', '-1'}
                 end
-    
+
                 local nextSequence = redis.call('INCR', counterKey)
                 local nextSequenceText = redis.call('GET', counterKey)
                 redis.call('HSET', leaseKey,
@@ -642,7 +642,7 @@ internal object FencingLeaseScripts {
     val INSPECT = RedisScript(
         COMMON_FENCING_PREFLIGHT +
                 """
-    
+
                 local lease = readLease(ARGV[2])
                 if lease.failure then
                   return integrityFailure(lease.failure)
@@ -660,7 +660,7 @@ internal object FencingLeaseScripts {
     val RENEW = RedisScript(
         COMMON_FENCING_PREFLIGHT +
                 """
-    
+
                 if not isValidLeaseTime(ARGV[4]) then
                   return {'INVALID_ARGUMENT', '0', '0', '-1'}
                 end
@@ -674,7 +674,7 @@ internal object FencingLeaseScripts {
                 if lease.owner ~= ARGV[1] or lease.epoch ~= ARGV[2] or lease.sequence ~= ARGV[3] then
                   return {'OWNERSHIP_MISMATCH', '0', '0', '-1'}
                 end
-    
+
                 redis.call('PEXPIRE', leaseKey, ARGV[4])
                 return {'RENEWED', '0', '0', '-1'}
                 """.trimIndent(),
@@ -683,7 +683,7 @@ internal object FencingLeaseScripts {
     val RELEASE = RedisScript(
         COMMON_FENCING_PREFLIGHT +
                 """
-    
+
                 local lease = readLease(ARGV[2])
                 if lease.failure then
                   return integrityFailure(lease.failure)
@@ -694,7 +694,7 @@ internal object FencingLeaseScripts {
                 if lease.owner ~= ARGV[1] or lease.epoch ~= ARGV[2] or lease.sequence ~= ARGV[3] then
                   return {'OWNERSHIP_MISMATCH', '0', '0', '-1'}
                 end
-    
+
                 redis.call('DEL', leaseKey)
                 return {'RELEASED', '0', '0', '-1'}
                 """.trimIndent(),

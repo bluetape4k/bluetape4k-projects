@@ -128,7 +128,7 @@ internal class CoordinationObserver(
     private companion object: KLogging() {
         val NOOP_SINK = CoordinationObservationSink {}
     }
-    
+
     private val emitted = AtomicLong()
     private val dropped = AtomicLong()
 

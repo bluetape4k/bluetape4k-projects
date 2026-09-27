@@ -93,7 +93,7 @@ class TimerExtensionsTest: AbstractMicrometerTest() {
         }
 
         log.debug { timer.describe() }
-        
+
         timer.count() shouldBeEqualTo 1L
         timer.totalTime(TimeUnit.NANOSECONDS) shouldBeGreaterThan 0.0
     }

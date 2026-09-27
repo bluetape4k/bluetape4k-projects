@@ -267,7 +267,7 @@ management:
 ### 단위 테스트
 
 ```bash
-./gradlew :bluetape4k-spring-boot-hibernate-lettuce-demo:test
+./gradlew :bluetape4k-examples-hibernate-lettuce-demo:test
 ```
 
 테스트는 Testcontainers를 사용하여 Redis를 자동으로 관리합니다.

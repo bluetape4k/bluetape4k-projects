@@ -80,7 +80,7 @@ interface CoroutinePersonRepository : CoroutineCrudRepository<Person, String> {
 docker run -d --name cassandra -p 9042:9042 cassandra:4
 
 # 모든 예제 실행
-./gradlew :bluetape4k-spring-boot-cassandra-demo:test
+./gradlew :bluetape4k-examples-cassandra-demo:test
 ```
 
 ## 참고

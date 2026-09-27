@@ -288,7 +288,8 @@ data class NearJCacheConfig<K: Any, V: Any>(
                     requireNotNull(frontCacheConfiguration)
                 },
                 isSynchronous = if (mask and SYNCHRONOUS_MASK != 0) source.isSynchronous else isSynchronous,
-                syncRemoteTimeout = if (mask and REMOTE_TIMEOUT_MASK != 0) source.syncRemoteTimeout else syncRemoteTimeout,
+                syncRemoteTimeout =
+                    if (mask and REMOTE_TIMEOUT_MASK != 0) source.syncRemoteTimeout else syncRemoteTimeout,
             )
         }
 
@@ -322,7 +323,8 @@ data class NearJCacheConfig<K: Any, V: Any>(
                     requireNotNull(frontCacheConfiguration)
                 },
                 isSynchronous = if (mask and SYNCHRONOUS_MASK != 0) source.isSynchronous else isSynchronous,
-                syncRemoteTimeout = if (mask and REMOTE_TIMEOUT_MASK != 0) source.syncRemoteTimeout else syncRemoteTimeout,
+                syncRemoteTimeout =
+                    if (mask and REMOTE_TIMEOUT_MASK != 0) source.syncRemoteTimeout else syncRemoteTimeout,
                 syncRemoteRetryCount = if (mask and REMOTE_RETRY_COUNT_MASK != 0) {
                     source.syncRemoteRetryCount
                 } else {

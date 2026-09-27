@@ -35,7 +35,7 @@ class SynchronizerCancellationTest: AbstractLettuceTest() {
                 .shouldBeInstanceOf<LatchSetCountResult.Created>()
                 .generation
             log.debug { "generation=$generation" }
-            
+
             val waiter = launch {
                 latch.await(generation, LatchRequestId.from("cancelled-waiter"), Duration.ofSeconds(5))
             }

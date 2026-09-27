@@ -113,5 +113,9 @@ class CriteriaSupportUnitTest {
     data class SampleEntity(
         val name: String,
         val age: Int = 0
-    ): Serializable
+    ): Serializable {
+        companion object {
+            private const val serialVersionUID = 1L
+        }
+    }
 }

@@ -184,7 +184,8 @@ internal class LockPerformanceTest {
         measured.commandBudget.cold shouldBeEqualTo COLD_COMMAND_BUDGET
         measured.commandBudget.warm shouldBeEqualTo WARM_COMMAND_BUDGET
         measured.fairCleanup.observedBatch shouldBeEqualTo FAIR_CLEANUP_BATCH
-        measured.spin.observedAttemptsPerSecond shouldBeLessOrEqualTo measured.spin.configuredMaxAttemptsPerSecond.toDouble()
+        measured.spin.observedAttemptsPerSecond shouldBeLessOrEqualTo
+                measured.spin.configuredMaxAttemptsPerSecond.toDouble()
         measured.spin.busyLoopAttempts.shouldBeZero()
         measured.retainedState.final shouldBeEqualTo measured.retainedState.baseline
         assertWithinCaps(measured.retainedState.peak, measured.retainedState.caps)

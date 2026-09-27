@@ -202,7 +202,7 @@ class ChannelExamples {
             }
         }
 
-        // send한 요소가 모두 버퍼링 된다 
+        // send한 요소가 모두 버퍼링 된다
         advanceTimeBy(1000.milliseconds)
         val received = mutableListOf<Int>()
         for (element in channel) {

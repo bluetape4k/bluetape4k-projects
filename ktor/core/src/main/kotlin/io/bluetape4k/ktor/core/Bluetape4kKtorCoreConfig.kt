@@ -27,6 +27,7 @@ data class Bluetape4kKtorCoreConfig(
     }
 
     companion object {
+        private const val serialVersionUID: Long = 1L
         const val DEFAULT_HEALTH_PATH: String = "/healthz"
         const val DEFAULT_READINESS_PATH: String = "/readyz"
     }

@@ -125,7 +125,7 @@ class RedissonVersionedKeysetStore(
 
     private inline fun <T> withLock(action: () -> T): T {
         check(lock.tryLock(5.seconds)) { "Failed to acquire lock for keyring=$keyringName" }
-        
+
         return withObservedCleanup(
             action = { action() },
             cleanup = {

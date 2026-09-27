@@ -3,6 +3,7 @@ package io.bluetape4k.redis.redisson.codec
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.junit5.faker.Fakers
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -108,6 +109,19 @@ class RedissonCodecsTest: AbstractRedissonTest() {
     fun `codec for kotlin data class with fallback codec`(codec: Codec) {
         repeat(REPEAT_SIZE) {
             codec.verifyCodec(newCustomData())
+        }
+    }
+
+    @Test
+    fun `default codec preserves the compatible Fory wire format`() {
+        RedissonCodecs.Default shouldBeSameInstanceAs RedissonCodecs.Fory
+
+        val origin = newCustomData()
+        val encoded = RedissonCodecs.Fory.valueEncoder.encode(origin)
+        try {
+            RedissonCodecs.Default.valueDecoder.decode(encoded, State()) shouldBeEqualTo origin
+        } finally {
+            encoded.release()
         }
     }
 

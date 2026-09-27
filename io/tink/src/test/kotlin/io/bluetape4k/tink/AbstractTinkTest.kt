@@ -4,7 +4,7 @@ import io.bluetape4k.logging.KLogging
 import net.datafaker.Faker
 import java.util.*
 
-abstract class AbstractTinkTest {
+abstract class AbstractTinkTest protected constructor() {
 
     companion object: KLogging() {
 

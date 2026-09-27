@@ -20,8 +20,8 @@ class JdbcDriversTest {
     }
 
     @Test
-    fun `isMySQL - MariaDB 드라이버 클래스명이면 false 반환`() {
-        JdbcDrivers.isMySQL(JdbcDrivers.DRIVER_CLASS_MARIADB).shouldBeFalse()
+    fun `isMySQL - MariaDB 드라이버 클래스명이면 true 반환`() {
+        JdbcDrivers.isMySQL(JdbcDrivers.DRIVER_CLASS_MARIADB).shouldBeTrue()
     }
 
     @Test

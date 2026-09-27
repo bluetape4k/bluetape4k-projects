@@ -198,10 +198,10 @@ Bluetape4k는 기능별로 분리된 멀티 모듈 Gradle 프로젝트입니다.
 - **[core](./spring-boot/core/README.ko.md)**: Spring Boot 기반 공통 기능 — WebFlux + Coroutines, RestClient DSL (
   `suspendGet`, `suspendPost` 등), Jackson 2 커스터마이저, Retrofit2 통합, WebTestClient 테스트 유틸리티
 - **[cassandra](./spring-boot/cassandra/README.ko.md)**: Spring Data Cassandra 코루틴 확장
-- **[cassandra-demo](./spring-boot/cassandra-demo/README.ko.md)**: Cassandra 사용 예제
+- **[cassandra-demo](./examples/cassandra-demo/README.ko.md)**: Cassandra 사용 예제
 - **[data-redis](./spring-boot/redis/README.ko.md)**: Spring Data Redis 고성능 직렬화 — `RedisBinarySerializer`, `RedisCompressSerializer`, `redisSerializationContext {}` DSL
 - **[hibernate-lettuce](./spring-boot/hibernate-lettuce/README.ko.md)**: Hibernate 2nd Level Cache + Lettuce NearCache Spring Boot Auto-Configuration
-- **[hibernate-lettuce-demo](./spring-boot/hibernate-lettuce-demo/README.ko.md)**: Hibernate Lettuce NearCache + Spring MVC 통합 데모
+- **[hibernate-lettuce-demo](./examples/hibernate-lettuce-demo/README.ko.md)**: Hibernate Lettuce NearCache + Spring MVC 통합 데모
 - **[idgenerator-spring-boot-demo](./examples/spring-boot/idgenerator-spring-boot-demo/README.ko.md)**: `bluetape4k-idgenerators` Spring Boot REST 예제
 - **[observability-spring-boot-demo](./examples/spring-boot/observability-spring-boot-demo/README.ko.md)**: Spring Boot 4 Actuator Prometheus와 OTLP observability 예제
 - **[mongodb](./spring-boot/mongodb/README.ko.md)**: Spring Data MongoDB Reactive 코루틴 확장, Criteria/Query/Update infix DSL

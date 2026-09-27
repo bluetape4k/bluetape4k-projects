@@ -35,6 +35,9 @@ abstract class AbstractGrpcInprocessClient(
     constructor(host: String, port: Int): this(buildChannelByAddress(host, port))
 
     companion object: KLogging() {
+        private const val MIN_PORT = 1
+        private const val MAX_PORT = 65535
+
         @JvmStatic
         private fun buildChannelByName(name: String): ManagedChannel {
             name.requireNotBlank("name")
@@ -48,7 +51,7 @@ abstract class AbstractGrpcInprocessClient(
         @JvmStatic
         private fun buildChannelByAddress(host: String, port: Int): ManagedChannel {
             host.requireNotBlank("host")
-            port.requireInRange(1, 65535, "port")
+            port.requireInRange(MIN_PORT, MAX_PORT, "port")
             return InProcessChannelBuilder
                 .forAddress(host, port)
                 .usePlaintext()

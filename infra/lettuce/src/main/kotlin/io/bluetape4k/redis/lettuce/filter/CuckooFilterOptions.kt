@@ -26,13 +26,16 @@ data class CuckooFilterOptions(
     val maxIterations: Int = 500,
 ) {
     companion object {
+        private const val MIN_BUCKET_SIZE = 1
+        private const val MAX_BUCKET_SIZE = 8
+
         @JvmField
         val Default = CuckooFilterOptions()
     }
 
     init {
         capacity.requirePositiveNumber("capacity")
-        bucketSize.requireInRange(1, 8, "bucketSize")
+        bucketSize.requireInRange(MIN_BUCKET_SIZE, MAX_BUCKET_SIZE, "bucketSize")
         maxIterations.requirePositiveNumber("maxIterations")
     }
 }

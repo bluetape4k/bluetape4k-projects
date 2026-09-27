@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package io.bluetape4k.qdrant.client.grpc
 
 import io.bluetape4k.support.requireNotBlank

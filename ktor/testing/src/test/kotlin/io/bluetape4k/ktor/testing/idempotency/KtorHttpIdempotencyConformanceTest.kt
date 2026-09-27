@@ -675,8 +675,8 @@ private class KtorFakeIdempotencyApplication(
         outcome: HttpIdempotencyResponse,
         completeOwner: Boolean
     ): AbandonSelection {
-        val record = records[scope] ?: return AbandonSelection.EMPTY
-        if (record.state != RecordState.InFlight) return AbandonSelection.EMPTY
+        val record = records[scope]?.takeIf { it.state == RecordState.InFlight }
+            ?: return AbandonSelection.EMPTY
         records.remove(scope)
         record.state = RecordState.Abandoned
         ownerSignals.remove(scope)
@@ -712,11 +712,10 @@ private class KtorFakeIdempotencyApplication(
         if (request.idempotencyKeys.size != 1) return idempotencyResponse(400, "invalid_idempotency_request")
         val key = request.idempotencyKeys.single()
 
-        if (key.toByteArray().size > config.maxIdempotencyKeyBytes ||
+        val invalidKey = key.toByteArray().size > config.maxIdempotencyKeyBytes ||
             key.isEmpty() ||
-            key.any { character -> character.code !in 0x21..0x7e } ||
-            canonicalPayloadOrNull(request.requestBody) == null
-        ) {
+            key.any { character -> character.code !in 0x21..0x7e }
+        if (invalidKey || canonicalPayloadOrNull(request.requestBody) == null) {
             return idempotencyResponse(400, "invalid_idempotency_request")
         }
         return null

@@ -355,7 +355,7 @@ class NearJCacheOperationStatisticsTest {
             val write = observed.get(5, TimeUnit.SECONDS)
             write.operation shouldBeEqualTo "put"
             write.operationId shouldBeGreaterThan 0L
-            
+
             assertFailsWith<ExecutionException> {
                 write.completion.toCompletableFuture().get(5, TimeUnit.SECONDS)
             }

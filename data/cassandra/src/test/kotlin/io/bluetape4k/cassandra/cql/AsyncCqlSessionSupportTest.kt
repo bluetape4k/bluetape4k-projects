@@ -68,16 +68,16 @@ class AsyncCqlSessionSupportTest: AbstractCassandraTest() {
         val namedQuery = "SELECT * FROM user WHERE id = :id"
         val statement = SimpleStatement.newInstance("SELECT * FROM user")
 
-        session.executeSuspending(positionalQuery, "WHITE").one().shouldNotBeNull()
-        session.executeSuspending(namedQuery, mapOf("id" to "WHITE")).one().shouldNotBeNull()
-        session.executeSuspending(statement).one().shouldNotBeNull()
+        session.suspendExecute(positionalQuery, "WHITE").one().shouldNotBeNull()
+        session.suspendExecute(namedQuery, mapOf("id" to "WHITE")).one().shouldNotBeNull()
+        session.suspendExecute(statement).one().shouldNotBeNull()
 
         session.execute(positionalQuery, "WHITE").one().shouldNotBeNull()
         session.execute(namedQuery, mapOf("id" to "WHITE")).one().shouldNotBeNull()
         session.execute(statement).one().shouldNotBeNull()
 
-        session.prepareSuspending("SELECT * FROM user")
-        session.prepareSuspending(statement)
+        session.suspendPrepare("SELECT * FROM user")
+        session.suspendPrepare(statement)
         session.prepare("SELECT * FROM user")
         session.prepare(statement)
         session.prepareSuspending(statement)

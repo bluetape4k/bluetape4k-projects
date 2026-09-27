@@ -172,9 +172,9 @@ class CqlSessionProviderTest: AbstractCassandraTest() {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `legacy identity factory delegates to normalized context`() {
-        val identity = cqlSessionIdentityOf("identity_factory", listOf(" b ", "a", ""))
-        log.debug { "identity=${identity}" }
+        val identity = CqlSessionIdentity.of("identity_factory", listOf(" b ", "a", ""))
         identity.keyspace shouldBeEqualTo "identity_factory"
         identity.context shouldBeEqualTo "a|b"
     }

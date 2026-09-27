@@ -343,7 +343,7 @@ class KafkaTemplateTests {
         val template = KafkaTemplate(pf).apply {
             setDefaultTopic(INT_KEY_TOPIC)
         }
-        
+
         val latch = CountDownLatch(1)
         template.setProducerListener(object: ProducerListener<Int, String> {
             override fun onSuccess(producerRecord: ProducerRecord<Int, String>, recordMetadata: RecordMetadata) {

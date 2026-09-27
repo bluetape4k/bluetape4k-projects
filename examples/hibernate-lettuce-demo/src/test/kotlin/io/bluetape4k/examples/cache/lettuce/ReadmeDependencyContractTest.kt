@@ -38,7 +38,7 @@ class ReadmeDependencyContractTest {
         return generateSequence(cwd) { it.parent }
             .flatMap { path ->
                 sequenceOf(
-                    path.resolve("spring-boot/hibernate-lettuce-demo").resolve(filename),
+                    path.resolve("examples/hibernate-lettuce-demo").resolve(filename),
                     path.resolve(filename),
                 )
             }

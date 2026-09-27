@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.core.CqlIdentifier
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.cassandra.AbstractCassandraTest
+import io.bluetape4k.cassandra.cql.boundStatement
 import io.bluetape4k.cassandra.cql.boundStatementOf
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -76,6 +77,7 @@ class SettableSupportIntegrationTest: AbstractCassandraTest() {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun `bound statement helpers preserve existing values`() {
         val prepared = session.prepare(
             "INSERT INTO settable_support (id, tags, roles, attributes) VALUES (?, ?, ?, ?)"
@@ -93,7 +95,7 @@ class SettableSupportIntegrationTest: AbstractCassandraTest() {
         }
         updated.getString(0) shouldBeEqualTo "updated-key"
 
-        val deprecated = boundStatementOf(bound) {
+        val deprecated = boundStatement(bound) {
             setString(0, "deprecated-key")
         }
         deprecated.getString(0) shouldBeEqualTo "deprecated-key"
@@ -104,4 +106,4 @@ class SettableSupportIntegrationTest: AbstractCassandraTest() {
         row.shouldNotBeNull()
         row.getMap<String, Int>("attributes") shouldBeEqualTo expected
     }
-}     
+}

@@ -20,7 +20,7 @@ import java.util.*
 
 class MapSupportTest {
     companion object: KLogging()
-    
+
     @Test
     fun `boolean 값을 조회한다`() {
         val map = mapOf("active" to true, "inactive" to false, "nullable" to null)

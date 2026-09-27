@@ -29,7 +29,11 @@ class JacksonKafkaCodecSecurityTest {
 
     companion object: KLogging()
 
-    private data class TrustedDto(val value: String): Serializable
+    private data class TrustedDto(val value: String): Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
 
     @Test
     fun `untrusted header class is rejected when allowedTypePackages is empty`() {

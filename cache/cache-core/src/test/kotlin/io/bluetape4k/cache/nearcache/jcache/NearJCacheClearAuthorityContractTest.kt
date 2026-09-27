@@ -35,7 +35,7 @@ class NearJCacheClearAuthorityContractTest {
             error.message.orEmpty().contains(operation).shouldBeTrue()
             error.message.orEmpty().contains("DENY").shouldBeTrue()
             error.message.orEmpty().contains(cacheName).shouldBeFalse()
-            
+
             verify(exactly = 0) { frontCache.clear() }
             verify(exactly = 0) { frontCache.removeAll() }
             verify(exactly = 0) { backCache.clear() }

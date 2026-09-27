@@ -152,7 +152,7 @@ class MutinyExtrasTest: AbstractMutinyTest() {
     @Test
     fun `존재하지 않는 id 로 findAs 를 호출하면 null 이 반환된다`() = runSuspendIO {
         val nonExistentId = Long.MIN_VALUE
-        
+
         val result = sf.withSessionSuspending { session ->
             session.findAs<Author>(nonExistentId).awaitSuspending()
         }

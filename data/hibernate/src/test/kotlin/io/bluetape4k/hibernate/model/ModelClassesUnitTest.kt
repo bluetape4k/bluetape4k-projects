@@ -134,6 +134,7 @@ class ModelClassesUnitTest {
 
 // Concrete implementations for testing
 
+@Suppress("EqualsWithHashCodeExist")
 private class ConcreteTreeNode(val name: String): LongJpaTreeEntity<ConcreteTreeNode>() {
     override fun equalProperties(other: Any) = other is ConcreteTreeNode && name == other.name
     override fun hashCode(): Int = name.hashCode()
@@ -147,26 +148,31 @@ private class ConcreteLocalizedEntity: JpaLocalizedEntity<ConcreteLocalizedEntit
     override fun createDefaultLocalizedValue() = Value()
 }
 
+@Suppress("EqualsWithHashCodeExist")
 private class ConcreteUuidEntity(val name: String): UuidJpaEntity() {
     override fun equalProperties(other: Any) = other is ConcreteUuidEntity && name == other.name
     override fun hashCode(): Int = name.hashCode()
 }
 
+@Suppress("EqualsWithHashCodeExist")
 private class ConcretePersistenceObject: AbstractPersistenceObject() {
     override fun equalProperties(other: Any) = other is ConcretePersistenceObject
     override fun hashCode(): Int = 42
 }
 
+@Suppress("EqualsWithHashCodeExist")
 private class ConcreteIntEntity(val name: String): IntJpaEntity() {
     override fun equalProperties(other: Any) = other is ConcreteIntEntity && name == other.name
     override fun hashCode(): Int = name.hashCode()
 }
 
+@Suppress("EqualsWithHashCodeExist")
 private class ConcreteIntTreeNode(val name: String): IntJpaTreeEntity<ConcreteIntTreeNode>() {
     override fun equalProperties(other: Any) = other is ConcreteIntTreeNode && name == other.name
     override fun hashCode(): Int = name.hashCode()
 }
 
+@Suppress("EqualsWithHashCodeExist")
 private class DirectTreeNode(val name: String): AbstractJpaTreeEntity<DirectTreeNode, Long>() {
     override var id: Long? = null
     override fun equalProperties(other: Any) = other is DirectTreeNode && name == other.name

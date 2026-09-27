@@ -284,7 +284,11 @@ class CoordinationRuntimeTest {
         second.connectionClosed()
     }
 
-    private data class EqualConnection(val value: String): Serializable
+    private data class EqualConnection(val value: String): Serializable {
+        companion object {
+            private const val serialVersionUID = 1L
+        }
+    }
 
     private class MutableTicker(private var nowNanos: Long = 0L): MonotonicTicker {
         override fun readNanos(): Long = nowNanos

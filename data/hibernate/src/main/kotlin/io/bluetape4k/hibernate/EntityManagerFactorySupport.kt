@@ -1,3 +1,5 @@
+@file:Suppress("MatchingDeclarationName")
+
 package io.bluetape4k.hibernate
 
 import io.bluetape4k.logging.KLogging

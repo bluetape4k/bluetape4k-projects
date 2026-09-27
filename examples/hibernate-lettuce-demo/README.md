@@ -268,7 +268,7 @@ management:
 ### Unit Tests
 
 ```bash
-./gradlew :bluetape4k-spring-boot-hibernate-lettuce-demo:test
+./gradlew :bluetape4k-examples-hibernate-lettuce-demo:test
 ```
 
 Tests automatically manage Redis using Testcontainers.

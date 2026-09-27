@@ -74,7 +74,7 @@ class SharedFlowExamples {
                     cancelAndConsumeRemainingEvents()
                 }
             }.log("Job3")
-            
+
             delay(100.milliseconds)
 
             // 복수의 collector 들도 모두 같은 데이터를 수신한다.

@@ -2,7 +2,6 @@ package io.bluetape4k.cache.nearcache.jcache
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeBlank
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.lang.reflect.InvocationTargetException
@@ -14,7 +13,6 @@ import javax.cache.configuration.MutableConfiguration
 
 class NearJCacheConfigBinaryCompatibilityTest {
 
-    @Disabled("이제 필요 없다")
     @Test
     fun `pinned precompiled consumers preserve legacy and current linkage`() {
         val legacyJar = resource("nearjcache-config-1.12.1-consumers.jar")
@@ -149,8 +147,11 @@ class NearJCacheConfigBinaryCompatibilityTest {
     }
 
     private fun extractHash(manifest: String, name: String): String {
-        val line = manifest.lineSequence().first { it.contains("\"$name\"") }
-        return line.substringAfter("\"sha256\": \"").substringBefore('"')
+        val entry = Regex(
+            """(?s)\{\s*"name":\s*"${Regex.escape(name)}".*?"sha256":\s*"([^"]+)"""",
+        ).find(manifest)
+            ?: error("Missing manifest hash: $name")
+        return entry.groupValues[1]
     }
 
     private fun extractObjectField(manifest: String, objectName: String, fieldName: String): String {

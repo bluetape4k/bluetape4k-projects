@@ -122,7 +122,7 @@ class ObjectAsByteArrayConverterTest {
 
         val serialized = converter.convertToDatabaseColumn(outer).shouldNotBeNull()
         val deserialized = converter.convertToEntityAttribute(serialized).shouldNotBeNull()
-        
+
         deserialized shouldBeEqualTo outer
     }
 
@@ -133,7 +133,7 @@ class ObjectAsByteArrayConverterTest {
 
         val serialized = converter.convertToDatabaseColumn(obj).shouldNotBeNull()
         val deserialized = converter.convertToEntityAttribute(serialized).shouldNotBeNull()
-        
+
         deserialized shouldBeEqualTo obj
     }
 
@@ -144,7 +144,7 @@ class ObjectAsByteArrayConverterTest {
 
         val serialized = converter.convertToDatabaseColumn(obj).shouldNotBeNull()
         val deserialized = converter.convertToEntityAttribute(serialized).shouldNotBeNull()
-        
+
         deserialized shouldBeEqualTo obj
     }
 

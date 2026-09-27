@@ -3,9 +3,12 @@ package io.bluetape4k.cache.nearcache
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.redis.redisson.codec.RedissonCodecs
+import io.bluetape4k.redis.redisson.options.codec
 import org.junit.jupiter.api.Test
 import org.redisson.api.options.LocalCachedMapOptions
 import java.io.ObjectStreamClass
@@ -88,6 +91,13 @@ class RedissonNearCacheConfigTest {
         config.syncStrategy shouldBeEqualTo LocalCachedMapOptions.SyncStrategy.INVALIDATE
         config.reconnectionStrategy shouldBeEqualTo LocalCachedMapOptions.ReconnectionStrategy.CLEAR
         config.evictionPolicy shouldBeEqualTo LocalCachedMapOptions.EvictionPolicy.LRU
+    }
+
+    @Test
+    fun `near cache options preserve the compatible LZ4 Fory default`() {
+        val options = buildLocalCachedMapOptions<String, String>(RedissonNearCacheConfig(cacheName = "compat"))
+
+        options.codec shouldBeSameInstanceAs RedissonCodecs.LZ4Fory
     }
 
     @Test

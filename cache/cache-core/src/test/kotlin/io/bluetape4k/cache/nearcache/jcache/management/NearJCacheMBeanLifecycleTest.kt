@@ -345,7 +345,7 @@ class NearJCacheMBeanLifecycleTest {
 
         recovery.state shouldBeEqualTo NearJCacheMBeanRegistrationState.CLOSED
         recovery.activeObjectNames.shouldBeEmpty()
-        
+
         verify(exactly = 1) { fixture.front.close() }
     }
 

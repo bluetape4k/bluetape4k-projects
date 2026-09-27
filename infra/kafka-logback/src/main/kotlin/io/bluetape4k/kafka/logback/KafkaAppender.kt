@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * - 전송 실패는 [exportExceptionHandler]를 통해 경고 및 fallback appender로 전달됩니다.
  * - 종료 시 producer flush/close를 시도합니다.
  */
+@Suppress("TooManyFunctions")
 class KafkaAppender<E: Any>: AbstractKafkaAppender<E>() {
     companion object {
         /**

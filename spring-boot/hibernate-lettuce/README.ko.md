@@ -330,7 +330,7 @@ root 스위치는 `metrics.enabled=true` 및 Actuator exposure 설정보다 우�
 
 - [`bluetape4k-cache-lettuce`](../../cache/cache-lettuce/README.ko.md) — Near Cache 코어 구현
 - [`bluetape4k-hibernate-cache-lettuce`](../../cache/hibernate-cache-lettuce/README.ko.md) — Hibernate Region Factory
-- [`bluetape4k-spring-boot-hibernate-lettuce-demo`](../hibernate-lettuce-demo/README.ko.md) — 실제 사용 예제
+- [`bluetape4k-examples-hibernate-lettuce-demo`](../../examples/hibernate-lettuce-demo/README.ko.md) — 실제 사용 예제
 
 ## 마이그레이션 참고
 

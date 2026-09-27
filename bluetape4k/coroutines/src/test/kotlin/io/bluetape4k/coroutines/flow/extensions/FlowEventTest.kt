@@ -73,9 +73,9 @@ class FlowEventTest: AbstractFlowTest() {
     fun `map FlowEvent`() {
         FlowEvent.Value(1).map { it + 1 } shouldBeEqualTo FlowEvent.Value(2)
 
-        assertFailsWith<RuntimeException> {
+        assertFailsWith<IllegalStateException> {
             FlowEvent.Value(1).map {
-                throw RuntimeException("Boom!")
+                throw IllegalStateException("Boom!")
             }
         }.message shouldBeEqualTo "Boom!"
 
@@ -94,9 +94,9 @@ class FlowEventTest: AbstractFlowTest() {
         val ex = RuntimeException("Boom!")
         FlowEvent.Value(1).flatMap { FlowEvent.Error(ex) } shouldBeEqualTo FlowEvent.Error(ex)
 
-        assertFailsWith<RuntimeException> {
+        assertFailsWith<IllegalStateException> {
             FlowEvent.Value(1).flatMap<Int, String> {
-                throw RuntimeException("error")
+                throw IllegalStateException("error")
             }
         }.message shouldBeEqualTo "error"
 

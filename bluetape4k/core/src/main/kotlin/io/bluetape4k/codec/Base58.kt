@@ -21,14 +21,14 @@ object Base58: KLogging() {
 
     private const val ASCII_TABLE_SIZE = 128
 
-    val ALPHABET: CharArray = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray()
+    private val ALPHABET: CharArray = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray()
     private val ENCODED_ZERO: Char = ALPHABET[0]
     private val INDEXES: IntArray = IntArray(ASCII_TABLE_SIZE) { -1 }.apply {
         ALPHABET.forEachIndexed { i, ch ->
             this[ch.code] = i
         }
     }
-    private val RANDOM: SecureRandom = SecureRandom.getInstanceStrong()
+    private val RANDOM: SecureRandom by lazy { SecureRandom.getInstanceStrong() }
 
     /**
      * [length] 크기를 가진 랜덤 문자열을 만듭니다.

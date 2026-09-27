@@ -35,7 +35,7 @@ abstract class AbstractBinarySerializerTest {
         val biography: String,
         val zip: String,
         val address: String,
-        val amount: BigDecimal? = null,  
+        val amount: BigDecimal? = null,
     ): Serializable
 
     @RepeatedTest(REPEAT_SIZE)

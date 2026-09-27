@@ -75,7 +75,7 @@ class StructuredScopeSupportTest {
                     // 작업들이 완료되지 전에 예외가 발생한다면, 예외를 던진다.
                     scope.join().result { IllegalStateException(it) }
                 }
-            }.cause.shouldBeInstanceOf<RuntimeException>() 
+            }.cause.shouldBeInstanceOf<RuntimeException>()
         }
 
         @Test

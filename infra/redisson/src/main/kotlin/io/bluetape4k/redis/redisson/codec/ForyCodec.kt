@@ -63,7 +63,10 @@ class ForyCodec(
             val bytes = fory.serialize(graph)
             Unpooled.wrappedBuffer(bytes)
         } catch (e: Exception) {
-            log.warn(e) { "Encoding: Value is not suitable for ForyCodec. Using fallbackCodec[$fallbackCodec]. Value class=${graph.javaClass}" }
+            log.warn(e) {
+                "Encoding: Value is not suitable for ForyCodec. " +
+                    "Using fallbackCodec[$fallbackCodec]. Value class=${graph.javaClass}"
+            }
             fallbackCodec.valueEncoder.encode(graph)
         }
     }

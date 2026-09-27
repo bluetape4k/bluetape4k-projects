@@ -52,7 +52,7 @@ class RetryerRegressionTest {
         val result = api.get(1)
 
         result shouldBeEqualTo "ok"
-        // retryer maxAttempts = 2 
+        // retryer maxAttempts = 2
         server.requestCount shouldBeEqualTo 2
     }
 }

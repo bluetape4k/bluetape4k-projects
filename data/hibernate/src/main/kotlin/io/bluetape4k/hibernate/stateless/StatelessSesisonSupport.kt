@@ -1,3 +1,5 @@
+@file:Suppress("MatchingDeclarationName")
+
 package io.bluetape4k.hibernate.stateless
 
 import io.bluetape4k.hibernate.sessionFactory
@@ -50,6 +52,18 @@ inline fun <T: Any> SessionFactory.withStateless(block: (StatelessSession) -> T?
             throw e
         }
     }
+
+/**
+ * 오타가 포함된 이전 API 이름.
+ *
+ * 유지보수 호환성을 위해 남겨두며, 새 코드에서는 [withStateless]를 사용하세요.
+ */
+@Deprecated(
+    message = "Use withStateless instead.",
+    replaceWith = ReplaceWith("withStateless(block)")
+)
+inline fun <T: Any> SessionFactory.withStatelss(block: (StatelessSession) -> T?): T? =
+    withStateless(block)
 
 /**
  * [block]을 [StatelessSession] 환경하에서 작업을 수행합니다.

@@ -318,7 +318,8 @@ abstract class AbstractKafkaCodec<T>: KafkaCodec<T> {
                 }
                 throw IllegalArgumentException(
                     "Class '$clazzName' is not in allowedTypePackages=$allowedTypePackages. " +
-                            "Add the package to allowedTypePackages, or set allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE " +
+                            "Add the package to allowedTypePackages, or set " +
+                            "allowedTypePackages = AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE " +
                             "to allow all types (unsafe)."
                 )
             }

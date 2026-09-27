@@ -32,7 +32,11 @@ class AsyncCassandraOperationsCoroutinesUnitTest {
     data class TestEntity(
         val id: String = "id-1",
         val name: String = "Test"
-    ): Serializable
+    ): Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
 
     private val testEntity = TestEntity()
     private val testSlice: Slice<TestEntity> = SliceImpl(listOf(testEntity))

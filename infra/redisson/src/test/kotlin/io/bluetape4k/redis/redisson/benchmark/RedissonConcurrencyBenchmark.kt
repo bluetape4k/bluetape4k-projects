@@ -86,6 +86,7 @@ class RedissonConcurrencyBenchmark {
 
     @Test
     @Order(2)
+    @Suppress("LongMethod")
     fun `measure concurrent throughput`() {
         val passScores = mutableListOf<Long>()
         var lastTotalOps = 0L
@@ -130,7 +131,10 @@ class RedissonConcurrencyBenchmark {
             lastErrorOps = errorOps.get()
             lastElapsedMs = elapsedMs
 
-            log.info { "Pass ${passIdx + 1}/$MEASUREMENT_PASSES: totalOps=$totalOps, errors=${errorOps.get()}, elapsed=${elapsedMs}ms, ops/sec=$opsPerSec" }
+            log.info {
+                "Pass ${passIdx + 1}/$MEASUREMENT_PASSES: totalOps=$totalOps, " +
+                    "errors=${errorOps.get()}, elapsed=${elapsedMs}ms, ops/sec=$opsPerSec"
+            }
         }
 
         // 중앙값(median)을 primary 메트릭으로 사용 — outlier 저항
@@ -166,10 +170,10 @@ class RedissonConcurrencyBenchmark {
         val successCount = AtomicLong(0)
         val failCount = AtomicLong(0)
         val lockKey = "$KEY_PREFIX:leader:${Base58.randomString(6)}"
-        val LOCK_ITERATIONS = 20
+        val lockIterations = 20
 
         val elapsedMs = measureTimeMillis {
-            repeat(LOCK_ITERATIONS) { i ->
+            repeat(lockIterations) { i ->
                 runCatching {
                     val lock = redisson.getLock(lockKey)
                     val acquired = lock.tryLock(500, 2000, TimeUnit.MILLISECONDS)
@@ -192,7 +196,8 @@ class RedissonConcurrencyBenchmark {
 
         val leaderOpsPerSec = if (elapsedMs > 0) successCount.get() * 1000L / elapsedMs else 0L
         log.info {
-            "LeaderElection 벤치마크: success=${successCount.get()}, fail=${failCount.get()}, elapsed=${elapsedMs}ms, ops/sec=$leaderOpsPerSec"
+            "LeaderElection 벤치마크: success=${successCount.get()}, " +
+                "fail=${failCount.get()}, elapsed=${elapsedMs}ms, ops/sec=$leaderOpsPerSec"
         }
 
         appendLeaderResults(

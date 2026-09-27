@@ -3,6 +3,7 @@ package io.bluetape4k.io.serializer
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.bluetape4k.assertions.expectThat
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.assertions.shouldBeSameInstanceAs
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
@@ -52,6 +53,18 @@ class SerializerBufferAbiCompatibilityTest {
 
         serializeTo.isDefault.shouldBeTrue()
         deserializeFrom.isDefault.shouldBeTrue()
+    }
+
+    @Test
+    fun `default serializer preserves the legacy Kryo wire path`() {
+        BinarySerializers.Default shouldBeSameInstanceAs BinarySerializers.Kryo
+
+        val expected = listOf("issue-754", "legacy-kryo-wire")
+        val legacyBytes = BinarySerializers.Kryo.serialize(expected)
+
+        BinarySerializers.Default.deserialize<List<String>>(legacyBytes) shouldBeEqualTo expected
+        val currentBytes = BinarySerializers.Default.serialize(expected)
+        BinarySerializers.Kryo.deserialize<List<String>>(currentBytes) shouldBeEqualTo expected
     }
 
     @Test

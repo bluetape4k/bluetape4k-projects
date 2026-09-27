@@ -110,7 +110,7 @@ class FlowBuilderExamples {
                         counter2.incrementAndGet()
                     }
             }.log("job2")
-            
+
             // https://github.com/cashapp/turbine/
             // turbine 을 이용하여 assertions 를 수행할 수 있습니다.
             // flow 는 cold stream 이므로 반복적으로 collect 할 수 있습니다.

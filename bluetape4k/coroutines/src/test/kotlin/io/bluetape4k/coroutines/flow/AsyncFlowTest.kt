@@ -148,7 +148,7 @@ class AsyncFlowTest {
             expectedItems
                 .asFlow().log("Fail")
                 .async { it }
-                .collect(capacity = -3) 
+                .collect(capacity = -3)
         }
     }
 

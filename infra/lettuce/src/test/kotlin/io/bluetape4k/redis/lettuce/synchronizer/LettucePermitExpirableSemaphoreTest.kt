@@ -165,7 +165,7 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
                     SemaphoreRequestId.from("suspend-request"),
                 ).shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>().handle
             log.debug { "suspendHandle=$suspendHandle" }
-            
+
             suspending.inspect(suspendHandle)
                 .shouldBeInstanceOf<PermitInspectResult.Owned<ExpirablePermitHandle>>()
 
@@ -252,7 +252,7 @@ class LettucePermitExpirableSemaphoreTest: AbstractLettuceTest() {
                 .shouldBeInstanceOf<PermitAcquireResult.Acquired<ExpirablePermitHandle>>()
                 .handle
             log.debug { "replay=$replay" }
-            
+
             replay shouldBeEqualTo first
             semaphore.availablePermits() shouldBeEqualTo 1
 

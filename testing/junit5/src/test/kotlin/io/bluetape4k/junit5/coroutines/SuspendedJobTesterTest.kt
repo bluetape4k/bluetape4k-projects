@@ -21,7 +21,7 @@ class SuspendedJobTesterTest {
 
     @Test
     fun `항상 예외를 발생시키는 코드블럭은 실패한다`() = runTest {
-        val block: suspend () -> Unit = { throw RuntimeException("BAM!") }
+        val block: suspend () -> Unit = { throw IllegalStateException("BAM!") }
 
         assertFails {
             SuspendedJobTester()

@@ -3,7 +3,6 @@ package io.bluetape4k.cache.nearcache
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeNull
-import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.mockk.clearMocks
@@ -149,13 +148,7 @@ class ResilientSuspendNearCacheDecoratorTest {
             )
         )
 
-        var propagated = false
-        try {
-            cache.get("key1")
-        } catch (e: CancellationException) {
-            propagated = true
-        }
-        propagated.shouldBeTrue()
+        assertFailsWith<CancellationException> { cache.get("key1") }
     }
 
     /**
@@ -174,13 +167,7 @@ class ResilientSuspendNearCacheDecoratorTest {
             )
         )
 
-        var propagated = false
-        try {
-            cache.getAll(setOf("k1", "k2"))
-        } catch (e: CancellationException) {
-            propagated = true
-        }
-        propagated.shouldBeTrue()
+        assertFailsWith<CancellationException> { cache.getAll(setOf("k1", "k2")) }
     }
 
     /**

@@ -16,6 +16,9 @@ fun interface BloomHasher<in T: Any> {
     fun bytes(element: T): ByteArray
 }
 
+private const val BYTE_SHIFT = 8
+private const val BYTE_MASK = 0xFFL
+
 /**
  * 기본 Bloom Filter hash 입력 변환기입니다.
  *
@@ -42,25 +45,13 @@ object DefaultBloomHasher: BloomHasher<Any> {
         return out.toByteArray()
     }
 
-    private fun Int.toBytes(): ByteArray =
-        byteArrayOf(
-            (this ushr 24).toByte(),
-            (this ushr 16).toByte(),
-            (this ushr 8).toByte(),
-            this.toByte(),
-        )
+    private fun Int.toBytes(): ByteArray = ByteArray(Int.SIZE_BYTES) { index ->
+        (this ushr ((Int.SIZE_BYTES - index - 1) * BYTE_SHIFT)).toByte()
+    }
 
-    private fun Long.toBytes(): ByteArray =
-        byteArrayOf(
-            (this ushr 56).toByte(),
-            (this ushr 48).toByte(),
-            (this ushr 40).toByte(),
-            (this ushr 32).toByte(),
-            (this ushr 24).toByte(),
-            (this ushr 16).toByte(),
-            (this ushr 8).toByte(),
-            this.toByte(),
-        )
+    private fun Long.toBytes(): ByteArray = ByteArray(Long.SIZE_BYTES) { index ->
+        (this ushr ((Long.SIZE_BYTES - index - 1) * BYTE_SHIFT)).toByte()
+    }
 }
 
 internal object BloomHashSupport {
@@ -81,14 +72,9 @@ internal object BloomHashSupport {
     }
 
     private fun ByteArray.longAt(offset: Int): Long =
-        ((this[offset].toLong() and 0xFFL) shl 56) or
-                ((this[offset + 1].toLong() and 0xFFL) shl 48) or
-                ((this[offset + 2].toLong() and 0xFFL) shl 40) or
-                ((this[offset + 3].toLong() and 0xFFL) shl 32) or
-                ((this[offset + 4].toLong() and 0xFFL) shl 24) or
-                ((this[offset + 5].toLong() and 0xFFL) shl 16) or
-                ((this[offset + 6].toLong() and 0xFFL) shl 8) or
-                (this[offset + 7].toLong() and 0xFFL)
+        (offset until offset + Long.SIZE_BYTES).fold(0L) { result, index ->
+            (result shl BYTE_SHIFT) or (this[index].toLong() and BYTE_MASK)
+        }
 
     private fun Long.floorMod(modulus: Long): Long {
         val result = this % modulus

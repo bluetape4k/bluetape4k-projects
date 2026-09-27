@@ -330,7 +330,7 @@ Integration tests automatically manage Redis + H2 via Testcontainers.
 
 - [`bluetape4k-cache-lettuce`](../../cache/cache-lettuce/README.md) — Near Cache core implementation
 - [`bluetape4k-hibernate-cache-lettuce`](../../cache/hibernate-cache-lettuce/README.md) — Hibernate Region Factory
-- [`bluetape4k-spring-boot-hibernate-lettuce-demo`](../hibernate-lettuce-demo/README.md) — Usage example
+- [`bluetape4k-examples-hibernate-lettuce-demo`](../../examples/hibernate-lettuce-demo/README.md) — Usage example
 
 ## Migration Note
 

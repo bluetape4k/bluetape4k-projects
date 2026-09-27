@@ -161,7 +161,9 @@ class FencingLeaseResultTest {
                                 property.name.contains("token", ignoreCase = true) ||
                                 property.name.contains("raw", ignoreCase = true) ||
                                 property.name.contains("message", ignoreCase = true) ||
-                                Throwable::class.java.isAssignableFrom(property.returnType.classifier.let { it as? KClass<*> }?.java)
+                                Throwable::class.java.isAssignableFrom(
+                                    property.returnType.classifier.let { it as? KClass<*> }?.java,
+                                )
                         )
             }
 
@@ -180,7 +182,9 @@ class FencingLeaseResultTest {
                                 property.name.contains("raw", ignoreCase = true) ||
                                 property.name.contains("reply", ignoreCase = true) ||
                                 property.name.contains("message", ignoreCase = true) ||
-                                Throwable::class.java.isAssignableFrom(property.returnType.classifier.let { it as? KClass<*> }?.java)
+                                Throwable::class.java.isAssignableFrom(
+                                    property.returnType.classifier.let { it as? KClass<*> }?.java,
+                                )
                         )
             }
 

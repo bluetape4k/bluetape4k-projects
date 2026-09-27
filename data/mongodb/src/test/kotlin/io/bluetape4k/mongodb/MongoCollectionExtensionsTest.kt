@@ -171,7 +171,7 @@ class MongoCollectionExtensionsTest: AbstractMongoTest() {
         ).toList()
 
         docs.forEach { log.debug { "doc=$it" } }
-        
+
         // Seoul: Alice(25), Charlie(35), Eve(22) — 내림차순: Charlie(35), Alice(25), Eve(22)
         docs shouldHaveSize 3
         docs.first().getInteger("age") shouldBeEqualTo 35

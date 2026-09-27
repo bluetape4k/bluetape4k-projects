@@ -107,6 +107,11 @@ class Base58Test {
     }
 
     @Test
+    fun `Base58 알파벳은 공개 mutable 상태로 노출하지 않는다`() {
+        Base58::class.java.methods.any { it.name == "getALPHABET" } shouldBeEqualTo false
+    }
+
+    @Test
     fun `멀티 스레드 환경에서 Base58 인코딩, 디코딩하기`() {
         MultithreadingTester()
             .workers(Runtimex.availableProcessors * 2)

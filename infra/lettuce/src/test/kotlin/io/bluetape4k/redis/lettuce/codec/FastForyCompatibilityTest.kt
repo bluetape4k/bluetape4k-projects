@@ -59,6 +59,15 @@ class FastForyCompatibilityTest {
         decoded shouldBeEqualTo testData
     }
 
+    @Test
+    fun `기본 codec은 이전 Fory 저장 포맷을 유지한다`() {
+        val defaultCodec = LettuceBinaryCodecs.default<Any>()
+        val previousCodec = LettuceBinaryCodecs.lz4Fory<Any>()
+        val encoded = defaultCodec.encodeValue(testData)
+
+        previousCodec.decodeValue(encoded) shouldBeEqualTo testData
+    }
+
     /**
      * Task 13 - 테스트 2 (방향 A 실패 고정): fory encode → fastFory decode 역직렬화 오류 검증.
      *

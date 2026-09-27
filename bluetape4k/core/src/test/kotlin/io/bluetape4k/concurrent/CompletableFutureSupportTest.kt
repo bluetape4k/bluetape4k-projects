@@ -199,9 +199,9 @@ class CompletableFutureSupportTest {
     fun `join with defaultValue propagates non-timeout exceptions`() {
         // H2 수정 검증: TimeoutException 이외의 예외는 rethrow
         val future = failedCompletableFutureOf<Int>(IllegalStateException("비즈니스 오류"))
-        assertFailsWith<ExecutionException> {
+        assertFailsWith<IllegalStateException> {
             future.join(500.milliseconds, 0)
-        }.cause.shouldBeInstanceOf<IllegalStateException>()
+        }.message shouldBeEqualTo "비즈니스 오류"
     }
 
     @Test

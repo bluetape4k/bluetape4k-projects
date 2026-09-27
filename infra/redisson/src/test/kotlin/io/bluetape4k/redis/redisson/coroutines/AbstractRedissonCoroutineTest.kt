@@ -18,6 +18,6 @@ abstract class AbstractRedissonCoroutineTest: AbstractRedissonTest() {
         log.error(exception) {
             "CoroutineExceptionHandler get $exception with suppressed ${exception.suppressed.contentToString()} "
         }
-        throw RuntimeException("Fail to execute in coroutine", exception)
+        throw IllegalStateException("Fail to execute in coroutine", exception)
     }
 }

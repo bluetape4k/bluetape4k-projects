@@ -18,11 +18,15 @@ import org.awaitility.kotlin.until
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class TimeoutSupportTest: AbstractCoreTest() {
 
@@ -195,6 +199,44 @@ class TimeoutSupportTest: AbstractCoreTest() {
                 @Suppress("UNREACHABLE_CODE")
                 "result"
             }
+        }
+    }
+
+    @Test
+    fun `retryWithTimeoutOrNull은 제한 횟수만큼 시도하고 모두 timeout되면 null을 반환한다`() {
+        val attempts = AtomicInteger()
+        val startedActions = CountDownLatch(2)
+        val finishedActions = CountDownLatch(2)
+
+        val result = retryWithTimeoutOrNull(maxRetries = 2, timeout = 100.milliseconds) {
+            attempts.incrementAndGet()
+            startedActions.countDown()
+            try {
+                Thread.sleep(300)
+            } finally {
+                finishedActions.countDown()
+            }
+            "late"
+        }
+
+        result.shouldBeNull()
+        attempts.get() shouldBeEqualTo 2
+        startedActions.await(1, TimeUnit.SECONDS).shouldBeTrue()
+        finishedActions.await(1, TimeUnit.SECONDS).shouldBeTrue()
+    }
+
+    @Test
+    fun `retryWithTimeoutOrNull은 첫 성공 결과를 반환하고 양수 시도 횟수를 요구한다`() {
+        val attempts = AtomicInteger()
+
+        retryWithTimeoutOrNull(maxRetries = 3, timeout = 1.seconds) {
+            attempts.incrementAndGet()
+            "result"
+        } shouldBeEqualTo "result"
+        attempts.get() shouldBeEqualTo 1
+
+        assertFailsWith<IllegalArgumentException> {
+            retryWithTimeoutOrNull(maxRetries = 0, timeout = 1.seconds) { "unreachable" }
         }
     }
 }

@@ -245,7 +245,7 @@ class HttpOperationObservabilityConformanceTest {
         )
 
     private companion object: KLogging() {
-        
+
         fun Map<String, String>.withStatusCode(statusCode: Int?): Map<String, String> =
             if (statusCode == null) {
                 this - "http.response.status_code"

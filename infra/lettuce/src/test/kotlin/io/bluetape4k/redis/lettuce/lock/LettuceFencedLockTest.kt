@@ -217,7 +217,7 @@ internal class LettuceFencedLockTest {
                     REQUEST_2,
                     LEASE
                 ).shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
-                
+
                 explicit.fencingToken shouldBeGreaterThan holder.fencingToken
             }
         }
@@ -321,7 +321,7 @@ internal class ClusterLettuceFencedLockTest {
                                 CLUSTER_REQUEST,
                                 CLUSTER_LEASE
                             ).shouldBeInstanceOf<LockAcquireResult.Acquired<FencedLockHandle>>().handle
-                        
+
                         handle.lock.kind shouldBeEqualTo LockKind.FENCED
                         blocking.release(handle) shouldBeEqualTo LockMutationResult.Released(0)
                     }

@@ -32,7 +32,11 @@ class VersionedItem: Serializable {
     var version: Long = 0
 
     override fun equals(other: Any?): Boolean =
-        other is VersionedItem && id == other.id && name == other.name && price == other.price && version == other.version
+        other is VersionedItem &&
+            id == other.id &&
+            name == other.name &&
+            price == other.price &&
+            version == other.version
 
     override fun hashCode(): Int =
         id?.hashCode() ?: hashOf(name, price, version)

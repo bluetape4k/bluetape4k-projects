@@ -4,6 +4,7 @@ import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.warn
 import io.bluetape4k.support.requireNotBlank
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.asDeferred
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.withContext
 import org.redisson.api.RedissonClient
 import org.redisson.config.Config
 import org.redisson.jcache.JCache
@@ -64,7 +66,8 @@ class RedissonSuspendJCache<K: Any, V: Any>(private val cache: JCache<K, V>): Su
             val manager = jcacheManager<JCachingProvider>()
             val redissonCfg = RedissonConfiguration.fromInstance(redisson, configuration)
 
-            val jcache = manager.getOrCreate(cacheName, redissonCfg) as JCache<K, V>
+            val jcache = (manager.getCache(cacheName, configuration.keyType, configuration.valueType)
+                ?: manager.createCache(cacheName, redissonCfg)) as JCache<K, V>
             return RedissonSuspendJCache(jcache)
         }
 
@@ -92,7 +95,8 @@ class RedissonSuspendJCache<K: Any, V: Any>(private val cache: JCache<K, V>): Su
             cacheName.requireNotBlank("cacheName")
             val manager = jcacheManager<JCachingProvider>()
             val redissonCfg = RedissonConfiguration.fromConfig(config, configuration)
-            val jcache = manager.getOrCreate(cacheName, redissonCfg) as JCache<K, V>
+            val jcache = (manager.getCache(cacheName, K::class.java, V::class.java)
+                ?: manager.createCache(cacheName, redissonCfg)) as JCache<K, V>
             return RedissonSuspendJCache(jcache)
         }
     }
@@ -106,14 +110,17 @@ class RedissonSuspendJCache<K: Any, V: Any>(private val cache: JCache<K, V>): Su
         cache.clearAsync().await()
     }
 
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun close() {
-        try {
-            cache.close()
-        } catch (e: CancellationException) {
-            // suspend close 경로에서는 취소 신호를 일반 close 실패처럼 삼키지 않는다.
-            throw e
-        } catch (e: Exception) {
-            log.warn(e) { "RedissonSuspendJCache close failed." }
+        withContext(Dispatchers.IO) {
+            try {
+                cache.close()
+            } catch (e: CancellationException) {
+                // suspend close 경로에서는 취소 신호를 일반 close 실패처럼 삼키지 않는다.
+                throw e
+            } catch (e: Exception) {
+                log.warn(e) { "RedissonSuspendJCache close failed." }
+            }
         }
     }
 
@@ -185,7 +192,7 @@ class RedissonSuspendJCache<K: Any, V: Any>(private val cache: JCache<K, V>): Su
     }
 
     override suspend fun removeAll() {
-        cache.removeAll()
+        withContext(Dispatchers.IO) { cache.removeAll() }
     }
 
     override suspend fun removeAll(keys: Set<K>) {

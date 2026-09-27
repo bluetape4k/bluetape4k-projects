@@ -348,16 +348,19 @@ internal class LettuceClosedLockCoverageTest {
                 .shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to LockRecoveryAction.INSPECT_HANDLE,
 
             blocking.reconcile(OWNER_1, REQUEST_1)
-                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to LockRecoveryAction.RECONCILE_REQUEST,
+                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
+                .failure to LockRecoveryAction.RECONCILE_REQUEST,
 
             blocking.reconcileAsync(OWNER_1, REQUEST_1).await()
-                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to LockRecoveryAction.RECONCILE_REQUEST,
+                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
+                .failure to LockRecoveryAction.RECONCILE_REQUEST,
 
             blocking.renew(handle, EXTENSION).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
                     LockRecoveryAction.RETRY_SAME_HANDLE,
 
             blocking.renewAsync(handle, EXTENSION).await()
-                .shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to LockRecoveryAction.RETRY_SAME_HANDLE,
+                .shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+                .failure to LockRecoveryAction.RETRY_SAME_HANDLE,
 
             blocking.release(handle).shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to
                     LockRecoveryAction.RETRY_SAME_HANDLE,
@@ -382,13 +385,16 @@ internal class LettuceClosedLockCoverageTest {
                 .shouldBeInstanceOf<LockInspectResult.BackendFailure>().failure to LockRecoveryAction.INSPECT_HANDLE,
 
             suspending.reconcile(OWNER_2, REQUEST_2)
-                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>().failure to LockRecoveryAction.RECONCILE_REQUEST,
+                .shouldBeInstanceOf<LockReconcileResult.BackendFailure>()
+                .failure to LockRecoveryAction.RECONCILE_REQUEST,
 
             suspending.renew(handle, EXTENSION)
-                .shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to LockRecoveryAction.RETRY_SAME_HANDLE,
+                .shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+                .failure to LockRecoveryAction.RETRY_SAME_HANDLE,
 
             suspending.release(handle)
-                .shouldBeInstanceOf<LockMutationResult.BackendFailure>().failure to LockRecoveryAction.RETRY_SAME_HANDLE,
+                .shouldBeInstanceOf<LockMutationResult.BackendFailure>()
+                .failure to LockRecoveryAction.RETRY_SAME_HANDLE,
         )
     }
 

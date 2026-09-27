@@ -27,7 +27,7 @@ abstract class DisabledTestReportTask : DefaultTask() {
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    val sourceFiles: ConfigurableFileCollection = project.objects.fileCollection()
+    abstract val sourceFiles: ConfigurableFileCollection
 
     @get:OutputFile
     abstract val reportFile: RegularFileProperty

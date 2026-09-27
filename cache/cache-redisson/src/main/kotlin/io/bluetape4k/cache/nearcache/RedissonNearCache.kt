@@ -28,7 +28,7 @@ import org.redisson.client.codec.Codec
 class RedissonNearCache<V: Any>(
     private val redisson: RedissonClient,
     private val config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
-    private val codec: Codec = RedissonCodecs.Default,
+    private val codec: Codec = RedissonCodecs.LZ4Fory,
 ): NearCacheOperations<V> {
 
     companion object: KLogging()
@@ -197,7 +197,7 @@ class RedissonNearCache<V: Any>(
  */
 internal fun <K, V> buildLocalCachedMapOptions(
     config: RedissonNearCacheConfig,
-    codec: Codec = RedissonCodecs.Default,
+    codec: Codec = RedissonCodecs.LZ4Fory,
 ): LocalCachedMapOptions<K, V> {
     val opts = LocalCachedMapOptions
         .name<K, V>(config.cacheName)
@@ -231,5 +231,5 @@ internal fun <K, V> buildLocalCachedMapOptions(
 fun <V: Any> redissonNearCacheOf(
     redisson: RedissonClient,
     config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
-    codec: Codec = RedissonCodecs.Default,
+    codec: Codec = RedissonCodecs.LZ4Fory,
 ): NearCacheOperations<V> = RedissonNearCache(redisson, config, codec)

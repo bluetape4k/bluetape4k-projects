@@ -73,7 +73,11 @@ class SerializerEdgeCaseTest {
         val localDateTime: LocalDateTime,
     ): Serializable
 
-    data class ConcurrentItem(val id: Int, val name: String): Serializable
+    data class ConcurrentItem(val id: Int, val name: String): Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
 
     @ParameterizedTest(name = "null 직렬화는 emptyByteArray 를 반환한다: {0}")
     @MethodSource("allSerializers")
@@ -232,7 +236,10 @@ class SerializerEdgeCaseTest {
 
     @Test
     fun `KryoBinarySerializer 보안 모드는 미등록 클래스 직렬화 시 예외를 던진다`() {
+        @Suppress("SerialVersionUIDInSerializableClass")
         data class Registered(val value: String): Serializable
+
+        @Suppress("SerialVersionUIDInSerializableClass")
         data class Unregistered(val value: String): Serializable
 
         val secureSerializer = KryoBinarySerializer.secure(Registered::class.java)

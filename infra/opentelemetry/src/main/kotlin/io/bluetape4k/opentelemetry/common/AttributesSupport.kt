@@ -178,7 +178,7 @@ fun Map<*, *>.toAttributes(): Attributes = attributes {
 
 private fun AttributesBuilder.putAttribute(attributeKey: String, value: Any?) {
     attributeKey.requireNotBlank("attributeKey")
-    
+
     when (value) {
         null            -> put(attributeKey, "null")
         is String       -> put(attributeKey, value)

@@ -307,7 +307,10 @@ class SelectorsTest: AbstractFlowTest() {
                     it.unreadCount
                 },
                 projector = { searchTerm, items, title, subtitle, unreadCount ->
-                    log.debug { "projector. searchTerm=$searchTerm, items=$items, title=$title, subtitle=$subtitle, unreadCount=$unreadCount" }
+                    log.debug {
+                        "projector. searchTerm=$searchTerm, items=$items, " +
+                                "title=$title, subtitle=$subtitle, unreadCount=$unreadCount"
+                    }
                     projectorCount++
                     items
                         .filter { it.contains(searchTerm.orEmpty()) }

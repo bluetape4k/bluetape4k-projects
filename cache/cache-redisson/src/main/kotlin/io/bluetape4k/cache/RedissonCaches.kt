@@ -331,7 +331,7 @@ object RedissonCaches: KLogging() {
     fun <V: Any> nearCache(
         redisson: RedissonClient,
         config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
-        codec: Codec = RedissonCodecs.Default,
+        codec: Codec = RedissonCodecs.LZ4Fory,
     ): NearCacheOperations<V> = RedissonNearCache(redisson, config, codec)
 
     /**
@@ -353,6 +353,6 @@ object RedissonCaches: KLogging() {
     fun <V: Any> suspendNearCache(
         redisson: RedissonClient,
         config: RedissonNearCacheConfig = RedissonNearCacheConfig(),
-        codec: Codec = RedissonCodecs.Default,
+        codec: Codec = RedissonCodecs.LZ4Fory,
     ): SuspendNearCacheOperations<V> = RedissonSuspendNearCache(redisson, config, codec)
 }

@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions", "MatchingDeclarationName")
+
 package io.bluetape4k.jackson
 
 import com.fasterxml.jackson.core.JsonParser

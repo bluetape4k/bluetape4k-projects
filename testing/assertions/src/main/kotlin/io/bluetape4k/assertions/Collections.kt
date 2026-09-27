@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package io.bluetape4k.assertions
 
 import io.bluetape4k.assertions.internal.Failures
@@ -55,7 +57,8 @@ infix fun <T> Iterable<T>?.shouldContain(expected: T): Iterable<T> {
 infix fun Iterable<String>?.shouldNotContainIgnoringCase(expected: String): Iterable<String>? {
     if (this != null && this.any { it.equals(expected, ignoreCase = true) }) {
         Failures.fail(
-            "Expected ${Messages.stringify(this)} not to contain (ignoring case) ${Messages.stringify(expected)}, but it did."
+            "Expected ${Messages.stringify(this)} not to contain (ignoring case) " +
+                "${Messages.stringify(expected)}, but it did."
         )
     }
     return this

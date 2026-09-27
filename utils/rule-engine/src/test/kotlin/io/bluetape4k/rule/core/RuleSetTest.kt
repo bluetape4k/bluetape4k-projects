@@ -12,6 +12,7 @@ import io.bluetape4k.rule.api.RuleSet
 import io.bluetape4k.rule.api.ruleSetOf
 import org.junit.jupiter.api.Test
 
+@Suppress("EmptyFunctionBlock", "FunctionOnlyReturningConstant")
 class RuleSetTest {
 
     companion object: KLogging()

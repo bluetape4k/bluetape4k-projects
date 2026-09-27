@@ -22,7 +22,11 @@ class ReactiveSelectOperationSupportTest {
     data class TestEntity(
         val id: String = "test-id",
         val name: String = "Test"
-    ): Serializable
+    ): Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 1L
+        }
+    }
 
     private val testEntity = TestEntity()
 

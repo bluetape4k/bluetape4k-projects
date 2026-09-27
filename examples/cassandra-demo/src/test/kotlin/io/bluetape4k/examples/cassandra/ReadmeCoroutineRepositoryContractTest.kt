@@ -53,7 +53,7 @@ class ReadmeCoroutineRepositoryContractTest {
         return generateSequence(cwd) { it.parent }
             .flatMap { path ->
                 sequenceOf(
-                    path.resolve("spring-boot/cassandra-demo").resolve(filename),
+                    path.resolve("examples/cassandra-demo").resolve(filename),
                     path.resolve(filename),
                 )
             }

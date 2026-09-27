@@ -32,7 +32,11 @@ class JacksonJsonFunctionExamples: AbstractCassandraTest() {
     data class User(
         val name: String? = null,
         val age: Int? = null,
-    ): Serializable
+    ): Serializable {
+        companion object {
+            private const val serialVersionUID = 1L
+        }
+    }
 
     private val mapper = Jackson.defaultJsonMapper
 

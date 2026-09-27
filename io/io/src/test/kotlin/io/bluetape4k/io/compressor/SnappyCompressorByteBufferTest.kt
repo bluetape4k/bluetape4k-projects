@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class SnappyCompressorByteBufferTest {
 
     companion object: KLogging()
-    
+
     private val compressor = SnappyCompressor()
 
     @Test

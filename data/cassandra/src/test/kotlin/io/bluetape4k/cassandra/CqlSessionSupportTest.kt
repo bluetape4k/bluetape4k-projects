@@ -22,7 +22,7 @@ class CqlSessionSupportTest: AbstractCassandraTest() {
             withLocalDatacenter(CqlSessionProvider.DEFAULT_LOCAL_DATACENTER)
         }
         log.debug { "cqlSession=${cqlSession.name}" }
-        
+
         try {
             cqlSession.shouldNotBeNull()
             cqlSession.isClosed.shouldBeFalse()
@@ -39,7 +39,7 @@ class CqlSessionSupportTest: AbstractCassandraTest() {
             keyspaceName = DEFAULT_KEYSPACE,
         )
         log.debug { "cqlSession=${cqlSession.name}" }
-        
+
         try {
             cqlSession.shouldNotBeNull()
             cqlSession.isClosed.shouldBeFalse()

@@ -4,13 +4,16 @@ import com.hazelcast.cache.ICache
 import com.hazelcast.core.HazelcastInstance
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.support.requireNotBlank
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.future.asDeferred
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.withContext
 import javax.cache.configuration.CacheEntryListenerConfiguration
 import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableConfiguration
@@ -93,53 +96,52 @@ class HazelcastSuspendJCache<K: Any, V: Any>(private val cache: JCache<K, V>): S
     private val asyncCache: ICache<K, V>? =
         runCatching { cache.unwrap(ICache::class.java) as? ICache<K, V> }.getOrNull()
 
-    override fun entries(): Flow<SuspendJCacheEntry<K, V>> =
-        cache
-            .asSequence()
-            .map { SuspendJCacheEntry(it.key, it.value) }
-            .asFlow()
+    override fun entries(): Flow<SuspendJCacheEntry<K, V>> = flow {
+        cache.asSequence().forEach {
+            emit(SuspendJCacheEntry(it.key, it.value))
+        }
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun clear() {
-        cache.clear()
+        withContext(Dispatchers.IO) { cache.clear() }
     }
 
     override suspend fun close() {
-        cache.close()
+        withContext(Dispatchers.IO) { cache.close() }
     }
 
     override fun isClosed(): Boolean = cache.isClosed
 
     override suspend fun containsKey(key: K): Boolean =
-        cache.containsKey(key)
+        withContext(Dispatchers.IO) { cache.containsKey(key) }
 
     override suspend fun get(key: K): V? =
-        asyncCache?.getAsync(key)?.await() ?: cache.get(key)
+        asyncCache?.getAsync(key)?.await() ?: withContext(Dispatchers.IO) { cache.get(key) }
 
     override fun getAll(): Flow<SuspendJCacheEntry<K, V>> = entries()
 
-    override fun getAll(keys: Set<K>): Flow<SuspendJCacheEntry<K, V>> {
-        return cache.getAll(keys)
-            .map { (k, v) -> SuspendJCacheEntry(k, v) }
-            .asFlow()
-    }
+    override fun getAll(keys: Set<K>): Flow<SuspendJCacheEntry<K, V>> = flow {
+        withContext(Dispatchers.IO) { cache.getAll(keys) }
+            .forEach { (k, v) -> emit(SuspendJCacheEntry(k, v)) }
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun getAndPut(key: K, value: V): V? =
         get(key).also { put(key, value) }
 
     override suspend fun getAndRemove(key: K): V? =
         asyncCache?.getAndRemoveAsync(key)?.await()
-            ?: cache.getAndRemove(key)
+            ?: withContext(Dispatchers.IO) { cache.getAndRemove(key) }
 
     override suspend fun getAndReplace(key: K, value: V): V? =
         asyncCache?.getAndReplaceAsync(key, value)?.await()
-            ?: cache.getAndReplace(key, value)
+            ?: withContext(Dispatchers.IO) { cache.getAndReplace(key, value) }
 
     override suspend fun put(key: K, value: V) {
-        asyncCache?.putAsync(key, value)?.await() ?: cache.put(key, value)
+        asyncCache?.putAsync(key, value)?.await() ?: withContext(Dispatchers.IO) { cache.put(key, value) }
     }
 
     override suspend fun putAll(map: Map<K, V>) {
-        cache.putAll(map)
+        withContext(Dispatchers.IO) { cache.putAll(map) }
     }
 
     override suspend fun putAllFlow(entries: Flow<Pair<K, V>>) {
@@ -156,31 +158,31 @@ class HazelcastSuspendJCache<K: Any, V: Any>(private val cache: JCache<K, V>): S
 
     override suspend fun putIfAbsent(key: K, value: V): Boolean =
         asyncCache?.putIfAbsentAsync(key, value)?.await()
-            ?: cache.putIfAbsent(key, value)
+            ?: withContext(Dispatchers.IO) { cache.putIfAbsent(key, value) }
 
     override suspend fun remove(key: K): Boolean =
         asyncCache?.removeAsync(key)?.await()
-            ?: cache.remove(key)
+            ?: withContext(Dispatchers.IO) { cache.remove(key) }
 
     override suspend fun remove(key: K, oldValue: V): Boolean =
         asyncCache?.removeAsync(key, oldValue)?.await()
-            ?: cache.remove(key, oldValue)
+            ?: withContext(Dispatchers.IO) { cache.remove(key, oldValue) }
 
     override suspend fun removeAll() {
-        cache.removeAll()
+        withContext(Dispatchers.IO) { cache.removeAll() }
     }
 
     override suspend fun removeAll(keys: Set<K>) {
-        cache.removeAll(keys)
+        withContext(Dispatchers.IO) { cache.removeAll(keys) }
     }
 
     override suspend fun replace(key: K, oldValue: V, newValue: V): Boolean =
         asyncCache?.replaceAsync(key, oldValue, newValue)?.await()
-            ?: cache.replace(key, oldValue, newValue)
+            ?: withContext(Dispatchers.IO) { cache.replace(key, oldValue, newValue) }
 
     override suspend fun replace(key: K, value: V): Boolean =
         asyncCache?.replaceAsync(key, value)?.await()
-            ?: cache.replace(key, value)
+            ?: withContext(Dispatchers.IO) { cache.replace(key, value) }
 
     override fun registerCacheEntryListener(configuration: CacheEntryListenerConfiguration<K, V>) {
         cache.registerCacheEntryListener(configuration)

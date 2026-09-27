@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Future
 import java.util.concurrent.FutureTask
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.random.Random
@@ -103,5 +104,27 @@ class FutureSupportTest {
         job.join()
 
         task.isCancelled shouldBeEqualTo true
+    }
+
+    @Test
+    fun `awaitUntilOrNull 시간 제한이 0이면 Future를 취소한다`() = runSuspendDefault {
+        val task = FutureTask { "never" }
+        val result = task.awaitUntilOrNull(0.milliseconds)
+
+        result shouldBeEqualTo null
+        task.isCancelled shouldBeEqualTo true
+    }
+
+    @Test
+    fun `awaitAllUntilOrNull 시간 제한이 0이면 미완료 Future들을 취소한다`() = runSuspendDefault {
+        val task = FutureTask { "never" }
+        val completion = CompletableFuture<String>()
+        val futures = listOf<Future<String>>(task, completion)
+
+        val result = futures.awaitAllUntilOrNull(0.milliseconds)
+
+        result shouldBeEqualTo null
+        task.isCancelled shouldBeEqualTo true
+        completion.isCancelled shouldBeEqualTo true
     }
 }
