@@ -34,9 +34,11 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 class FlociS3Test: AbstractFlociServiceTest() {
 
     companion object: KLogging() {
-        private val BUCKET_NAME = "foo-${Base58.randomString(8)}"
+        private val BUCKET_NAME = bucketName(Base58.randomString(8))
         private const val KEY_NAME = "bar"
         private const val CONTENT = "baz"
+
+        private fun bucketName(suffix: String): String = "foo-${suffix.lowercase()}"
     }
 
     private val s3Client: S3Client by lazy {
@@ -53,6 +55,12 @@ class FlociS3Test: AbstractFlociServiceTest() {
     @Order(1)
     fun `run s3 server by FlociServer`() {
         floci.isRunning.shouldBeTrue()
+    }
+
+    @Test
+    @Order(5)
+    fun `bucket name lowercases the random suffix`() {
+        bucketName("AaBb1234") shouldBeEqualTo "foo-aabb1234"
     }
 
     @Test

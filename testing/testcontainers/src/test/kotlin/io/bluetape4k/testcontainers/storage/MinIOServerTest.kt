@@ -23,6 +23,9 @@ class MinIOServerTest: AbstractContainerTest() {
 
     @Test
     fun `MinIOServer remains available for explicit MinIO compatibility tests`() {
+        MinIOServer.IMAGE shouldBeEqualTo "docker.io/pgsty/silo"
+        MinIOServer.TAG shouldBeEqualTo "RELEASE.2026-09-16T00-00-00Z"
+        MinIOServer()
         MinIOServer::class.findAnnotation<Deprecated>().shouldBeNull()
     }
 
