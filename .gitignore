@@ -1,6 +1,9 @@
 # Compiled class file
 *.class
 
+# Python bytecode caches
+__pycache__/
+
 # Git Worktrees
 .worktrees/
 .bluetape/
