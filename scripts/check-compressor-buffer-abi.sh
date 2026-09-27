@@ -171,6 +171,22 @@ compile_kotlin() {
     "$@"
 }
 
+current_javac() {
+  if [[ -n "${JAVA_HOME:-}" && -x "$JAVA_HOME/bin/javac" ]]; then
+    "$JAVA_HOME/bin/javac" "$@"
+  else
+    javac "$@"
+  fi
+}
+
+current_javap() {
+  if [[ -n "${JAVA_HOME:-}" && -x "$JAVA_HOME/bin/javap" ]]; then
+    "$JAVA_HOME/bin/javap" "$@"
+  else
+    javap "$@"
+  fi
+}
+
 verify_fixture_manifest() {
   local fixture="$FIXTURE_ROOT/pre-change/legacy-compressor-fixtures.jar"
   local manifest="$FIXTURE_ROOT/pre-change/manifest.json"
@@ -301,7 +317,7 @@ normalized_ambiguity() {
   local output="$2"
   rm -rf "$CLASSES/ambiguous"
   mkdir -p "$CLASSES/ambiguous"
-  if LC_ALL=C javac --release 21 -cp "$jar" -d "$CLASSES/ambiguous" \
+  if LC_ALL=C current_javac --release 21 -cp "$jar" -d "$CLASSES/ambiguous" \
     "$FIXTURE_ROOT/src/java/AmbiguousNullCaller.java" >"$output" 2>&1; then
     fail "AmbiguousNullCaller.java unexpectedly compiled against $jar"
   fi
@@ -322,7 +338,7 @@ verify_ambiguous_null() {
 
 verify_jvm_defaults() {
   local report="$AUTH_DIR/current-compressor.javap.txt"
-  javap -classpath "$CURRENT_JAR" -p -s io.bluetape4k.io.compressor.Compressor >"$report"
+  current_javap -classpath "$CURRENT_JAR" -p -s io.bluetape4k.io.compressor.Compressor >"$report"
   python3 - "$report" <<'PY'
 import pathlib
 import re
@@ -347,7 +363,7 @@ compile_and_run_new_callers() {
   runtime_classpath="$(gradle_value "$ROOT" issue755PrintMainRuntimeClasspath)"
   rm -rf "$CLASSES/current"
   mkdir -p "$CLASSES/current/java" "$CLASSES/current/kotlin"
-  javac --release 21 \
+  current_javac --release 21 \
     -cp "$CURRENT_JAR:$fixture" \
     -d "$CLASSES/current/java" \
     "$FIXTURE_ROOT/src/java/NewCompressorBufferCaller.java"
