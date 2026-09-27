@@ -140,6 +140,18 @@ verify_base_jar() {
   cp "$built" "$BASE_JAR"
 }
 
+write_normalized_classfile_report() {
+  local classfile="$1"
+  local report="$2"
+  javap -v -p "$classfile" |
+    awk '
+      /^Classfile / || /^  Last modified / || /^  SHA-256 checksum / || /^  size [0-9]+ bytes$/ { next }
+      /^      LineNumberTable:$/ { skip_line_numbers = 1; next }
+      skip_line_numbers && /^        line [0-9]+: [0-9]+$/ { next }
+      { skip_line_numbers = 0; print }
+    ' >"$report"
+}
+
 compile_kotlin() {
   local worktree="$1"
   local destination="$2"
@@ -224,6 +236,9 @@ verify_compiled_fixture_provenance() {
   local fixture="$FIXTURE_ROOT/pre-change/legacy-compressor-fixtures.jar"
   local generated_entries="$AUTH_DIR/generated-fixture-entries.txt"
   local frozen_entries="$AUTH_DIR/frozen-fixture-entries.txt"
+  local frozen_classes="$AUTH_DIR/frozen-classfiles"
+  local normalized_generated="$AUTH_DIR/normalized-generated"
+  local normalized_frozen="$AUTH_DIR/normalized-frozen"
   {
     find "$CLASSES/legacy/java" -type f -print | sed "s#^$CLASSES/legacy/java/##"
     find "$CLASSES/legacy/kotlin" -type f -print | sed "s#^$CLASSES/legacy/kotlin/##"
@@ -241,10 +256,25 @@ verify_compiled_fixture_provenance() {
     else
       generated="$CLASSES/legacy/kotlin/$entry"
     fi
-    unzip -p "$fixture" "$entry" | cmp -s "$generated" - ||
-      fail "regenerated fixture bytecode differs from frozen jar entry: $entry"
+    if [[ "$entry" == *.class ]]; then
+      local frozen_class="$frozen_classes/$entry"
+      local generated_report="$normalized_generated/$entry.javap"
+      local frozen_report="$normalized_frozen/$entry.javap"
+      mkdir -p "$(dirname "$frozen_class")" "$(dirname "$generated_report")" "$(dirname "$frozen_report")"
+      unzip -p "$fixture" "$entry" >"$frozen_class"
+
+      # Source line edits can change LineNumberTable and classfile hashes
+      # without changing the compiled API or executable instructions.
+      write_normalized_classfile_report "$generated" "$generated_report"
+      write_normalized_classfile_report "$frozen_class" "$frozen_report"
+      cmp -s "$generated_report" "$frozen_report" ||
+        fail "regenerated fixture API or executable bytecode differs from frozen jar entry: $entry"
+    else
+      unzip -p "$fixture" "$entry" | cmp -s "$generated" - ||
+        fail "regenerated Kotlin module metadata differs from frozen jar entry: $entry"
+    fi
   done <"$generated_entries"
-  echo "FIXTURE SOURCE-CLASSFILE PROVENANCE PASS"
+  echo "FIXTURE SEMANTIC-CLASSFILE PROVENANCE PASS"
 }
 
 build_current_jar() {
