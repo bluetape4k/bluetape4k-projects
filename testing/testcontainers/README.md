@@ -205,7 +205,7 @@ for the image-selection contract.
 | Storage        | `Ignite3Server`          | `apacheignite/ignite`                               | `3.1.0`                                                                      |
 | Storage        | `InfluxDBServer`         | `influxdb`                                          | `2.9.1`                                                                      |
 | Storage        | `QdrantServer`           | `qdrant/qdrant`                                     | `v1.19.0`                                                                    |
-| Storage        | `MinIOServer`            | `minio/minio`                                       | `RELEASE.2025-07-23T15-54-02Z` (compatibility fixture)                       |
+| Storage        | `MinIOServer`            | `docker.io/pgsty/silo`                             | `RELEASE.2026-09-16T00-00-00Z` (MinIO-compatible fixture)                    |
 | Storage        | `MongoDBServer`          | `mongo`                                             | `8.0.28`                                                                     |
 | Storage        | `OpenSearchServer`       | `opensearchproject/opensearch`                      | `3.8.0`                                                                      |
 | Storage        | `RedisClusterServer`     | `tommy351/redis-cluster`                            | `6.2` (compatibility fixture)                                                |
@@ -216,7 +216,7 @@ Compatibility exceptions are intentional: `MySQL5Server` keeps the ARM-capable
 `ChromaDBServer` remains on its last stable non-development tag, `ZipkinServer`
 stays on `2.23` because newer images fail its current contract, `PulsarServer`
 and `RabbitMQServer` remain on the newest wrapper-compatible major versions,
-`MinIOServer` and `RedisClusterServer` remain explicit compatibility fixtures, and `PostgreSQLAgeServer` stays on the latest stable PG18 image rather than the
+`MinIOServer` uses PGSTY Silo, a maintained MinIO fork, because MinIO Community Edition no longer publishes container images. It verifies Testcontainers startup and common S3 behavior, not MinIO-vendor-specific behavior. `RedisClusterServer` remains an explicit compatibility fixture, and `PostgreSQLAgeServer` stays on the latest stable PG18 image rather than the
 `1.8.0-rc0` release candidate. `LocalStackServer` is deprecated; new AWS tests should use `FlociServer` or `MiniStackServer`.
 
 ## Image Family Startup and Workload Gate

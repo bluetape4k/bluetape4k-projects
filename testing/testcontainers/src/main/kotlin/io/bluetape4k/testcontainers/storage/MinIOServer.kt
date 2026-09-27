@@ -11,14 +11,14 @@ import org.testcontainers.containers.MinIOContainer
 import org.testcontainers.utility.DockerImageName
 
 /**
- * Testcontainers wrapper for running a [MinIO](https://min.io) server.
+ * Testcontainers wrapper for running a MinIO-compatible Silo server.
  *
  * Keep this server for explicit MinIO compatibility tests. For new AWS or
  * S3-compatible emulator tests, prefer
  * [FlociServer][io.bluetape4k.testcontainers.aws.FlociServer] or
  * [MiniStackServer][io.bluetape4k.testcontainers.aws.MiniStackServer].
  *
- * Reference: [MinIO Docker image](https://hub.docker.com/r/minio/minio/tags)
+ * Reference: [PGSTY Silo](https://github.com/pgsty/silo), a community-maintained MinIO fork.
  *
  * @param imageName Docker image name.
  * @param useDefaultPort Whether to bind MinIO ports directly.
@@ -33,8 +33,8 @@ class MinIOServer private constructor(
 ): MinIOContainer(imageName), GenericServer, PropertyExportingServer {
 
     companion object: KLogging() {
-        const val IMAGE = "minio/minio"
-        const val TAG = "RELEASE.2025-07-23T15-54-02Z"
+        const val IMAGE = "docker.io/pgsty/silo"
+        const val TAG = "RELEASE.2026-09-16T00-00-00Z"
         const val NAME = "minio"
         const val S3_PORT = 9000
         const val UI_PORT = 9001
@@ -46,7 +46,7 @@ class MinIOServer private constructor(
          * 이미지 이름/태그로 [MinIOServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val server = MinIOServer(image = "minio/minio", tag = MinIOServer.TAG)
+         * val server = MinIOServer(image = "docker.io/pgsty/silo", tag = MinIOServer.TAG)
          * // server.url.startsWith("http://") == true (시작 후)
          * ```
          *
@@ -68,7 +68,9 @@ class MinIOServer private constructor(
         ): MinIOServer {
             image.requireNotBlank("image")
             tag.requireNotBlank("tag")
-            val imageName = DockerImageName.parse(image).withTag(tag)
+            val imageName = DockerImageName.parse(image)
+                .withTag(tag)
+                .asCompatibleSubstituteFor("minio/minio")
             return invoke(imageName, useDefaultPort, reuse, username, password)
         }
 
@@ -76,7 +78,9 @@ class MinIOServer private constructor(
          * [DockerImageName]으로 [MinIOServer] 인스턴스를 생성합니다.
          *
          * ```kotlin
-         * val image = DockerImageName.parse("minio/minio").withTag(MinIOServer.TAG)
+         * val image = DockerImageName.parse("docker.io/pgsty/silo")
+         *     .withTag(MinIOServer.TAG)
+         *     .asCompatibleSubstituteFor("minio/minio")
          * val server = MinIOServer(image)
          * // server.isRunning == false
          * ```

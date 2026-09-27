@@ -210,7 +210,7 @@ Ignite2Server(image = "custom/ignite", tag = "2.18.0-custom").use { ignite2 ->
 | Storage        | `Ignite3Server`          | `apacheignite/ignite`                               | `3.1.0`                                                                        |
 | Storage        | `InfluxDBServer`         | `influxdb`                                          | `2.9.1`                                                                        |
 | Storage        | `QdrantServer`           | `qdrant/qdrant`                                     | `v1.19.0`                                                                      |
-| Storage        | `MinIOServer`            | `minio/minio`                                       | `RELEASE.2025-07-23T15-54-02Z` (호환성 fixture)                                |
+| Storage        | `MinIOServer`            | `docker.io/pgsty/silo`                             | `RELEASE.2026-09-16T00-00-00Z` (MinIO 호환 fixture)                            |
 | Storage        | `MongoDBServer`          | `mongo`                                             | `8.0.28`                                                                       |
 | Storage        | `OpenSearchServer`       | `opensearchproject/opensearch`                      | `3.8.0`                                                                        |
 | Storage        | `RedisClusterServer`     | `tommy351/redis-cluster`                            | `6.2` (호환성 fixture)                                                         |
@@ -220,7 +220,10 @@ Ignite2Server(image = "custom/ignite", tag = "2.18.0-custom").use { ignite2 ->
 `biarms/mysql:5` 별칭을 사용하고, `ElasticsearchOssServer`는 legacy OSS 이미지에 고정합니다. `ChromaDBServer`는 개발 버전이 아닌 마지막 안정 태그를 사용하며,
 `ZipkinServer`는 최신 이미지에서 현재 계약이 실패하므로 `2.23`을 유지합니다.
 `PulsarServer`와 `RabbitMQServer`는 wrapper와 호환되는 major 버전을 유지하고,
-`MinIOServer`와 `RedisClusterServer`는 명시적 호환성 fixture로 남깁니다.
+`MinIOServer`는 MinIO Community Edition이 컨테이너 이미지 배포를 중단해,
+유지보수되는 MinIO fork인 PGSTY Silo를 사용합니다. Testcontainers 시작과
+일반적인 S3 동작을 확인하며, MinIO 고유 동작까지 검증하지는 않습니다.
+`RedisClusterServer`는 명시적 호환성 fixture로 남깁니다.
 `LocalStackServer`는 deprecated이므로 새 AWS 테스트에는 `FlociServer` 또는
 `MiniStackServer`를 사용하세요.
 
