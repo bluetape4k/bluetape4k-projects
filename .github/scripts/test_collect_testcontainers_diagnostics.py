@@ -663,6 +663,45 @@ IllegalStateException: exception-secret
         self.assertTrue(manifest["report_truncated"])
         self.assertEqual(len(manifest["sanitized_reports"]), 1)
 
+    def test_examples_workflow_collects_more_than_600_reports(self):
+        workflow_text = (REPO_ROOT / ".github" / "workflows" / "examples.yml").read_text(
+            encoding="utf-8"
+        )
+        cap_lines = [
+            line.strip()
+            for line in workflow_text.splitlines()
+            if line.strip().startswith("--max-report-files ")
+        ]
+        self.assertEqual(len(cap_lines), 1)
+        report_limit = int(cap_lines[0].split()[1])
+
+        reports = self.root / "examples" / "coroutines-demo" / "build" / "test-results" / "test"
+        reports.mkdir(parents=True)
+        for index in range(601):
+            (reports / f"TEST-{index:04}.xml").write_text("<testsuite/>", encoding="utf-8")
+        output_dir = self.root / "examples" / "build" / "testcontainers-diagnostics" / "workflow-cap"
+        destination = self.root / "examples" / "build" / "sanitized-test-reports"
+
+        result, stderr = self.run_main(
+            "--task-name",
+            "workflow-cap-task",
+            "--output-dir",
+            output_dir,
+            "--workflow-file",
+            self.workflow,
+            "--sanitized-report-dir",
+            destination,
+            "--report-path",
+            reports,
+            "--max-report-files",
+            str(report_limit),
+        )
+
+        manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(result, 0, stderr)
+        self.assertFalse(manifest["report_truncated"])
+        self.assertEqual(len(manifest["sanitized_reports"]), 601)
+
     def test_report_byte_cap_is_fail_closed(self):
         reports = self.root / "examples" / "coroutines-demo" / "build" / "test-results" / "test"
         reports.mkdir(parents=True)
