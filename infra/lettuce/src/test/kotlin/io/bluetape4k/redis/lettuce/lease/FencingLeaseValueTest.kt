@@ -9,7 +9,6 @@ import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.io.lookup
-import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -20,10 +19,6 @@ import java.io.ObjectStreamClass
 import java.io.Serializable
 
 class FencingLeaseValueTest {
-
-    private companion object: KLogging() {
-        val BASE58_ALPHABET = Base58.ALPHABET.contentToString()
-    }
 
     @Test
     fun `config accepts safe ordering domain values`() {
@@ -88,8 +83,8 @@ class FencingLeaseValueTest {
 
         first.value.length shouldBeEqualTo 22
         second.value.length shouldBeEqualTo 22
-        first.value.all { character -> character in BASE58_ALPHABET }.shouldBeTrue()
-        second.value.all { character -> character in BASE58_ALPHABET }.shouldBeTrue()
+        (Base58.decode(first.value).size >= 16).shouldBeTrue()
+        (Base58.decode(second.value).size >= 16).shouldBeTrue()
         first shouldNotBeEqualTo second
     }
 
