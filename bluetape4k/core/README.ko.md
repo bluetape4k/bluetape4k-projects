@@ -45,6 +45,45 @@ dependencies {
 }
 ```
 
+## CompletableFuture와 Executor timeout
+
+`CompletableFuture`는 예외를 던지는 `get`/`join`, 기본값 반환, nullable 반환 형태를 제공합니다. timeout은 future를 취소하지 않습니다. `get`은 `ExecutionException`을 유지하고 `join` 확장 함수는 원인을 unwrap합니다. `get(duration, defaultValue)`는 대기 timeout에만 기본값을 쓰지만, `join(duration, defaultValue)`는 완료 결과가 `null`인 경우에도 기본값을 사용합니다. nullable 형태는 실제 결과가 `null`인 경우와 대기 timeout을 모두 `null`로 반환하므로 결과만으로 둘을 구분할 수 없습니다.
+
+`ExecutorService.invokeAll` 및 `invokeAny` 확장 함수는 작업 람다를 받고 JDK 반환 타입인 `List<Future<T>>`와 `T`를 각각 반환합니다. 각 람다를 `Callable`로 바꾸는 O(n) 변환이 timed JDK 호출 전에 실행되므로 timeout은 확장 함수 전체 호출의 엄격한 wall-clock 상한이 아닙니다. JDK 취소는 요청이며 interrupt에 협력하지 않는 작업은 계속 실행될 수 있습니다. executor 소유자가 종료 처리를 담당해야 합니다.
+
+```kotlin
+import io.bluetape4k.concurrent.invokeAll
+import io.bluetape4k.concurrent.invokeAny
+import io.bluetape4k.concurrent.get
+import io.bluetape4k.concurrent.getOrNull
+import io.bluetape4k.concurrent.join
+import io.bluetape4k.concurrent.joinOrNull
+import io.bluetape4k.concurrent.awaitTermination
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+
+val executor = Executors.newFixedThreadPool(2)
+try {
+    val results: List<Int> = executor.invokeAll(listOf({ 1 }, { 2 }), 5.seconds).map { it.get() }
+    val first: Int = executor.invokeAny(listOf({ 42 }), 5.seconds)
+
+    val completed = CompletableFuture.completedFuture(42)
+    val value = completed.get(5.seconds)
+    val joined = completed.join(5.seconds)
+
+    val pending = CompletableFuture<Int>()
+    val fallback = pending.get(100.milliseconds, -1)
+    val nullable = pending.getOrNull(100.milliseconds)
+    val joinFallback = pending.join(100.milliseconds, -1)
+    val joinNullable = pending.joinOrNull(100.milliseconds)
+} finally {
+    executor.shutdown()
+    executor.awaitTermination(5.seconds)
+}
+```
+
 ## 주요 기능 상세
 
 ### 1. Validation (RequireSupport)

@@ -3,9 +3,12 @@ package io.bluetape4k.coroutines
 import io.bluetape4k.assertions.shouldBe
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBe
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.junit5.coroutines.runSuspendDefault
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.withSingleThread
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -13,16 +16,36 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.async
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Delay
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.DisposableHandle
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
+import kotlin.coroutines.CoroutineContext
 import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.random.Random
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.nanoseconds
 
 class SuspendLazyTest {
 
@@ -170,5 +193,176 @@ class SuspendLazyTest {
         callCounter.get() shouldBeEqualTo 1
         val initializedOn = initializerThread.get().shouldNotBeNull()
         callerThreads.any { it === initializedOn }.shouldBeFalse()
+    }
+
+    @Test
+    fun `interface defaults support implementations that only implement invoke`() = runTest {
+        val lazyValue = object: SuspendLazy<Int> {
+            override suspend fun invoke(): Int = TEST_NUMBER
+        }
+
+        lazyValue.getUntil(1.seconds) shouldBeEqualTo TEST_NUMBER
+        lazyValue.getUntilOrNull(1.seconds) shouldBeEqualTo TEST_NUMBER
+    }
+
+    @Test
+    fun `timeout waiter does not cancel the lazy initializer`() = runTest {
+        val lazyValue = suspendLazy {
+            delay(1.seconds)
+            TEST_NUMBER
+        }
+
+        assertFailsWith<kotlinx.coroutines.TimeoutCancellationException> {
+            lazyValue.getUntil(100.milliseconds)
+        }
+
+        lazyValue() shouldBeEqualTo TEST_NUMBER
+    }
+
+    @Test
+    fun `timeout or null distinguishes only by nullable result contract`() = runTest {
+        val nullValue = suspendLazy<String?> { null }
+        val source = CompletableDeferred<Int>()
+        val neverCompletes = suspendLazy { source.await() }
+
+        nullValue.getUntilOrNull(1.seconds) shouldBeEqualTo null
+        neverCompletes.getUntilOrNull(100.milliseconds) shouldBeEqualTo null
+        source.isCancelled.shouldBeFalse()
+        source.complete(TEST_NUMBER).shouldBeTrue()
+        neverCompletes() shouldBeEqualTo TEST_NUMBER
+    }
+
+    @Test
+    fun `zero and negative timeouts expire immediately`() = runTest {
+        val lazyValue = suspendLazy { TEST_NUMBER }
+
+        assertFailsWith<kotlinx.coroutines.TimeoutCancellationException> {
+            lazyValue.getUntil(0.nanoseconds)
+        }
+        assertFailsWith<kotlinx.coroutines.TimeoutCancellationException> {
+            lazyValue.getUntil(-1.nanoseconds)
+        }
+    }
+
+    @Test
+    fun `blocking lazy cache hit observes caller cancellation`() = runTest {
+        val lazyValue = suspendBlockingLazy { TEST_NUMBER }
+        lazyValue() shouldBeEqualTo TEST_NUMBER
+
+        val cancelled = Job().apply { cancel(CancellationException("caller stopped")) }
+        assertFailsWith<CancellationException> {
+            kotlinx.coroutines.withContext(cancelled) {
+                lazyValue.getUntil(1.seconds)
+            }
+        }
+    }
+
+    @Test
+    fun `blocking lazy cache ignores expired timeout without creating a timer`() = runTest {
+        val callCounter = AtomicInteger()
+        val lazyValue = suspendBlockingLazy { callCounter.incrementAndGet() }
+        lazyValue() shouldBeEqualTo 1
+
+        lazyValue.getUntil(Duration.ZERO) shouldBeEqualTo 1
+        lazyValue.getUntil(-1.nanoseconds) shouldBeEqualTo 1
+        lazyValue.getUntilOrNull(Duration.ZERO) shouldBeEqualTo 1
+
+        val dispatcher = CountingDelayDispatcher()
+        withContext(dispatcher) {
+            lazyValue.getUntil(1.seconds) shouldBeEqualTo 1
+            lazyValue.getUntilOrNull(1.seconds) shouldBeEqualTo 1
+        }
+        dispatcher.timeoutSchedules.get() shouldBeEqualTo 0
+        callCounter.get() shouldBeEqualTo 1
+    }
+
+    @Test
+    fun `failed timeout initializer can be retried`() = runTest {
+        val callCounter = AtomicInteger()
+        val lazyValue = suspendBlockingLazy {
+            if (callCounter.incrementAndGet() == 1) throw IllegalStateException("first attempt")
+            TEST_NUMBER
+        }
+
+        assertFailsWith<IllegalStateException> { lazyValue.getUntil(1.seconds) }
+            .message shouldBeEqualTo "first attempt"
+        lazyValue.getUntil(1.seconds) shouldBeEqualTo TEST_NUMBER
+        callCounter.get() shouldBeEqualTo 2
+    }
+
+    @Test
+    fun `timeout and caller cancellation leave lazy source work alive`() = runTest {
+        val timeoutSource = CompletableDeferred<Int>()
+        val timeoutLazy = suspendLazy { timeoutSource.await() }
+        assertFailsWith<kotlinx.coroutines.TimeoutCancellationException> {
+            withTimeout(100.milliseconds) { timeoutLazy.getUntil(Duration.INFINITE) }
+        }
+        timeoutSource.isCancelled.shouldBeFalse()
+        timeoutSource.complete(TEST_NUMBER).shouldBeTrue()
+
+        val cancellationSource = CompletableDeferred<Int>()
+        val cancellationLazy = suspendLazy { cancellationSource.await() }
+        val waiter = launch { cancellationLazy.getUntilOrNull(Duration.INFINITE) }
+        runCurrent()
+        waiter.cancelAndJoin()
+
+        cancellationSource.isCancelled.shouldBeFalse()
+        cancellationSource.complete(TEST_NUMBER).shouldBeTrue()
+        cancellationLazy() shouldBeEqualTo TEST_NUMBER
+    }
+
+    @Test
+    fun `blocking IO initializer keeps running after waiter timeout`() = runSuspendDefault(timeout = 5.seconds) {
+        val started = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val finished = CountDownLatch(1)
+        val lazyValue = suspendBlockingLazyIO {
+            started.countDown()
+            try {
+                release.await()
+            } finally {
+                finished.countDown()
+            }
+            TEST_NUMBER
+        }
+        val waiter = async { runCatching { lazyValue.getUntil(50.milliseconds) } }
+
+        try {
+            withContext(Dispatchers.IO) {
+                started.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            }
+            val returnedBeforeInitializer = withTimeoutOrNull(500.milliseconds) { waiter.await() }
+            (returnedBeforeInitializer?.exceptionOrNull() is kotlinx.coroutines.TimeoutCancellationException)
+                .shouldBeTrue()
+            finished.count shouldBeEqualTo 1L
+        } finally {
+            release.countDown()
+        }
+
+        val result = waiter.await()
+        (result.exceptionOrNull() is kotlinx.coroutines.TimeoutCancellationException).shouldBeTrue()
+        finished.await(5, TimeUnit.SECONDS).shouldBeTrue()
+    }
+
+    @OptIn(InternalCoroutinesApi::class)
+    private class CountingDelayDispatcher: CoroutineDispatcher(), Delay {
+        val timeoutSchedules = AtomicInteger()
+
+        override fun dispatch(context: CoroutineContext, block: Runnable) {
+            block.run()
+        }
+
+        override fun scheduleResumeAfterDelay(timeMillis: Long, continuation: CancellableContinuation<Unit>) {
+            error("Cached timeout paths must not schedule delays.")
+        }
+
+        override fun invokeOnTimeout(
+            timeMillis: Long,
+            block: Runnable,
+            context: CoroutineContext,
+        ): DisposableHandle {
+            timeoutSchedules.incrementAndGet()
+            return DisposableHandle { }
+        }
     }
 }

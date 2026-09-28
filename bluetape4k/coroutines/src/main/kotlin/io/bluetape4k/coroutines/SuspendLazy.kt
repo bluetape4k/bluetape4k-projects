@@ -4,12 +4,20 @@ package io.bluetape4k.coroutines
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.experimental.ExperimentalTypeInference
+import kotlin.time.Duration
 
 /**
  * suspend 환경에서 지연 초기화 값을 제공하는 계약입니다.
@@ -41,6 +49,28 @@ interface SuspendLazy<out T> {
      * ```
      */
     suspend operator fun invoke(): T
+
+    /**
+     * 제한 시간 안에 지연 값을 얻습니다.
+     *
+     * 제한 시간이 지나면 호출 waiter에 `TimeoutCancellationException`을 전달합니다. 값 계산은
+     * 수신 구현체의 소유 scope에서 계속될 수 있으며, 이 함수는 계산 작업을 직접 취소하지 않습니다.
+     *
+     * @param timeout 값 계산을 기다릴 최대 시간입니다.
+     * @return 계산된 값입니다.
+     */
+    suspend fun getUntil(timeout: Duration): T = withTimeout(timeout) { invoke() }
+
+    /**
+     * 제한 시간 안에 지연 값을 얻고, 제한 시간을 넘기면 `null`을 반환합니다.
+     *
+     * 실제 값이 `null`일 수 있으므로 반환된 `null`만으로 timeout 여부를 구분할 수 없습니다.
+     * timeout은 호출 waiter에만 적용되며 값 계산 작업을 직접 취소하지 않습니다.
+     *
+     * @param timeout 값 계산을 기다릴 최대 시간입니다.
+     * @return 계산된 값 또는 timeout 시 `null`입니다.
+     */
+    suspend fun getUntilOrNull(timeout: Duration): T? = withTimeoutOrNull(timeout) { invoke() }
 }
 
 /**
@@ -50,6 +80,7 @@ interface SuspendLazy<out T> {
  * - 첫 `invoke()`에서 값이 초기화되지 않았다면 `coroutineContext`로 전환해 `initializer`를 실행합니다.
  * - 값이 성공적으로 계산되면 이후 호출은 같은 값을 반환합니다.
  * - `initializer`가 예외를 던지면 예외가 전파되며, 값은 초기화되지 않아 다음 호출에서 다시 시도될 수 있습니다.
+ * - timeout getter는 독립 대기 작업으로 초기화를 시작하므로, timeout 이후에도 동기 initializer가 계속 실행될 수 있습니다.
  *
  * ```kotlin
  * val lazyValue = suspendBlockingLazy(Dispatchers.Default) { 10 }
@@ -99,11 +130,54 @@ internal class SuspendBlockingLazyImpl<out T>(
 ): SuspendLazy<T> {
 
     private val lazyValue: Lazy<T> = lazy(mode, initializer)
+    private val timeoutInitializationLock = Any()
+    private var timeoutInitializer: Deferred<T>? = null
+    private var timeoutScope: CoroutineScope? = null
 
     override suspend fun invoke(): T = with(lazyValue) {
         if (isInitialized()) value
         else if (dispatcher === EmptyCoroutineContext) value
         else withContext(dispatcher) { value }
+    }
+
+    override suspend fun getUntil(timeout: Duration): T {
+        if (lazyValue.isInitialized()) {
+            currentCoroutineContext().ensureActive()
+            return lazyValue.value
+        }
+        return withTimeout(timeout) { timeoutInitializer(currentCoroutineContext()).await() }
+    }
+
+    override suspend fun getUntilOrNull(timeout: Duration): T? {
+        if (lazyValue.isInitialized()) {
+            currentCoroutineContext().ensureActive()
+            return lazyValue.value
+        }
+        return withTimeoutOrNull(timeout) { timeoutInitializer(currentCoroutineContext()).await() }
+    }
+
+    private fun timeoutInitializer(
+        callerContext: CoroutineContext,
+    ): Deferred<T> = synchronized(timeoutInitializationLock) {
+        timeoutInitializer?.takeUnless { it.isCancelled }
+            ?: timeoutScope(callerContext).async(start = CoroutineStart.LAZY) { invoke() }.also { deferred ->
+                timeoutInitializer = deferred
+                deferred.invokeOnCompletion { cause ->
+                    if (cause != null) {
+                        synchronized(timeoutInitializationLock) {
+                            if (timeoutInitializer === deferred) timeoutInitializer = null
+                        }
+                    }
+                }
+            }
+    }
+
+    private fun timeoutScope(callerContext: CoroutineContext): CoroutineScope {
+        return timeoutScope ?: run {
+            val context = callerContext.minusKey(Job) + dispatcher.minusKey(Job)
+            val ownerJob = dispatcher[Job] ?: SupervisorJob()
+            CoroutineScope(context + ownerJob).also { timeoutScope = it }
+        }
     }
 }
 

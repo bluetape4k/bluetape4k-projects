@@ -3,6 +3,7 @@ package io.bluetape4k.coroutines.support
 import io.bluetape4k.support.requireNotEmpty
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.selects.select
+import kotlinx.coroutines.withTimeout
 
 /**
  * `Job` 트리를 들여쓰기 형태로 표준 출력에 출력합니다.
@@ -103,4 +104,19 @@ suspend fun Collection<Job>.joinAnyAndCancelOthers() {
         .forEach {
             runCatching { it.cancel(null) }
         }
+}
+
+/**
+ * 제한 시간 안에 대상 `Job`이 완료될 때까지 기다립니다.
+ *
+ * 시간 제한은 이 호출의 waiter에만 적용됩니다. timeout이나 호출자 취소는 대상 `Job`을 직접
+ * 취소하지 않습니다. 대상이 성공·실패·취소로 완료되면 `Job.join()`과 같이 정상 반환합니다.
+ *
+ * `StructuredTaskScope.joinUntil(Instant)`은 절대 deadline API이며, 이 함수는 상대 `Duration`
+ * timeout을 받습니다.
+ *
+ * @param timeout 대상 완료를 기다릴 최대 시간입니다.
+ */
+suspend fun Job.joinUntil(timeout: kotlin.time.Duration) {
+    withTimeout(timeout) { join() }
 }

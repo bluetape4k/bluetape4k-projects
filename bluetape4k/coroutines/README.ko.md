@@ -243,6 +243,34 @@ val vtScope = VirtualThreadCoroutineScope()
 - `ThreadPoolCoroutineScope`: 고정 크기 풀, 명시적 `close()` 필요
 - `VirtualThreadCoroutineScope`: 가상 스레드 디스패처 기반 스코프
 
+### 상대 시간 기반 코루틴 timeout
+
+`SuspendLazy.getUntil` / `getUntilOrNull`, `Deferred.awaitUntil` / `awaitUntilOrNull`, `Job.joinUntil`은 상대 `kotlin.time.Duration`을 받습니다. `Deferred` 헬퍼의 기본 제한 시간은 5초입니다. 예외형 함수는 코루틴 timeout을 `TimeoutCancellationException`으로 전달하고, nullable 함수는 `null`을 반환합니다. 실제 nullable 결과와 timeout은 반환값만으로 구분할 수 없습니다. 이 헬퍼들은 waiter만 제한하며 원본 `Deferred`, `Job`, 지연 계산을 직접 취소하지 않습니다.
+
+```kotlin
+import io.bluetape4k.coroutines.suspendBlockingLazy
+import io.bluetape4k.coroutines.support.awaitUntil
+import io.bluetape4k.coroutines.support.awaitUntilOrNull
+import io.bluetape4k.coroutines.support.joinUntil
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Job
+import kotlin.time.Duration.Companion.seconds
+
+suspend fun boundedWaitExample() {
+    val lazyValue = suspendBlockingLazy { 42 }
+    val lazyResult: Int = lazyValue.getUntil(5.seconds)
+
+    val deferred = CompletableDeferred(42)
+    val result: Int = deferred.awaitUntil() // 기본 제한 시간은 5초
+    val optional: Int? = deferred.awaitUntilOrNull(5.seconds)
+
+    val completedJob = Job().apply { complete() }
+    completedJob.joinUntil(5.seconds)
+}
+```
+
+기존 `Future.awaitUntil` 계열은 timeout 또는 호출자 취소 뒤에도 완료되지 않은 future에 `cancel(false)`를 최선 노력으로 요청합니다. 신규 `Deferred` 및 `Job` 헬퍼는 waiter만 종료하며, 원본 작업의 취소 여부는 소유자가 결정합니다.
+
 ### 구조화된 동시성 — StructuredTaskScope 브릿지
 
 `StructuredConcurrency.kt`는 JDK `StructuredTaskScope`(가상 스레드 구조화된 동시성)와 Kotlin Coroutines를 연결하며, `Dispatchers.VT`에서 실행되는 DSL 스타일 suspend 함수를 제공합니다.
@@ -306,7 +334,7 @@ val (r1, r2) = awaitAll(d1, d2)
 
 - 모든 suspend 변형은 `withContext(Dispatchers.VT)` 내에서 실행 — blocking `join()`이 가상 스레드로 오프로드됨
 - `async` 변형은 즉시 `Deferred<T>`를 반환하며 백그라운드에서 실행; 실패를 테스트할 때는 `supervisorScope { }`로 격리 필요
-- `joinUntil(deadline)` 데드라인 초과 시 `TimeoutException` 발생
+- `joinUntil(deadline)`은 절대 시각인 `Instant` deadline을 받고 초과 시 `TimeoutException`을 던집니다. 상대 시간인 `Job.joinUntil(Duration)`과는 다른 API이며, 후자는 timeout을 코루틴 취소로 전달합니다.
 
 ### Reactor 컨텍스트 헬퍼
 

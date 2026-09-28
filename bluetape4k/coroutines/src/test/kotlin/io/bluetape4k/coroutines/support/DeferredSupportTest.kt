@@ -7,13 +7,20 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CancellationException
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class DeferredSupportTest {
 
@@ -132,5 +139,95 @@ class DeferredSupportTest {
 
         second.isCancelled.shouldBeTrue()
         third.isCancelled.shouldBeTrue()
+    }
+
+    @Test
+    fun `awaitUntil returns completed values and propagates failures`() = runTest {
+        CompletableDeferred(42).awaitUntil(1.seconds) shouldBeEqualTo 42
+
+        val failure = IllegalStateException("source failed")
+        val failed = CompletableDeferred<Int>().apply { completeExceptionally(failure) }
+        assertFailsWith<IllegalStateException> { failed.awaitUntil(1.seconds) }
+    }
+
+    @Test
+    fun `awaitUntil timeout does not cancel source and source can complete later`() = runTest {
+        val source = CompletableDeferred<Int>()
+
+        assertFailsWith<TimeoutCancellationException> { source.awaitUntil(100.milliseconds) }
+
+        source.isCancelled.shouldBeFalse()
+        source.complete(42).shouldBeTrue()
+        source.awaitUntil(1.seconds) shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `awaitUntilOrNull returns null for timeout and nullable source values`() = runTest {
+        val pending = CompletableDeferred<Int?>()
+        val actualNull = CompletableDeferred<Int?>().apply { complete(null) }
+
+        pending.awaitUntilOrNull(100.milliseconds) shouldBeEqualTo null
+        actualNull.awaitUntilOrNull(1.seconds) shouldBeEqualTo null
+        pending.isCancelled.shouldBeFalse()
+        pending.complete(42).shouldBeTrue()
+    }
+
+    @Test
+    fun `default timeout is five seconds`() = runTest {
+        val timed = CompletableDeferred<Int>()
+        val nullableTimed = CompletableDeferred<Int?>()
+        val timedWaiter = async { timed.awaitUntil() }
+        val nullableWaiter = async { nullableTimed.awaitUntilOrNull() }
+
+        advanceTimeBy(5.seconds)
+        runCurrent()
+
+        assertFailsWith<TimeoutCancellationException> { timedWaiter.await() }
+        nullableWaiter.await() shouldBeEqualTo null
+        timed.isCancelled.shouldBeFalse()
+        nullableTimed.isCancelled.shouldBeFalse()
+    }
+
+    @Test
+    fun `infinite timeout waits until the source completes`() = runTest {
+        val source = CompletableDeferred<Int>()
+        val waiter = async { source.awaitUntil(Duration.INFINITE) }
+
+        source.complete(42).shouldBeTrue()
+        waiter.await() shouldBeEqualTo 42
+    }
+
+    @Test
+    fun `caller cancellation cancels only the await waiter`() = runTest {
+        val source = CompletableDeferred<Int>()
+        val waiter = launch { source.awaitUntil(Duration.INFINITE) }
+
+        waiter.cancelAndJoin()
+
+        source.isCancelled.shouldBeFalse()
+        source.complete(42).shouldBeTrue()
+    }
+
+    @Test
+    fun `already cancelled source preserves cancellation`() = runTest {
+        val source = CompletableDeferred<Int>().apply { cancel(CancellationException("source cancelled")) }
+
+        assertFailsWith<CancellationException> { source.awaitUntil(1.seconds) }
+    }
+
+    @Test
+    fun `zero negative and nested timeouts cancel only the waiter`() = runTest {
+        val source = CompletableDeferred<Int>()
+
+        assertFailsWith<TimeoutCancellationException> { source.awaitUntil(Duration.ZERO) }
+        assertFailsWith<TimeoutCancellationException> { source.awaitUntil(-1.milliseconds) }
+        source.awaitUntilOrNull(Duration.ZERO) shouldBeEqualTo null
+
+        assertFailsWith<TimeoutCancellationException> {
+            withTimeout(100.milliseconds) { source.awaitUntil(Duration.INFINITE) }
+        }
+
+        source.isCancelled.shouldBeFalse()
+        source.complete(42).shouldBeTrue()
     }
 }

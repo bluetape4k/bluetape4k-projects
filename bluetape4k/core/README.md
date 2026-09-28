@@ -48,6 +48,45 @@ dependencies {
 }
 ```
 
+## CompletableFuture and Executor Timeouts
+
+`CompletableFuture` offers throwing (`get` / `join`), fallback, and nullable timeout forms. A timeout does not cancel the future. `get` preserves `ExecutionException`; the `join` extensions unwrap its cause. `get(duration, defaultValue)` uses its default only on timeout, while `join(duration, defaultValue)` also uses it when the completed result is `null`. The nullable forms return `null` both for a timed-out wait and for a future whose actual result is `null`.
+
+The `ExecutorService.invokeAll` and `invokeAny` extensions accept task lambdas and return the JDK result types: `List<Future<T>>` and `T`. They wrap each lambda in a `Callable`, an O(n) conversion performed before the timed JDK call. The timeout therefore does not impose a strict wall-clock bound on the whole extension call. JDK cancellation is a request; interrupt-insensitive tasks may keep running, and the executor owner remains responsible for shutdown.
+
+```kotlin
+import io.bluetape4k.concurrent.invokeAll
+import io.bluetape4k.concurrent.invokeAny
+import io.bluetape4k.concurrent.get
+import io.bluetape4k.concurrent.getOrNull
+import io.bluetape4k.concurrent.join
+import io.bluetape4k.concurrent.joinOrNull
+import io.bluetape4k.concurrent.awaitTermination
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+
+val executor = Executors.newFixedThreadPool(2)
+try {
+    val results: List<Int> = executor.invokeAll(listOf({ 1 }, { 2 }), 5.seconds).map { it.get() }
+    val first: Int = executor.invokeAny(listOf({ 42 }), 5.seconds)
+
+    val completed = CompletableFuture.completedFuture(42)
+    val value = completed.get(5.seconds)
+    val joined = completed.join(5.seconds)
+
+    val pending = CompletableFuture<Int>()
+    val fallback = pending.get(100.milliseconds, -1)
+    val nullable = pending.getOrNull(100.milliseconds)
+    val joinFallback = pending.join(100.milliseconds, -1)
+    val joinNullable = pending.joinOrNull(100.milliseconds)
+} finally {
+    executor.shutdown()
+    executor.awaitTermination(5.seconds)
+}
+```
+
 ## Feature Details
 
 ### 1. Validation (RequireSupport)

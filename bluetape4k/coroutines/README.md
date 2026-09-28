@@ -245,6 +245,34 @@ val vtScope = VirtualThreadCoroutineScope()
 - `ThreadPoolCoroutineScope`: fixed-size pool with explicit `close()`
 - `VirtualThreadCoroutineScope`: virtual-thread dispatcher backed scope
 
+### Relative Coroutine Timeouts
+
+`SuspendLazy.getUntil` / `getUntilOrNull`, `Deferred.awaitUntil` / `awaitUntilOrNull`, and `Job.joinUntil` accept a relative `kotlin.time.Duration`. `Deferred` helpers default to five seconds. Throwing forms report coroutine timeout as `TimeoutCancellationException`; nullable forms return `null`, which cannot distinguish timeout from an actual nullable result. These helpers limit the waiter and do not directly cancel the source `Deferred`, `Job`, or lazy computation.
+
+```kotlin
+import io.bluetape4k.coroutines.suspendBlockingLazy
+import io.bluetape4k.coroutines.support.awaitUntil
+import io.bluetape4k.coroutines.support.awaitUntilOrNull
+import io.bluetape4k.coroutines.support.joinUntil
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Job
+import kotlin.time.Duration.Companion.seconds
+
+suspend fun boundedWaitExample() {
+    val lazyValue = suspendBlockingLazy { 42 }
+    val lazyResult: Int = lazyValue.getUntil(5.seconds)
+
+    val deferred = CompletableDeferred(42)
+    val result: Int = deferred.awaitUntil() // defaults to five seconds
+    val optional: Int? = deferred.awaitUntilOrNull(5.seconds)
+
+    val completedJob = Job().apply { complete() }
+    completedJob.joinUntil(5.seconds)
+}
+```
+
+The existing `Future.awaitUntil` helper uses `cancel(false)` as a best-effort request on an unfinished future after timeout or caller cancellation. The new `Deferred` and `Job` helpers only end the waiter; their owners decide whether to cancel the source work.
+
 ### Structured Concurrency — StructuredTaskScope Bridge
 
 `StructuredConcurrency.kt` bridges JDK `StructuredTaskScope` (virtual-thread structured concurrency) with Kotlin Coroutines, providing DSL-style suspend functions that run on `Dispatchers.VT`.
@@ -308,7 +336,7 @@ Behavior notes:
 
 - All suspend variants run inside `withContext(Dispatchers.VT)` — blocking `join()` is offloaded to virtual threads
 - `async` variants start immediately and return `Deferred<T>`; use `supervisorScope { }` in tests when expecting failures
-- `joinUntil(deadline)` triggers `TimeoutException` on deadline breach
+- `joinUntil(deadline)` takes an absolute `Instant` deadline and triggers `TimeoutException` on deadline breach. This differs from `Job.joinUntil(Duration)`, which uses a relative timeout and reports timeout as coroutine cancellation.
 
 ### Reactor Context Helpers
 
