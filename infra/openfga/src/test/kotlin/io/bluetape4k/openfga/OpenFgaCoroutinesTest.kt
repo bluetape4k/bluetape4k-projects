@@ -1,5 +1,9 @@
 package io.bluetape4k.openfga
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.AppenderBase
 import dev.openfga.sdk.api.OpenFgaApi
 import dev.openfga.sdk.api.client.ApiResponse
 import dev.openfga.sdk.api.configuration.ConfigurationOverride
@@ -27,8 +31,10 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldNotContain
 import io.bluetape4k.concurrent.completableFutureOf
 import io.bluetape4k.io.serializer.BinarySerializers
 import io.bluetape4k.logging.coroutines.KLoggingChannel
@@ -46,9 +52,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import java.io.Serializable
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.TimeUnit
 
 class OpenFgaCoroutinesTest {
 
@@ -363,6 +373,43 @@ class OpenFgaCoroutinesTest {
     }
 
     @Test
+    fun `readTuplesFlow 로그는 tuple과 continuation token을 노출하지 않고 안전한 page metadata를 남긴다`() = runTest {
+        val tupleCount = 73
+        val tupleSecret = "tuple-log-secret"
+        val continuationSecret = "continuation-log-secret"
+        val tuple = Tuple().key(
+            TupleKey().user(tupleSecret).relation("reader")._object("document:$tupleSecret"),
+        )
+
+        every {
+            api.read(any(), any(), any<ConfigurationOverride>())
+        } returns completableFutureOf(readResponse(List(tupleCount) { tuple }, continuationSecret))
+
+        withRootLogCapture(
+            level = Level.DEBUG,
+            expectedEvent = { event ->
+                event.level == Level.DEBUG &&
+                    event.formattedMessage.contains("OpenFGA read page=1 tupleCount=$tupleCount ")
+            },
+        ) { appender ->
+            api.readTuplesFlow(OpenFgaScope("store", "model"), pageSize = 1)
+                .take(1)
+                .toList()
+
+            appender.awaitExpectedEvent()
+            val events = appender.events.toList()
+            val messages = events.joinToString("\n") { it.formattedMessage }
+            val debugMessages = events
+                .filter { it.level == Level.DEBUG }
+                .joinToString("\n") { it.formattedMessage }
+            messages shouldNotContain tupleSecret
+            messages shouldNotContain continuationSecret
+            debugMessages shouldContain "tupleCount=$tupleCount"
+            debugMessages shouldContain "continuationTokenPresent=true"
+        }
+    }
+
+    @Test
     fun `readTuplesFlow는 take로 중단하면 다음 page를 요청하지 않는다`() = runTest {
         every {
             api.read(any(), any(), any<ConfigurationOverride>())
@@ -441,6 +488,77 @@ class OpenFgaCoroutinesTest {
         job.cancelAndJoin()
 
         future.isCancelled.shouldBeTrue()
+    }
+
+    @Test
+    fun `OpenFGA 실패 로그는 exception 원문과 cause를 남기지 않고 원래 예외를 전파한다`() = runTest {
+        val beforeFailureDrainTupleCount = 89
+        val afterFailureDrainTupleCount = 97
+        val exceptionSecret = "exception-log-secret"
+        val causeSecret = "cause-log-secret"
+        val suppressedSecret = "suppressed-log-secret"
+        val cause = IllegalArgumentException(causeSecret)
+            .apply { addSuppressed(IllegalStateException(suppressedSecret)) }
+        val failure = IllegalStateException(exceptionSecret, cause)
+        val tuple = Tuple().key(
+            TupleKey().user("user:reader").relation("reader")._object("document:budget"),
+        )
+
+        every {
+            api.read(any(), any(), any<ConfigurationOverride>())
+        } answers {
+            val tupleCount = checkNotNull(secondArg<ReadRequest>().pageSize)
+            completableFutureOf(readResponse(List(tupleCount) { tuple }, ""))
+        }
+        every {
+            api.write(any(), any(), any<ConfigurationOverride>())
+        } returns CompletableFuture.failedFuture(failure)
+
+        // 이전 테스트의 같은 operation/status 로그를 비워서 뒤의 WARN이 현재 호출에 속함을 보장합니다.
+        withRootLogCapture(
+            level = Level.DEBUG,
+            expectedEvent = { event ->
+                event.level == Level.DEBUG &&
+                    event.formattedMessage.contains("tupleCount=$beforeFailureDrainTupleCount ")
+            },
+        ) { appender ->
+            api.readTuplesFlow(
+                OpenFgaScope("store", "model"),
+                pageSize = beforeFailureDrainTupleCount,
+            ).take(1).toList()
+
+            appender.awaitExpectedEvent()
+        }
+
+        withRootLogCapture(
+            level = Level.DEBUG,
+            expectedEvent = { event ->
+                event.level == Level.DEBUG &&
+                    event.formattedMessage.contains("tupleCount=$afterFailureDrainTupleCount ")
+            },
+        ) { appender ->
+            val actual = assertFailsWith<IllegalStateException> {
+                api.writeSuspending(OpenFgaScope("store", "model"), WriteRequest())
+            }
+
+            actual shouldBeEqualTo failure
+
+            api.readTuplesFlow(
+                OpenFgaScope("store", "model"),
+                pageSize = afterFailureDrainTupleCount,
+            ).take(1).toList()
+
+            appender.awaitExpectedEvent()
+            val warnEvents = appender.events.filter { it.level == Level.WARN }
+            warnEvents.shouldHaveSize(1)
+            val warnEvent = warnEvents.single()
+            warnEvent.formattedMessage shouldContain "operation=write"
+            warnEvent.formattedMessage shouldContain "status=failure"
+            warnEvent.throwableProxy.shouldBeNull()
+            warnEvent.formattedMessage shouldNotContain exceptionSecret
+            warnEvent.formattedMessage shouldNotContain causeSecret
+            warnEvent.formattedMessage shouldNotContain suppressedSecret
+        }
     }
 
     @Test
@@ -529,4 +647,45 @@ class OpenFgaCoroutinesTest {
             "",
             ReadResponse().tuples(tuples).continuationToken(continuationToken)
         )
+
+    private suspend fun withRootLogCapture(
+        level: Level,
+        expectedEvent: (ILoggingEvent) -> Boolean,
+        block: suspend (AwaitingLogAppender) -> Unit,
+    ) {
+        val rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger
+        val previousLevel = rootLogger.level
+        val appender = AwaitingLogAppender(expectedEvent).apply {
+            context = rootLogger.loggerContext
+            start()
+        }
+        rootLogger.level = level
+        rootLogger.addAppender(appender)
+
+        try {
+            block(appender)
+        } finally {
+            rootLogger.detachAppender(appender)
+            appender.stop()
+            rootLogger.level = previousLevel
+        }
+    }
+
+    private class AwaitingLogAppender(
+        private val expectedEvent: (ILoggingEvent) -> Boolean,
+    ): AppenderBase<ILoggingEvent>() {
+        val events = CopyOnWriteArrayList<ILoggingEvent>()
+        private val expectedEventDelivered = CountDownLatch(1)
+
+        override fun append(eventObject: ILoggingEvent) {
+            events += eventObject
+            if (expectedEvent(eventObject)) {
+                expectedEventDelivered.countDown()
+            }
+        }
+
+        fun awaitExpectedEvent() {
+            expectedEventDelivered.await(2, TimeUnit.SECONDS).shouldBeTrue()
+        }
+    }
 }

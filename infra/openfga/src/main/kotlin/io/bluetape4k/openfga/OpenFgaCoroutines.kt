@@ -135,9 +135,11 @@ fun OpenFgaApi.readTuplesFlow(
                 continuationToken = continuationToken,
                 configurationOverride = configurationOverride,
             ).data
-            OpenFgaLog.log.debug { "read response=$response" }
-
             pages++
+            OpenFgaLog.log.debug {
+                "OpenFGA read page=$pages tupleCount=${response.tuples.size} " +
+                    "continuationTokenPresent=${response.continuationToken.isNotEmpty()}"
+            }
 
             response.tuples.forEach { tuple ->
                 currentCoroutineContext().ensureActive()
@@ -191,7 +193,7 @@ private suspend fun <T> openFgaCall(operation: String, call: suspend () -> T): T
         throw cancelled
     } catch (failure: Exception) {
         // 인증 정보, tuple, request payload, SDK 예외 원문을 로그에 포함하지 않습니다.
-        OpenFgaLog.log.warn(failure) { "OpenFGA operation=$operation status=failure" }
+        OpenFgaLog.log.warn { "OpenFGA operation=$operation status=failure" }
         throw failure
     }
 }
