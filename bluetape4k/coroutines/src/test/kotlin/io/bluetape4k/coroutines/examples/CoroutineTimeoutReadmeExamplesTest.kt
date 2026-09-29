@@ -5,16 +5,16 @@ import io.bluetape4k.coroutines.suspendBlockingLazy
 import io.bluetape4k.coroutines.support.awaitUntil
 import io.bluetape4k.coroutines.support.awaitUntilOrNull
 import io.bluetape4k.coroutines.support.joinUntil
+import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.seconds
 
 class CoroutineTimeoutReadmeExamplesTest {
 
     @Test
-    fun `coroutine timeout README examples compile and run`() = runTest {
+    fun `coroutine timeout README examples compile and run`() = runSuspendIO(timeout = 5.seconds) {
         val lazyValue = suspendBlockingLazy { 42 }
         val lazyResult: Int = lazyValue.getUntil(5.seconds)
         lazyResult shouldBeEqualTo 42

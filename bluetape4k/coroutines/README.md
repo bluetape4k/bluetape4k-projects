@@ -247,7 +247,11 @@ val vtScope = VirtualThreadCoroutineScope()
 
 ### Relative Coroutine Timeouts
 
-`SuspendLazy.getUntil` / `getUntilOrNull`, `Deferred.awaitUntil` / `awaitUntilOrNull`, and `Job.joinUntil` accept a relative `kotlin.time.Duration`. `Deferred` helpers default to five seconds. Throwing forms report coroutine timeout as `TimeoutCancellationException`; nullable forms return `null`, which cannot distinguish timeout from an actual nullable result. These helpers limit the waiter and do not directly cancel the source `Deferred`, `Job`, or lazy computation.
+`SuspendLazy.getUntil` / `getUntilOrNull`, `Deferred.awaitUntil` / `awaitUntilOrNull`, and `Job.joinUntil` accept a relative `kotlin.time.Duration`. `Deferred` helpers default to five seconds. Throwing forms report coroutine timeout as `TimeoutCancellationException`; nullable forms return `null`, which cannot distinguish timeout from an actual nullable result. A timeout ends the waiter and does not call `SuspendLazy.cancel()`. Whether waiter cancellation reaches lazy initialization depends on how that `SuspendLazy` implementation runs `invoke()`; the `Deferred` and `Job` helpers leave their source work to its owner.
+
+`SuspendLazy.cancel()` requests cancellation of a timeout initializer created and owned by that lazy value. It does nothing before the task exists or when an implementation keeps the default method. For `suspendBlockingLazy`, direct `invoke()` runs the initializer on the configured context, while a timeout getter runs it on `Dispatchers.IO` in an attempt-owned worker. This keeps timeout delivery responsive even when the configured dispatcher aliases the waiter's single thread. A waiter's timeout or cancellation does not cancel the worker; `SuspendLazy.cancel()` does. Cancellation sends a thread interrupt, although code that ignores interruption can keep running.
+
+If the configured context contains a `Job`, the attempt's `SupervisorJob` is linked to it and is released when the initializer ends. A direct invocation uses the configured context: cancellation follows the caller when no `Job` is configured, and follows the configured `Job` when one is present. A direct invocation waiting behind another initializer can itself be cancelled without waiting for the blocking work to finish.
 
 ```kotlin
 import io.bluetape4k.coroutines.suspendBlockingLazy

@@ -28,6 +28,7 @@ class SuspendLazyBinaryCompatibilityTest {
             runBlocking {
                 legacy.getUntil(1.seconds) shouldBeEqualTo 42
                 legacy.getUntilOrNull(1.seconds) shouldBeEqualTo 42
+                legacy.cancel()
             }
         }
     }

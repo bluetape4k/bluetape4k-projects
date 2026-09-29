@@ -16,19 +16,28 @@ import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import io.bluetape4k.utils.Runtimex
 import kotlinx.coroutines.async
+import kotlinx.coroutines.asContextElement
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Delay
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DisposableHandle
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
@@ -38,6 +47,7 @@ import kotlin.coroutines.CoroutineContext
 import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
@@ -206,6 +216,43 @@ class SuspendLazyTest {
     }
 
     @Test
+    fun `cancel suspending lazy cancels its child without cancelling owner scope`() = runTest {
+        val ownerJob = SupervisorJob()
+        val ownerScope = CoroutineScope(ownerJob + StandardTestDispatcher(testScheduler))
+        val initializerStarted = CompletableDeferred<Unit>()
+        val cleanupCount = AtomicInteger()
+        val lazyValue = ownerScope.suspendLazy {
+            try {
+                initializerStarted.complete(Unit)
+                CompletableDeferred<Int>().await()
+            } finally {
+                cleanupCount.incrementAndGet()
+            }
+        }
+        val waiter = launch { lazyValue() }
+        runCurrent()
+        initializerStarted.isCompleted.shouldBeTrue()
+
+        lazyValue.cancel()
+        runCurrent()
+        waiter.join()
+
+        waiter.isCancelled.shouldBeTrue()
+        cleanupCount.get() shouldBeEqualTo 1
+        ownerJob.isActive.shouldBeTrue()
+        ownerJob.cancelAndJoin()
+    }
+
+    @Test
+    fun `cancel before first suspended lazy invocation is a no-op`() = runTest {
+        val lazyValue = suspendLazy { TEST_NUMBER }
+
+        lazyValue.cancel()
+
+        lazyValue() shouldBeEqualTo TEST_NUMBER
+    }
+
+    @Test
     fun `timeout waiter does not cancel the lazy initializer`() = runTest {
         val lazyValue = suspendLazy {
             delay(1.seconds)
@@ -277,7 +324,7 @@ class SuspendLazyTest {
     }
 
     @Test
-    fun `failed timeout initializer can be retried`() = runTest {
+    fun `failed timeout initializer can be retried`() = runSuspendIO(timeout = 5.seconds) {
         val callCounter = AtomicInteger()
         val lazyValue = suspendBlockingLazy {
             if (callCounter.incrementAndGet() == 1) throw IllegalStateException("first attempt")
@@ -365,4 +412,8 @@ class SuspendLazyTest {
             return DisposableHandle { }
         }
     }
+
+
+
+
 }

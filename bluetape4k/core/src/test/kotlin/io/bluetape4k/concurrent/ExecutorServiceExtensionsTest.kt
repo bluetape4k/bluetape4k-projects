@@ -308,13 +308,13 @@ class ExecutorServiceExtensionsTest {
         }
     }
 
-    private inline fun <T> withExecutor(
+    private inline fun withExecutor(
         threads: Int,
-        block: (java.util.concurrent.ExecutorService) -> T,
-    ): T {
+        block: (java.util.concurrent.ExecutorService) -> Unit,
+    ) {
         val executor = Executors.newFixedThreadPool(threads)
         try {
-            return block(executor)
+            block(executor)
         } finally {
             executor.shutdownNow()
             executor.awaitTermination(5, TimeUnit.SECONDS)

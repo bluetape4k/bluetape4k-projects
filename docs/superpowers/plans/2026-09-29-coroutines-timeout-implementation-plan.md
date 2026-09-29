@@ -15,11 +15,11 @@
 - **유형/독자:** Type A public API 구현 계획. 구현자와 리뷰어가 승인된 timeout 동작, 검증 순서, PR 경계를 확인한다.
 - **승인 기준:** `docs/superpowers/specs/2026-09-28-coroutines-timeout-api-design.md`의 대안 2 및 완료 기준. 명세는 사용자 승인을 받았고, 구현/merge 승인을 대신하지 않는다.
 - **설계 리뷰:** `docs/superpowers/reviews/2026-09-28-coroutines-timeout-spec-review.md`의 6개 관점 통합 PASS. 리뷰는 테스트/Detekt/ABI 실행 증거가 아니다.
-- **코드 기준점:** branch `feature/coroutines-timeout`, tracked `HEAD=51ec6cd8c146a541e8be7b794a3eb408268bcc8a`. 이 시점에 다섯 timeout production 파일은 사용자가 수정한 tracked dirty 상태다. 변경 내용은 작업 중 보존하고 이 계획/계획 검토 기록에 포함하지 않는다.
+- **코드 기준점:** branch `feature/coroutines-timeout`, 시작 `HEAD=f4acc71f85a4903c4bd6793c4bfbd3f7597426a5`, 기준 `origin/develop=7c6cbd1e261efb23b8146ea5c6f949d6591212ee`. 시작 커밋에 포함된 사용자 작성 변경은 그대로 보존했다.
 - **빌드/테스트 근거:** `build.gradle.kts`의 `-jvm-default=enable`, `gradle/libs.versions.toml`의 `kotlinx-coroutines-test`, 작업 지도에 적은 실제 테스트 파일과 모듈 경로를 확인했다.
 - **ABI 근거:** 저장소 스크립트와 Gradle 선언 검색에서 전역 `checkBinaryCompatibility`/`checkProductionAbi` baseline task를 찾지 못했다. 그러므로 계획은 targeted `javap` 서명 확인과 구 ABI fixture 실행으로 좁은 ABI 증거를 수집하며 전역 baseline 통과를 주장하지 않는다.
 - **공식 계약 출처:** 명세 §근거의 JDK 25 `ExecutorService`/`Future`, Kotlin `Duration.inWholeNanoseconds`, kotlinx.coroutines `withTimeout`, `withTimeoutOrNull`, `Job.join`, `ensureActive` 공식 문서 URL을 따른다.
-- **최종 검증:** core 1,704건과 coroutines 667건 전체 테스트가 통과했다. 두 모듈 Detekt task 재실행은 성공했으며, XML 보고서의 379개 저장소 진단 중 변경 파일에 걸린 2개는 origin/develop에도 있던 `CompletableFutureSupport.kt`의 `TooManyFunctions`와 `futureWithTimeout`의 `MagicNumber`다. targeted `javap` 서명 및 `SuspendLazy` 구 ABI fixture가 통과했다. hosted CI는 PR 생성 후 실행한다. 커스텀 dispatcher 시간 정밀도와 비협력 blocking 작업의 강제 중단은 승인 명세의 보장 범위 밖이다.
+- **최종 검증:** `:bluetape4k-core:test --rerun-tasks --stacktrace` 1,711/1,711, `:bluetape4k-coroutines:test --rerun-tasks --stacktrace` 684/684이며 실패·오류·skip은 0이다. Detekt 두 task는 `BUILD SUCCESSFUL`이지만 저장소 설정이 `ignoreFailures`이고 XML에 core 269건, coroutines 110건의 기존 진단이 있다. 변경 Kotlin 경로에는 신규 진단이 없으며 core의 `CompletableFutureSupport.kt` 두 진단은 `origin/develop`에도 존재한다. `javap` 서명과 `SuspendLazy` 구 ABI fixture가 통과했다. hosted CI는 PR 생성 후 실행한다. 커스텀 dispatcher의 시간 정밀도 및 interrupt를 무시하는 blocking 작업의 즉시 강제 종료는 보장하지 않는다.
 
 각 작업은 테스트 실패를 확인한 뒤 최소 구현을 적용하고 같은 명령으로 재검증한다. 실패 시 현재 실패 테스트와 관련 compile/test task부터 다시 실행하고, 통과 후에만 다음 의존 작업으로 넘어간다. 오류를 고치기 위해 사용자의 변경을 버리는 reset/checkout을 사용하지 않는다.
 
@@ -33,11 +33,13 @@
 - `bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/support/DeferredSupport.kt`: `awaitUntil`/`awaitUntilOrNull` 계약.
 - `bluetape4k/coroutines/src/main/kotlin/io/bluetape4k/coroutines/support/JobSupport.kt`: `joinUntil` 계약.
 - `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/SuspendLazyTest.kt`: 신규 timeout 멤버 및 cache 경로.
+- `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/SuspendBlockingLazyTimeoutTest.kt`: dispatcher 격리, waiter deadline, owner 취소와 interrupt 동작.
 - `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/SuspendLazyBinaryCompatibilityTest.kt`: 구 인터페이스 모양에 맞춰 Java 구현체를 컴파일한 뒤 새 인터페이스에서 기본 메서드를 호출.
 - `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/support/DeferredSupportTest.kt`: 성공·timeout·원본 작업 보존·실패·호출자 취소.
 - `bluetape4k/coroutines/src/test/kotlin/io/bluetape4k/coroutines/support/JobSupportTest.kt`: 성공·실패·취소 완료, timeout, 호출자 취소와 대상 job 소유권.
 - `bluetape4k/core/README.md`, `bluetape4k/core/README.ko.md`: 동기 timeout API 설명과 예제.
 - `bluetape4k/coroutines/README.md`, `bluetape4k/coroutines/README.ko.md`: coroutine timeout 설명과 예제. 기존 `StructuredTaskScope.joinUntil(Instant)` 설명은 상대 `Job.joinUntil(Duration)`과 구분해 유지.
+- `docs/lessons/2026-09-29-duration-timeout-api.md`, `docs/superpowers/index/2026-09.md`, `docs/testlogs/2026-09.md`: 재사용할 작업 소유권 교훈, 월간 기록 색인, 실행 근거.
 
 기존 변경이 있는 다섯 production Kotlin 파일은 사용자의 작업 내용을 보존한 채 이 기능 구현으로 완성한다. 구현 계획과 함께 검토된 결과만 PR에 포함한다. 새 의존성이나 새 모듈은 추가하지 않는다.
 
@@ -156,8 +158,11 @@ fun <T> ExecutorService.invokeAny(tasks: Collection<() -> T>, timeout: Duration)
 - [x] `suspendBlockingLazy`를 먼저 초기화한 뒤 같은 활성 호출자에서 zero/negative timeout이어도 cache hit가 즉시 값을 반환하는지, initializer가 한 번만 호출되는지 검증한다.
 - [x] 이미 취소된 Job을 context로 둔 `Continuation`에서 초기화된 cache를 읽어도 `ensureActive()`가 취소를 보존하는지 테스트한다. 추가로 test-only `CoroutineDispatcher(), Delay` 구현의 `invokeOnTimeout` 호출 수를 기록하고, 초기화된 cache를 활성 coroutine에서 양수 timeout으로 읽을 때 scheduling 횟수가 0임을 확인한다. 이 검증은 cache hit이 실제로 타이머 생성을 건너뛰는지 관찰한다.
 - [x] 미초기화 `suspendBlockingLazyIO` initializer를 latch로 막고 timeout된 waiter가 종료되는 시점을 검증한다. 테스트는 initializer가 취소에 협력하지 않을 때 실제 블록은 계속 실행될 수 있음을 확인하고, `finally`에서 latch를 해제한 뒤 initializer와 waiter를 join한다.
+- [x] 기본 `EmptyCoroutineContext`와 waiter와 같은 명시 dispatcher에서 blocking initializer를 latch로 막아 timeout이 제한 시간 안에 돌아오고 source 초기화는 waiter timeout만으로 취소되지 않는지 검증한다. timeout initializer가 별도 dispatcher에 있음을 thread identity로 확인한다.
+- [x] waiter와 같은 dispatcher를 명시한 호출은 timeout 경로에서 `Dispatchers.IO`로 분리하고, waiter와 다른 dispatcher를 명시한 호출은 해당 dispatcher를 유지하는지 테스트한다.
+- [x] timeout-owned blocking initializer의 명시 `SuspendLazy.cancel()`이 worker thread를 interrupt해 정리하는지 확인한다. `CoroutineScope.suspendLazy` 경로도 child Deferred만 취소하고 owner scope를 유지하는지 검증한다.
 - [x] nested `getUntil` timeout에서 안쪽 timeout과 바깥 caller cancellation을 구분한다. 모든 미완료 waiter는 테스트가 소유한 Job으로 취소해 종료한다.
-- [x] 이전 공개 계약의 Java interface stub은 `io.bluetape4k.coroutines.SuspendLazy<T>`로, 추상 메서드는 `Object invoke(Continuation<? super T>)` 하나만 선언한다. `ToolProvider.getSystemJavaCompiler()`로 임시 소스의 아래 세 파일을 `-proc:none -classpath System.getProperty("java.class.path") -d <temp>/classes` 옵션과 함께 컴파일한다: `kotlin.coroutines.Continuation<T>` 빈 interface, `SuspendLazy<T>` 구 stub, 그리고 해당 `invoke(Continuation<? super Integer>)`만 구현해 `Integer.valueOf(42)`를 반환하는 `LegacySuspendLazy`. 컴파일 후 `<temp>/classes/kotlin/coroutines/Continuation.class`와 `<temp>/classes/io/bluetape4k/coroutines/SuspendLazy.class`를 삭제해 구 타입 bytecode를 fixture 출력에서 제거한다. 런타임 `URLClassLoader`는 현재 테스트 classloader를 parent로 두고, `Class.forName("io.bluetape4k.coroutines.SuspendLazy", false, fixtureLoader)`가 현재 `SuspendLazy::class.java`와 동일한지 및 `SuspendLazy::class.java.protectionDomain.codeSource.location`이 fixture 디렉터리 밖인지 확인한다. fixture 인스턴스를 현재 `SuspendLazy<Int>`로 cast한 뒤 `runBlocking`에서 `getUntil`과 `getUntilOrNull` 기본 메서드를 호출한다. 임시 디렉터리는 테스트 종료 시 제거한다.
+- [x] 이전 공개 계약의 Java interface stub은 `io.bluetape4k.coroutines.SuspendLazy<T>`로, 추상 메서드는 `Object invoke(Continuation<? super T>)` 하나만 선언한다. `ToolProvider.getSystemJavaCompiler()`로 임시 소스의 아래 세 파일을 `-proc:none -classpath System.getProperty("java.class.path") -d <temp>/classes` 옵션과 함께 컴파일한다: `kotlin.coroutines.Continuation<T>` 빈 interface, `SuspendLazy<T>` 구 stub, 그리고 해당 `invoke(Continuation<? super Integer>)`만 구현해 `Integer.valueOf(42)`를 반환하는 `LegacySuspendLazy`. 컴파일 후 `<temp>/classes/kotlin/coroutines/Continuation.class`와 `<temp>/classes/io/bluetape4k/coroutines/SuspendLazy.class`를 삭제해 구 타입 bytecode를 fixture 출력에서 제거한다. 런타임 `URLClassLoader`는 현재 테스트 classloader를 parent로 두고, `Class.forName("io.bluetape4k.coroutines.SuspendLazy", false, fixtureLoader)`가 현재 `SuspendLazy::class.java`와 동일한지 및 `SuspendLazy::class.java.protectionDomain.codeSource.location`이 fixture 디렉터리 밖인지 확인한다. fixture 인스턴스를 현재 `SuspendLazy<Int>`로 cast한 뒤 `runBlocking`에서 `getUntil`, `getUntilOrNull`, 기본 `cancel()`을 호출한다. 임시 디렉터리는 테스트 종료 시 제거한다.
 - [x] 테스트를 먼저 실행해 아직 기본 메서드가 없는 API/캐시 취소 동작/호환성 호출의 차이를 확인한다.
 
 기본 timeout 경계는 가상 시간을 사용한다.
@@ -181,6 +186,8 @@ fun `getUntilOrNull returns null at timeout`() = runTest {
 - [x] `SuspendLazy.getUntilOrNull(Duration)`에 `withTimeoutOrNull(timeout) { invoke() }` 기본 구현을 둔다.
 - [x] `SuspendLazyImpl`의 두 중복 override를 제거해 인터페이스 기본 구현을 사용한다.
 - [x] `SuspendBlockingLazyImpl`은 cache hit에서 `currentCoroutineContext().ensureActive()` 후 timer 없이 값을 돌려준다. 미초기화 상태는 호출자 Job과 분리된 공유 initializer `Deferred`를 시작해 `withTimeout`/`withTimeoutOrNull`로 기다린다. timeout 후 blocking initializer가 계속 실행되고, 다음 호출에서 완료값을 재사용하는지 latch로 검증하며 실패 후 재시도도 확인한다.
+- [x] 기본 initializer dispatcher가 waiter와 같거나 없으면 timeout-owned initializer를 `Dispatchers.IO`에 두어 단일 thread waiter의 timeout 처리를 보장한다. 서로 다른 dispatcher를 요청한 경우 그 dispatcher를 보존한다.
+- [x] `SuspendLazy.cancel()`은 구현체가 소유한 timeout worker 또는 lazy child `Deferred`에 취소를 요청한다. blocking 구간은 `runInterruptible`로 취소 시 thread interrupt를 받으며, waiter timeout/cancellation은 별도 owner 작업을 취소하지 않는다. 신규 멤버는 default no-op으로 두어 구 구현체 ABI를 보존한다.
 - [x] 작업 5의 두 명령을 다시 실행해 API/취소/cache/사전 컴파일 fixture 테스트를 통과시킨다.
 
 인터페이스 기본 구현은 다음 형태로 유지한다.
@@ -251,7 +258,7 @@ deferred.await() shouldBeEqualTo 42
 - `bluetape4k/core/README.md`, `bluetape4k/core/README.ko.md`
 - `bluetape4k/coroutines/README.md`, `bluetape4k/coroutines/README.ko.md`
 
-- [x] 각 public timeout 함수에 성공값, timeout 형태/기본값, 업무 실패·interrupt·외부 취소, 원본 작업 소유권 경계를 설명한다. executor lambda 변환은 O(n)이며 그 변환 비용을 포함한 호출에 엄격한 wall-clock 제한 시간을 약속하지 않는다는 점도 KDoc/README에 적는다.
+- [x] 각 public timeout 함수에 성공값, timeout 형태/기본값, 업무 실패·interrupt·외부 취소, 원본 작업 소유권 경계를 설명한다. `SuspendLazy.cancel()`을 통한 명시 cleanup과 blocking timeout initializer의 dispatcher 선택도 양쪽 README에 기록한다. executor lambda 변환은 O(n)이며 그 변환 비용을 포함한 호출에 엄격한 wall-clock 제한 시간을 약속하지 않는다는 점도 KDoc/README에 적는다.
 - [x] core README 두 언어에 `get`/`join` 예외형과 fallback/null형, `invokeAll`/`invokeAny`의 값 반환 예제를 추가한다.
 - [x] coroutines README 두 언어에 `SuspendLazy`, `Deferred`, `Job` 사용 예제와 기본값/timeout 취소 동작을 추가한다.
 - [x] 기존 `Future.awaitUntil(Duration)`은 timeout/호출자 취소에서 미완료 future에 `cancel(false)`를 최선 노력으로 요청하지만, 신규 `Deferred.awaitUntil` 및 `Job.joinUntil`은 waiter만 제한하고 원본 작업을 직접 취소하지 않는 차이를 KDoc과 대응 README 문단에 적는다.
@@ -304,12 +311,12 @@ javap -p -s -c -classpath bluetape4k/coroutines/build/classes/kotlin/main:blueta
 저장소 전체 baseline을 지원하지 않는 ABI task가 없는 경우, targeted `javap`와 실제 구 ABI fixture를 ABI 증거로 구분해서 기록한다. 둘 중 하나를 전역 binary compatibility plugin의 통과로 표현하지 않는다.
 
 
-**실행 근거:** core 1,704/1,704, coroutines 667/667 테스트 성공, 실패·오류·skip 0. 두 Detekt task는 `--rerun-tasks`로 성공했고, XML의 379개 진단 중 변경 경로 진단 2개는 `origin/develop`에도 존재하는 파일 기준 `TooManyFunctions`와 `futureWithTimeout`의 `MagicNumber`다. `javap -p -s`에서 모든 신규 descriptor와 `SuspendLazy` default method를 확인했고, 구 ABI Java fixture 테스트도 통과했다. 저장소 전역 ABI baseline task는 없다.
+**최신 실행 근거:** core 1,711/1,711, coroutines 684/684 테스트 성공, 실패·오류·skip 0. `ExecutorServiceExtensionsTest`는 discovery 경고 없이 11/11개가 실행됐다. Detekt 두 task는 종료 코드 0이지만 설정상 `ignoreFailures`이며 XML 진단은 core 269건, coroutines 110건이다. 새 timeout 테스트를 포함한 변경 Kotlin 경로에 신규 진단은 없다. `CompletableFutureSupport.kt`의 `TooManyFunctions` 및 `MagicNumber` 두 항목은 `origin/develop`에도 있다. `javap -p -s -c`에서 `SuspendLazy.cancel()V`가 public default method이고 `getUntil*`, JDK 반환형, coroutine extension descriptor를 확인했으며, 구 ABI Java fixture도 timeout 기본 메서드와 `cancel()` 호출을 통과했다. 저장소 전역 ABI baseline task는 없다.
 
 ## 작업 12: 변경 검토, Lore commit, PR 생성과 read-back
 
-- [x] `git status --short`, `git diff --stat`, `git diff --check`, `git diff`로 전체 변경을 검토한다. 다섯 기존 user-edited production file의 의도하지 않은 변경을 제거하지 않고, 리뷰를 위해 staged file 목록을 따로 확인한다.
-- [x] 독립 코드 리뷰를 요청했으나 현 시점에 판정이 없어 워크플로우의 inline fallback review를 수행했다. API/timeout/취소/테스트/ABI/문서 검토와 증거는 `docs/superpowers/reviews/2026-09-29-coroutines-timeout-code-review.md`에 기록했다. 이 결과는 독립 attestation을 대신한다고 주장하지 않는다.
+- [x] `git status --short`, `git diff --stat`, `git diff --check`, `git diff`로 전체 변경을 검토한다. 다섯 기존 user-edited production file의 의도하지 않은 변경을 제거하지 않고, 리뷰를 위해 staged file 목록을 따로 확인한다. Korean naturalness checklist를 적용하고 용어 감사를 실행했다. 기본 clinic 규칙은 coroutine Flow의 기존 두 표현을 표시했지만 timeout 용어가 아니며 이번 변경 줄도 아니어서 보존했다.
+- [x] 최초 리뷰에서 보고된 미실행 JUnit 테스트, 같은 단일 dispatcher의 timeout 지연, detached initializer 취소 경로를 수정하고 회귀 테스트를 추가했다. 후속 exact-diff 리뷰가 지적한 `PUBLICATION`/`NONE`의 동기화 의미 변경은 잠금을 `SYNCHRONIZED` 모드에서만 만들고 사용하는 방식으로 고쳤으며, 수정 전 실패·수정 후 통과 테스트로 확인했다. `SuspendLazy` context의 `Job`이 호출자 `Job`을 대체할 수 있는 계약도 KDoc과 양쪽 README에 명시했다. 이 최종 보완 뒤 별도 독립 리뷰 verdict는 받지 못했다.
 - [ ] 검증된 코드와 문서만 stage하고, 한국어 intent line 및 Lore trailer(`Tested`, `Not-tested`, `Confidence`, `Scope-risk`, `Directive`)를 포함한 commit을 만든다. 구현 계획과 검토된 명세·코드·테스트를 함께 commit한다.
 - [ ] `git push -u origin feature/coroutines-timeout`으로 승인된 head를 게시한다.
 - [ ] 한국어 제목/본문과 `develop` base를 지정해 `bluetape4k/bluetape4k-projects` PR을 생성한다. PR 설명에 API별 변경, JDK 결과 타입 보존, 테스트·Detekt·ABI 증거와 알려진 제한을 기록한다.
