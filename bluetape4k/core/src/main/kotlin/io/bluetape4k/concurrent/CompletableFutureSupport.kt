@@ -515,6 +515,9 @@ val <V> CompletableFuture<V>.isSuccess: Boolean
 /**
  * 제한된 시간([duration]) 안에 [CompletableFuture]의 결과값을 반환합니다.
  *
+ * timeout은 [java.util.concurrent.TimeoutException]으로 전달되고 future 자체는 취소하지 않습니다.
+ * 작업 예외는 원래 원인을 unwrap해 전달하며, 대기 중 interrupt와 future 취소도 전파됩니다.
+ *
  * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { Thread.sleep(1000); 42 }
  * val result: Int = future.join(2.seconds)  // 42
@@ -533,8 +536,9 @@ fun <V> CompletableFuture<V>.join(duration: Duration): V {
 }
 
 /**
- * 제한된 시간 안에 [CompletableFuture]의 결과값을 반환합니다. 제한 시간 안에 완료되지 않으면
- * [defaultValue]를 반환합니다.
+ * 제한된 시간 안에 [CompletableFuture]의 결과값을 반환합니다. 제한 시간 안에 완료되지 않거나
+ * 결과가 `null`이면 [defaultValue]를 반환합니다. 업무 실패, future 취소, 대기 중 interrupt는
+ * 그대로 전파되며 timeout은 future를 직접 취소하지 않습니다.
  *
  * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { Thread.sleep(1000); 42 }
@@ -546,15 +550,19 @@ fun <V> CompletableFuture<V>.join(duration: Duration): V {
  * @return V 결과값
  */
 @Suppress("SwallowedException")
-fun <V> CompletableFuture<V>.join(duration: Duration, defaultValue: V): V =
+fun <V> CompletableFuture<V>.join(duration: kotlin.time.Duration, defaultValue: V): V =
     try {
-        join(duration) ?: defaultValue
-    } catch (e: TimeoutException) {
+        get(duration.inWholeNanoseconds, TimeUnit.NANOSECONDS) ?: defaultValue
+    } catch (_: TimeoutException) {
         defaultValue
+    } catch (e: ExecutionException) {
+        throw e.cause ?: e
     }
 
 /**
- * 제한된 사간안에 [CompletableFuture]의 결과값을 반환하거나, null을 반환합니다.
+ * 제한된 시간 안에 [CompletableFuture]의 결과값을 반환하거나, timeout 시 `null`을 반환합니다.
+ * 실제 결과가 `null`인 경우와 timeout은 반환값만으로 구분할 수 없습니다. 업무 실패, future 취소,
+ * 대기 중 interrupt는 그대로 전파되며, timeout은 future를 직접 취소하지 않습니다.
  *
  * ```kotlin
  * val future: CompletableFuture<Int> = futureOf { Thread.sleep(1000); 42 }
@@ -564,11 +572,35 @@ fun <V> CompletableFuture<V>.join(duration: Duration, defaultValue: V): V =
  * @param duration 최대 대기 시간
  * @return V? 결과값 또는 null
  */
-fun <V> CompletableFuture<V>.joinOrNull(duration: Duration): V? = getOrNull(duration)
+@Suppress("SwallowedException")
+fun <V> CompletableFuture<V>.joinOrNull(duration: Duration): V? =
+    try {
+        get(duration.inWholeNanoseconds, TimeUnit.NANOSECONDS)
+    } catch (_: TimeoutException) {
+        null
+    } catch (e: ExecutionException) {
+        throw e.cause ?: e
+    }
 
-fun <V> CompletableFuture<V>.get(duration: Duration): V =
+/**
+ * 제한된 시간 안에 [CompletableFuture] 결과를 기다립니다.
+ * timeout은 [TimeoutException]으로 전달되며 future 자체는 취소하지 않습니다. 업무 실패는
+ * [ExecutionException]으로 유지되고, 대기 중 interrupt와 future 취소도 전파됩니다.
+ *
+ * @param duration 최대 대기 시간입니다.
+ * @return 완료된 값입니다.
+ */
+fun <V> CompletableFuture<V>.get(duration: kotlin.time.Duration): V =
     get(duration.inWholeNanoseconds, TimeUnit.NANOSECONDS)
 
+/**
+ * 제한된 시간 안에 결과를 기다리고, timeout 시 [defaultValue]를 반환합니다.
+ * 업무 실패, future 취소, 대기 중 interrupt는 그대로 전파되며 future 자체는 취소하지 않습니다.
+ *
+ * @param duration 최대 대기 시간입니다.
+ * @param defaultValue timeout 시 반환할 값입니다.
+ * @return 완료된 값 또는 기본값입니다.
+ */
 @Suppress("SwallowedException")
 fun <V> CompletableFuture<V>.get(duration: Duration, defaultValue: V): V =
     try {
@@ -577,7 +609,16 @@ fun <V> CompletableFuture<V>.get(duration: Duration, defaultValue: V): V =
         defaultValue
     }
 
-fun <V> CompletableFuture<V>.getOrNull(duration: Duration): V? =
+/**
+ * 제한된 시간 안에 결과를 기다리고, timeout 시 `null`을 반환합니다.
+ * 실제 `null` 결과와 timeout은 구분되지 않습니다. 업무 실패, future 취소, 대기 중 interrupt는
+ * 그대로 전파되며 future 자체는 취소하지 않습니다.
+ *
+ * @param duration 최대 대기 시간입니다.
+ * @return 완료된 값 또는 timeout 시 `null`입니다.
+ */
+@Suppress("SwallowedException")
+fun <V> CompletableFuture<V>.getOrNull(duration: kotlin.time.Duration): V? =
     try {
         get(duration)
     } catch (e: TimeoutException) {

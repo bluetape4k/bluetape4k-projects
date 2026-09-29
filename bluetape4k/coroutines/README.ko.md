@@ -243,6 +243,38 @@ val vtScope = VirtualThreadCoroutineScope()
 - `ThreadPoolCoroutineScope`: 고정 크기 풀, 명시적 `close()` 필요
 - `VirtualThreadCoroutineScope`: 가상 스레드 디스패처 기반 스코프
 
+### 상대 시간 기반 코루틴 timeout
+
+`SuspendLazy.getUntil` / `getUntilOrNull`, `Deferred.awaitUntil` / `awaitUntilOrNull`, `Job.joinUntil`은 상대 `kotlin.time.Duration`을 받습니다. `Deferred` 헬퍼의 기본 제한 시간은 5초입니다. 예외형 함수는 코루틴 timeout을 `TimeoutCancellationException`으로 전달하고, nullable 함수는 `null`을 반환합니다. 실제 nullable 결과와 timeout은 반환값만으로 구분할 수 없습니다. timeout은 waiter를 종료하며 `SuspendLazy.cancel()`을 호출하지 않습니다. waiter 취소가 초기화 작업까지 전파되는지는 각 `SuspendLazy` 구현의 `invoke()` 실행 방식에 따릅니다. `Deferred`와 `Job` 헬퍼는 원본 작업을 소유자에게 맡깁니다.
+
+`SuspendLazy.cancel()`은 해당 지연 값이 생성해 소유하는 timeout 초기화 작업의 취소를 요청합니다. 작업이 아직 없거나 구현체가 기본 메서드를 사용하면 아무 동작도 하지 않습니다. `suspendBlockingLazy`의 일반 `invoke()`는 설정한 context에서 initializer를 실행하고, timeout getter는 시도별 worker를 `Dispatchers.IO`에서 실행합니다. 따라서 설정 dispatcher가 waiter와 같은 단일 스레드를 공유해도 timeout 반환이 막히지 않습니다. waiter의 timeout이나 취소는 worker를 취소하지 않으며, `SuspendLazy.cancel()`은 생성된 worker를 취소하고 thread interrupt를 보냅니다. interrupt에 응답하지 않는 코드는 계속 실행될 수 있습니다.
+
+설정 context에 `Job`이 있으면 시도별 `SupervisorJob`이 그 작업에 연결되고 initializer가 끝나면 정리됩니다. 일반 `invoke()`는 설정 context를 적용합니다. 설정 context에 `Job`이 없으면 호출자 coroutine의 취소를 따르고, `Job`이 있으면 `withContext`가 설정한 `Job`을 사용합니다. 다른 initializer가 끝나기를 기다리는 direct `invoke()`는 대기 coroutine을 취소하면 바로 취소됩니다.
+
+```kotlin
+import io.bluetape4k.coroutines.suspendBlockingLazy
+import io.bluetape4k.coroutines.support.awaitUntil
+import io.bluetape4k.coroutines.support.awaitUntilOrNull
+import io.bluetape4k.coroutines.support.joinUntil
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Job
+import kotlin.time.Duration.Companion.seconds
+
+suspend fun boundedWaitExample() {
+    val lazyValue = suspendBlockingLazy { 42 }
+    val lazyResult: Int = lazyValue.getUntil(5.seconds)
+
+    val deferred = CompletableDeferred(42)
+    val result: Int = deferred.awaitUntil() // 기본 제한 시간은 5초
+    val optional: Int? = deferred.awaitUntilOrNull(5.seconds)
+
+    val completedJob = Job().apply { complete() }
+    completedJob.joinUntil(5.seconds)
+}
+```
+
+기존 `Future.awaitUntil` 계열은 timeout 또는 호출자 취소 뒤에도 완료되지 않은 future에 `cancel(false)`를 최선 노력으로 요청합니다. 신규 `Deferred` 및 `Job` 헬퍼는 waiter만 종료하며, 원본 작업의 취소 여부는 소유자가 결정합니다.
+
 ### 구조화된 동시성 — StructuredTaskScope 브릿지
 
 `StructuredConcurrency.kt`는 JDK `StructuredTaskScope`(가상 스레드 구조화된 동시성)와 Kotlin Coroutines를 연결하며, `Dispatchers.VT`에서 실행되는 DSL 스타일 suspend 함수를 제공합니다.
@@ -306,7 +338,7 @@ val (r1, r2) = awaitAll(d1, d2)
 
 - 모든 suspend 변형은 `withContext(Dispatchers.VT)` 내에서 실행 — blocking `join()`이 가상 스레드로 오프로드됨
 - `async` 변형은 즉시 `Deferred<T>`를 반환하며 백그라운드에서 실행; 실패를 테스트할 때는 `supervisorScope { }`로 격리 필요
-- `joinUntil(deadline)` 데드라인 초과 시 `TimeoutException` 발생
+- `joinUntil(deadline)`은 절대 시각인 `Instant` deadline을 받고 초과 시 `TimeoutException`을 던집니다. 상대 시간인 `Job.joinUntil(Duration)`과는 다른 API이며, 후자는 timeout을 코루틴 취소로 전달합니다.
 
 ### Reactor 컨텍스트 헬퍼
 

@@ -8,7 +8,10 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.selects.select
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * 두 `Deferred`가 모두 완료되면 결과를 결합해 새 `Deferred`로 반환합니다.
@@ -207,3 +210,29 @@ suspend fun <T> Collection<Deferred<T>>.awaitAnyAndCancelOthers(): T {
     }
     return firstFinished.value.getOrThrow()
 }
+
+/**
+ * 지정한 시간 동안 `Deferred`의 결과를 기다립니다. 기본 대기 시간은 5초입니다.
+ *
+ * 시간이 지나면 waiter에 `TimeoutCancellationException`을 전달합니다. 원본 `Deferred`를 직접
+ * 취소하지 않으므로 작업은 계속 실행될 수 있습니다. 원본 실패와 호출자 취소는 그대로 전파됩니다.
+ *
+ * @param timeout 결과를 기다릴 최대 시간입니다.
+ * @return 원본 `Deferred`가 완료한 값입니다.
+ */
+suspend fun <T> Deferred<T>.awaitUntil(timeout: kotlin.time.Duration = 5.seconds): T =
+    withTimeout(timeout) { await() }
+
+/**
+ * 지정한 시간 동안 `Deferred`의 결과를 기다리고, 시간이 지나면 `null`을 반환합니다.
+ * 기본 대기 시간은 5초입니다.
+ *
+ * 실제 결과가 `null`일 수 있으므로 반환된 `null`만으로 원본 값과 timeout을 구분할 수 없습니다.
+ * timeout은 waiter에만 적용되며 원본 `Deferred`를 직접 취소하지 않습니다. 원본 실패와 호출자
+ * 취소는 그대로 전파됩니다.
+ *
+ * @param timeout 결과를 기다릴 최대 시간입니다.
+ * @return 원본 값 또는 timeout 시 `null`입니다.
+ */
+suspend fun <T> Deferred<T>.awaitUntilOrNull(timeout: kotlin.time.Duration = 5.seconds): T? =
+    withTimeoutOrNull(timeout) { await() }

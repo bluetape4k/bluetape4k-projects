@@ -10,10 +10,17 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CancellationException
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.nanoseconds
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * [CompletableFuture] 관련 함수를 테스트합니다.
@@ -183,16 +190,12 @@ class CompletableFutureSupportTest {
 
     @Test
     fun `join with defaultValue returns result when completed in time`() {
-        // H2 수정 검증: timeout 내 완료 시 정상 결과 반환
-        val future = futureOf { Thread.sleep(50); 42 }
-        future.join(500.milliseconds, 0) shouldBeEqualTo 42
+        completableFutureOf(42).join(500.milliseconds, 0) shouldBeEqualTo 42
     }
 
     @Test
     fun `join with defaultValue returns default on timeout`() {
-        // H2 수정 검증: timeout 시 defaultValue 반환
-        val future = futureOf { Thread.sleep(2000); 42 }
-        future.join(100.milliseconds, -1) shouldBeEqualTo -1
+        CompletableFuture<Int>().join(1.nanoseconds, -1) shouldBeEqualTo -1
     }
 
     @Test
@@ -205,25 +208,180 @@ class CompletableFutureSupportTest {
     }
 
     @Test
+    fun `join with defaultValue propagates business timeout exception`() {
+        val businessTimeout = TimeoutException("business timeout")
+        val future = failedCompletableFutureOf<Int>(businessTimeout)
+
+        assertFailsWith<TimeoutException> {
+            future.join(1.seconds, -1)
+        }.message shouldBeEqualTo "business timeout"
+    }
+
+    @Test
     fun `joinOrNull returns result when completed in time`() {
-        // H2 수정 검증: timeout 내 완료 시 정상 결과 반환
-        val future = futureOf { Thread.sleep(50); 42 }
-        future.joinOrNull(500.milliseconds) shouldBeEqualTo 42
+        completableFutureOf(42).joinOrNull(500.milliseconds) shouldBeEqualTo 42
     }
 
     @Test
     fun `joinOrNull returns null on timeout`() {
-        // H2 수정 검증: timeout 시 null 반환
-        val future = futureOf { Thread.sleep(2000); 42 }
-        future.joinOrNull(100.milliseconds) shouldBeEqualTo null
+        CompletableFuture<Int>().joinOrNull(1.nanoseconds) shouldBeEqualTo null
     }
 
     @Test
     fun `joinOrNull propagates non-timeout exceptions`() {
         // H2 수정 검증: TimeoutException 이외의 예외는 rethrow
         val future = failedCompletableFutureOf<Int>(IllegalStateException("비즈니스 오류"))
-        assertFailsWith<ExecutionException> {
+        assertFailsWith<IllegalStateException> {
             future.joinOrNull(500.milliseconds)
-        }.cause shouldBeInstanceOf IllegalStateException::class
+        }.message shouldBeEqualTo "비즈니스 오류"
+    }
+
+    @Test
+    fun `nullable completed values follow each overload fallback contract`() {
+        val completed = completableFutureOf<Int?>(42)
+        completed.get(1.seconds) shouldBeEqualTo 42
+        completed.get(1.seconds, -1) shouldBeEqualTo 42
+        completed.getOrNull(1.seconds) shouldBeEqualTo 42
+        completed.join(1.seconds) shouldBeEqualTo 42
+        completed.join(1.seconds, -1) shouldBeEqualTo 42
+        completed.joinOrNull(1.seconds) shouldBeEqualTo 42
+
+        val completedNull = completableFutureOf<Int?>(null)
+        completedNull.get(1.seconds) shouldBeEqualTo null
+        completedNull.get(1.seconds, -1) shouldBeEqualTo null
+        completedNull.getOrNull(1.seconds) shouldBeEqualTo null
+        completedNull.join(1.seconds) shouldBeEqualTo null
+        completedNull.join(1.seconds, -1) shouldBeEqualTo -1
+        completedNull.joinOrNull(1.seconds) shouldBeEqualTo null
+    }
+
+    @Test
+    fun `zero and negative duration return completed value and immediately time out pending future`() {
+        val completed = completableFutureOf(42)
+        completed.get(Duration.ZERO) shouldBeEqualTo 42
+        completed.join(Duration.ZERO) shouldBeEqualTo 42
+        completed.get(-1.nanoseconds) shouldBeEqualTo 42
+        completed.join(-1.nanoseconds) shouldBeEqualTo 42
+
+        val pending = CompletableFuture<Int>()
+        assertFailsWith<TimeoutException> { pending.get(Duration.ZERO) }
+        pending.get(Duration.ZERO, -1) shouldBeEqualTo -1
+        pending.getOrNull(Duration.ZERO) shouldBeEqualTo null
+        assertFailsWith<TimeoutException> { pending.join(Duration.ZERO) }
+        pending.join(Duration.ZERO, -1) shouldBeEqualTo -1
+        pending.joinOrNull(Duration.ZERO) shouldBeEqualTo null
+        pending.isCancelled.shouldBeFalse()
+    }
+
+    @Test
+    fun `duration infinite is passed to timed get as saturated nanoseconds`() {
+        val future = RecordingFuture(42)
+
+        future.get(Duration.INFINITE) shouldBeEqualTo 42
+        future.timeout shouldBeEqualTo Long.MAX_VALUE
+        future.unit shouldBeEqualTo TimeUnit.NANOSECONDS
+
+        future.get(Duration.INFINITE, -1) shouldBeEqualTo 42
+        future.getOrNull(Duration.INFINITE) shouldBeEqualTo 42
+        future.join(Duration.INFINITE) shouldBeEqualTo 42
+        future.join(Duration.INFINITE, -1) shouldBeEqualTo 42
+        future.joinOrNull(Duration.INFINITE) shouldBeEqualTo 42
+        future.timeout shouldBeEqualTo Long.MAX_VALUE
+        future.unit shouldBeEqualTo TimeUnit.NANOSECONDS
+    }
+
+    @Test
+    fun `only a wait timeout is converted and timed out future remains usable`() {
+        val pending = CompletableFuture<Int>()
+        assertFailsWith<TimeoutException> { pending.get(1.nanoseconds) }
+        pending.isCancelled.shouldBeFalse()
+        pending.complete(42).shouldBeTrue()
+        pending.get() shouldBeEqualTo 42
+
+        val businessTimeout = failedCompletableFutureOf<Int>(TimeoutException("business timeout"))
+        assertFailsWith<TimeoutException> { businessTimeout.join(1.seconds, -1) }
+            .message shouldBeEqualTo "business timeout"
+
+        val cancelled = CompletableFuture<Int>().also { it.cancel(true) }
+        assertFailsWith<CancellationException> { cancelled.get(1.seconds) }
+        assertFailsWith<CancellationException> { cancelled.join(1.seconds) }
+    }
+
+    @Test
+    fun `duration overloads preserve business failures and cancellation`() {
+        val failure = IllegalStateException("business failure")
+        val failed = failedCompletableFutureOf<Int>(failure)
+        val getOperations: List<(CompletableFuture<Int>) -> Any?> = listOf(
+            { it.get(1.seconds) },
+            { it.get(1.seconds, -1) },
+            { it.getOrNull(1.seconds) },
+        )
+        getOperations.forEach { operation ->
+            assertFailsWith<ExecutionException> { operation(failed) }.cause shouldBeEqualTo failure
+        }
+
+        val joinOperations: List<(CompletableFuture<Int>) -> Any?> = listOf(
+            { it.join(1.seconds) },
+            { it.join(1.seconds, -1) },
+            { it.joinOrNull(1.seconds) },
+        )
+        joinOperations.forEach { operation ->
+            assertFailsWith<IllegalStateException> { operation(failed) }.message shouldBeEqualTo failure.message
+        }
+
+        val businessTimeout = failedCompletableFutureOf<Int>(TimeoutException("business timeout"))
+        joinOperations.forEach { operation ->
+            assertFailsWith<TimeoutException> { operation(businessTimeout) }
+                .message shouldBeEqualTo "business timeout"
+        }
+
+        val cancelled = CompletableFuture<Int>().also { it.cancel(true) }
+        (getOperations + joinOperations).forEach { operation ->
+            assertFailsWith<CancellationException> { operation(cancelled) }
+        }
+    }
+
+    @Test
+    fun `all duration get and join extensions propagate waiting thread interruption`() {
+        val operations: List<(CompletableFuture<Int>) -> Any?> = listOf(
+            { it.get(1.seconds) },
+            { it.get(1.seconds, -1) },
+            { it.getOrNull(1.seconds) },
+            { it.join(1.seconds) },
+            { it.join(1.seconds, -1) },
+            { it.joinOrNull(1.seconds) },
+        )
+
+        operations.forEach { operation ->
+            val future = CompletableFuture<Int>()
+            val entered = CountDownLatch(1)
+            val failure = AtomicReference<Throwable?>()
+            val waiter = Thread {
+                entered.countDown()
+                try {
+                    operation(future)
+                } catch (error: Throwable) {
+                    failure.set(error)
+                }
+            }
+
+            waiter.start()
+            entered.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            waiter.interrupt()
+            waiter.join(TimeUnit.SECONDS.toMillis(5))
+            waiter.isAlive.shouldBeFalse()
+            failure.get().shouldNotBeNull().shouldBeInstanceOf(InterruptedException::class)
+        }
+    }
+
+    private class RecordingFuture<T>(private val result: T): CompletableFuture<T>() {
+        var timeout: Long = 0
+        var unit: TimeUnit? = null
+
+        override fun get(timeout: Long, unit: TimeUnit): T {
+            this.timeout = timeout
+            this.unit = unit
+            return result
+        }
     }
 }
