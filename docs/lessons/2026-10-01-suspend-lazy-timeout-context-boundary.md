@@ -34,3 +34,4 @@ worker context는 lazy 생성 시 설정한 context에서만 구성한다. 설�
 - 여러 호출자가 공유하는 lazy 작업은 첫 waiter의 context에서 만들지 않는다. task/lazy 소유 context와 waiter의 deadline/cancellation/context를 분리한다.
 - `ThreadContextElement` 전파를 검증할 때는 caller와 configured context에 서로 다른 `ThreadLocal` 값을 두고, worker가 설정값만 보는지 확인한다.
 - 첫 waiter timeout, 후속 waiter의 공유, 초기화 횟수, 설정 `Job`의 정리를 latch로 동기화해 검증한다. 고정 sleep은 동시성 순서를 증명하지 않는다.
+- 마지막 소스 수정 뒤에 compile/test를 다시 실행해 최종 증거를 갱신한다. 이전 성공 결과를 나중 편집에 그대로 적용하지 않는다.
