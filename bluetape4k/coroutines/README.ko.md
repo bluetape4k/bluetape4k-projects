@@ -251,6 +251,8 @@ val vtScope = VirtualThreadCoroutineScope()
 
 설정 context에 `Job`이 있으면 시도별 `SupervisorJob`이 그 작업에 연결되고 initializer가 끝나면 정리됩니다. 일반 `invoke()`는 설정 context를 적용합니다. 설정 context에 `Job`이 없으면 호출자 coroutine의 취소를 따르고, `Job`이 있으면 `withContext`가 설정한 `Job`을 사용합니다. 다른 initializer가 끝나기를 기다리는 direct `invoke()`는 대기 coroutine을 취소하면 바로 취소됩니다.
 
+timeout worker는 `suspendBlockingLazy` 생성 시 전달한 `CoroutineContext`에서 `Job`을 제외한 요소를 사용하며, 첫 waiter와 이후 waiter의 요소는 받지 않습니다. dispatcher는 `Dispatchers.IO`로 바꾸고, 설정한 `Job`은 lazy 소유 `SupervisorJob`의 parent로 둡니다. 설정 context의 `ThreadContextElement`는 공유 worker context에 포함됩니다. 초기화가 waiter의 timeout 뒤에도 계속될 수 있으므로, lazy 값의 전체 초기화 수명에 맞는 요소만 설정해야 합니다. `suspendBlockingLazyIO`의 timeout worker에는 추가 context 요소가 없으며 호출자의 context 요소를 상속하지 않습니다.
+
 ```kotlin
 import io.bluetape4k.coroutines.suspendBlockingLazy
 import io.bluetape4k.coroutines.support.awaitUntil

@@ -253,6 +253,8 @@ val vtScope = VirtualThreadCoroutineScope()
 
 If the configured context contains a `Job`, the attempt's `SupervisorJob` is linked to it and is released when the initializer ends. A direct invocation uses the configured context: cancellation follows the caller when no `Job` is configured, and follows the configured `Job` when one is present. A direct invocation waiting behind another initializer can itself be cancelled without waiting for the blocking work to finish.
 
+The timeout worker uses elements other than `Job` from the `CoroutineContext` passed when creating `suspendBlockingLazy`; it never inherits elements from the first or later waiter. Its dispatcher is replaced with `Dispatchers.IO`, and a configured `Job` remains the parent of the lazy-owned `SupervisorJob`. A configured `ThreadContextElement` belongs to that shared worker context, and initialization can continue after a waiter times out. Use only elements whose values and lifetime are appropriate for the lazy value's full initialization. The `suspendBlockingLazyIO` timeout worker has no additional configured context elements and does not inherit them from the caller.
+
 ```kotlin
 import io.bluetape4k.coroutines.suspendBlockingLazy
 import io.bluetape4k.coroutines.support.awaitUntil
