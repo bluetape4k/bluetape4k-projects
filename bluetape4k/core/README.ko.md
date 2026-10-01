@@ -47,7 +47,7 @@ dependencies {
 
 ## CompletableFuture와 Executor timeout
 
-`CompletableFuture`는 예외를 던지는 `get`/`join`, 기본값 반환, nullable 반환 형태를 제공합니다. timeout은 future를 취소하지 않습니다. `get`은 `ExecutionException`을 유지하고 `join` 확장 함수는 원인을 unwrap합니다. `get(duration, defaultValue)`는 대기 timeout에만 기본값을 쓰지만, `join(duration, defaultValue)`는 완료 결과가 `null`인 경우에도 기본값을 사용합니다. nullable 형태는 실제 결과가 `null`인 경우와 대기 timeout을 모두 `null`로 반환하므로 결과만으로 둘을 구분할 수 없습니다.
+`CompletableFuture`는 예외를 던지는 `get`/`join`, 기본값 반환, nullable 반환 형태를 제공합니다. timeout은 future를 취소하지 않습니다. Duration 기반 `get` 계열과 `joinOrNull(Duration)`은 작업 실패를 `ExecutionException`으로 전달하고 원래 예외를 `cause`로 보존합니다. `join(Duration)`과 기본값을 받는 `join` 확장 함수는 원인을 unwrap합니다. `joinOrNull(Duration)`은 대기 timeout만 `null`로 바꾸며, 업무 예외가 `TimeoutException`이어도 예외 완료라면 `ExecutionException`에 담겨 전파됩니다. `get(duration, defaultValue)`는 대기 timeout에만 기본값을 쓰지만, `join(duration, defaultValue)`는 완료 결과가 `null`인 경우에도 기본값을 사용합니다. nullable 형태는 실제 결과가 `null`인 경우와 대기 timeout을 모두 `null`로 반환하므로 결과만으로 둘을 구분할 수 없습니다.
 
 `ExecutorService.invokeAll` 및 `invokeAny` 확장 함수는 작업 람다를 받고 JDK 반환 타입인 `List<Future<T>>`와 `T`를 각각 반환합니다. 각 람다를 `Callable`로 바꾸는 O(n) 변환이 timed JDK 호출 전에 실행되므로 timeout은 확장 함수 전체 호출의 엄격한 wall-clock 상한이 아닙니다. JDK 취소는 요청이며 interrupt에 협력하지 않는 작업은 계속 실행될 수 있습니다. executor 소유자가 종료 처리를 담당해야 합니다.
 

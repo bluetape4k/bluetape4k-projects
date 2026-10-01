@@ -50,7 +50,7 @@ dependencies {
 
 ## CompletableFuture and Executor Timeouts
 
-`CompletableFuture` offers throwing (`get` / `join`), fallback, and nullable timeout forms. A timeout does not cancel the future. `get` preserves `ExecutionException`; the `join` extensions unwrap its cause. `get(duration, defaultValue)` uses its default only on timeout, while `join(duration, defaultValue)` also uses it when the completed result is `null`. The nullable forms return `null` both for a timed-out wait and for a future whose actual result is `null`.
+`CompletableFuture` offers throwing (`get` / `join`), fallback, and nullable timeout forms. A timeout does not cancel the future. The Duration-based `get` extensions and `joinOrNull(Duration)` preserve `ExecutionException` and its original cause; `join(Duration)` and the fallback `join` extension unwrap the cause. `joinOrNull(Duration)` converts only a wait timeout to `null`; if the task fails with `TimeoutException`, it is carried as the cause of `ExecutionException`. `get(duration, defaultValue)` uses its default only on timeout, while `join(duration, defaultValue)` also uses it when the completed result is `null`. The nullable forms return `null` both for a timed-out wait and for a future whose actual result is `null`.
 
 The `ExecutorService.invokeAll` and `invokeAny` extensions accept task lambdas and return the JDK result types: `List<Future<T>>` and `T`. They wrap each lambda in a `Callable`, an O(n) conversion performed before the timed JDK call. The timeout therefore does not impose a strict wall-clock bound on the whole extension call. JDK cancellation is a request; interrupt-insensitive tasks may keep running, and the executor owner remains responsible for shutdown.
 
