@@ -225,9 +225,7 @@ class SuspendBlockingLazyTimeoutTest {
             TEST_NUMBER
         }
         val waiter = async(Dispatchers.Default) {
-            assertFailsWith<kotlinx.coroutines.CancellationException> {
-                lazyValue.getUntil(Duration.INFINITE)
-            }
+            runCatching { lazyValue.getUntil(Duration.INFINITE) }
         }
 
         try {
@@ -235,7 +233,8 @@ class SuspendBlockingLazyTimeoutTest {
             lazyValue.cancel()
             withContext(Dispatchers.IO) { interrupted.await(5, TimeUnit.SECONDS).shouldBeTrue() }
 
-            withTimeout(5.seconds) { waiter.await() }
+            val result = withTimeout(5.seconds) { waiter.await() }
+            (result.exceptionOrNull() is kotlinx.coroutines.CancellationException).shouldBeTrue()
         } finally {
             release.countDown()
         }
@@ -331,7 +330,9 @@ class SuspendBlockingLazyTimeoutTest {
             }
         }
         val waiter = async(Dispatchers.Default) {
-            runCatching { lazyValue.getUntil(Duration.INFINITE) }
+            assertFailsWith<kotlinx.coroutines.CancellationException> {
+                lazyValue.getUntil(Duration.INFINITE)
+            }
         }
 
         try {
@@ -344,8 +345,7 @@ class SuspendBlockingLazyTimeoutTest {
                 interrupted.await(5, TimeUnit.SECONDS).shouldBeTrue()
                 finished.await(5, TimeUnit.SECONDS).shouldBeTrue()
             }
-            val result = withTimeout(5.seconds) { waiter.await() }
-            (result.exceptionOrNull() is kotlinx.coroutines.CancellationException).shouldBeTrue()
+            withTimeout(5.seconds) { waiter.await() }
             awaitNoChildren(parentJob)
         } finally {
             release.countDown()
