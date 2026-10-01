@@ -228,12 +228,14 @@ class CompletableFutureSupportTest {
     }
 
     @Test
-    fun `joinOrNull propagates non-timeout exceptions`() {
-        // H2 수정 검증: TimeoutException 이외의 예외는 rethrow
-        val future = failedCompletableFutureOf<Int>(IllegalStateException("비즈니스 오류"))
-        assertFailsWith<IllegalStateException> {
+    fun `joinOrNull preserves ExecutionException and its cause for exceptional completion`() {
+        val failure = IllegalStateException("비즈니스 오류")
+        val future = failedCompletableFutureOf<Int>(failure)
+
+        val exception = assertFailsWith<ExecutionException> {
             future.joinOrNull(500.milliseconds)
-        }.message shouldBeEqualTo "비즈니스 오류"
+        }
+        exception.cause shouldBeEqualTo failure
     }
 
     @Test
@@ -270,6 +272,13 @@ class CompletableFutureSupportTest {
         assertFailsWith<TimeoutException> { pending.join(Duration.ZERO) }
         pending.join(Duration.ZERO, -1) shouldBeEqualTo -1
         pending.joinOrNull(Duration.ZERO) shouldBeEqualTo null
+
+        assertFailsWith<TimeoutException> { pending.get(-1.nanoseconds) }
+        pending.get(-1.nanoseconds, -1) shouldBeEqualTo -1
+        pending.getOrNull(-1.nanoseconds) shouldBeEqualTo null
+        assertFailsWith<TimeoutException> { pending.join(-1.nanoseconds) }
+        pending.join(-1.nanoseconds, -1) shouldBeEqualTo -1
+        pending.joinOrNull(-1.nanoseconds) shouldBeEqualTo null
         pending.isCancelled.shouldBeFalse()
     }
 
@@ -323,20 +332,29 @@ class CompletableFutureSupportTest {
         val joinOperations: List<(CompletableFuture<Int>) -> Any?> = listOf(
             { it.join(1.seconds) },
             { it.join(1.seconds, -1) },
-            { it.joinOrNull(1.seconds) },
         )
         joinOperations.forEach { operation ->
             assertFailsWith<IllegalStateException> { operation(failed) }.message shouldBeEqualTo failure.message
         }
+
+        val joinOrNullFailure = assertFailsWith<ExecutionException> {
+            failed.joinOrNull(1.seconds)
+        }
+        joinOrNullFailure.cause shouldBeEqualTo failure
 
         val businessTimeout = failedCompletableFutureOf<Int>(TimeoutException("business timeout"))
         joinOperations.forEach { operation ->
             assertFailsWith<TimeoutException> { operation(businessTimeout) }
                 .message shouldBeEqualTo "business timeout"
         }
+        val joinOrNullBusinessTimeout = assertFailsWith<ExecutionException> {
+            businessTimeout.joinOrNull(1.seconds)
+        }
+        joinOrNullBusinessTimeout.cause shouldBeInstanceOf TimeoutException::class
 
         val cancelled = CompletableFuture<Int>().also { it.cancel(true) }
-        (getOperations + joinOperations).forEach { operation ->
+        (getOperations + joinOperations + listOf<(CompletableFuture<Int>) -> Any?> { it.joinOrNull(1.seconds) })
+            .forEach { operation ->
             assertFailsWith<CancellationException> { operation(cancelled) }
         }
     }
