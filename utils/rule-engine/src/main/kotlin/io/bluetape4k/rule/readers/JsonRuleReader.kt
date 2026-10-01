@@ -2,6 +2,7 @@ package io.bluetape4k.rule.readers
 
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
+import io.bluetape4k.logging.warn
 import io.bluetape4k.rule.api.RuleDefinition
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ObjectMapper
@@ -43,10 +44,16 @@ class JsonRuleReader(
         log.debug { "Read all JSON formatted rule definitions ..." }
 
         val nodes = mapper.readTree(source)
-        return nodes["rules"]
-            ?.asSequence()
-            ?.mapNotNull { tryGetRuleDefinition(it.asMap()) }
-            ?: emptySequence()
+        return nodes["rules"]?.asSequence()?.mapIndexedNotNull { index, node ->
+            try {
+                tryGetRuleDefinition(node.asMap())
+            } catch (e: IllegalArgumentException) {
+                log.warn(e) {
+                    "Fail to convert JSON rule at index=$index, fieldCount=${node.size()}"
+                }
+                null
+            }
+        } ?: emptySequence()
     }
 
     private fun JsonNode.asMap(): Map<String, Any?> {
@@ -55,7 +62,12 @@ class JsonRuleReader(
             "description" to this["description"]?.asString(),
             "priority" to this["priority"]?.asInt(),
             "condition" to runCatching { this["condition"]?.asString() }.getOrNull(),
-            "actions" to this["actions"]?.mapNotNull { runCatching { it.asString() }.getOrNull() }?.toList()
+            "actions" to this["actions"]?.mapIndexed { index, action ->
+                require(action.isString) {
+                    "The JSON rule action at index=$index must be a string."
+                }
+                action.asString()
+            }?.toList()
         )
     }
 }
