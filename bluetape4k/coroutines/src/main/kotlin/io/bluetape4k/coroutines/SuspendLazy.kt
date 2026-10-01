@@ -101,6 +101,11 @@ interface SuspendLazy<out T> {
  *   waiter의 timeout/취소는 그 작업을 취소하지 않습니다.
  * - timeout getter의 블로킹 initializer는 항상 `Dispatchers.IO`에서 실행되어
  *   waiter와 별칭인 dispatcher도 timeout을 막지 않습니다. 일반 `invoke()`는 설정한 context를 사용합니다.
+ * - timeout worker는 첫 waiter와 후속 waiter의 context 요소를 받지 않습니다. `suspendBlockingLazy` 생성 시
+ *   설정한 context에서 `Job`을 제외한 요소를 사용하고, 설정 dispatcher는 `Dispatchers.IO`로 바꿉니다.
+ *   설정 `Job`은 lazy 소유 `SupervisorJob`의 parent가 됩니다.
+ * - 설정 context의 `ThreadContextElement`는 공유 worker context에 포함됩니다. 초기화가 waiter의 timeout 뒤에도
+ *   계속될 수 있으므로, lazy 값의 전체 초기화 수명에 맞는 요소만 설정해야 합니다.
  * - `SuspendLazy.cancel()`은 생성된 timeout 초기화 작업만 취소합니다. 블로킹 initializer에는
  *   thread interrupt를 보내지만, interrupt에 응답하지 않는 코드는 계속 실행될 수 있습니다.
  * - 직접 호출한 `invoke()`가 시작한 초기화는 설정 `coroutineContext`로 실행합니다.
@@ -133,6 +138,8 @@ inline fun <T> suspendBlockingLazy(
  * - `initializer` 예외는 호출자에게 전파되며, 초기화 재시도 여부는 내부 `lazy` 동작을 따릅니다.
  * - timeout getter는 지연 값이 소유하는 작업에서 실행되므로 waiter의 timeout/취소는
  *   initializer를 중단하지 않습니다. 활성 timeout 초기화만 `SuspendLazy.cancel()`로 취소할 수 있습니다.
+ * - timeout worker는 호출자의 context element를 상속하지 않습니다. `suspendBlockingLazyIO`는
+ *   설정 context element 없이 `Dispatchers.IO`에서 초기화합니다.
  * - 직접 `invoke()`로 시작한 초기화는 호출자 coroutine이 소유합니다. 취소하려면 호출자 coroutine을
  *   취소하며, `SuspendLazy.cancel()`은 직접 호출을 중단하지 않습니다.
  *
@@ -193,7 +200,7 @@ internal class SuspendBlockingLazyImpl<out T>(
             currentCoroutineContext().ensureActive()
             return lazyValue.value
         }
-        return withTimeout(timeout) { timeoutInitializer(currentCoroutineContext()).await() }
+        return withTimeout(timeout) { timeoutInitializer().await() }
     }
 
     override suspend fun getUntilOrNull(timeout: Duration): T? {
@@ -201,15 +208,15 @@ internal class SuspendBlockingLazyImpl<out T>(
             currentCoroutineContext().ensureActive()
             return lazyValue.value
         }
-        return withTimeoutOrNull(timeout) { timeoutInitializer(currentCoroutineContext()).await() }
+        return withTimeoutOrNull(timeout) { timeoutInitializer().await() }
     }
 
-    private fun timeoutInitializer(callerContext: CoroutineContext): Deferred<T> {
+    private fun timeoutInitializer(): Deferred<T> {
         synchronized(timeoutInitializationLock) {
             timeoutInitializerTask?.takeUnless { it.isCancelled }?.let { return it }
 
-            val requestedContext = callerContext.minusKey(Job) + dispatcher.minusKey(Job)
-            val initializerContext = requestedContext.minusKey(ContinuationInterceptor) + Dispatchers.IO
+            val configuredContext = dispatcher.minusKey(Job)
+            val initializerContext = configuredContext.minusKey(ContinuationInterceptor) + Dispatchers.IO
             val ownerJob = SupervisorJob(dispatcher[Job])
             val deferred = CoroutineScope(initializerContext + ownerJob)
                 .async(start = CoroutineStart.LAZY) { value() }

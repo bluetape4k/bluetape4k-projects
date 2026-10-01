@@ -1,9 +1,12 @@
 package io.bluetape4k.coroutines
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
+import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBe
+import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import io.bluetape4k.junit5.coroutines.withSingleThread
 import kotlinx.coroutines.CompletableDeferred
@@ -307,40 +310,103 @@ class SuspendBlockingLazyTimeoutTest {
     }
 
     @Test
-    fun `failed timeout initialization retries with the current caller context`() = runSuspendIO(timeout = 5.seconds) {
-        val requestContext = ThreadLocal<String>()
-        val firstObserved = AtomicReference<String?>()
-        val retryObserved = AtomicReference<String?>()
-        val attempts = AtomicInteger()
+    fun `failed timeout initialization retries with the configured context`() =
+        runSuspendIO(timeout = 5.seconds) {
+            val callerRequestContext = ThreadLocal<String>()
+            val configuredRequestContext = ThreadLocal<String>()
+            val firstCallerObserved = AtomicReference<String?>()
+            val firstConfiguredObserved = AtomicReference<String?>()
+            val retryCallerObserved = AtomicReference<String?>()
+            val retryConfiguredObserved = AtomicReference<String?>()
+            val attempts = AtomicInteger()
 
-        withTimeout(4.seconds) {
-            coroutineScope {
-                val context = currentCoroutineContext()
-                val parentJob = context[Job]!!
-                val lazyValue = suspendBlockingLazy(context) {
-                    val attempt = attempts.incrementAndGet()
-                    if (attempt == 1) {
-                        firstObserved.set(requestContext.get())
-                        error("first attempt")
+            withTimeout(4.seconds) {
+                coroutineScope {
+                    val parentContext = currentCoroutineContext()
+                    val parentJob = parentContext[Job].shouldNotBeNull()
+                    val configuredContext = parentContext + configuredRequestContext.asContextElement("configured")
+                    val lazyValue = suspendBlockingLazy(configuredContext) {
+                        val attempt = attempts.incrementAndGet()
+                        if (attempt == 1) {
+                            firstCallerObserved.set(callerRequestContext.get())
+                            firstConfiguredObserved.set(configuredRequestContext.get())
+                            error("first attempt")
+                        }
+                        retryCallerObserved.set(callerRequestContext.get())
+                        retryConfiguredObserved.set(configuredRequestContext.get())
+                        TEST_NUMBER
                     }
-                    retryObserved.set(requestContext.get())
-                    TEST_NUMBER
-                }
 
-                val failed = withContext(requestContext.asContextElement("first")) {
-                    runCatching { lazyValue.getUntil(1.seconds) }
-                }
-                (failed.exceptionOrNull() is IllegalStateException).shouldBeTrue()
-                firstObserved.get() shouldBeEqualTo "first"
+                    withContext(callerRequestContext.asContextElement("first")) {
+                        assertFailsWith<IllegalStateException> { lazyValue.getUntil(1.seconds) }
+                    }
+                    firstCallerObserved.get().shouldBeNull()
+                    firstConfiguredObserved.get() shouldBeEqualTo "configured"
 
-                withContext(requestContext.asContextElement("retry")) {
-                    lazyValue.getUntil(1.seconds) shouldBeEqualTo TEST_NUMBER
+                    withContext(callerRequestContext.asContextElement("retry")) {
+                        lazyValue.getUntil(1.seconds) shouldBeEqualTo TEST_NUMBER
+                    }
+                    retryCallerObserved.get().shouldBeNull()
+                    retryConfiguredObserved.get() shouldBeEqualTo "configured"
+                    awaitNoChildren(parentJob)
                 }
-                retryObserved.get() shouldBeEqualTo "retry"
-                awaitNoChildren(parentJob)
             }
         }
-    }
+
+    @Test
+    fun `timeout worker keeps configured context when the first waiter times out`() =
+        runSuspendIO(timeout = 5.seconds) {
+            val callerRequestContext = ThreadLocal<String>()
+            val configuredRequestContext = ThreadLocal<String>()
+            val callerContextObserved = AtomicReference<String?>()
+            val configuredContextObserved = AtomicReference<String?>()
+            val started = CountDownLatch(1)
+            val release = CountDownLatch(1)
+            val finished = CountDownLatch(1)
+            val callCounter = AtomicInteger()
+            val parentJob = currentCoroutineContext()[Job].shouldNotBeNull()
+            val configuredContext = currentCoroutineContext() + configuredRequestContext.asContextElement("configured")
+            val lazyValue = suspendBlockingLazy(configuredContext) {
+                callCounter.incrementAndGet()
+                callerContextObserved.set(callerRequestContext.get())
+                configuredContextObserved.set(configuredRequestContext.get())
+                started.countDown()
+                try {
+                    release.await()
+                    TEST_NUMBER
+                } finally {
+                    finished.countDown()
+                }
+            }
+            val firstWaiter = async(Dispatchers.Default, start = CoroutineStart.UNDISPATCHED) {
+                withContext(callerRequestContext.asContextElement("first")) {
+                    lazyValue.getUntilOrNull(100.milliseconds)
+                }
+            }
+
+            try {
+                withContext(Dispatchers.IO) { started.await(5, TimeUnit.SECONDS).shouldBeTrue() }
+                firstWaiter.await().shouldBeNull()
+                callerContextObserved.get().shouldBeNull()
+                configuredContextObserved.get() shouldBeEqualTo "configured"
+
+                val secondWaiter = async(Dispatchers.Default, start = CoroutineStart.UNDISPATCHED) {
+                    withContext(callerRequestContext.asContextElement("second")) {
+                        lazyValue.getUntil(4.seconds)
+                    }
+                }
+                secondWaiter.isCompleted.shouldBeFalse()
+
+                release.countDown()
+                secondWaiter.await() shouldBeEqualTo TEST_NUMBER
+                callCounter.get() shouldBeEqualTo 1
+            } finally {
+                release.countDown()
+                withContext(Dispatchers.IO) { finished.await(5, TimeUnit.SECONDS).shouldBeTrue() }
+            }
+
+            awaitNoChildren(parentJob)
+        }
 
     @Test
     fun `cached blocking lazy invocation skips configured dispatcher`() = runSuspendIO(timeout = 5.seconds) {
