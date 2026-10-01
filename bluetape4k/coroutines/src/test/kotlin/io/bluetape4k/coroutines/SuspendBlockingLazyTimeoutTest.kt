@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldHaveSize
 import io.bluetape4k.assertions.shouldNotBe
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.junit5.coroutines.runSuspendIO
@@ -224,7 +225,9 @@ class SuspendBlockingLazyTimeoutTest {
             TEST_NUMBER
         }
         val waiter = async(Dispatchers.Default) {
-            runCatching { lazyValue.getUntil(Duration.INFINITE) }
+            assertFailsWith<kotlinx.coroutines.CancellationException> {
+                lazyValue.getUntil(Duration.INFINITE)
+            }
         }
 
         try {
@@ -232,8 +235,7 @@ class SuspendBlockingLazyTimeoutTest {
             lazyValue.cancel()
             withContext(Dispatchers.IO) { interrupted.await(5, TimeUnit.SECONDS).shouldBeTrue() }
 
-            val result = withTimeout(5.seconds) { waiter.await() }
-            (result.exceptionOrNull() is kotlinx.coroutines.CancellationException).shouldBeTrue()
+            withTimeout(5.seconds) { waiter.await() }
         } finally {
             release.countDown()
         }
@@ -306,6 +308,48 @@ class SuspendBlockingLazyTimeoutTest {
                 lazyValue.getUntil(1.seconds) shouldBeEqualTo TEST_NUMBER
                 awaitNoChildren(parentJob)
             }
+        }
+    }
+
+    @Test
+    fun `configured parent job cancellation interrupts timeout initializer`() = runSuspendIO(timeout = 5.seconds) {
+        val parentJob = Job()
+        val started = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val interrupted = CountDownLatch(1)
+        val finished = CountDownLatch(1)
+        val lazyValue = suspendBlockingLazy(Dispatchers.IO + parentJob) {
+            started.countDown()
+            try {
+                release.await()
+                TEST_NUMBER
+            } catch (error: InterruptedException) {
+                interrupted.countDown()
+                throw error
+            } finally {
+                finished.countDown()
+            }
+        }
+        val waiter = async(Dispatchers.Default) {
+            runCatching { lazyValue.getUntil(Duration.INFINITE) }
+        }
+
+        try {
+            withContext(Dispatchers.IO) { started.await(5, TimeUnit.SECONDS).shouldBeTrue() }
+            parentJob.children.toList() shouldHaveSize 1
+
+            parentJob.cancel()
+
+            withContext(Dispatchers.IO) {
+                interrupted.await(5, TimeUnit.SECONDS).shouldBeTrue()
+                finished.await(5, TimeUnit.SECONDS).shouldBeTrue()
+            }
+            val result = withTimeout(5.seconds) { waiter.await() }
+            (result.exceptionOrNull() is kotlinx.coroutines.CancellationException).shouldBeTrue()
+            awaitNoChildren(parentJob)
+        } finally {
+            release.countDown()
+            parentJob.cancel()
         }
     }
 
