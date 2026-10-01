@@ -27,7 +27,7 @@ worker context는 lazy 생성 시 설정한 context에서만 구성한다. 설�
 - `SuspendBlockingLazyTimeoutTest` 16개와 `:bluetape4k-coroutines:test` 685개 통과.
 - `SuspendLazyBinaryCompatibilityTest` 1개 통과. 저장소에는 `checkBinaryCompatibility`/`checkProductionAbi` Gradle task와 ABI baseline이 없어 전체 ABI task 검증은 수행할 수 없다. 공개 JVM signature는 변경하지 않았다.
 - `:bluetape4k-coroutines:detekt --rerun-tasks` 성공. 출력의 기존 진단은 변경 파일 밖에 있다.
-- 독립 코드 리뷰 통과. exact-head PR CI는 PR 생성 뒤 확인한다.
+- 독립 코드 리뷰 통과 ([리뷰 기록](../superpowers/reviews/2026-10-01-issue-1808-code-review.md)). exact-head PR CI는 PR 생성 뒤 확인한다.
 
 ## 향후 지침
 
