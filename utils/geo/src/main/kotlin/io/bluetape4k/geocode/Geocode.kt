@@ -29,7 +29,7 @@ data class Geocode(
 
     companion object {
 
-        private const val serialVersionUID: Long = 1L
+        private const val serialVersionUID: Long = -9090722762707661091L
 
         const val DEFAULT_SCALE: Int = 3
 

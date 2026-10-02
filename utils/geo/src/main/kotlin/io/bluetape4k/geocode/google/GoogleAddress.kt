@@ -32,7 +32,7 @@ class GoogleAddress(
 ): Address(country, city) {
 
     companion object {
-        private const val serialVersionUID = 1L
+        private const val serialVersionUID = -8088611479544946254L
     }
 
     override fun buildStringHelper(): ToStringBuilder {

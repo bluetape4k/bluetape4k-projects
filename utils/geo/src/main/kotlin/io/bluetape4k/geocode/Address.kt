@@ -26,7 +26,7 @@ abstract class Address(
 ): AbstractValueObject() {
 
     companion object {
-        private const val serialVersionUID = 1L
+        private const val serialVersionUID = 7156298922689609881L
     }
 
     override fun equalProperties(other: Any): Boolean =
