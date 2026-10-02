@@ -32,7 +32,7 @@ class BingAddress(
 ): Address(country, city) {
 
     companion object {
-        private const val serialVersionUID = 1L
+        private const val serialVersionUID = -6688773129200423988L
     }
 
     override fun buildStringHelper(): ToStringBuilder {
