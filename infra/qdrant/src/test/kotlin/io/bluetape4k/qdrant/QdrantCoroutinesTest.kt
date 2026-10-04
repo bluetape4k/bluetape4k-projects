@@ -40,6 +40,7 @@ import io.qdrant.client.grpc.Points.ScrollResponse
 import io.qdrant.client.grpc.Points.UpdateResult
 import io.qdrant.client.grpc.Points.UpsertPoints
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
@@ -47,6 +48,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runCurrent
@@ -56,6 +58,8 @@ import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.Duration
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -97,6 +101,71 @@ class QdrantCoroutinesTest {
 
         pending.isCancelled.shouldBeTrue()
         verify(exactly = 0) { client.close() }
+    }
+
+    @Test
+    fun `cancelling future cancels the suspended request`() = runTest {
+        val pending = SettableFuture.create<List<ScoredPoint>>()
+
+        every {
+            client.queryAsync(any<QueryPoints>(), any<Duration>())
+        } returns pending
+
+        val request = async {
+            client.querySuspending(QueryPoints.getDefaultInstance())
+        }
+        runCurrent()
+
+        pending.cancel(true)
+        runCurrent()
+
+        assertFailsWith<java.util.concurrent.CancellationException> {
+            request.await()
+        }
+    }
+
+    @Test
+    fun `completion callback does not block its caller when IO is saturated`() = runTest {
+        val ioParallelism = System.getProperty("kotlinx.coroutines.io.parallelism")
+            ?.toIntOrNull()
+            ?: maxOf(64, Runtime.getRuntime().availableProcessors())
+        val ioWorkersStarted = CountDownLatch(ioParallelism)
+        val releaseIoWorkers = CountDownLatch(1)
+        val ioWorkers = List(ioParallelism) {
+            launch(Dispatchers.IO) {
+                ioWorkersStarted.countDown()
+                releaseIoWorkers.await()
+            }
+        }
+        val pending = SettableFuture.create<List<ScoredPoint>>()
+
+        every {
+            client.queryAsync(any<QueryPoints>(), any<Duration>())
+        } returns pending
+
+        val request = async {
+            client.querySuspending(QueryPoints.getDefaultInstance())
+        }
+        val completionReturned = CountDownLatch(1)
+        val completionThread = Thread {
+            pending.set(emptyList())
+            completionReturned.countDown()
+        }
+
+        try {
+            ioWorkersStarted.await(10, TimeUnit.SECONDS).shouldBeTrue()
+            runCurrent()
+
+            completionThread.start()
+            completionReturned.await(2, TimeUnit.SECONDS).shouldBeTrue()
+        } finally {
+            releaseIoWorkers.countDown()
+            completionThread.join(5_000)
+            ioWorkers.joinAll()
+        }
+
+        runCurrent()
+        request.await().shouldBeEmpty()
     }
 
     @Test

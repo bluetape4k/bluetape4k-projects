@@ -1,5 +1,7 @@
 package io.bluetape4k.qdrant
 
+import com.google.common.util.concurrent.FutureCallback
+import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import com.google.protobuf.CodedOutputStream
@@ -19,15 +21,12 @@ import io.qdrant.client.grpc.Points.ScrollPoints
 import io.qdrant.client.grpc.Points.UpdateResult
 import io.qdrant.client.grpc.Points.UpsertPoints
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.time.Duration
-import java.util.concurrent.ExecutionException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -155,22 +154,26 @@ private suspend fun <T> qdrantCall(operation: String, call: () -> ListenableFutu
     }
 }
 
-// 완료 콜백에서만 get을 호출하므로 대기 중인 RPC마다 블로킹 스레드가 필요하지 않습니다.
+// directExecutor 콜백은 Future 결과를 바로 전달하며 blocking wait를 하지 않습니다.
 private suspend fun <T> ListenableFuture<T>.awaitQdrant(): T =
     suspendCancellableCoroutine { continuation ->
         continuation.invokeOnCancellation { cancel(true) }
 
-        addListener({
-            try {
-                val value = runBlocking(Dispatchers.IO) { get() }
-                continuation.resume(value)
-            } catch (failure: ExecutionException) {
-                continuation.resumeWithException(failure.cause ?: failure)
-            } catch (failure: CancellationException) {
-                continuation.cancel(failure)
-            } catch (failure: InterruptedException) {
-                Thread.currentThread().interrupt()
-                continuation.resumeWithException(failure)
-            }
-        }, MoreExecutors.directExecutor())
+        Futures.addCallback(
+            this,
+            object : FutureCallback<T> {
+                override fun onSuccess(result: T) {
+                    continuation.resume(result)
+                }
+
+                override fun onFailure(failure: Throwable) {
+                    if (failure is CancellationException) {
+                        continuation.cancel(failure)
+                    } else {
+                        continuation.resumeWithException(failure)
+                    }
+                }
+            },
+            MoreExecutors.directExecutor(),
+        )
     }
