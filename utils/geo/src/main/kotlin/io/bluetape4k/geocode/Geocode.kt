@@ -36,13 +36,13 @@ data class Geocode(
         @JvmField
         val DefaultMathContext = MathContext(12, RoundingMode.HALF_EVEN)
 
-        @JvmStatic
         /**
          * double 위경도로 [Geocode]를 생성합니다.
          *
          * ## 동작/계약
          * - [DefaultMathContext]를 사용해 BigDecimal로 변환합니다.
          */
+        @JvmStatic
         operator fun invoke(latitude: Double, longitude: Double): Geocode {
             require(latitude.isFinite() && longitude.isFinite()) { "latitude and longitude must be finite" }
 
@@ -56,19 +56,20 @@ data class Geocode(
             return Geocode(latitude, longitude)
         }
 
+        /**
+         * 문자열 표현의 위경도를 파싱합니다.
+         *
+         * ## 동작/계약
+         * - [geocode]가 blank면 [IllegalArgumentException]이 발생합니다.
+         * - [delimiter] 기준으로 2개 조각을 분리해 위도/경도로 해석합니다.
+         * - [DefaultMathContext]를 적용하지 않고 입력 문자열의 정밀도와 scale을 보존합니다.
+         *
+         * ```kotlin
+         * val geocode = Geocode.parse("37.123456789012345,127.9876543210987650")
+         * // geocode.toString() == "37.123456789012345,127.9876543210987650"
+         * ```
+         */
         @JvmStatic
-                /**
-                 * 문자열 표현의 위경도를 파싱합니다.
-                 *
-                 * ## 동작/계약
-                 * - [geocode]가 blank면 [IllegalArgumentException]이 발생합니다.
-                 * - [delimiter] 기준으로 2개 조각을 분리해 위도/경도로 해석합니다.
-                 *
-                 * ```kotlin
-                 * val geocode = Geocode.parse("37.5665,126.9780")
-                 * // geocode.latitude.toDouble() == 37.5665
-                 * ```
-                 */
         fun parse(geocode: String, delimiter: String = ","): Geocode {
             geocode.requireNotBlank("geocode")
             val splits = geocode.split(delimiter, ignoreCase = true, limit = 2)

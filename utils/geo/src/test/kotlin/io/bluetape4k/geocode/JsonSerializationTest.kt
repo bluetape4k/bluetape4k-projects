@@ -13,6 +13,7 @@ import io.bluetape4k.junit5.random.RandomizedTest
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.hashOf
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.Test
 import tools.jackson.module.kotlin.readValue
 import java.util.*
 
@@ -24,6 +25,37 @@ class JsonSerializationTest {
     }
 
     private val objectMapper = Jackson.defaultJsonMapper
+
+    @Test
+    fun `Geocode double constructor applies 12 significant digit context`() {
+        val geocode = Geocode(37.123456789012345, 127.987654321098765)
+
+        geocode.latitude shouldBeEqualTo "37.1234567890".toBigDecimal()
+        geocode.longitude shouldBeEqualTo "127.987654321".toBigDecimal()
+        geocode.latitude.precision() shouldBeEqualTo 12
+        geocode.longitude.precision() shouldBeEqualTo 12
+        geocode.latitude.scale() shouldBeEqualTo 10
+        geocode.longitude.scale() shouldBeEqualTo 9
+    }
+
+    @Test
+    fun `Geocode parse preserves precision and scale when serialized`() {
+        val latitude = "37.123456789012345"
+        val longitude = "127.9876543210987650"
+
+        val geocode = Geocode.parse("$latitude,$longitude")
+
+        geocode.latitude shouldBeEqualTo latitude.toBigDecimal()
+        geocode.longitude shouldBeEqualTo longitude.toBigDecimal()
+        geocode.latitude.scale() shouldBeEqualTo 15
+        geocode.longitude.scale() shouldBeEqualTo 16
+        geocode.scale shouldBeEqualTo 15
+        geocode.toString() shouldBeEqualTo "$latitude,$longitude"
+
+        val json = objectMapper.writeAsString(geocode)!!
+        json shouldBeEqualTo """{"latitude":$latitude,"longitude":$longitude,"scale":15}"""
+        objectMapper.readValue<Geocode>(json) shouldBeEqualTo geocode
+    }
 
     @RepeatedTest(REPEAT_SIZE)
     fun `Bing address 직렬화`(@RandomValue address: BingAddress) {
