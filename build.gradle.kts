@@ -1,4 +1,5 @@
 import groovy.json.JsonOutput
+import groovy.util.Node
 import io.bluetape4k.gradle.applyBluetape4kPomMetadata
 import io.bluetape4k.gradle.centralSnapshotsRepository
 import io.bluetape4k.gradle.configurePublishingSigning
@@ -491,7 +492,9 @@ subprojects {
             mavenBom(bt4kLibrary("protobuf-bom").get().toString())
             mavenBom(bt4kLibrary("fabric8-kubernetes-client-bom").get().toString())
             mavenBom(rootBt4k.resilience4j.bom.get().toString())
-            mavenBom(bt4kLibrary("netty-bom").get().toString())
+            if (path != ":bluetape4k-testcontainers") {
+                mavenBom(bt4kLibrary("netty-bom").get().toString())
+            }
             mavenBom("com.fasterxml.jackson:jackson-bom:${bt4kVersion("jackson2")}")
 
             mavenBom("org.jetbrains.kotlinx:kotlinx-coroutines-bom:${bt4kVersion("kotlinx-coroutines")}")
@@ -1076,6 +1079,58 @@ subprojects {
                             artifactDisplayName = project.name,
                             artifactDescription = "Common Library for Kotlin",
                         )
+
+                        withXml {
+                            fun firstChild(node: Node, name: String): Node? =
+                                node.children().filterIsInstance<Node>()
+                                    .firstOrNull { it.name().toString().substringAfterLast("}") == name }
+
+                            val rootNode = asNode()
+                            val dependencyManagement = firstChild(rootNode, "dependencyManagement")
+                            if (dependencyManagement == null) return@withXml
+                            val managedDependencies = firstChild(dependencyManagement, "dependencies")
+                                ?: return@withXml
+
+                            fun localName(node: Node): String = node.name().toString().substringAfterLast("}")
+
+                            fun nodeSignature(node: Node): String {
+                                val attributes = node.attributes().entries
+                                    .map { it.toString() }
+                                    .sorted()
+                                    .joinToString(";")
+                                val children = node.children().filterIsInstance<Node>()
+                                val text = if (children.isEmpty()) node.text().trim() else ""
+                                val childSignatures = children.map(::nodeSignature).sorted().joinToString(";")
+                                return "${localName(node)}[$attributes]{$text}($childSignatures)"
+                            }
+
+                            fun childText(node: Node, name: String): String =
+                                firstChild(node, name)?.text()?.trim().orEmpty()
+
+                            val firstByCoordinate = mutableMapOf<String, Node>()
+                            val dependencies = managedDependencies.children()
+                                .filterIsInstance<Node>()
+                                .filter { it.name().toString().substringAfterLast("}") == "dependency" }
+                            dependencies.forEach { dependency ->
+                                val type = childText(dependency, "type").ifBlank { "jar" }
+                                val coordinate = listOf(
+                                    childText(dependency, "groupId"),
+                                    childText(dependency, "artifactId"),
+                                    type,
+                                    childText(dependency, "classifier"),
+                                ).joinToString(":")
+                                val previous = firstByCoordinate[coordinate]
+                                if (previous == null) {
+                                    firstByCoordinate[coordinate] = dependency
+                                } else if (nodeSignature(previous) == nodeSignature(dependency)) {
+                                    managedDependencies.children().remove(dependency)
+                                } else {
+                                    throw GradleException(
+                                        "Conflicting dependencyManagement entries for $coordinate in $path",
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -21,6 +21,13 @@ module Publication
           document,
           "/project/dependencyManagement/dependencies/dependency",
         )
+        managed_coordinates = Set.new
+        managed_dependencies.each do |dependency|
+          managed_coordinate = dependency_management_coordinate(dependency)
+          unless managed_coordinates.add?(managed_coordinate)
+            errors << "#{path}: duplicate dependencyManagement dependency: #{managed_coordinate}"
+          end
+        end
         managed_versions = managed_dependencies.each_with_object(Set.new) do |dependency, result|
           version = dependency.elements["version"]&.text.to_s.strip
           result << coordinate(dependency) unless version.empty?
@@ -62,6 +69,15 @@ module Publication
       group = dependency.elements["groupId"]&.text.to_s.strip
       artifact = dependency.elements["artifactId"]&.text.to_s.strip
       "#{group}:#{artifact}"
+    end
+
+    def dependency_management_coordinate(dependency)
+      group = dependency.elements["groupId"]&.text.to_s.strip
+      artifact = dependency.elements["artifactId"]&.text.to_s.strip
+      type = dependency.elements["type"]&.text.to_s.strip
+      type = "jar" if type.empty?
+      classifier = dependency.elements["classifier"]&.text.to_s.strip
+      [group, artifact, type, classifier].join(":")
     end
   end
 end
