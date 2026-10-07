@@ -72,6 +72,23 @@ object BinarySerializers {
     val Jdk: JdkBinarySerializer by lazy { JdkBinarySerializer() }
 
     /**
+     * Bluetape4k 기본 역직렬화 필터를 지정하지 않는 JDK serializer 입니다.
+     *
+     * 테스트 또는 신뢰할 수 있는 입력에만 사용하세요. JVM 전역 [java.io.ObjectInputFilter]가
+     * 설정되어 있으면 해당 필터는 계속 적용될 수 있습니다.
+     *
+     * > **보안 경고**: 신뢰할 수 없는 데이터의 역직렬화에는 사용하지 마세요.
+     */
+    @Deprecated(
+        message = "테스트 또는 신뢰할 수 있는 입력 전용입니다. JVM 전역 필터는 계속 적용될 수 있습니다.",
+        ReplaceWith(
+            "JdkBinarySerializer(objectInputFilter = null)",
+            "io.bluetape4k.io.serializer.JdkBinarySerializer",
+        )
+    )
+    val JdkUnfiltered: JdkBinarySerializer by lazy { JdkBinarySerializer(objectInputFilter = null) }
+
+    /**
      * Kryo 라이브러리를 사용하는 [BinarySerializer].
      *
      * JDK 직렬화보다 빠르고 출력 크기가 작습니다. 일반적으로 권장하는 직렬화기입니다.

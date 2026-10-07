@@ -1,4 +1,5 @@
 import groovy.json.JsonOutput
+import groovy.util.Node
 import io.bluetape4k.gradle.applyBluetape4kPomMetadata
 import io.bluetape4k.gradle.centralSnapshotsRepository
 import io.bluetape4k.gradle.configurePublishingSigning
@@ -464,6 +465,9 @@ subprojects {
     }
 
     dependencyManagement {
+        val usesNetty4CompatibilityLine = path == ":bluetape4k-testcontainers"
+        val managedNettyVersion = bt4kVersion(if (usesNetty4CompatibilityLine) "netty4" else "netty")
+
         // HINT: Gradle 빌드 시, detachedConfiguration 이 많이 발생하는데, setApplyMavenExclusions(false) 를 추가하면 속도가 개선됩니다.
         // https://discuss.gradle.org/t/what-is-detachedconfiguration-i-have-a-lots-of-them-for-each-subproject-and-resolving-them-takes-95-of-build-time/31595/6
         setApplyMavenExclusions(false)
@@ -491,11 +495,7 @@ subprojects {
             mavenBom(bt4kLibrary("protobuf-bom").get().toString())
             mavenBom(bt4kLibrary("fabric8-kubernetes-client-bom").get().toString())
             mavenBom(rootBt4k.resilience4j.bom.get().toString())
-            // testcontainers는 Netty 4.1 / Vert.x 4 호환선을 별도로 유지합니다.
-            // 전역 Netty BOM(4.2)을 함께 게시하면 Maven POM에 같은 BOM 좌표가
-            // 서로 다른 버전으로 두 번 기록되어 소비자가 재현 가능한 버전을
-            // 선택할 수 없으므로 해당 모듈에서는 전역 BOM을 생략합니다.
-            if (path != ":bluetape4k-testcontainers") {
+            if (!usesNetty4CompatibilityLine) {
                 mavenBom(bt4kLibrary("netty-bom").get().toString())
             }
             mavenBom("com.fasterxml.jackson:jackson-bom:${bt4kVersion("jackson2")}")
@@ -581,26 +581,24 @@ subprojects {
             dependency("io.ktor:ktor-server-swagger:${bt4kVersion("ktor")}")
             dependency("io.ktor:ktor-server-test-host:${bt4kVersion("ktor")}")
             dependency("io.lettuce:lettuce-core:${bt4kVersion("lettuce")}")
-            // testcontainers는 Netty 4.1 BOM으로 호환성을 고정하므로 전역
-            // Netty 4.2 모듈별 관리 항목도 함께 내보내지 않습니다.
-            if (path != ":bluetape4k-testcontainers") {
-                dependency("io.netty:netty-all:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-buffer:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-codec:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-codec-dns:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-codec-protobuf:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-common:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-handler:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-handler-proxy:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-resolver:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-resolver-dns:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-resolver-dns-classes-macos:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-resolver-dns-native-macos:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-transport:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-transport-classes-epoll:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-transport-classes-kqueue:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-transport-native-epoll:${bt4kVersion("netty")}")
-                dependency("io.netty:netty-transport-native-kqueue:${bt4kVersion("netty")}")
+            if (!usesNetty4CompatibilityLine) {
+                dependency("io.netty:netty-all:$managedNettyVersion")
+                dependency("io.netty:netty-buffer:$managedNettyVersion")
+                dependency("io.netty:netty-codec:$managedNettyVersion")
+                dependency("io.netty:netty-codec-dns:$managedNettyVersion")
+                dependency("io.netty:netty-codec-protobuf:$managedNettyVersion")
+                dependency("io.netty:netty-common:$managedNettyVersion")
+                dependency("io.netty:netty-handler:$managedNettyVersion")
+                dependency("io.netty:netty-handler-proxy:$managedNettyVersion")
+                dependency("io.netty:netty-resolver:$managedNettyVersion")
+                dependency("io.netty:netty-resolver-dns:$managedNettyVersion")
+                dependency("io.netty:netty-resolver-dns-classes-macos:$managedNettyVersion")
+                dependency("io.netty:netty-resolver-dns-native-macos:$managedNettyVersion")
+                dependency("io.netty:netty-transport:$managedNettyVersion")
+                dependency("io.netty:netty-transport-classes-epoll:$managedNettyVersion")
+                dependency("io.netty:netty-transport-classes-kqueue:$managedNettyVersion")
+                dependency("io.netty:netty-transport-native-epoll:$managedNettyVersion")
+                dependency("io.netty:netty-transport-native-kqueue:$managedNettyVersion")
             }
             dependency("io.vertx:vertx-jdbc-client:${bt4kVersion("vertx")}")
             dependency("io.vertx:vertx-junit5:${bt4kVersion("vertx")}")
@@ -1086,6 +1084,58 @@ subprojects {
                             artifactDisplayName = project.name,
                             artifactDescription = "Common Library for Kotlin",
                         )
+
+                        withXml {
+                            fun firstChild(node: Node, name: String): Node? =
+                                node.children().filterIsInstance<Node>()
+                                    .firstOrNull { it.name().toString().substringAfterLast("}") == name }
+
+                            val rootNode = asNode()
+                            val dependencyManagement = firstChild(rootNode, "dependencyManagement")
+                            if (dependencyManagement == null) return@withXml
+                            val managedDependencies = firstChild(dependencyManagement, "dependencies")
+                                ?: return@withXml
+
+                            fun localName(node: Node): String = node.name().toString().substringAfterLast("}")
+
+                            fun nodeSignature(node: Node): String {
+                                val attributes = node.attributes().entries
+                                    .map { it.toString() }
+                                    .sorted()
+                                    .joinToString(";")
+                                val children = node.children().filterIsInstance<Node>()
+                                val text = if (children.isEmpty()) node.text().trim() else ""
+                                val childSignatures = children.map(::nodeSignature).sorted().joinToString(";")
+                                return "${localName(node)}[$attributes]{$text}($childSignatures)"
+                            }
+
+                            fun childText(node: Node, name: String): String =
+                                firstChild(node, name)?.text()?.trim().orEmpty()
+
+                            val firstByCoordinate = mutableMapOf<String, Node>()
+                            val dependencies = managedDependencies.children()
+                                .filterIsInstance<Node>()
+                                .filter { it.name().toString().substringAfterLast("}") == "dependency" }
+                            dependencies.forEach { dependency ->
+                                val type = childText(dependency, "type").ifBlank { "jar" }
+                                val coordinate = listOf(
+                                    childText(dependency, "groupId"),
+                                    childText(dependency, "artifactId"),
+                                    type,
+                                    childText(dependency, "classifier"),
+                                ).joinToString(":")
+                                val previous = firstByCoordinate[coordinate]
+                                if (previous == null) {
+                                    firstByCoordinate[coordinate] = dependency
+                                } else if (nodeSignature(previous) == nodeSignature(dependency)) {
+                                    managedDependencies.children().remove(dependency)
+                                } else {
+                                    throw GradleException(
+                                        "Conflicting dependencyManagement entries for $coordinate in $path",
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -28,3 +28,29 @@ versionless regular dependency는 versioned BOM이나 같은 POM이 관리할 �
 모든 regular dependency에 direct version을 요구하지 않는다. BOM import에는 version을
 요구하고, 각 versionless regular dependency가 실제로 관리되는지는 Maven
 effective-model validation으로 증명한다.
+
+## 중복 dependencyManagement 항목 (2026-10-07)
+
+Maven 3.10.0의 effective-model 검증은 같은 `groupId:artifactId:type:classifier`를
+가진 `dependencyManagement` 항목을 거부한다. Gradle이 생성한 POM에서 겹치는 BOM과
+platform 제약이 같은 좌표를 반복할 수 있으므로, 구조 검사는 이 좌표를 기준으로
+중복을 검출해야 한다. `type`이 없으면 `jar`, `classifier`가 없으면 빈 값으로
+정규화한다.
+
+POM 생성 중복을 정리할 때는 전체 항목의 의미가 같을 때만 하나를 남기고, 버전이나
+scope가 다른 항목은 충돌로 실패시킨다. `XmlProvider.asNode()`의 `Node.name()`에는
+namespace가 포함되므로, 하위 노드는 namespace를 제거한 local name으로 찾는다.
+모듈 자체가 특정 BOM 버전을 가져오는 경우에는 전역 BOM을 중복 추가하지 말고 해당
+모듈의 우선순위를 유지한다.
+
+수정 뒤에는 모든 publication POM을 강제 생성하고 `ruby scripts/publication/validate_poms.rb`로
+effective Maven model을 확인한다. 중복 좌표 검사는
+`ruby scripts/publication/publication_pom_audit_test.rb`에 회귀 테스트를 둔다.
+2026-10-07 검증에서는 82개 POM, 33,111개 dependency가 통과했다.
+
+모듈별 호환성 BOM을 유지하는 경우 BOM import만 분리하지 않는다. 같은 모듈의 직접
+관리 artifact 버전도 BOM의 호환성 선에 맞추고, 생성 POM에서 둘이 일치하는지 검증한다.
+Testcontainers는 Netty core를 `netty-bom` 4.1.x에 맞춘다. `netty-tcnative*`는 별도
+2.0.x 계열이므로 Netty core 버전과 비교하지 않는다. Netty 4.1.136 BOM은 core artifact에
+project version을 사용하고 tcnative에는 별도 `tcnative.version`을 사용한다
+([공식 BOM POM](https://raw.githubusercontent.com/netty/netty/netty-4.1.136.Final/bom/pom.xml)).
