@@ -68,6 +68,29 @@ class PublicationPomAuditTest < Minitest::Test
     end
   end
 
+  def test_rejects_duplicate_dependency_management_coordinates
+    with_pom(<<~XML) do |path|
+      <project>
+        <dependencyManagement><dependencies>
+          <dependency>
+            <groupId>io.projectreactor</groupId><artifactId>reactor-bom</artifactId>
+            <version>2025.0.7</version><type>pom</type><scope>import</scope>
+          </dependency>
+          <dependency>
+            <groupId>io.projectreactor</groupId><artifactId>reactor-bom</artifactId>
+            <version>2025.0.7</version><type>pom</type><scope>import</scope>
+          </dependency>
+        </dependencies></dependencyManagement>
+      </project>
+    XML
+      errors = Publication::PomAudit.new([path]).validate.errors
+      assert_equal 1, errors.length
+      assert errors.first.end_with?(
+        "duplicate dependencyManagement dependency: io.projectreactor:reactor-bom:pom:",
+      )
+    end
+  end
+
   def test_fails_closed_when_no_publication_poms_exist
     result = Publication::PomAudit.new([]).validate
     assert_equal ["no publication POM files found"], result.errors
