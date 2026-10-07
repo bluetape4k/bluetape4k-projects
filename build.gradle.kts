@@ -491,7 +491,13 @@ subprojects {
             mavenBom(bt4kLibrary("protobuf-bom").get().toString())
             mavenBom(bt4kLibrary("fabric8-kubernetes-client-bom").get().toString())
             mavenBom(rootBt4k.resilience4j.bom.get().toString())
-            mavenBom(bt4kLibrary("netty-bom").get().toString())
+            // testcontainers는 Netty 4.1 / Vert.x 4 호환선을 별도로 유지합니다.
+            // 전역 Netty BOM(4.2)을 함께 게시하면 Maven POM에 같은 BOM 좌표가
+            // 서로 다른 버전으로 두 번 기록되어 소비자가 재현 가능한 버전을
+            // 선택할 수 없으므로 해당 모듈에서는 전역 BOM을 생략합니다.
+            if (path != ":bluetape4k-testcontainers") {
+                mavenBom(bt4kLibrary("netty-bom").get().toString())
+            }
             mavenBom("com.fasterxml.jackson:jackson-bom:${bt4kVersion("jackson2")}")
 
             mavenBom("org.jetbrains.kotlinx:kotlinx-coroutines-bom:${bt4kVersion("kotlinx-coroutines")}")
@@ -575,23 +581,27 @@ subprojects {
             dependency("io.ktor:ktor-server-swagger:${bt4kVersion("ktor")}")
             dependency("io.ktor:ktor-server-test-host:${bt4kVersion("ktor")}")
             dependency("io.lettuce:lettuce-core:${bt4kVersion("lettuce")}")
-            dependency("io.netty:netty-all:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-buffer:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-codec:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-codec-dns:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-codec-protobuf:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-common:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-handler:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-handler-proxy:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-resolver:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-resolver-dns:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-resolver-dns-classes-macos:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-resolver-dns-native-macos:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-transport:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-transport-classes-epoll:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-transport-classes-kqueue:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-transport-native-epoll:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-transport-native-kqueue:${bt4kVersion("netty")}")
+            // testcontainers는 Netty 4.1 BOM으로 호환성을 고정하므로 전역
+            // Netty 4.2 모듈별 관리 항목도 함께 내보내지 않습니다.
+            if (path != ":bluetape4k-testcontainers") {
+                dependency("io.netty:netty-all:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-buffer:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-codec:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-codec-dns:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-codec-protobuf:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-common:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-handler:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-handler-proxy:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-resolver:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-resolver-dns:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-resolver-dns-classes-macos:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-resolver-dns-native-macos:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-transport:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-transport-classes-epoll:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-transport-classes-kqueue:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-transport-native-epoll:${bt4kVersion("netty")}")
+                dependency("io.netty:netty-transport-native-kqueue:${bt4kVersion("netty")}")
+            }
             dependency("io.vertx:vertx-jdbc-client:${bt4kVersion("vertx")}")
             dependency("io.vertx:vertx-junit5:${bt4kVersion("vertx")}")
             dependency("io.vertx:vertx-lang-kotlin:${bt4kVersion("vertx")}")

@@ -1,9 +1,16 @@
 package io.bluetape4k.gradle
 
+import groovy.util.Node
+import groovy.xml.XmlParser
 import java.util.Base64
+import org.gradle.api.GradleException
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.tasks.GenerateMavenPom
 import org.gradle.testfixtures.ProjectBuilder
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -107,6 +114,49 @@ class PublishingSigningSupportTest {
     }
 
     @Test
+    fun `동일한 dependencyManagement 항목은 하나만 남긴다`() {
+        val pom = pomWithNettyBom("4.1.139.Final", "4.1.139.Final")
+
+        normalizeDependencyManagementDuplicates(pom)
+
+        assertEquals(1, managedDependencies(pom).size)
+    }
+
+    @Test
+    fun `같은 관리 좌표의 서로 다른 버전은 명시적으로 실패한다`() {
+        val pom = pomWithNettyBom("4.1.139.Final", "4.2.19.Final")
+
+        val failure = assertFailsWith<GradleException> {
+            normalizeDependencyManagementDuplicates(pom)
+        }
+
+        assertTrue(failure.message.orEmpty().contains("io.netty:netty-bom@pom"))
+        assertTrue(failure.message.orEmpty().contains("4.1.139.Final"))
+        assertTrue(failure.message.orEmpty().contains("4.2.19.Final"))
+    }
+
+    @Test
+    fun `최종 GenerateMavenPom 산출물에서 동일한 관리 항목을 제거한다`() {
+        val destination = generatePomWithNettyBoms("4.1.139.Final", "4.1.139.Final")
+        try {
+            val pom = XmlParser(false, false).parse(destination)
+
+            assertEquals(1, managedDependencies(pom).size)
+        } finally {
+            assertTrue(destination.delete(), "합성 POM을 정리해야 한다")
+        }
+    }
+
+    @Test
+    fun `최종 GenerateMavenPom 산출물의 충돌하는 관리 항목을 거부한다`() {
+        val failure = assertFailsWith<GradleException> {
+            generatePomWithNettyBoms("4.1.139.Final", "4.2.19.Final")
+        }
+
+        assertTrue(failure.message.orEmpty().contains("io.netty:netty-bom@pom"))
+    }
+
+    @Test
     fun `필요한 Base64 padding을 모두 제공하면 armor로 디코딩한다`() {
         for (padding in listOf("=", "==")) {
             val armor = (0..2).map { privateKeyArmor() + "\n".repeat(it) }
@@ -154,4 +204,66 @@ class PublishingSigningSupportTest {
             "ZmFrZS1rZXk=\n" +
             "=abcd\n" +
             "-----END PGP PRIVATE KEY BLOCK-----\n"
+
+    private fun pomWithNettyBom(vararg versions: String): Node {
+        val pom = Node(null, "project")
+        val dependencyManagement = Node(pom, "dependencyManagement")
+        val dependencies = Node(dependencyManagement, "dependencies")
+        versions.forEach { version ->
+            val dependency = Node(dependencies, "dependency")
+            Node(dependency, "groupId", "io.netty")
+            Node(dependency, "artifactId", "netty-bom")
+            Node(dependency, "version", version)
+            Node(dependency, "type", "pom")
+            Node(dependency, "scope", "import")
+        }
+        return pom
+    }
+
+    private fun generatePomWithNettyBoms(vararg versions: String): java.io.File {
+        val project = ProjectBuilder.builder().build()
+        project.pluginManager.apply("maven-publish")
+        project.pluginManager.apply("signing")
+        val publishing = project.extensions.getByType(PublishingExtension::class.java)
+        val publication = publishing.publications.create("test", MavenPublication::class.java)
+        publication.groupId = "io.bluetape4k.fixture"
+        publication.artifactId = "publication"
+        publication.version = "1.0"
+        publication.pom.withXml {
+            val root = asNode()
+            val dependencyManagement = Node(root, "dependencyManagement")
+            val dependencies = Node(dependencyManagement, "dependencies")
+            versions.forEach { version ->
+                val dependency = Node(dependencies, "dependency")
+                Node(dependency, "groupId", "io.netty")
+                Node(dependency, "artifactId", "netty-bom")
+                Node(dependency, "version", version)
+                Node(dependency, "type", "pom")
+                Node(dependency, "scope", "import")
+            }
+        }
+        project.configurePublishingSigning("test")
+
+        val destination = java.io.File.createTempFile("publishing-pom-", ".xml")
+        try {
+            val task = project.tasks.getByName("generatePomFileForTestPublication") as GenerateMavenPom
+            task.destination = destination
+            task.actions.forEach { action -> action.execute(task) }
+            return destination
+        } catch (failure: Throwable) {
+            destination.delete()
+            throw failure
+        }
+    }
+
+    private fun managedDependencies(pom: Node): List<Node> =
+        pom.children()
+            .filterIsInstance<Node>()
+            .first { it.name().toString() == "dependencyManagement" }
+            .children()
+            .filterIsInstance<Node>()
+            .first { it.name().toString() == "dependencies" }
+            .children()
+            .filterIsInstance<Node>()
+            .filter { it.name().toString() == "dependency" }
 }
