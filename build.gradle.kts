@@ -465,6 +465,9 @@ subprojects {
     }
 
     dependencyManagement {
+        val usesNetty4CompatibilityLine = path == ":bluetape4k-testcontainers"
+        val managedNettyVersion = bt4kVersion(if (usesNetty4CompatibilityLine) "netty4" else "netty")
+
         // HINT: Gradle 빌드 시, detachedConfiguration 이 많이 발생하는데, setApplyMavenExclusions(false) 를 추가하면 속도가 개선됩니다.
         // https://discuss.gradle.org/t/what-is-detachedconfiguration-i-have-a-lots-of-them-for-each-subproject-and-resolving-them-takes-95-of-build-time/31595/6
         setApplyMavenExclusions(false)
@@ -492,7 +495,7 @@ subprojects {
             mavenBom(bt4kLibrary("protobuf-bom").get().toString())
             mavenBom(bt4kLibrary("fabric8-kubernetes-client-bom").get().toString())
             mavenBom(rootBt4k.resilience4j.bom.get().toString())
-            if (path != ":bluetape4k-testcontainers") {
+            if (!usesNetty4CompatibilityLine) {
                 mavenBom(bt4kLibrary("netty-bom").get().toString())
             }
             mavenBom("com.fasterxml.jackson:jackson-bom:${bt4kVersion("jackson2")}")
@@ -578,23 +581,23 @@ subprojects {
             dependency("io.ktor:ktor-server-swagger:${bt4kVersion("ktor")}")
             dependency("io.ktor:ktor-server-test-host:${bt4kVersion("ktor")}")
             dependency("io.lettuce:lettuce-core:${bt4kVersion("lettuce")}")
-            dependency("io.netty:netty-all:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-buffer:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-codec:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-codec-dns:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-codec-protobuf:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-common:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-handler:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-handler-proxy:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-resolver:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-resolver-dns:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-resolver-dns-classes-macos:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-resolver-dns-native-macos:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-transport:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-transport-classes-epoll:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-transport-classes-kqueue:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-transport-native-epoll:${bt4kVersion("netty")}")
-            dependency("io.netty:netty-transport-native-kqueue:${bt4kVersion("netty")}")
+            dependency("io.netty:netty-all:$managedNettyVersion")
+            dependency("io.netty:netty-buffer:$managedNettyVersion")
+            dependency("io.netty:netty-codec:$managedNettyVersion")
+            dependency("io.netty:netty-codec-dns:$managedNettyVersion")
+            dependency("io.netty:netty-codec-protobuf:$managedNettyVersion")
+            dependency("io.netty:netty-common:$managedNettyVersion")
+            dependency("io.netty:netty-handler:$managedNettyVersion")
+            dependency("io.netty:netty-handler-proxy:$managedNettyVersion")
+            dependency("io.netty:netty-resolver:$managedNettyVersion")
+            dependency("io.netty:netty-resolver-dns:$managedNettyVersion")
+            dependency("io.netty:netty-resolver-dns-classes-macos:$managedNettyVersion")
+            dependency("io.netty:netty-resolver-dns-native-macos:$managedNettyVersion")
+            dependency("io.netty:netty-transport:$managedNettyVersion")
+            dependency("io.netty:netty-transport-classes-epoll:$managedNettyVersion")
+            dependency("io.netty:netty-transport-classes-kqueue:$managedNettyVersion")
+            dependency("io.netty:netty-transport-native-epoll:$managedNettyVersion")
+            dependency("io.netty:netty-transport-native-kqueue:$managedNettyVersion")
             dependency("io.vertx:vertx-jdbc-client:${bt4kVersion("vertx")}")
             dependency("io.vertx:vertx-junit5:${bt4kVersion("vertx")}")
             dependency("io.vertx:vertx-lang-kotlin:${bt4kVersion("vertx")}")
