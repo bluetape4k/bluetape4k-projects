@@ -159,6 +159,34 @@ class CharSequencesTest {
         }
     }
 
+    // ── shouldNotContainIgnoringCase ────────────────────────────────────────
+
+    @Test
+    fun `shouldNotContainIgnoringCase passes when substring is absent and returns receiver`() {
+        val actual = StringBuilder("Hello World")
+        val result: StringBuilder? = actual shouldNotContainIgnoringCase "xyz"
+
+        result shouldBeSameInstanceAs actual
+    }
+
+    @Test
+    fun `shouldNotContainIgnoringCase passes for null receiver and returns null`() {
+        val actual: CharSequence? = null
+        val result: CharSequence? = actual shouldNotContainIgnoringCase "hello"
+
+        result.shouldBeNull()
+    }
+
+    @Test
+    fun `shouldNotContainIgnoringCase fails for matching substring regardless of case and reports values`() {
+        val failure = assertFailsWith<AssertionFailedError> {
+            "Hello World" shouldNotContainIgnoringCase "WORLD"
+        }
+
+        failure.message shouldContain "WORLD"
+        failure.message shouldContain "Hello World"
+    }
+
     // ── shouldBeEmpty / shouldNotBeEmpty ──────────────────────────────────
 
     @Test

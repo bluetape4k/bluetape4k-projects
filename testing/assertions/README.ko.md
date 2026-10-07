@@ -14,7 +14,8 @@ JUnit 5 기반의 bluetape4k assertion DSL입니다. 공개 DSL에 필요한 JUn
 - **기본**: `shouldBe` (ref ===), `shouldBeEqualTo` (value ==), `shouldNotBeNull` 스마트 캐스트 지원
 - **숫자 비교**: `shouldBeLessThan`, `shouldBeGreaterOrEqualTo`, 부호 확인, signed/unsigned 범위 포함 확인
 - **컬렉션/배열/맵**: 내용 동등성, 포함 검증 (`shouldContainAll`, `shouldNotContainAny`)
-- **문자열**: `shouldStartWith`, `shouldEndWith`, `shouldContain`, 대소문자 무시 검증
+- **문자열**: `shouldStartWith`, `shouldEndWith`, `shouldContain`, 대소문자 무시 포함/미포함 검증
+  (`shouldContainIgnoringCase`, `shouldNotContainIgnoringCase`)
 - **예외**: `invoking { }` / `shouldThrow`, 메시지 검증, 원인 검사
 - **비동기 예외**: `coInvoking { }` / `shouldThrow` — CancellationException 안전 coroutine 지원
 - **리플렉션**: `shouldBeInstanceOf<T>` 스마트 캐스트 지원
@@ -66,6 +67,7 @@ class MyTest {
         // 문자열
         "hello".shouldStartWith("he")
         "hello".shouldEndWith("lo")
+        "Hello World" shouldNotContainIgnoringCase "xyz"
 
         // 숫자 비교
         5 shouldBeLessThan 10
@@ -151,6 +153,13 @@ class MyTest {
 | `IntArray shouldBeEqualTo expected`  | primitive 배열 내용 동등 (`contentEquals`)     |
 | `ByteArray shouldBeEqualTo expected` | primitive 배열 내용 동등 (`contentEquals`)     |
 | `Array<T> shouldBeEqualTo expected`  | 객체 배열 deep 내용 동등 (`contentDeepEquals`) |
+
+### 문자열
+
+| 함수                                      | 설명                                                        |
+|-------------------------------------------|-------------------------------------------------------------|
+| `shouldContainIgnoringCase(substring)`    | 대소문자를 무시하고 부분 문자열을 포함하는지 확인            |
+| `shouldNotContainIgnoringCase(substring)` | 대소문자 무시 미포함; null receiver는 통과하고 null 반환     |
 
 ### 예외
 

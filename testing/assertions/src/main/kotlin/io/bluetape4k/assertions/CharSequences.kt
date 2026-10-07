@@ -145,6 +145,31 @@ infix fun <T: CharSequence> T?.shouldContainIgnoringCase(substring: CharSequence
     return this
 }
 
+/**
+ * CharSequence가 대소문자를 무시하고 [substring]을 포함하지 않는지 검증한다.
+ *
+ * receiver가 null이면 통과하고 null을 반환한다.
+ *
+ * 예:
+ * ```kotlin
+ * "Hello World" shouldNotContainIgnoringCase "xyz"
+ * ```
+ *
+ * @receiver 검증할 CharSequence (nullable 허용)
+ * @param substring 포함하지 않아야 하는 부분 문자열 (대소문자 무시)
+ * @return receiver (체이닝 지원, null receiver는 null 반환)
+ */
+infix fun <T: CharSequence> T?.shouldNotContainIgnoringCase(substring: CharSequence): T? {
+    if (this != null && this.toString().lowercase().contains(substring.toString().lowercase())) {
+        Failures.failComparison(
+            Messages.expectedNotToBe("contain (ignoring case)", substring, this),
+            substring,
+            this
+        )
+    }
+    return this
+}
+
 // ── shouldBeEmpty / shouldNotBeEmpty ─────────────────────────────────────────
 
 /**

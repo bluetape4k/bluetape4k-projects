@@ -17,7 +17,8 @@ JUnit Jupiter API and Kotlin coroutines are exposed only where the public DSL re
 
 **Numerical**: comparisons (`shouldBeLessThan`, `shouldBeGreaterOrEqualTo`), sign checks, signed and unsigned range containment
 - **Collections / Arrays / Maps**: content equality, containment (`shouldContainAll`, `shouldNotContainAny`)
-- **CharSequences**: `shouldStartWith`, `shouldEndWith`, `shouldContain`, case-insensitive checks
+- **CharSequences**: `shouldStartWith`, `shouldEndWith`, `shouldContain`, case-insensitive containment
+  (`shouldContainIgnoringCase`, `shouldNotContainIgnoringCase`)
 - **Exceptions**: `invoking { }` / `shouldThrow`, message matching, cause inspection
 - **Async Exceptions**: `coInvoking { }` / `shouldThrow` — CancellationException-safe coroutine support
 - **Reflection**: `shouldBeInstanceOf<T>` with smart cast contract
@@ -69,6 +70,7 @@ class MyTest {
         // CharSequences
         "hello".shouldStartWith("he")
         "hello".shouldEndWith("lo")
+        "Hello World" shouldNotContainIgnoringCase "xyz"
 
         // Numerical
         5 shouldBeLessThan 10
@@ -154,6 +156,13 @@ class MyTest {
 | `IntArray shouldBeEqualTo expected`  | Primitive array content equality (`contentEquals`)       |
 | `ByteArray shouldBeEqualTo expected` | Primitive array content equality (`contentEquals`)       |
 | `Array<T> shouldBeEqualTo expected`  | Object array deep content equality (`contentDeepEquals`) |
+
+### CharSequences
+
+| Function                                  | Description                                                                |
+|-------------------------------------------|----------------------------------------------------------------------------|
+| `shouldContainIgnoringCase(substring)`    | `CharSequence` contains a substring, ignoring case                         |
+| `shouldNotContainIgnoringCase(substring)` | Substring is absent, ignoring case; a null receiver passes and returns null |
 
 ### Exceptions
 
