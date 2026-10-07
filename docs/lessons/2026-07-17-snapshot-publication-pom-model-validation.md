@@ -47,3 +47,10 @@ namespace가 포함되므로, 하위 노드는 namespace를 제거한 local name
 effective Maven model을 확인한다. 중복 좌표 검사는
 `ruby scripts/publication/publication_pom_audit_test.rb`에 회귀 테스트를 둔다.
 2026-10-07 검증에서는 82개 POM, 33,111개 dependency가 통과했다.
+
+모듈별 호환성 BOM을 유지하는 경우 BOM import만 분리하지 않는다. 같은 모듈의 직접
+관리 artifact 버전도 BOM의 호환성 선에 맞추고, 생성 POM에서 둘이 일치하는지 검증한다.
+Testcontainers는 Netty core를 `netty-bom` 4.1.x에 맞춘다. `netty-tcnative*`는 별도
+2.0.x 계열이므로 Netty core 버전과 비교하지 않는다. Netty 4.1.136 BOM은 core artifact에
+project version을 사용하고 tcnative에는 별도 `tcnative.version`을 사용한다
+([공식 BOM POM](https://raw.githubusercontent.com/netty/netty/netty-4.1.136.Final/bom/pom.xml)).
