@@ -5,7 +5,7 @@ trust profile로 설명한다.
 
 | Profile | Dynamic type loading | 기본 safety boundary | 예시 |
 |---|---|---|---|
-| `TrustedInternal` | May load classes chosen by data written inside the same trusted deployment. | Use only for private caches or queues controlled by one application boundary. | Redisson Fory/Kryo defaults, Redisson Jackson/Fastjson when `allowedPackagePrefixes = null`, `trustedInternal*Protobuf` fallback codecs. |
+| `TrustedInternal` | May load classes chosen by data written inside the same trusted deployment. | Use only for private caches or queues controlled by one application boundary. | Redisson Fory/Kryo defaults, Redisson Jackson/Fastjson when `allowedPackagePrefixes = null`, `trustedInternal*Protobuf` fallback codecs, deprecated `BinarySerializers.JdkUnfiltered` for tests or trusted input only (it omits the Bluetape4k filter; a JVM-wide filter may still apply). |
 | `AllowListedTypes` | Loads only classes allowed by package prefixes, class names, or object input filters. | Suitable for shared infrastructure and mixed producer/consumer deployments. | Kafka Jackson codecs with `allowedTypePackages`, strict `ProtobufSerializer`, strict `RedissonProtobufCodec`, secure Kryo/Fory factories, JDK object input filter. |
 | `NoDynamicTypeLoading` | Serialized data does not choose a class. | Safest shape when the caller already knows the value type. | Static value-type JSON serializers and non-polymorphic decode APIs. |
 | `UnsafeLegacyCompatibility` | Restores allow-all legacy behavior through an explicit unsafe name. | Temporary migration only in fully trusted internal deployments. | `AbstractKafkaCodec.ALLOW_ALL_TYPES_UNSAFE`, `RedissonProtobufCodec.ALLOW_ALL_CLASSES_UNSAFE`. |
@@ -20,7 +20,7 @@ trust profile로 설명한다.
 | RedissonProtobufCodec | `AllowListedTypes` | Default constructors and `RedissonProtobufCodecs.*Protobuf` values are strict. Use `RedissonProtobufCodec.trustedInternal()` or `RedissonProtobufCodecs.TrustedInternal*Protobuf` only for legacy fallback payloads; legacy allow-all requires `ALLOW_ALL_CLASSES_UNSAFE`. |
 | Redisson Jackson3/Fastjson2 | `TrustedInternal` by default | Set `allowedPackagePrefixes` to move JSONB/polymorphic JSON use into `AllowListedTypes`. |
 | Kryo/Fory binary serializers | `TrustedInternal` by default | Use secure factories when data crosses a shared or untrusted boundary. |
-| JDK binary serializer | `AllowListedTypes` | Applies the default JDK object input filter and remains deprecated for new general use. |
+| JDK binary serializer | `AllowListedTypes` | Applies the default JDK object input filter and remains deprecated for new general use. `BinarySerializers.JdkUnfiltered` is a deprecated trusted-input exception for tests; it omits only this library's filter, and a JVM-wide filter may still apply. |
 
 ## Migration 지침
 

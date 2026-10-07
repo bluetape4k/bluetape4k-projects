@@ -140,14 +140,17 @@ Codec 기본값과 마이그레이션 지침은 [Serialization Trust Profiles](.
 
 #### JDK 직렬화 필터 (JEP 290)
 
-`JdkBinarySerializer`는 이제 기본적으로 `JDK_DEFAULT_OBJECT_INPUT_FILTER`를 적용합니다. 다음 패키지만 역직렬화를 허용하며, 그 외는 모두 차단합니다:
+`JdkBinarySerializer`는 이제 기본적으로 `JDK_DEFAULT_OBJECT_INPUT_FILTER`를 적용합니다. 다음 패키지 패턴과 클래스명만 역직렬화를 허용하며, 그 외는 모두 차단합니다:
 
 - `io.bluetape4k.**`
-- `java.lang.*`, `java.util.**`, `java.io.*`, `java.math.**`, `java.time.**`, `java.net.*`, `java.sql.*`
-- `kotlin.**`
+- `java.lang.*`와 `java.lang.**`, `java.util.*`와 `java.util.**`, `java.io.*`, `java.math.*`와 `java.math.**`, `java.time.*`와 `java.time.**`
+- `java.net.*`, `java.sql.*`, `kotlin.*`, `kotlin.**`
+- `java.awt.Color` (정확히 이 클래스만 허용)
 
 > **브레이킹 변경**: `BinarySerializers.Default`가 `Kryo`로 변경되었습니다 (이전: `Jdk`).
 > `BinarySerializers.Jdk`는 보안 경고와 함께 `@Deprecated` 처리되었습니다. `Kryo` 또는 `Fory`를 사용하세요.
+
+테스트에서 기본 허용 목록 밖의 클래스를 다뤄야 한다면 `BinarySerializers.JdkUnfiltered`를 사용할 수 있습니다. 이 deprecated serializer는 Bluetape4k 기본 필터만 생략하며, JVM 전역 `ObjectInputFilter`는 계속 적용될 수 있습니다. 테스트 또는 신뢰할 수 있는 입력에만 사용하고, 신뢰할 수 없는 데이터에는 사용하지 마세요.
 
 허용 목록을 확장하거나 좁히려면 커스텀 필터를 제공하세요:
 

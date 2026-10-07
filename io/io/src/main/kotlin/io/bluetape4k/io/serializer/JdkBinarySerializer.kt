@@ -47,9 +47,10 @@ private class JdkCallerOwnedCountingOutputStream(
 }
 
 /**
- * 기본 [ObjectInputFilter]. `io.bluetape4k.**`, `java.lang.**`, `java.util.**`,
- * `java.io.*`, `java.math.**`, `java.time.**`, `kotlin.**` 패키지만 허용하고
- * 그 외 모든 클래스의 역직렬화를 차단합니다 (JEP 290 참고).
+ * 기본 [ObjectInputFilter]. `io.bluetape4k.**`, `java.lang.*`/`java.lang.**`,
+ * `java.util.*`/`java.util.**`, `java.io.*`, `java.math.*`/`java.math.**`,
+ * `java.time.*`/`java.time.**`, `java.net.*`, `java.sql.*`, `kotlin.*`/`kotlin.**` 패키지와
+ * `java.awt.Color` 클래스만 허용하고 그 외 모든 클래스의 역직렬화를 차단합니다 (JEP 290 참고).
  *
  * 참고: java.base 모듈 패턴은 일부 JVM 구성에서 제대로 동작하지 않으므로
  * 명시적 패키지 패턴을 사용합니다.
@@ -59,7 +60,7 @@ private class JdkCallerOwnedCountingOutputStream(
 val JDK_DEFAULT_OBJECT_INPUT_FILTER: ObjectInputFilter = ObjectInputFilter.Config.createFilter(
     "io.bluetape4k.**;java.lang.*;java.lang.**;java.util.*;java.util.**;" +
             "java.io.*;java.math.*;java.math.**;java.time.*;java.time.**;" +
-            "java.net.*;java.sql.*;kotlin.*;kotlin.**;!*"
+            "java.net.*;java.sql.*;java.awt.Color;kotlin.*;kotlin.**;!*"
 )
 
 /**

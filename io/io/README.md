@@ -138,14 +138,17 @@ for codec defaults and migration guidance.
 
 #### JDK Serialization Filter (JEP 290)
 
-`JdkBinarySerializer` now applies `JDK_DEFAULT_OBJECT_INPUT_FILTER` by default, which only allows the following packages for deserialization (all others are rejected):
+`JdkBinarySerializer` now applies `JDK_DEFAULT_OBJECT_INPUT_FILTER` by default, which only allows the following package patterns and class names for deserialization (all others are rejected):
 
 - `io.bluetape4k.**`
-- `java.lang.*`, `java.util.**`, `java.io.*`, `java.math.**`, `java.time.**`, `java.net.*`, `java.sql.*`
-- `kotlin.**`
+- `java.lang.*` and `java.lang.**`, `java.util.*` and `java.util.**`, `java.io.*`, `java.math.*` and `java.math.**`, `java.time.*` and `java.time.**`
+- `java.net.*`, `java.sql.*`, `kotlin.*`, `kotlin.**`
+- `java.awt.Color` (exact class)
 
 > **Breaking change**: `BinarySerializers.Default` is now `Kryo` (was `Jdk`).
 > `BinarySerializers.Jdk` is deprecated with a security warning. Use `Kryo` or `Fory` instead.
+
+Tests that need classes outside the default allowlist can use `BinarySerializers.JdkUnfiltered`. This deprecated serializer omits only the Bluetape4k default filter; a JVM-wide `ObjectInputFilter` may still apply. Use it only for tests or trusted input, never for untrusted data.
 
 Provide a custom filter to expand or narrow the allowed list:
 

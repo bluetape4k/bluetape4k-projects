@@ -7,6 +7,8 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import org.junit.jupiter.api.Test
 import untrusted.payload.UntrustedPayload
+import java.awt.Color
+import java.awt.Font
 import java.io.ByteArrayInputStream
 import java.io.InvalidClassException
 import java.io.ObjectInputFilter
@@ -52,6 +54,24 @@ class JdkBinarySerializerSecurityTest {
         restored shouldBeEqualTo value
     }
 
+    @Test
+    fun `기본 필터는 Color 를 허용하고 다른 AWT 클래스를 거부한다`() {
+        val serializer = JdkBinarySerializer()
+        val value = Color(12, 34, 56, 78)
+        val bytes = serializer.serialize(value)
+
+        serializer.deserialize<Color>(bytes) shouldBeEqualTo value
+
+        val fontInfo = object: ObjectInputFilter.FilterInfo {
+            override fun serialClass() = Font::class.java
+            override fun arrayLength() = -1L
+            override fun depth() = 1L
+            override fun references() = 1L
+            override fun streamBytes() = 100L
+        }
+        JDK_DEFAULT_OBJECT_INPUT_FILTER.checkInput(fontInfo) shouldBeEqualTo ObjectInputFilter.Status.REJECTED
+    }
+
     // ────────────────────────────────────────────────────────────────────────────
     // 필터 없이 생성한 serializer: 동작 확인
     // ────────────────────────────────────────────────────────────────────────────
@@ -63,6 +83,15 @@ class JdkBinarySerializerSecurityTest {
         val bytes = serializer.serialize(value)
         val restored = serializer.deserialize<List<Int>>(bytes)
         restored shouldBeEqualTo value
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun `BinarySerializers JdkUnfiltered 는 기본 허용 목록 외 클래스를 왕복한다`() {
+        val serializer = BinarySerializers.JdkUnfiltered
+        val value = UntrustedPayload(data = "unfiltered-test")
+
+        serializer.deserialize<UntrustedPayload>(serializer.serialize(value)) shouldBeEqualTo value
     }
 
     // ────────────────────────────────────────────────────────────────────────────
