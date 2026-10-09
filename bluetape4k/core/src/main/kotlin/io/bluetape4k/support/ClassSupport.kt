@@ -116,13 +116,22 @@ fun <T: Any> newInstanceOrNull(
  * val isPresent = classIsPresent("java.lang.String") // true
  * classIsPresent("io.bluetape4k.NotExists") // false
  * ```
+ * 클래스의 static initializer는 실행하지 않으며,
+ * [classLoader]가 null이면 현재 context class loader를 사용합니다.
  */
 fun classIsPresent(
     qualifiedName: String,
     classLoader: ClassLoader? = getContextClassLoader(),
 ): Boolean = try {
-    (classLoader?.loadClass(qualifiedName) ?: Class.forName(qualifiedName)) != null
-} catch (ignored: Throwable) {
+    Class.forName(
+        qualifiedName,
+        false,
+        classLoader ?: getContextClassLoader(),
+    )
+    true
+} catch (_: ClassNotFoundException) {
+    false
+} catch (_: LinkageError) {
     false
 }
 
