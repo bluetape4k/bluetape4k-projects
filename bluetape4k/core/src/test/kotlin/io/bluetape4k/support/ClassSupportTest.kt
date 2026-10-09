@@ -38,6 +38,27 @@ class ClassSupportTest {
     }
 
     @Test
+    fun `class presence does not initialize class when class loader is null`() {
+        val propertyName = "bluetape4k.class-support.probe.initialized"
+        val previousValue = System.getProperty(propertyName)
+        System.clearProperty(propertyName)
+
+        try {
+            classIsPresent(
+                "io.bluetape4k.support.ClassInitializationProbe",
+                classLoader = null,
+            ).shouldBeTrue()
+            System.getProperty(propertyName).shouldBeNull()
+        } finally {
+            if (previousValue == null) {
+                System.clearProperty(propertyName)
+            } else {
+                System.setProperty(propertyName, previousValue)
+            }
+        }
+    }
+
+    @Test
     fun `존재하는 클래스를 인스턴싱합니다`() {
         RuntimeException::class.newInstanceOrNull().shouldNotBeNull()
         RuntimeException::class.java.newInstanceOrNull().shouldNotBeNull()
