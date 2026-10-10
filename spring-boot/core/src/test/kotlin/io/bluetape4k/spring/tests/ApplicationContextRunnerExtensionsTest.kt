@@ -121,7 +121,7 @@ class ApplicationContextRunnerExtensionsTest {
     }
 
     @Test
-    fun `failures remain observable at Spring creation boundaries`() {
+    fun `supplier failures remain observable at eager and lazy creation boundaries`() {
         val supplierFailure = IllegalStateException("supplier-failed")
         ApplicationContextRunner().withBean<ServiceBean> { throw supplierFailure }.run { context ->
             val startupFailure = context.getStartupFailure()
@@ -136,7 +136,10 @@ class ApplicationContextRunnerExtensionsTest {
             val actual: Throwable? = assertFailsWith<BeanCreationException> { context.getBean(ServiceBean::class.java) }
             generateSequence(actual) { it.cause }.any { it === lazyFailure }.shouldBeTrue()
         }
+    }
 
+    @Test
+    fun `customizer failures remain observable during context setup`() {
         val customizerFailure = IllegalStateException("customizer-failed")
         val supplierCalls = AtomicInteger()
         ApplicationContextRunner()

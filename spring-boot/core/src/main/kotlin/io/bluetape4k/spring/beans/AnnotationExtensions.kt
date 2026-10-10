@@ -1,3 +1,6 @@
+// Spring 애너테이션 조회 확장을 기존 파일에서 함께 관리합니다.
+@file:Suppress("TooManyFunctions")
+
 package io.bluetape4k.spring.beans
 
 import org.springframework.beans.PropertyAccessorFactory
