@@ -8,6 +8,7 @@ import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.spring.AbstractSpringTest
 import org.junit.jupiter.api.Test
 import org.springframework.core.annotation.AliasFor
+import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.util.StringValueResolver
 
 class AnnotationExtensionsTest: AbstractSpringTest() {
@@ -51,6 +52,11 @@ class AnnotationExtensionsTest: AbstractSpringTest() {
     @SearchMarker("type")
     class MarkedClass
 
+    @Target(AnnotationTarget.FUNCTION)
+    @Retention(AnnotationRetention.RUNTIME)
+    @Repeatable
+    annotation class Marker(val value: String)
+
     @SampleAnnotation(name = "test", value = 42)
     fun annotatedMethod() {
     }
@@ -64,6 +70,10 @@ class AnnotationExtensionsTest: AbstractSpringTest() {
     }
 
     fun plainMethod() {}
+
+    @Marker("first")
+    @Marker("second")
+    fun repeatedMarkerMethod() {}
 
     @Test
     fun `findMergedAnnotationOrNull - composed annotation 속성을 병합한다`() {
@@ -102,6 +112,20 @@ class AnnotationExtensionsTest: AbstractSpringTest() {
 
         annotations.size shouldBeEqualTo 1
         annotations.single().value shouldBeEqualTo "/api/users"
+    }
+
+    @Test
+    fun `getMergedRepeatableAnnotations - get 및 find 반복 조회 결과를 Spring과 비교한다`() {
+        val element = this::class.java.getDeclaredMethod("repeatedMarkerMethod")
+
+        val actual = element.getMergedRepeatableAnnotations<Marker>()
+        val expected = AnnotatedElementUtils.getMergedRepeatableAnnotations(element, Marker::class.java)
+        val found = element.findAllMergedAnnotations<Marker>()
+        val expectedFound = AnnotatedElementUtils.findAllMergedAnnotations(element, Marker::class.java)
+
+        actual.map { it.value }.toSet() shouldBeEqualTo setOf("first", "second")
+        actual shouldBeEqualTo expected
+        found shouldBeEqualTo expectedFound
     }
 
     @Test
