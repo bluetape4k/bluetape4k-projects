@@ -101,6 +101,103 @@ val mapping = method.findMergedAnnotationOrNull<RequestMapping>()
 val hasMapping = method.hasMergedAnnotation<RequestMapping>()
 ```
 
+### Spring reified 확장
+
+이 Kotlin 확장은 reified 타입 매개변수를 이용해 Spring API가 요구하는 `Class<T>`를 전달한 뒤 해당 API에 위임합니다. Java의 class-token 호출도 계속 사용할 수 있습니다. 아래 예제의 receiver 객체와 애플리케이션 타입은 Spring 애플리케이션이나 테스트에서 준비합니다.
+
+```kotlin
+import io.bluetape4k.spring.boot.bind
+import io.bluetape4k.spring.boot.bindOrCreate
+import io.bluetape4k.spring.boot.get
+import io.bluetape4k.spring.boot.getOrElse
+import io.bluetape4k.spring.boot.getOrElseSupply
+import io.bluetape4k.spring.boot.getOrElseThrow
+import io.bluetape4k.spring.boot.isRegistered
+import io.bluetape4k.spring.core.io.support.load
+import io.bluetape4k.spring.context.annotation.register
+import io.bluetape4k.spring.beans.getMergedRepeatableAnnotations
+import io.bluetape4k.spring.beans.findAllMergedAnnotations
+import io.bluetape4k.spring.core.typeDescriptorOf
+import io.bluetape4k.spring.core.annotationMetadataOf
+import io.bluetape4k.spring.expression.getValueAs
+import io.bluetape4k.spring.tests.withUserConfiguration
+import io.bluetape4k.spring.tests.withBean
+import io.bluetape4k.spring.tests.autoConfigurationsOf
+import org.springframework.beans.factory.config.BeanDefinitionCustomizer
+import org.springframework.boot.autoconfigure.AutoConfigurations
+import org.springframework.boot.test.context.runner.ApplicationContextRunner
+import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner
+import org.springframework.boot.test.context.runner.WebApplicationContextRunner
+import org.springframework.core.io.support.SpringFactoriesLoader
+import java.util.function.Supplier
+```
+
+```kotlin
+// Binder: 기본 호출, handler 호출, nullable handler, bindOrCreate 두 형태
+binder.bind<ServerProperties>("server")
+binder.bind<ServerProperties>("server", bindHandler)
+binder.bind<ServerProperties>("server", bindHandler = null)
+binder.bindOrCreate<ServerProperties>("server")
+binder.bindOrCreate<ServerProperties>("server", bindHandler)
+
+// BootstrapContext: 조회, 기본값, 지연 기본값, 지연 예외, 등록 확인
+val defaultSupplier = Supplier<ServerProperties?> { ServerProperties() }
+val exceptionSupplier = Supplier<Throwable> { IllegalStateException("missing") }
+bootstrapContext.get<ServerProperties>()
+bootstrapContext.getOrElse<ServerProperties>(ServerProperties())
+bootstrapContext.getOrElseSupply<ServerProperties>(defaultSupplier)
+bootstrapContext.getOrElseThrow<ServerProperties>(exceptionSupplier)
+bootstrapContext.isRegistered<ServerProperties>()
+
+// SpringFactoriesLoader: 생략, resolver, failure handler, 둘 다, 명시적 null
+val resolver = SpringFactoriesLoader.ArgumentResolver.from { _ -> null }
+val failureHandler = SpringFactoriesLoader.FailureHandler { _, _, _ -> }
+loader.load<TestFactory>()
+loader.load<TestFactory>(argumentResolver = resolver)
+loader.load<TestFactory>(failureHandler = failureHandler)
+loader.load<TestFactory>(argumentResolver = resolver, failureHandler = failureHandler)
+loader.load<TestFactory>(argumentResolver = null)
+loader.load<TestFactory>(failureHandler = null)
+
+// Context registry와 repeatable annotation 조회 의미
+registry.register<SampleConfiguration>()
+annotationElement.getMergedRepeatableAnnotations<Marker>()
+annotationElement.findAllMergedAnnotations<Marker>() // 기존 find semantics
+
+// Core type metadata와 SpEL의 네 typed overload
+typeDescriptorOf<String>()
+annotationMetadataOf<SampleConfiguration>()
+expression.getValueAs<String>()
+expression.getValueAs<String>(rootObject)
+expression.getValueAs<String>(evaluationContext)
+expression.getValueAs<String>(evaluationContext, rootObject)
+expression.getValueAs<String>(rootObject = null)
+
+// 세 concrete runner의 설정, 무명 bean, 이름 있는 bean, nullable 이름
+ApplicationContextRunner().withUserConfiguration<SampleRunnerConfiguration>()
+ApplicationContextRunner().withBean<ServiceBean> { ServiceBean() }
+ApplicationContextRunner().withBean<ServiceBean>("service", BeanDefinitionCustomizer { it.setLazyInit(true) }) { ServiceBean() }
+ApplicationContextRunner().withBean<ServiceBean>(name = null) { ServiceBean() }
+
+WebApplicationContextRunner().withUserConfiguration<SampleRunnerConfiguration>()
+WebApplicationContextRunner().withBean<ServiceBean> { ServiceBean() }
+WebApplicationContextRunner().withBean<ServiceBean>("service", BeanDefinitionCustomizer { it.setLazyInit(true) }) { ServiceBean() }
+WebApplicationContextRunner().withBean<ServiceBean>(name = null) { ServiceBean() }
+
+ReactiveWebApplicationContextRunner().withUserConfiguration<SampleRunnerConfiguration>()
+ReactiveWebApplicationContextRunner().withBean<ServiceBean> { ServiceBean() }
+ReactiveWebApplicationContextRunner().withBean<ServiceBean>("service", BeanDefinitionCustomizer { it.setLazyInit(true) }) { ServiceBean() }
+ReactiveWebApplicationContextRunner().withBean<ServiceBean>(name = null) { ServiceBean() }
+
+// 단일 auto-configuration은 reified helper, 여러 타입은 Spring vararg API
+ApplicationContextRunner().withConfiguration(autoConfigurationsOf<SampleAutoConfiguration>())
+AutoConfigurations.of(FirstAutoConfiguration::class.java, SecondAutoConfiguration::class.java)
+```
+
+`getMergedRepeatableAnnotations<A>()`는 get semantics를 따르고, 기존 `findAllMergedAnnotations<A>()`는 요소의 계층을 검색합니다. 호출부에 맞는 검색 의미를 선택합니다. `typeDescriptorOf<T>()`는 raw class 정보만 담으므로 generic type argument는 보존하지 않습니다. `autoConfigurationsOf<T>()`는 class 하나를 받습니다. 여러 auto-configuration에는 Spring의 `AutoConfigurations.of(Class<?>...)`를 사용합니다. nullable Java overload 인자는 `bindHandler = null`, `argumentResolver = null`, `rootObject = null`, `name = null`처럼 Kotlin named argument로 전달합니다.
+
+대상 버전은 Spring Boot 4.1.1과 Spring Framework 7.0.9입니다. 기존 starter가 제공하지 않는 API에 한해 해당 artifact를 소비자 의존성으로 선언합니다. 다음 의존성 구조 절의 표는 소비자 의존성을 안내하며 이 모듈의 의존성을 추가하지 않습니다. 버전은 Spring Boot BOM 또는 parent에 맞추고, 선택한 starter가 이미 제공하는 artifact는 중복 선언하지 않습니다.
+
 ### RestClient Coroutines DSL
 
 이 DSL은 blocking `RestClient` 호출을 `runInterruptible(Dispatchers.IO)` 로 실행한다. 따라서 요청 factory가 thread interrupt를 존중하면 coroutine cancellation 이 대기 중인 client thread 를 interrupt 할 수 있다.
@@ -278,6 +375,19 @@ class UserControllerTest(@Autowired val client: WebTestClient) {
 | `micrometer-observation`      | `compileOnly`    | Observation 헬퍼 지원     |
 | `spring-boot-starter-web`     | `compileOnly`    | 선택적 서블릿 지원        |
 | `resilience4j-*`              | `compileOnly`    | 선택적 Resilience4j       |
+
+reified Spring 확장에 필요한 소비자 artifact는 starter에서 이미 제공하지 않는 경우 다음과 같습니다.
+
+| Artifact | API 범위 | 소비자 scope |
+|---|---|---|
+| `org.springframework.boot:spring-boot` | `Binder`, `BootstrapContext` | `implementation`, runtime에서 제공하면 `compileOnly` |
+| `org.springframework:spring-core` | `SpringFactoriesLoader`, repeatable annotation, `TypeDescriptor`, `AnnotationMetadata` | `implementation`, runtime에서 제공하면 `compileOnly` |
+| `org.springframework:spring-context` | `AnnotationConfigRegistry` | `implementation`, runtime에서 제공하면 `compileOnly` |
+| `org.springframework:spring-expression` | `Expression` | `implementation`, runtime에서 제공하면 `compileOnly` |
+| `org.springframework.boot:spring-boot-test` | Context runner 확장 | `testImplementation` |
+| `org.springframework.boot:spring-boot-autoconfigure` | `autoConfigurationsOf<T>()` | `implementation`, runtime에서 제공하면 `compileOnly` |
+
+버전은 Spring Boot BOM 또는 parent로 정렬합니다. 기존 starter가 제공하는 artifact는 중복 선언하지 않습니다. 이 README 예제를 위해 의존성이나 버전을 변경할 필요는 없습니다.
 
 ## 빌드 및 테스트
 
