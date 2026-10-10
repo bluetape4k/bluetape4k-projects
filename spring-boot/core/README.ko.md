@@ -151,7 +151,9 @@ bootstrapContext.isRegistered<ServerProperties>()
 
 // SpringFactoriesLoader: 생략, resolver, failure handler, 둘 다, 명시적 null
 val resolver = SpringFactoriesLoader.ArgumentResolver.from { _ -> null }
-val failureHandler = SpringFactoriesLoader.FailureHandler { _, _, _ -> }
+val failureHandler = SpringFactoriesLoader.FailureHandler { factoryType, factoryName, failure ->
+    throw IllegalStateException("Failed to load ${factoryType.name} factory $factoryName", failure)
+}
 loader.load<TestFactory>()
 loader.load<TestFactory>(argumentResolver = resolver)
 loader.load<TestFactory>(failureHandler = failureHandler)
@@ -195,6 +197,8 @@ AutoConfigurations.of(FirstAutoConfiguration::class.java, SecondAutoConfiguratio
 ```
 
 `getMergedRepeatableAnnotations<A>()`는 get semantics를 따르고, 기존 `findAllMergedAnnotations<A>()`는 요소의 계층을 검색합니다. 호출부에 맞는 검색 의미를 선택합니다. `typeDescriptorOf<T>()`는 raw class 정보만 담으므로 generic type argument는 보존하지 않습니다. `autoConfigurationsOf<T>()`는 class 하나를 받습니다. 여러 auto-configuration에는 Spring의 `AutoConfigurations.of(Class<?>...)`를 사용합니다. nullable Java overload 인자는 `bindHandler = null`, `argumentResolver = null`, `rootObject = null`, `name = null`처럼 Kotlin named argument로 전달합니다.
+
+애플리케이션이 신뢰하는 resource와 classloader의 factory만 로드하세요. Factory 클래스 초기화와 생성자, `ArgumentResolver` callback은 코드를 실행하고 부수 효과를 일으킬 수 있습니다. 이 확장은 별도 검증이나 격리를 하지 않으며 sandbox를 제공하지 않습니다. Spring 기본 failure handler는 factory 로딩이 실패하면 예외를 던집니다. 사용자 handler가 정상 반환하면 해당 실패가 억제되어 성공적으로 생성한 factory만 담긴 일부 목록이 반환될 수 있습니다. 모든 provider가 필수라면 handler가 예외를 던지도록 하고, 누락된 provider를 선택 사항으로 둘 때만 실패를 기록·확인하면서 부분 결과를 허용하세요.
 
 대상 버전은 Spring Boot 4.1.1과 Spring Framework 7.0.9입니다. 기존 starter가 제공하지 않는 API에 한해 해당 artifact를 소비자 의존성으로 선언합니다. 다음 의존성 구조 절의 표는 소비자 의존성을 안내하며 이 모듈의 의존성을 추가하지 않습니다. 버전은 Spring Boot BOM 또는 parent에 맞추고, 선택한 starter가 이미 제공하는 artifact는 중복 선언하지 않습니다.
 

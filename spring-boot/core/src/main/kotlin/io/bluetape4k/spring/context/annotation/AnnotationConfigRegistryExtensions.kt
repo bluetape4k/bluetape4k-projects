@@ -9,6 +9,6 @@ import org.springframework.context.annotation.AnnotationConfigRegistry
  * 않습니다. 설정 분석, 조건 평가, bean 및 factory method 실행과 예외 전파는 Spring context 생명주기를 따릅니다.
  * 등록된 클래스 외의 다른 클래스를 추가하거나 context를 refresh하지 않습니다.
  */
-inline fun <reified T : Any> AnnotationConfigRegistry.register() {
+inline fun <reified T : Any> AnnotationConfigRegistry.register(): Unit {
     register(T::class.java)
 }

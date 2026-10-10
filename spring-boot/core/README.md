@@ -133,14 +133,14 @@ import java.util.function.Supplier
 ```
 
 ```kotlin
-// Binder: 기본 호출, handler 호출, nullable handler, bindOrCreate 두 형태
+// Binder: default call, handler call, nullable handler, and both bindOrCreate forms
 binder.bind<ServerProperties>("server")
 binder.bind<ServerProperties>("server", bindHandler)
 binder.bind<ServerProperties>("server", bindHandler = null)
 binder.bindOrCreate<ServerProperties>("server")
 binder.bindOrCreate<ServerProperties>("server", bindHandler)
 
-// BootstrapContext: 조회, 기본값, 지연 기본값, 지연 예외, 등록 확인
+// BootstrapContext: lookup, default value, lazy default, lazy exception, and registration check
 val defaultSupplier = Supplier<ServerProperties?> { ServerProperties() }
 val exceptionSupplier = Supplier<Throwable> { IllegalStateException("missing") }
 bootstrapContext.get<ServerProperties>()
@@ -149,9 +149,11 @@ bootstrapContext.getOrElseSupply<ServerProperties>(defaultSupplier)
 bootstrapContext.getOrElseThrow<ServerProperties>(exceptionSupplier)
 bootstrapContext.isRegistered<ServerProperties>()
 
-// SpringFactoriesLoader: 생략, resolver, failure handler, 둘 다, 명시적 null
+// SpringFactoriesLoader: omitted arguments, resolver, failure handler, both, and explicit null
 val resolver = SpringFactoriesLoader.ArgumentResolver.from { _ -> null }
-val failureHandler = SpringFactoriesLoader.FailureHandler { _, _, _ -> }
+val failureHandler = SpringFactoriesLoader.FailureHandler { factoryType, factoryName, failure ->
+    throw IllegalStateException("Failed to load ${factoryType.name} factory $factoryName", failure)
+}
 loader.load<TestFactory>()
 loader.load<TestFactory>(argumentResolver = resolver)
 loader.load<TestFactory>(failureHandler = failureHandler)
@@ -159,12 +161,12 @@ loader.load<TestFactory>(argumentResolver = resolver, failureHandler = failureHa
 loader.load<TestFactory>(argumentResolver = null)
 loader.load<TestFactory>(failureHandler = null)
 
-// Context registry와 repeatable annotation 조회 의미
+// Context registry and repeatable annotation lookup semantics
 registry.register<SampleConfiguration>()
 annotationElement.getMergedRepeatableAnnotations<Marker>()
 annotationElement.findAllMergedAnnotations<Marker>() // existing find semantics
 
-// Core type metadata와 SpEL의 네 typed overload
+// Core type metadata and the four typed SpEL overloads
 typeDescriptorOf<String>()
 annotationMetadataOf<SampleConfiguration>()
 expression.getValueAs<String>()
@@ -173,7 +175,7 @@ expression.getValueAs<String>(evaluationContext)
 expression.getValueAs<String>(evaluationContext, rootObject)
 expression.getValueAs<String>(rootObject = null)
 
-// 세 concrete runner의 설정, 무명 bean, 이름 있는 bean, nullable 이름
+// Configuration, unnamed bean, named bean, and nullable name on all three concrete runners
 ApplicationContextRunner().withUserConfiguration<SampleRunnerConfiguration>()
 ApplicationContextRunner().withBean<ServiceBean> { ServiceBean() }
 ApplicationContextRunner().withBean<ServiceBean>("service", BeanDefinitionCustomizer { it.setLazyInit(true) }) { ServiceBean() }
@@ -189,12 +191,14 @@ ReactiveWebApplicationContextRunner().withBean<ServiceBean> { ServiceBean() }
 ReactiveWebApplicationContextRunner().withBean<ServiceBean>("service", BeanDefinitionCustomizer { it.setLazyInit(true) }) { ServiceBean() }
 ReactiveWebApplicationContextRunner().withBean<ServiceBean>(name = null) { ServiceBean() }
 
-// 단일 auto-configuration은 reified helper, 여러 타입은 Spring vararg API
+// Use the reified helper for one auto-configuration and Spring's vararg API for multiple types
 ApplicationContextRunner().withConfiguration(autoConfigurationsOf<SampleAutoConfiguration>())
 AutoConfigurations.of(FirstAutoConfiguration::class.java, SecondAutoConfiguration::class.java)
 ```
 
 `getMergedRepeatableAnnotations<A>()` follows get semantics, while the existing `findAllMergedAnnotations<A>()` searches through the element hierarchy. Choose the function whose search behavior matches the call site. `typeDescriptorOf<T>()` describes the raw Java class and does not retain generic type arguments. `autoConfigurationsOf<T>()` accepts one class; use Spring's `AutoConfigurations.of(Class<?>...)` for multiple auto-configurations. Nullable Java-overload arguments use named Kotlin arguments such as `bindHandler = null`, `argumentResolver = null`, `rootObject = null`, and `name = null`.
+
+Only load factories from resources and class loaders that your application trusts. Factory class initialization, constructors, and `ArgumentResolver` callbacks can execute code and cause side effects; this extension adds no validation, isolation, or sandbox. Spring's default failure handler throws when a factory fails. A custom handler that returns normally suppresses that failure, so `load()` may return only the successfully created subset. Let the handler throw when every provider is required; allow partial results only when the missing providers are intentionally optional and the failures are recorded and inspected.
 
 The extensions target Spring Boot 4.1.1 and Spring Framework 7.0.9. Add the artifact that supplies each API when it is not already provided by an existing starter. The consumer dependency table under Key Dependency Structure does not add dependencies to this module. Let the Spring Boot BOM or parent manage versions, and do not add an artifact again when your selected starter already provides it.
 
