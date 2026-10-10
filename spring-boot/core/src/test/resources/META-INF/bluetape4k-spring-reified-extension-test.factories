@@ -1,0 +1,5 @@
+io.bluetape4k.spring.core.io.support.TestFactory=io.bluetape4k.spring.core.io.support.DefaultFactory
+io.bluetape4k.spring.core.io.support.ResolverFactory=io.bluetape4k.spring.core.io.support.RequiredArgumentFactory
+io.bluetape4k.spring.core.io.support.NullableResolverFactory=io.bluetape4k.spring.core.io.support.NullableArgumentFactory
+io.bluetape4k.spring.core.io.support.FailingFactory=io.bluetape4k.spring.core.io.support.FailingImplementation
+io.bluetape4k.spring.core.io.support.PartialFactory=io.bluetape4k.spring.core.io.support.AvailablePartialFactory,io.bluetape4k.spring.core.io.support.FailingPartialFactory
