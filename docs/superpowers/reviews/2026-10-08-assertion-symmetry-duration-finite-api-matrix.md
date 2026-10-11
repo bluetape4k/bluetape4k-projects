@@ -105,7 +105,7 @@ Core는 Assertions 전체를 복제하지 않는다. 아래 선택한 common hel
 | JVM ABI | Assertions 기존 owner 12개, Core 기존 owner 6개 | 기준 `javap` 대비 기존 descriptor 제거 0개. Assertions 기존 owner에서 120개, Core owner에서 256개 descriptor 추가; Duration owner 1개 추가 | PASS |
 | Kotlin source contract | 기준 source와 공개 signature | parameter name과 nullable 반환 계약을 source 및 compile fixture에서 대조. 잘못된 null-only contract 2개 제거 | SOURCE/FIXTURE PASS; Kotlin metadata diff 미수행 |
 | Detekt | Assertions 36건, Core 269건 | Assertions 35건, Core 269건. Assertions `TooManyFunctions` 6→7은 Map API 추가로 `Maps.kt`가 10→12 함수가 된 예상 진단; 다른 새 rule 진단 0. `MagicNumber` 2건 해소 | PASS WITH EXPECTED `TooManyFunctions` |
-| Runner checks | task-local runner 기반 | `test-assertions`, `detekt-assertions`, `javap-assertions`: `20261011T203500Z-91b00314`; Core 전체 테스트/Detekt/ABI: `20261011T194300Z-b381d46e`; runner unittest 15건 및 py_compile 통과 | PASS |
+| Runner checks | task-local runner 기반 | Assertions 707건: `20261011T204542Z-c7e121a0`; Core 1,717건: `20261012T000000Z-c0de1824`; runner unittest 16건 및 py_compile, `git diff --check` 통과 | PASS |
 
 ## 리뷰 finding과 남은 gate
 
@@ -116,7 +116,19 @@ Core는 Assertions 전체를 복제하지 않는다. 아래 선택한 common hel
 | Double infix negative-near KDoc/default epsilon 불일치 | KDoc을 `1e-9`로 고치고 `DOUBLE_EPSILON` 상수 사용 | 수정 |
 | `Map.shouldNotHaveSize(Int)`의 null 결과와 nullable 반환형 | positive 조건의 정확한 부정에 맞춰 null receiver를 통과시키고 `Map<K,V>?` 반환을 compile/runtime fixture로 고정 | 수정 및 테스트 |
 | Duration README의 존재하지 않는 `shouldNotBeNegative()` 항목 | 잘못된 행을 삭제하고 실제 Duration quartet을 두 README locale에서 대조 | 수정 |
-| 독립 최종 코드 리뷰 lane | 등록된 최종 리뷰 lane이 bounded probe/interrupt 후 만료되어 workflow에 BLOCKED로 기록됨. 주 세션 fallback은 알려진 finding을 재검토했으나 독립 리뷰 verdict를 대체하지 않음 | PENDING |
+| 독립 최종 코드 리뷰 lane | 등록된 reviewer lane은 취소 또는 BLOCKED 상태로 남아 있음. 아래 주 세션 inline fallback 결과는 독립 리뷰 증거를 대체하지 않음 | PENDING — inline 결과 별도 기록 |
+
+## 주 세션 inline fallback 최종 코드 리뷰 (2026-10-12)
+
+독립 reviewer lane이 완료되지 않아 주 세션에서 승인된 inline fallback 리뷰를 수행했다. 변경된 Assertions/Core API, 테스트, fixture, README, runner 및 계획·검토 문서를 기준으로 정확성, 부정 쌍의 경계, null 동작, 유한수·Duration 의미, JVM/API 호환성, 검증 artifact 연결을 다시 확인했다. **Inline verdict: PASS; P0=0, P1=0.** 아래 P2 두 건과 검증 추적성 한 건은 모두 수정했다.
+
+| Finding | 근거와 조치 | 상태 |
+|---|---|---|
+| P2 — `shouldNotContainAll` KDoc의 null/빈 후보 설명이 구현과 불일치 | `CharSequences.kt:419-420` 설명을 null receiver는 빈 후보 목록에서도 통과한다고 바로잡음. `AssertionSymmetryTest.kt:38-50`에 빈 후보·vararg·null receiver 경계를 추가 | 수정 및 Assertions 테스트 통과 |
+| P2 — 날짜/시간 부정 비교의 equality 경계 검증 누락 | `AssertionSymmetryTest.kt:108-179`에서 `Instant`, `ZonedDateTime`, `OffsetDateTime`, `LocalDateTime`, `Date`, `LocalDate`, `LocalTime` 각각에 strict 비교 equality 통과와 inclusive 비교 equality 실패를 추가 | 수정 및 Assertions 테스트 통과 |
+| 검증 추적성 — runner가 새 symmetry 테스트 결과를 필수 artifact로 확인하지 않음 | `assertion_symmetry_runner.py:63-89,217-220`에서 baseline/final 클래스 목록을 나누고 최종 Assertions에 `AssertionSymmetryTest`를 요구. `test_assertion_symmetry_runner.py:119-127`에 계약 테스트 추가 | 수정; runner unittest 16건 통과 |
+
+독립 reviewer lane 세 개의 cancelled/BLOCKED 상태는 workflow receipt에 그대로 보존한다. 이 inline 리뷰는 같은 주 세션에서 수행했으므로 독립성 증거가 아니다. Workflow completion receipt는 구현/final-verification 구성요소와 reviewer lane 흔적이 남아 있어 완료 처리하지 않았다.
 
 ## 작성 및 통합 검토 DoD
 
@@ -130,7 +142,7 @@ Core는 Assertions 전체를 복제하지 않는다. 아래 선택한 common hel
 | SPW-02 | PASS — 기준 범위, API 행렬, final evidence, finding disposition, 미완료 gate 포함 | PASS — 맥락·결정·결과·검증·실패 가정·재발 방지 guard 포함 |
 | SPW-03 | PASS — 기술 용어와 API 토큰을 일관되게 유지; KO checklist 완료 | PASS — 엔지니어링 한국어로 사실과 불확실성 분리; KO checklist 완료 |
 | SPW-04 | PASS — 이슈·기준 source·final test/ABI/Detekt 증거와 대조 | PASS — 현재 source, 테스트 XML, runner/Detekt 보고서와 대조 |
-| SPW-05 | PASS — 전체 표와 finding을 다시 읽음; 독립 리뷰 PENDING을 유지 | PASS — 문서 전체 재독 및 링크/식별자 확인 |
+| SPW-05 | PASS — 전체 표와 finding을 다시 읽음; inline verdict와 독립 리뷰 PENDING을 구분 | PASS — 문서 전체 재독 및 링크/식별자 확인 |
 
 ### KO-01..07
 

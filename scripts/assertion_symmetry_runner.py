@@ -60,7 +60,7 @@ CORE_OWNERS = (
     "io.bluetape4k.support.RequireSupportKt",
     "io.bluetape4k.support.CheckSupportKt",
 )
-FINAL_TEST_CLASSES = {
+BASELINE_TEST_CLASSES = {
     "assertions": (
         "BasicTest",
         "ArraysTest",
@@ -75,7 +75,6 @@ FINAL_TEST_CLASSES = {
         "DateTimesTest$JavaUtilDateAssertions",
         "MapsTest",
         "NumericalTest",
-        "DurationAssertionsTest",
     ),
     "core": (
         "RequireSupportTest",
@@ -83,6 +82,10 @@ FINAL_TEST_CLASSES = {
         "DurationSupportTest",
         "KotlinDurationSupportTest",
     ),
+}
+FINAL_TEST_CLASSES = {
+    "assertions": BASELINE_TEST_CLASSES["assertions"] + ("DurationAssertionsTest", "AssertionSymmetryTest"),
+    "core": BASELINE_TEST_CLASSES["core"],
 }
 
 
@@ -211,7 +214,11 @@ def _gradle_step(
         idle_timeout_seconds=15 * 60,
         verifier=verifier,
         module=module,
-        required_classes=FINAL_TEST_CLASSES[module] if verifier == "junit" else (),
+        required_classes=(
+            (FINAL_TEST_CLASSES if name.startswith("test-") else BASELINE_TEST_CLASSES)[module]
+            if verifier == "junit"
+            else ()
+        ),
         artifact_globs=artifacts,
         cleanup_paths=cleanup,
     )

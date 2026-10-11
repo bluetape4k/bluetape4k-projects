@@ -38,8 +38,14 @@ class AssertionSymmetryTest {
 
         assertFailsWith<AssertionFailedError> { "kotlin".shouldContainAny("java", "rust") }
         assertFailsWith<AssertionFailedError> { "kotlin" shouldNotContainAll listOf("kot") }
+        assertFailsWith<AssertionFailedError> { "kotlin".shouldNotContainAll(emptyList()) }
+        assertFailsWith<AssertionFailedError> { "kotlin".shouldNotContainAll() }
         assertFailsWith<AssertionFailedError> { "kotlin" shouldNotMatch "kotlin" }
         assertFailsWith<AssertionFailedError> { "Kotlin" shouldNotBeEqualToIgnoringCase "kotlin" }
+
+        val nullText: String? = null
+        nullText shouldNotContainAll emptyList()
+        nullText.shouldNotContainAll()
     }
 
     @Test
@@ -102,42 +108,70 @@ class AssertionSymmetryTest {
     @Test
     fun `date time comparisons have negative counterparts`() {
         val instant = Instant.parse("2026-05-07T10:00:00Z")
+        instant shouldNotBeAfter instant
+        instant shouldNotBeBefore instant
+        assertFailsWith<AssertionFailedError> { instant shouldNotBeOnOrAfter instant }
+        assertFailsWith<AssertionFailedError> { instant shouldNotBeOnOrBefore instant }
         instant.minusSeconds(1) shouldNotBeAfter instant
         instant.plusSeconds(1) shouldNotBeBefore instant
         instant.minusSeconds(1) shouldNotBeOnOrAfter instant
         instant.plusSeconds(1) shouldNotBeOnOrBefore instant
 
         val zoned = ZonedDateTime.of(2026, 5, 7, 10, 0, 0, 0, ZoneOffset.UTC)
+        zoned shouldNotBeAfter zoned
+        zoned shouldNotBeBefore zoned
+        assertFailsWith<AssertionFailedError> { zoned shouldNotBeOnOrAfter zoned }
+        assertFailsWith<AssertionFailedError> { zoned shouldNotBeOnOrBefore zoned }
         zoned.minusHours(1) shouldNotBeAfter zoned
         zoned.plusHours(1) shouldNotBeBefore zoned
         zoned.minusHours(1) shouldNotBeOnOrAfter zoned
         zoned.plusHours(1) shouldNotBeOnOrBefore zoned
 
         val offset = OffsetDateTime.of(2026, 5, 7, 10, 0, 0, 0, ZoneOffset.UTC)
+        offset shouldNotBeAfter offset
+        offset shouldNotBeBefore offset
+        assertFailsWith<AssertionFailedError> { offset shouldNotBeOnOrAfter offset }
+        assertFailsWith<AssertionFailedError> { offset shouldNotBeOnOrBefore offset }
         offset.minusHours(1) shouldNotBeAfter offset
         offset.plusHours(1) shouldNotBeBefore offset
         offset.minusHours(1) shouldNotBeOnOrAfter offset
         offset.plusHours(1) shouldNotBeOnOrBefore offset
 
         val localDateTime = LocalDateTime.of(2026, 5, 7, 10, 0)
+        localDateTime shouldNotBeAfter localDateTime
+        localDateTime shouldNotBeBefore localDateTime
+        assertFailsWith<AssertionFailedError> { localDateTime shouldNotBeOnOrAfter localDateTime }
+        assertFailsWith<AssertionFailedError> { localDateTime shouldNotBeOnOrBefore localDateTime }
         localDateTime.minusHours(1) shouldNotBeAfter localDateTime
         localDateTime.plusHours(1) shouldNotBeBefore localDateTime
         localDateTime.minusHours(1) shouldNotBeOnOrAfter localDateTime
         localDateTime.plusHours(1) shouldNotBeOnOrBefore localDateTime
 
         val date = Date(1_000)
+        date shouldNotBeAfter date
+        date shouldNotBeBefore date
+        assertFailsWith<AssertionFailedError> { date shouldNotBeOnOrAfter date }
+        assertFailsWith<AssertionFailedError> { date shouldNotBeOnOrBefore date }
         Date(999) shouldNotBeAfter date
         Date(1_001) shouldNotBeBefore date
         Date(999) shouldNotBeOnOrAfter date
         Date(1_001) shouldNotBeOnOrBefore date
 
         val localDate = LocalDate.of(2026, 5, 7)
+        localDate shouldNotBeAfter localDate
+        localDate shouldNotBeBefore localDate
+        assertFailsWith<AssertionFailedError> { localDate shouldNotBeOnOrAfter localDate }
+        assertFailsWith<AssertionFailedError> { localDate shouldNotBeOnOrBefore localDate }
         localDate.minusDays(1) shouldNotBeAfter localDate
         localDate.plusDays(1) shouldNotBeBefore localDate
         localDate.minusDays(1) shouldNotBeOnOrAfter localDate
         localDate.plusDays(1) shouldNotBeOnOrBefore localDate
 
         val localTime = LocalTime.of(10, 0)
+        localTime shouldNotBeAfter localTime
+        localTime shouldNotBeBefore localTime
+        assertFailsWith<AssertionFailedError> { localTime shouldNotBeOnOrAfter localTime }
+        assertFailsWith<AssertionFailedError> { localTime shouldNotBeOnOrBefore localTime }
         localTime.minusHours(1) shouldNotBeAfter localTime
         localTime.plusHours(1) shouldNotBeBefore localTime
         localTime.minusHours(1) shouldNotBeOnOrAfter localTime

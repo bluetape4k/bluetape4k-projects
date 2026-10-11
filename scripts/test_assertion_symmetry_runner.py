@@ -100,6 +100,7 @@ class RunnerContractTests(unittest.TestCase):
                 "MapsTest",
                 "NumericalTest",
                 "DurationAssertionsTest",
+                "AssertionSymmetryTest",
             ),
             "core": (
                 "RequireSupportTest",
@@ -114,6 +115,16 @@ class RunnerContractTests(unittest.TestCase):
             with self.subTest(module=module):
                 steps = runner.build_steps(alias, "final", REPOSITORY_ROOT)
                 self.assertEqual(steps[0].required_classes, required_classes)
+
+    def test_baseline_test_alias_requires_only_baseline_test_classes(self):
+        for module, required_classes in runner.BASELINE_TEST_CLASSES.items():
+            alias = f"baseline-{module}"
+            with self.subTest(module=module):
+                steps = runner.build_steps(alias, "baseline", REPOSITORY_ROOT)
+                self.assertEqual(steps[0].required_classes, required_classes)
+
+        self.assertNotIn("DurationAssertionsTest", runner.BASELINE_TEST_CLASSES["assertions"])
+        self.assertNotIn("AssertionSymmetryTest", runner.BASELINE_TEST_CLASSES["assertions"])
 
     def test_attempt_directory_is_created_below_repository_root(self):
         with tempfile.TemporaryDirectory() as temporary_directory:

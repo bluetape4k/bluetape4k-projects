@@ -416,8 +416,8 @@ infix fun <T: CharSequence> T?.shouldContainAll(substrings: Iterable<CharSequenc
 /**
  * CharSequence가 [substrings]의 모든 요소를 포함하지는 않는지 검증한다.
  *
- * 기존 [shouldContainAll]의 정확한 논리적 부정이다. null receiver는
- * [substrings]가 비어 있지 않은 경우 통과한다.
+ * 기존 [shouldContainAll]의 정확한 논리적 부정이다. null receiver는 후보 목록이
+ * 비어 있어도 통과한다.
  *
  * @receiver 검증할 CharSequence (nullable 허용)
  * @param substrings 모두 포함되어서는 안 되는 부분 문자열 목록
