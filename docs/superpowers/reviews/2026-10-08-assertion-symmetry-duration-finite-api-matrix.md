@@ -105,7 +105,7 @@ Core는 Assertions 전체를 복제하지 않는다. 아래 선택한 common hel
 | JVM ABI | Assertions 기존 owner 12개, Core 기존 owner 6개 | 기준 `javap` 대비 기존 descriptor 제거 0개. Assertions 기존 owner에서 120개, Core owner에서 256개 descriptor 추가; Duration owner 1개 추가 | PASS |
 | Kotlin source contract | 기준 source와 공개 signature | parameter name과 nullable 반환 계약을 source 및 compile fixture에서 대조. 잘못된 null-only contract 2개 제거 | SOURCE/FIXTURE PASS; Kotlin metadata diff 미수행 |
 | Detekt | Assertions 36건, Core 269건 | Assertions 35건, Core 269건. Assertions `TooManyFunctions` 6→7은 Map API 추가로 `Maps.kt`가 10→12 함수가 된 예상 진단; 다른 새 rule 진단 0. `MagicNumber` 2건 해소 | PASS WITH EXPECTED `TooManyFunctions` |
-| Runner checks | task-local runner 기반 | Assertions 707건: `20261011T204542Z-c7e121a0`; Core 1,717건: `20261012T000000Z-c0de1824`; runner unittest 16건 및 py_compile, `git diff --check` 통과 | PASS |
+| Runner checks | task-local runner 기반 | exact head `f31dd91a0c426a7213e69d75a7f79c11dad04feb`: Assertions 707건 (`20261011T205532Z-a91d8200`), Core 1,718건 (`20261011T205618Z-b73c0012`); runner unittest 16건 및 py_compile, `git diff --check` 통과 | PASS |
 
 ## 리뷰 finding과 남은 gate
 
@@ -120,7 +120,7 @@ Core는 Assertions 전체를 복제하지 않는다. 아래 선택한 common hel
 
 ## 주 세션 inline fallback 최종 코드 리뷰 (2026-10-12)
 
-독립 reviewer lane이 완료되지 않아 주 세션에서 승인된 inline fallback 리뷰를 수행했다. 변경된 Assertions/Core API, 테스트, fixture, README, runner 및 계획·검토 문서를 기준으로 정확성, 부정 쌍의 경계, null 동작, 유한수·Duration 의미, JVM/API 호환성, 검증 artifact 연결을 다시 확인했다. **Inline verdict: PASS; P0=0, P1=0.** 아래 P2 두 건과 검증 추적성 한 건은 모두 수정했다.
+독립 reviewer lane이 완료되지 않아 주 세션에서 승인된 inline fallback 리뷰를 수행했다. `d9e175f240b16b4f6d6964ff35867ec9d09cd739..f31dd91a0c426a7213e69d75a7f79c11dad04feb` 변경을 검토했다. 최신 base의 추가 변경은 `ClassSupport`와 그 테스트에 한정되어 이 PR의 Assertions/Core API 영역과 겹치지 않음을 확인한 뒤, 변경된 API, 테스트, fixture, README, runner 및 계획·검토 문서에서 정확성, 부정 쌍의 경계, null 동작, 유한수·Duration 의미, JVM/API 호환성, 검증 artifact 연결을 다시 확인했다. **Inline verdict: PASS; P0=0, P1=0.** 아래 P2 두 건과 검증 추적성 한 건은 모두 수정했다.
 
 | Finding | 근거와 조치 | 상태 |
 |---|---|---|
