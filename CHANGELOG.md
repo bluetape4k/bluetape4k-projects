@@ -7,6 +7,20 @@
 <!-- issue-1335-java25-semver:start -->
 ## [Unreleased]
 
+### 추가
+
+- `bluetape4k-assertions`에 공개 조건 함수의 긍정/부정 대칭을 확장했다.
+  predicate, 문자열, 컬렉션, 배열, 맵, 날짜시간, 숫자, `java.time.Duration`,
+  `kotlin.time.Duration`의 대응 함수를 제공하며, `Float`/`Double`에는
+  `shouldBeFinite` 계열과 유한수 부호 검증을 추가했다. `NaN`과 양·음의
+  무한대는 finite-sign 검증에서 거부하고, 일반 sign-only 검증에서는 기존
+  비교 의미를 유지한다
+  ([#1824](https://github.com/bluetape4k/bluetape4k-projects/issues/1824)).
+- `bluetape4k-core`의 공통 검증 helper에 선택한 `requireXxx`/`checkXxx`
+  긍정·부정 쌍을 추가했다. 동등성, null/empty, 문자열, 맵, 범위, 크기,
+  유한수, 숫자 부호, 유한수 부호, Java/Kotlin Duration 검증을 포함한다
+  ([#1824](https://github.com/bluetape4k/bluetape4k-projects/issues/1824)).
+
 ### 변경
 
 - `2.0.0` 정식 배포 후 다음 minor 개발선을 `2.1.0-SNAPSHOT`으로 열었다.
@@ -19,6 +33,9 @@
 
 ### 버그 수정
 
+- 맵의 `(key, value)` 포함 검증이 `containsKey`와 value equality를 함께
+  확인하도록 맞췄다. 이제 없는 key와 `null` 값을 가진 기존 key를 구분한다
+  ([#1824](https://github.com/bluetape4k/bluetape4k-projects/issues/1824)).
 - `ConcurrentReducer`가 active promise의 caller cancellation을 source stage로
   전달한다. source가 원본 취소를 지원하면 active slot을 즉시 회수하고, 취소를
   지원하지 않으면 실제 terminal 상태까지 permit을 유지해 동시성 한도를 보존한다

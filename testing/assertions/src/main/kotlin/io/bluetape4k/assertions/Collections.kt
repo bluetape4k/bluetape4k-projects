@@ -406,3 +406,101 @@ infix fun <T> Sequence<T>?.shouldContentEqual(expected: Sequence<T>?): Sequence<
     }
     return this
 }
+
+// ── Negative counterparts ───────────────────────────────────────────────────
+
+/** 컬렉션이 [expected]의 모든 원소를 포함하지는 않는지 검증한다. */
+infix fun <T> Iterable<T>?.shouldNotContainAll(expected: Iterable<T>): Iterable<T>? {
+    val expectedList = expected.toList()
+    val allContained = if (this == null) {
+        expectedList.isEmpty()
+    } else {
+        expectedList.all(this::contains)
+    }
+    if (allContained) {
+        Failures.fail(
+            "Expected ${Messages.stringify(this)} to not contain all of " +
+                "${Messages.stringify(expectedList)}, but all were present."
+        )
+    }
+    return this
+}
+
+/** 컬렉션이 [expected] vararg의 모든 원소를 포함하지는 않는지 검증한다. */
+fun <T> Iterable<T>?.shouldNotContainAll(vararg expected: T): Iterable<T>? =
+    shouldNotContainAll(expected.toList())
+
+/** 모든 컬렉션 원소가 predicate를 만족하지는 않는지 검증한다. */
+infix fun <T> Iterable<T>?.shouldNotMatchAllWith(predicate: (T) -> Boolean): Iterable<T>? {
+    if (this == null || all(predicate)) {
+        Failures.fail(
+            "Expected not all elements of ${Messages.stringify(this)} to match the predicate, but all matched."
+        )
+    }
+    return this
+}
+
+/** 컬렉션 원소 중 predicate를 만족하는 원소가 없음을 검증한다. */
+infix fun <T> Iterable<T>?.shouldNotMatchAtLeastOneOf(predicate: (T) -> Boolean): Iterable<T>? {
+    if (this != null && any(predicate)) {
+        Failures.fail(
+            "Expected no element of ${Messages.stringify(this)} to match the predicate, but one matched."
+        )
+    }
+    return this
+}
+
+/** 컬렉션 크기가 [size]와 다름을 검증한다. */
+infix fun <T> Iterable<T>?.shouldNotHaveSize(size: Int): Iterable<T>? = apply {
+    if ((this?.count() ?: 0) == size) {
+        Failures.fail("Expected collection to not have size $size, but it did.")
+    }
+}
+
+/** 두 컬렉션의 순서 있는 내용이 다름을 검증한다. */
+infix fun <T> Iterable<T>?.shouldNotContentEqual(expected: Iterable<T>?): Iterable<T>? = apply {
+    if (this === expected) {
+        Failures.failComparison(
+            Messages.expectedNotToBe("content-equal to", expected, this),
+            expected,
+            this
+        )
+    }
+    if (this != null && expected != null && this.toList() == expected.toList()) {
+        Failures.failComparison(
+            Messages.expectedNotToBe("content-equal to", expected, this),
+            expected,
+            this
+        )
+    }
+}
+
+/** 두 컬렉션이 같은 원소를 같은 개수로 포함하지 않음을 검증한다. */
+infix fun <T> Iterable<T>?.shouldNotContainSame(
+    expected: Iterable<T>?,
+): Iterable<T>? = apply {
+    val same = when {
+        this === expected -> true
+        this == null || expected == null -> false
+        else -> this.groupingBy { it }.eachCount() == expected.groupingBy { it }.eachCount()
+    }
+    if (same) {
+        Failures.failComparison(
+            Messages.expectedNotToBe("contain the same elements as", expected, this),
+            expected,
+            this
+        )
+    }
+}
+
+/** 두 시퀀스의 순서 있는 내용이 다름을 검증한다. */
+infix fun <T> Sequence<T>?.shouldNotContentEqual(
+    expected: Sequence<T>?,
+): Sequence<T>? = apply {
+    if (this === expected) {
+        Failures.fail("Expected sequences to not content-equal, but they did.")
+    }
+    if (this != null && expected != null && this.toList() == expected.toList()) {
+        Failures.fail("Expected sequences to not content-equal, but they did.")
+    }
+}

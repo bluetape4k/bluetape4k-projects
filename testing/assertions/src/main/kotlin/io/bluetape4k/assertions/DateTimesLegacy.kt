@@ -81,3 +81,33 @@ infix fun Date.shouldBeOnOrBefore(expected: Date): Date {
     }
     return this
 }
+
+// ── negative comparisons ────────────────────────────────────────────────────
+
+infix fun Date.shouldNotBeAfter(expected: Date): Date {
+    if (this.after(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be after", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun Date.shouldNotBeBefore(expected: Date): Date {
+    if (this.before(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be before", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun Date.shouldNotBeOnOrAfter(expected: Date): Date {
+    if (!this.before(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be on or after", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun Date.shouldNotBeOnOrBefore(expected: Date): Date {
+    if (!this.after(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be on or before", expected, this), expected, this)
+    }
+    return this
+}

@@ -1001,3 +1001,227 @@ infix fun BooleanArray?.shouldBeEqualTo(expected: BooleanArray): BooleanArray? {
     }
     return this
 }
+
+// ── Negative size/content/same-content counterparts ─────────────────────────
+
+/** 배열 크기가 [size]와 다름을 검증한다. */
+infix fun IntArray?.shouldNotHaveSize(size: Int): IntArray? = apply {
+    if (this?.size == size) Failures.fail("Expected array to not have size $size, but it did.")
+}
+
+/** 배열 크기가 [size]와 다름을 검증한다. */
+infix fun LongArray?.shouldNotHaveSize(size: Int): LongArray? = apply {
+    if (this?.size == size) Failures.fail("Expected array to not have size $size, but it did.")
+}
+
+/** 배열 크기가 [size]와 다름을 검증한다. */
+infix fun DoubleArray?.shouldNotHaveSize(size: Int): DoubleArray? = apply {
+    if (this?.size == size) Failures.fail("Expected array to not have size $size, but it did.")
+}
+
+/** 배열 크기가 [size]와 다름을 검증한다. */
+infix fun FloatArray?.shouldNotHaveSize(size: Int): FloatArray? = apply {
+    if (this?.size == size) Failures.fail("Expected array to not have size $size, but it did.")
+}
+
+/** 배열 크기가 [size]와 다름을 검증한다. */
+infix fun ByteArray?.shouldNotHaveSize(size: Int): ByteArray? = apply {
+    if (this?.size == size) Failures.fail("Expected array to not have size $size, but it did.")
+}
+
+/** 배열 크기가 [size]와 다름을 검증한다. */
+infix fun ShortArray?.shouldNotHaveSize(size: Int): ShortArray? = apply {
+    if (this?.size == size) Failures.fail("Expected array to not have size $size, but it did.")
+}
+
+/** 배열 크기가 [size]와 다름을 검증한다. */
+infix fun CharArray?.shouldNotHaveSize(size: Int): CharArray? = apply {
+    if (this?.size == size) Failures.fail("Expected array to not have size $size, but it did.")
+}
+
+/** 배열 크기가 [size]와 다름을 검증한다. */
+infix fun BooleanArray?.shouldNotHaveSize(size: Int): BooleanArray? = apply {
+    if (this?.size == size) Failures.fail("Expected array to not have size $size, but it did.")
+}
+
+/** 객체 배열 크기가 [size]와 다름을 검증한다. */
+infix fun <T> Array<T>?.shouldNotHaveSize(size: Int): Array<T>? = apply {
+    if ((this?.size ?: 0) == size) Failures.fail("Expected array to not have size $size, but it did.")
+}
+
+/** 두 IntArray의 내용이 다름을 검증한다. */
+infix fun IntArray?.shouldNotContentEqual(expected: IntArray?): IntArray? = apply {
+    if (intArrayContentEquals(this, expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("content-equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 LongArray의 내용이 다름을 검증한다. */
+infix fun LongArray?.shouldNotContentEqual(expected: LongArray?): LongArray? = apply {
+    if (longArrayContentEquals(this, expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("content-equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 DoubleArray의 내용이 다름을 검증한다. */
+infix fun DoubleArray?.shouldNotContentEqual(expected: DoubleArray?): DoubleArray? = apply {
+    if (doubleArrayContentEquals(this, expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("content-equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 FloatArray의 내용이 다름을 검증한다. */
+infix fun FloatArray?.shouldNotContentEqual(expected: FloatArray?): FloatArray? = apply {
+    if (floatArrayContentEquals(this, expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("content-equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 ByteArray의 내용이 다름을 검증한다. */
+infix fun ByteArray?.shouldNotContentEqual(expected: ByteArray?): ByteArray? = apply {
+    if (byteArrayContentEquals(this, expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("content-equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 ShortArray의 내용이 다름을 검증한다. */
+infix fun ShortArray?.shouldNotContentEqual(expected: ShortArray?): ShortArray? = apply {
+    if (shortArrayContentEquals(this, expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("content-equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 CharArray의 내용이 다름을 검증한다. */
+infix fun CharArray?.shouldNotContentEqual(expected: CharArray?): CharArray? = apply {
+    if (charArrayContentEquals(this, expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("content-equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 BooleanArray의 내용이 다름을 검증한다. */
+infix fun BooleanArray?.shouldNotContentEqual(expected: BooleanArray?): BooleanArray? = apply {
+    if (booleanArrayContentEquals(this, expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("content-equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 객체 배열의 내용이 다름을 검증한다. */
+infix fun <T> Array<T>?.shouldNotContentEqual(expected: Array<T>?): Array<T>? = apply {
+    val equal = when {
+        this === expected -> true
+        this == null || expected == null -> false
+        this.size != expected.size -> false
+        else -> this.contentEquals(expected)
+    }
+    if (equal) {
+        Failures.failComparison(Messages.expectedNotToBe("content-equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 객체 배열의 내용이 다름을 검증한다. */
+infix fun <T> Array<out T>?.shouldNotBeEqualTo(expected: Array<out T>): Array<out T>? = apply {
+    if (this == null || this.contentDeepEquals(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 IntArray의 내용이 다름을 검증한다. */
+infix fun IntArray?.shouldNotBeEqualTo(expected: IntArray): IntArray? = apply {
+    if (this == null || this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 LongArray의 내용이 다름을 검증한다. */
+infix fun LongArray?.shouldNotBeEqualTo(expected: LongArray): LongArray? = apply {
+    if (this == null || this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 DoubleArray의 내용이 다름을 검증한다. */
+infix fun DoubleArray?.shouldNotBeEqualTo(expected: DoubleArray): DoubleArray? = apply {
+    if (this == null || this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 FloatArray의 내용이 다름을 검증한다. */
+infix fun FloatArray?.shouldNotBeEqualTo(expected: FloatArray): FloatArray? = apply {
+    if (this == null || this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 ByteArray의 내용이 다름을 검증한다. */
+infix fun ByteArray?.shouldNotBeEqualTo(expected: ByteArray): ByteArray? = apply {
+    if (this == null || this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 CharArray의 내용이 다름을 검증한다. */
+infix fun CharArray?.shouldNotBeEqualTo(expected: CharArray): CharArray? = apply {
+    if (this == null || this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 ShortArray의 내용이 다름을 검증한다. */
+infix fun ShortArray?.shouldNotBeEqualTo(expected: ShortArray): ShortArray? = apply {
+    if (this == null || this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 BooleanArray의 내용이 다름을 검증한다. */
+infix fun BooleanArray?.shouldNotBeEqualTo(expected: BooleanArray): BooleanArray? = apply {
+    if (this == null || this.contentEquals(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("equal to", expected, this), expected, this)
+    }
+}
+
+/** 두 객체 배열이 같은 원소를 포함하지 않음을 검증한다. */
+infix fun <T> Array<T>?.shouldNotContainSame(expected: Array<T>?): Array<T>? = apply {
+    this?.toList().shouldNotContainSame(expected?.toList())
+}
+
+/** 두 IntArray가 같은 원소를 포함하지 않음을 검증한다. */
+infix fun IntArray?.shouldNotContainSame(expected: IntArray?): IntArray? = apply {
+    this?.toList().shouldNotContainSame(expected?.toList())
+}
+
+/** 두 LongArray가 같은 원소를 포함하지 않음을 검증한다. */
+infix fun LongArray?.shouldNotContainSame(expected: LongArray?): LongArray? = apply {
+    this?.toList().shouldNotContainSame(expected?.toList())
+}
+
+/** LongArray와 Iterable이 같은 원소를 포함하지 않음을 검증한다. */
+infix fun LongArray?.shouldNotContainSame(expected: Iterable<Long>?): LongArray? = apply {
+    this?.toList().shouldNotContainSame(expected?.toList())
+}
+
+/** 두 ByteArray가 같은 원소를 포함하지 않음을 검증한다. */
+infix fun ByteArray?.shouldNotContainSame(expected: ByteArray?): ByteArray? = apply {
+    this?.toList().shouldNotContainSame(expected?.toList())
+}
+
+/** 두 FloatArray가 같은 원소를 포함하지 않음을 검증한다. */
+infix fun FloatArray?.shouldNotContainSame(expected: FloatArray?): FloatArray? = apply {
+    this?.toList().shouldNotContainSame(expected?.toList())
+}
+
+/** 두 DoubleArray가 같은 원소를 포함하지 않음을 검증한다. */
+infix fun DoubleArray?.shouldNotContainSame(expected: DoubleArray?): DoubleArray? = apply {
+    this?.toList().shouldNotContainSame(expected?.toList())
+}
+
+/** 두 ShortArray가 같은 원소를 포함하지 않음을 검증한다. */
+infix fun ShortArray?.shouldNotContainSame(expected: ShortArray?): ShortArray? = apply {
+    this?.toList().shouldNotContainSame(expected?.toList())
+}
+
+/** 두 CharArray가 같은 원소를 포함하지 않음을 검증한다. */
+infix fun CharArray?.shouldNotContainSame(expected: CharArray?): CharArray? = apply {
+    this?.toList().shouldNotContainSame(expected?.toList())
+}

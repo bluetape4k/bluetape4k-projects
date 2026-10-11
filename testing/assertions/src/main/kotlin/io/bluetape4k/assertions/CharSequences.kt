@@ -357,6 +357,16 @@ infix fun <T: CharSequence> T?.shouldNotMatch(regex: Regex): T? {
     return this
 }
 
+/**
+ * CharSequence 전체가 [pattern]과 매치되지 않는지 검증한다.
+ *
+ * @receiver 검증할 CharSequence (nullable 허용)
+ * @param pattern 전체 매치에 사용할 정규식 패턴 문자열
+ * @return receiver (체이닝 지원)
+ */
+infix fun <T: CharSequence> T?.shouldNotMatch(pattern: String): T? =
+    this shouldNotMatch Regex(pattern)
+
 // ── shouldContainAll / shouldContainNone ─────────────────────────────────────
 
 /**
@@ -404,6 +414,58 @@ infix fun <T: CharSequence> T?.shouldContainAll(substrings: Iterable<CharSequenc
 }
 
 /**
+ * CharSequence가 [substrings]의 모든 요소를 포함하지는 않는지 검증한다.
+ *
+ * 기존 [shouldContainAll]의 정확한 논리적 부정이다. null receiver는
+ * [substrings]가 비어 있지 않은 경우 통과한다.
+ *
+ * @receiver 검증할 CharSequence (nullable 허용)
+ * @param substrings 모두 포함되어서는 안 되는 부분 문자열 목록
+ * @return receiver (체이닝 지원)
+ */
+fun <T: CharSequence> T?.shouldNotContainAll(vararg substrings: CharSequence): T? {
+    val value = this
+    val allContained = value != null && substrings.all(value::contains)
+    if (allContained) {
+        Failures.fail(
+            "Expected ${Messages.stringify(value)} to not contain all of ${
+                substrings.joinToString(prefix = "[", postfix = "]") { Messages.stringify(it) }
+            }, but all were present."
+        )
+    }
+    return value
+}
+
+/**
+ * CharSequence가 [substrings]의 모든 요소를 포함하지는 않는지 검증한다.
+ *
+ * @receiver 검증할 CharSequence (nullable 허용)
+ * @param substrings 모두 포함되어서는 안 되는 부분 문자열 목록
+ * @return receiver (체이닝 지원)
+ */
+infix fun <T: CharSequence> T?.shouldNotContainAll(substrings: Iterable<CharSequence>): T? =
+    shouldNotContainAll(*substrings.toList().toTypedArray())
+
+/**
+ * CharSequence가 [substrings] 중 하나 이상을 포함하는지 검증한다.
+ *
+ * @receiver 검증할 CharSequence (nullable 허용)
+ * @param substrings 하나 이상 포함되어야 하는 부분 문자열 목록
+ * @return non-null receiver (체이닝 지원)
+ */
+fun <T: CharSequence> T?.shouldContainAny(vararg substrings: CharSequence): T {
+    val value = this
+    if (value == null || substrings.none(value::contains)) {
+        Failures.fail(
+            "Expected ${Messages.stringify(value)} to contain any of ${
+                substrings.joinToString(prefix = "[", postfix = "]") { Messages.stringify(it) }
+            }, but none were present."
+        )
+    }
+    return value
+}
+
+/**
  * CharSequence가 [substrings] 중 어느 것도 포함하지 않는지 검증한다.
  *
  * @receiver 검증할 CharSequence (nullable 허용)
@@ -445,6 +507,24 @@ infix fun <T: CharSequence> T?.shouldBeEqualToIgnoringCase(expected: String): T 
     if (this == null || !this.toString().equals(expected, ignoreCase = true)) {
         Failures.failComparison(
             Messages.expectedToBe("be equal to (ignoring case)", expected, this),
+            expected,
+            this
+        )
+    }
+    return this
+}
+
+/**
+ * CharSequence가 대소문자를 무시하면 [expected]와 같지 않은지 검증한다.
+ *
+ * @receiver 검증할 CharSequence (nullable 허용)
+ * @param expected 같지 않아야 하는 문자열
+ * @return receiver (체이닝 지원)
+ */
+infix fun <T: CharSequence> T?.shouldNotBeEqualToIgnoringCase(expected: String): T? {
+    if (this != null && this.toString().equals(expected, ignoreCase = true)) {
+        Failures.failComparison(
+            Messages.expectedNotToBe("be equal to (ignoring case)", expected, this),
             expected,
             this
         )

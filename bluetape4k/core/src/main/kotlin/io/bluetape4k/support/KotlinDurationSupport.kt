@@ -6,6 +6,86 @@ import kotlin.time.Duration
 import kotlin.time.toJavaDuration
 import kotlin.time.toKotlinDuration
 
+/** Kotlin [Duration]이 양수인지 검증하고 원래 값을 반환합니다. */
+inline fun Duration.requirePositiveDuration(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Duration = apply {
+    require(this > Duration.ZERO) {
+        lazyMessage?.invoke() ?: "$parameterName must be positive."
+    }
+}
+
+/** Kotlin [Duration]이 0 이하인지 검증하고 원래 값을 반환합니다. */
+inline fun Duration.requireZeroOrNegativeDuration(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Duration = apply {
+    require(this <= Duration.ZERO) {
+        lazyMessage?.invoke() ?: "$parameterName must be zero or negative."
+    }
+}
+
+/** Kotlin [Duration]이 0 이상인지 검증하고 원래 값을 반환합니다. */
+inline fun Duration.requireZeroOrPositiveDuration(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Duration = apply {
+    require(this >= Duration.ZERO) {
+        lazyMessage?.invoke() ?: "$parameterName must be zero or positive."
+    }
+}
+
+/** Kotlin [Duration]이 음수인지 검증하고 원래 값을 반환합니다. */
+inline fun Duration.requireNegativeDuration(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Duration = apply {
+    require(this < Duration.ZERO) {
+        lazyMessage?.invoke() ?: "$parameterName must be negative."
+    }
+}
+
+/** Kotlin [Duration]이 양수인지 불변 조건으로 검증합니다. */
+inline fun Duration.checkPositiveDuration(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Duration = apply {
+    check(this > Duration.ZERO) {
+        lazyMessage?.invoke() ?: "$parameterName must be positive."
+    }
+}
+
+/** Kotlin [Duration]이 0 이하인지 불변 조건으로 검증합니다. */
+inline fun Duration.checkZeroOrNegativeDuration(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Duration = apply {
+    check(this <= Duration.ZERO) {
+        lazyMessage?.invoke() ?: "$parameterName must be zero or negative."
+    }
+}
+
+/** Kotlin [Duration]이 0 이상인지 불변 조건으로 검증합니다. */
+inline fun Duration.checkZeroOrPositiveDuration(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Duration = apply {
+    check(this >= Duration.ZERO) {
+        lazyMessage?.invoke() ?: "$parameterName must be zero or positive."
+    }
+}
+
+/** Kotlin [Duration]이 음수인지 불변 조건으로 검증합니다. */
+inline fun Duration.checkNegativeDuration(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Duration = apply {
+    check(this < Duration.ZERO) {
+        lazyMessage?.invoke() ?: "$parameterName must be negative."
+    }
+}
+
 /**
  * [kotlin.time.Duration]에서 milliseconds를 제외한 나노초 값(0..999_999)을 반환합니다.
  *

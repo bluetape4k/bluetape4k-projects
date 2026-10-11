@@ -209,6 +209,21 @@ fun <T> T.should(message: String, predicate: (T) -> Boolean): T {
 }
 
 /**
+ * 커스텀 predicate가 거짓인지 검증한다.
+ *
+ * @receiver 검증할 값
+ * @param message predicate 실패 시 표시할 메시지
+ * @param predicate 거짓이어야 하는 조건
+ * @return receiver (체이닝 지원)
+ */
+fun <T> T.shouldNot(message: String, predicate: (T) -> Boolean): T {
+    if (predicate(this)) {
+        Failures.fail(message)
+    }
+    return this
+}
+
+/**
  * 즉시 테스트를 실패시킨다.
  *
  * @param message 실패 메시지 (기본값: null)

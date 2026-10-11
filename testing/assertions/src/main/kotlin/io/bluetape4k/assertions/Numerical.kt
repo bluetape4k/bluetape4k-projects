@@ -493,6 +493,238 @@ fun Double.shouldBeZero(): Double {
     return this
 }
 
+// ── 부호 부정 검증 ──────────────────────────────────────────────────────────
+
+fun Byte.shouldNotBePositive(): Byte = apply {
+    if (this > 0) {
+        Failures.failComparison(Messages.expectedNotToBe("be positive", "> 0", this), "> 0", this)
+    }
+}
+
+fun Byte.shouldNotBeNegative(): Byte = apply {
+    if (this < 0) {
+        Failures.failComparison(Messages.expectedNotToBe("be negative", "< 0", this), "< 0", this)
+    }
+}
+
+fun Byte.shouldNotBeZero(): Byte = apply {
+    if (this == 0.toByte()) {
+        Failures.failComparison(Messages.expectedNotToBe("be", 0, this), 0, this)
+    }
+}
+
+fun Short.shouldNotBePositive(): Short = apply {
+    if (this > 0) {
+        Failures.failComparison(Messages.expectedNotToBe("be positive", "> 0", this), "> 0", this)
+    }
+}
+
+fun Short.shouldNotBeNegative(): Short = apply {
+    if (this < 0) {
+        Failures.failComparison(Messages.expectedNotToBe("be negative", "< 0", this), "< 0", this)
+    }
+}
+
+fun Short.shouldNotBeZero(): Short = apply {
+    if (this == 0.toShort()) {
+        Failures.failComparison(Messages.expectedNotToBe("be", 0, this), 0, this)
+    }
+}
+
+fun Int.shouldNotBePositive(): Int = apply {
+    if (this > 0) {
+        Failures.failComparison(Messages.expectedNotToBe("be positive", "> 0", this), "> 0", this)
+    }
+}
+
+fun Int.shouldNotBeNegative(): Int = apply {
+    if (this < 0) {
+        Failures.failComparison(Messages.expectedNotToBe("be negative", "< 0", this), "< 0", this)
+    }
+}
+
+fun Int.shouldNotBeZero(): Int = apply {
+    if (this == 0) {
+        Failures.failComparison(Messages.expectedNotToBe("be", 0, this), 0, this)
+    }
+}
+
+fun Long.shouldNotBePositive(): Long = apply {
+    if (this > 0L) {
+        Failures.failComparison(Messages.expectedNotToBe("be positive", "> 0", this), "> 0", this)
+    }
+}
+
+fun Long.shouldNotBeNegative(): Long = apply {
+    if (this < 0L) {
+        Failures.failComparison(Messages.expectedNotToBe("be negative", "< 0", this), "< 0", this)
+    }
+}
+
+fun Long.shouldNotBeZero(): Long = apply {
+    if (this == 0L) {
+        Failures.failComparison(Messages.expectedNotToBe("be", 0L, this), 0L, this)
+    }
+}
+
+fun Float.shouldNotBePositive(): Float = apply {
+    if (this > 0.0f) {
+        Failures.failComparison(Messages.expectedNotToBe("be positive", "> 0", this), "> 0", this)
+    }
+}
+
+fun Float.shouldNotBeNegative(): Float = apply {
+    if (this < 0.0f) {
+        Failures.failComparison(Messages.expectedNotToBe("be negative", "< 0", this), "< 0", this)
+    }
+}
+
+fun Float.shouldNotBeZero(): Float = apply {
+    if (this == 0.0f) {
+        Failures.failComparison(Messages.expectedNotToBe("be", 0.0f, this), 0.0f, this)
+    }
+}
+
+fun Double.shouldNotBePositive(): Double = apply {
+    if (this > 0.0) {
+        Failures.failComparison(Messages.expectedNotToBe("be positive", "> 0", this), "> 0", this)
+    }
+}
+
+fun Double.shouldNotBeNegative(): Double = apply {
+    if (this < 0.0) {
+        Failures.failComparison(Messages.expectedNotToBe("be negative", "< 0", this), "< 0", this)
+    }
+}
+
+fun Double.shouldNotBeZero(): Double = apply {
+    if (this == 0.0) {
+        Failures.failComparison(Messages.expectedNotToBe("be", 0.0, this), 0.0, this)
+    }
+}
+
+// ── 유한값 및 유한 부호 검증 ────────────────────────────────────────────────
+
+fun Float.shouldBeFinite(): Float = apply {
+    if (!isFinite()) {
+        Failures.failComparison(Messages.expectedToBe("be finite", true, this), true, this)
+    }
+}
+
+fun Float.shouldNotBeFinite(): Float = apply {
+    if (isFinite()) {
+        Failures.failComparison(Messages.expectedNotToBe("be finite", true, this), true, this)
+    }
+}
+
+fun Double.shouldBeFinite(): Double = apply {
+    if (!isFinite()) {
+        Failures.failComparison(Messages.expectedToBe("be finite", true, this), true, this)
+    }
+}
+
+fun Double.shouldNotBeFinite(): Double = apply {
+    if (isFinite()) {
+        Failures.failComparison(Messages.expectedNotToBe("be finite", true, this), true, this)
+    }
+}
+
+fun Float.shouldBeFinitePositive(): Float = apply {
+    if (!isFinite() || this <= 0.0f) {
+        Failures.failComparison(Messages.expectedToBe("be finite positive", "> 0", this), "> 0", this)
+    }
+}
+
+fun Float.shouldNotBeFinitePositive(): Float = apply {
+    if (!isFinite() || this > 0.0f) {
+        Failures.failComparison(Messages.expectedNotToBe("be finite positive", "> 0", this), "> 0", this)
+    }
+}
+
+fun Float.shouldBeFiniteZeroOrNegative(): Float = apply {
+    if (!isFinite() || this > 0.0f) {
+        Failures.failComparison(Messages.expectedToBe("be finite zero or negative", "<= 0", this), "<= 0", this)
+    }
+}
+
+fun Float.shouldNotBeFiniteZeroOrNegative(): Float = apply {
+    if (!isFinite() || this <= 0.0f) {
+        Failures.failComparison(Messages.expectedNotToBe("be finite zero or negative", "<= 0", this), "<= 0", this)
+    }
+}
+
+fun Float.shouldBeFiniteZeroOrPositive(): Float = apply {
+    if (!isFinite() || this < 0.0f) {
+        Failures.failComparison(Messages.expectedToBe("be finite zero or positive", ">= 0", this), ">= 0", this)
+    }
+}
+
+fun Float.shouldNotBeFiniteZeroOrPositive(): Float = apply {
+    if (!isFinite() || this >= 0.0f) {
+        Failures.failComparison(Messages.expectedNotToBe("be finite zero or positive", ">= 0", this), ">= 0", this)
+    }
+}
+
+fun Float.shouldBeFiniteNegative(): Float = apply {
+    if (!isFinite() || this >= 0.0f) {
+        Failures.failComparison(Messages.expectedToBe("be finite negative", "< 0", this), "< 0", this)
+    }
+}
+
+fun Float.shouldNotBeFiniteNegative(): Float = apply {
+    if (!isFinite() || this < 0.0f) {
+        Failures.failComparison(Messages.expectedNotToBe("be finite negative", "< 0", this), "< 0", this)
+    }
+}
+
+fun Double.shouldBeFinitePositive(): Double = apply {
+    if (!isFinite() || this <= 0.0) {
+        Failures.failComparison(Messages.expectedToBe("be finite positive", "> 0", this), "> 0", this)
+    }
+}
+
+fun Double.shouldNotBeFinitePositive(): Double = apply {
+    if (!isFinite() || this > 0.0) {
+        Failures.failComparison(Messages.expectedNotToBe("be finite positive", "> 0", this), "> 0", this)
+    }
+}
+
+fun Double.shouldBeFiniteZeroOrNegative(): Double = apply {
+    if (!isFinite() || this > 0.0) {
+        Failures.failComparison(Messages.expectedToBe("be finite zero or negative", "<= 0", this), "<= 0", this)
+    }
+}
+
+fun Double.shouldNotBeFiniteZeroOrNegative(): Double = apply {
+    if (!isFinite() || this <= 0.0) {
+        Failures.failComparison(Messages.expectedNotToBe("be finite zero or negative", "<= 0", this), "<= 0", this)
+    }
+}
+
+fun Double.shouldBeFiniteZeroOrPositive(): Double = apply {
+    if (!isFinite() || this < 0.0) {
+        Failures.failComparison(Messages.expectedToBe("be finite zero or positive", ">= 0", this), ">= 0", this)
+    }
+}
+
+fun Double.shouldNotBeFiniteZeroOrPositive(): Double = apply {
+    if (!isFinite() || this >= 0.0) {
+        Failures.failComparison(Messages.expectedNotToBe("be finite zero or positive", ">= 0", this), ">= 0", this)
+    }
+}
+
+fun Double.shouldBeFiniteNegative(): Double = apply {
+    if (!isFinite() || this >= 0.0) {
+        Failures.failComparison(Messages.expectedToBe("be finite negative", "< 0", this), "< 0", this)
+    }
+}
+
+fun Double.shouldNotBeFiniteNegative(): Double = apply {
+    if (!isFinite() || this < 0.0) {
+        Failures.failComparison(Messages.expectedNotToBe("be finite negative", "< 0", this), "< 0", this)
+    }
+}
+
 // ── 범위 검증 (ClosedRange) ──────────────────────────────────────────────────
 
 /**
@@ -964,7 +1196,7 @@ fun BigDecimal.shouldBeNear(expected: BigDecimal, tolerance: BigDecimal = BIGDEC
  */
 fun Double.shouldNotBeNear(expected: Double, delta: Double): Double {
     require(!delta.isNaN() && delta >= 0.0) { "delta must be non-negative and not NaN" }
-    if (!this.isNaN() && !expected.isNaN() && kotlin.math.abs(this - expected) <= delta) {
+    if (!this.isNaN() && !expected.isNaN() && !(kotlin.math.abs(this - expected) > delta)) {
         Failures.fail(
             "Expected <$this> to not be near <$expected> within tolerance <$delta>, but was."
         )
@@ -985,7 +1217,7 @@ fun Double.shouldNotBeNear(expected: Double, delta: Double): Double {
  */
 fun Float.shouldNotBeNear(expected: Float, delta: Float): Float {
     require(!delta.isNaN() && delta >= 0.0f) { "delta must be non-negative and not NaN" }
-    if (!this.isNaN() && !expected.isNaN() && kotlin.math.abs(this - expected) <= delta) {
+    if (!this.isNaN() && !expected.isNaN() && !(kotlin.math.abs(this - expected) > delta)) {
         Failures.fail(
             "Expected <$this> to not be near <$expected> within tolerance <$delta>, but was."
         )
@@ -994,7 +1226,7 @@ fun Float.shouldNotBeNear(expected: Float, delta: Float): Float {
 }
 
 /**
- * Double 값이 [expected]와 기본 허용 오차(1e-10) 이내로 근사하지 않는지 검증한다.
+ * Double 값이 [expected]와 기본 허용 오차(1e-9) 이내로 근사하지 않는지 검증한다.
  *
  * NaN은 어떤 값과도 근사하지 않으므로 이 검증은 항상 통과한다.
  *
@@ -1002,7 +1234,7 @@ fun Float.shouldNotBeNear(expected: Float, delta: Float): Float {
  * @param expected 비교 기준 값
  * @return receiver (체이닝 지원)
  */
-infix fun Double.shouldNotBeNear(expected: Double): Double = shouldNotBeNear(expected, 1e-10)
+infix fun Double.shouldNotBeNear(expected: Double): Double = shouldNotBeNear(expected, DOUBLE_EPSILON)
 
 /**
  * Float 값이 [expected]와 기본 허용 오차(1e-6f) 이내로 근사하지 않는지 검증한다.
@@ -1013,7 +1245,18 @@ infix fun Double.shouldNotBeNear(expected: Double): Double = shouldNotBeNear(exp
  * @param expected 비교 기준 값
  * @return receiver (체이닝 지원)
  */
-infix fun Float.shouldNotBeNear(expected: Float): Float = shouldNotBeNear(expected, 1e-6f)
+infix fun Float.shouldNotBeNear(expected: Float): Float = shouldNotBeNear(expected, FLOAT_EPSILON)
+
+/** BigDecimal 값이 [expected]와 근사하지 않는지 검증한다. */
+fun BigDecimal.shouldNotBeNear(expected: BigDecimal, tolerance: BigDecimal = BIGDECIMAL_EPSILON): BigDecimal {
+    require(tolerance.signum() >= 0) { "tolerance must be non-negative" }
+    if ((this - expected).abs() <= tolerance) {
+        Failures.fail(
+            "Expected <$this> to not be near <$expected> within tolerance <$tolerance>, but was."
+        )
+    }
+    return this
+}
 
 //
 // ── BigDecimal Equality (compareTo-based, scale-insensitive) ─────────────────

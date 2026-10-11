@@ -100,6 +100,33 @@ inline fun <T: CharSequence> T?.checkNullOrEmpty(lazyMessage: () -> Any): T? {
     return this
 }
 
+/** 배열이 null 또는 비어 있는지 검증합니다. */
+inline fun <T> Array<T>?.checkNullOrEmpty(parameterName: String): Array<T>? =
+    checkNullOrEmpty { "$parameterName[$this] must be null or empty." }
+
+inline fun <T> Array<T>?.checkNullOrEmpty(lazyMessage: () -> Any): Array<T>? {
+    check(this == null || this.isEmpty()) { lazyMessage() }
+    return this
+}
+
+/** 컬렉션이 null 또는 비어 있는지 검증합니다. */
+inline fun <T> Collection<T>?.checkNullOrEmpty(parameterName: String): Collection<T>? =
+    checkNullOrEmpty { "$parameterName[$this] must be null or empty." }
+
+inline fun <T> Collection<T>?.checkNullOrEmpty(lazyMessage: () -> Any): Collection<T>? {
+    check(this == null || this.isEmpty()) { lazyMessage() }
+    return this
+}
+
+/** 맵이 null 또는 비어 있는지 검증합니다. */
+inline fun <K, V> Map<K, V>?.checkNullOrEmpty(parameterName: String): Map<K, V>? =
+    checkNullOrEmpty { "$parameterName[$this] must be null or empty." }
+
+inline fun <K, V> Map<K, V>?.checkNullOrEmpty(lazyMessage: () -> Any): Map<K, V>? {
+    check(this == null || this.isEmpty()) { lazyMessage() }
+    return this
+}
+
 /**
  * `checkNotBlank` 불변 조건 검사를 제공합니다.
  *
@@ -228,6 +255,54 @@ inline fun <T: CharSequence> T?.checkEndsWith(
     val self = checkNotNull(lazyMessage)
     check(self.endsWith(suffix, ignoreCase)) { lazyMessage() }
     return self
+}
+
+/** 문자 시퀀스가 지정한 문자열을 포함하지 않는지 검증합니다. */
+inline fun <T: CharSequence> T?.checkNotContains(other: CharSequence, parameterName: String): T =
+    checkNotContains(other) { "$parameterName[$this] must not contain $other" }
+
+inline fun <T: CharSequence> T?.checkNotContains(other: CharSequence, lazyMessage: () -> Any): T {
+    val value = checkNotNull(lazyMessage)
+    check(!value.contains(other)) { lazyMessage() }
+    return value
+}
+
+/** 문자 시퀀스가 지정한 접두사로 시작하지 않는지 검증합니다. */
+inline fun <T: CharSequence> T?.checkNotStartsWith(
+    prefix: CharSequence,
+    parameterName: String,
+    ignoreCase: Boolean = false,
+): T = checkNotStartsWith(prefix, ignoreCase) {
+    "$parameterName[$this] must not start with $prefix"
+}
+
+inline fun <T: CharSequence> T?.checkNotStartsWith(
+    prefix: CharSequence,
+    ignoreCase: Boolean = false,
+    lazyMessage: () -> Any,
+): T {
+    val value = checkNotNull(lazyMessage)
+    check(!value.startsWith(prefix, ignoreCase)) { lazyMessage() }
+    return value
+}
+
+/** 문자 시퀀스가 지정한 접미사로 끝나지 않는지 검증합니다. */
+inline fun <T: CharSequence> T?.checkNotEndsWith(
+    suffix: CharSequence,
+    parameterName: String,
+    ignoreCase: Boolean = false,
+): T = checkNotEndsWith(suffix, ignoreCase) {
+    "$parameterName[$this] must not end with $suffix"
+}
+
+inline fun <T: CharSequence> T?.checkNotEndsWith(
+    suffix: CharSequence,
+    ignoreCase: Boolean = false,
+    lazyMessage: () -> Any,
+): T {
+    val value = checkNotNull(lazyMessage)
+    check(!value.endsWith(suffix, ignoreCase)) { lazyMessage() }
+    return value
 }
 
 /**
@@ -390,6 +465,30 @@ inline fun <T: Comparable<T>> T.checkInOpenRange(start: T, endExclusive: T, para
 
 inline fun <T: Comparable<T>> T.checkInOpenRange(start: T, endExclusive: T, lazyMessage: () -> Any): T = apply {
     check(this in start..<endExclusive) { lazyMessage() }
+}
+
+/** 수신 값이 닫힌 범위 밖에 있는지 검증합니다. */
+inline fun <T: Comparable<T>> T.checkNotInRange(start: T, endInclusive: T, parameterName: String): T =
+    checkNotInRange(start, endInclusive) { "$parameterName[$this] must not be in range ($start .. $endInclusive)" }
+
+inline fun <T: Comparable<T>> T.checkNotInRange(
+    start: T,
+    endInclusive: T,
+    lazyMessage: () -> Any,
+): T = apply {
+    check(this !in start..endInclusive) { lazyMessage() }
+}
+
+/** 수신 값이 반열린 범위 밖에 있는지 검증합니다. */
+inline fun <T: Comparable<T>> T.checkNotInOpenRange(start: T, endExclusive: T, parameterName: String): T =
+    checkNotInOpenRange(start, endExclusive) { "$parameterName[$this] must not be in [$start, $endExclusive)" }
+
+inline fun <T: Comparable<T>> T.checkNotInOpenRange(
+    start: T,
+    endExclusive: T,
+    lazyMessage: () -> Any,
+): T = apply {
+    check(this !in start..<endExclusive) { lazyMessage() }
 }
 
 /**
@@ -607,7 +706,48 @@ inline fun <K, V> Map<K, V>?.checkContains(key: K, value: V, parameterName: Stri
 inline fun <K, V> Map<K, V>?.checkContains(key: K, value: V, lazyMessage: () -> Any): Map<K, V> {
     checkNotEmpty(lazyMessage)
     val self = this ?: throw IllegalStateException(lazyMessage().toString())
-    check(self[key] == value) { lazyMessage() }
+    check(self.containsKey(key) && self[key] == value) { lazyMessage() }
+    return self
+}
+
+/** 맵에 지정한 키가 없는지 검증합니다. */
+inline fun <K, V> Map<K, V>?.checkNotHasKey(key: K, parameterName: String): Map<K, V> {
+    val self = this ?: throw IllegalStateException("$parameterName must not be null.")
+    check(!self.containsKey(key)) { "$parameterName must not contain key $key" }
+    return self
+}
+
+inline fun <K, V> Map<K, V>?.checkNotHasKey(key: K, lazyMessage: () -> Any): Map<K, V> {
+    val self = this ?: throw IllegalStateException(lazyMessage().toString())
+    check(!self.containsKey(key)) { lazyMessage() }
+    return self
+}
+
+/** 맵에 지정한 값이 없는지 검증합니다. */
+inline fun <K, V> Map<K, V>?.checkNotHasValue(value: V, parameterName: String): Map<K, V> {
+    val self = this ?: throw IllegalStateException("$parameterName must not be null.")
+    check(!self.containsValue(value)) { "$parameterName must not contain value $value" }
+    return self
+}
+
+inline fun <K, V> Map<K, V>?.checkNotHasValue(value: V, lazyMessage: () -> Any): Map<K, V> {
+    val self = this ?: throw IllegalStateException(lazyMessage().toString())
+    check(!self.containsValue(value)) { lazyMessage() }
+    return self
+}
+
+/** 맵에 지정한 키와 값 쌍이 없는지 검증합니다. */
+inline fun <K, V> Map<K, V>?.checkNotContains(key: K, value: V, parameterName: String): Map<K, V> {
+    val self = this ?: throw IllegalStateException("$parameterName must not be null.")
+    check(!(self.containsKey(key) && self[key] == value)) {
+        "$parameterName must not contain ($key, $value)"
+    }
+    return self
+}
+
+inline fun <K, V> Map<K, V>?.checkNotContains(key: K, value: V, lazyMessage: () -> Any): Map<K, V> {
+    val self = this ?: throw IllegalStateException(lazyMessage().toString())
+    check(!(self.containsKey(key) && self[key] == value)) { lazyMessage() }
     return self
 }
 
@@ -704,6 +844,74 @@ inline fun <T> Array<T>?.checkSizeInRange(
     return self
 }
 
+/** nullable 문자 시퀀스의 길이가 닫힌 범위 밖인지 검증합니다. */
+inline fun <T: CharSequence> T?.checkNotLengthInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): T {
+    contract {
+        returnsNotNull() implies (this@checkNotLengthInRange != null)
+    }
+    val self = this.checkNotNull(parameterName)
+    check(self.length !in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName length must not be between $start and $endInclusive."
+    }
+    return self
+}
+
+/** nullable 컬렉션의 크기가 닫힌 범위 밖인지 검증합니다. */
+inline fun <T> Collection<T>?.checkNotSizeInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Collection<T> {
+    contract {
+        returnsNotNull() implies (this@checkNotSizeInRange != null)
+    }
+    val self = this.checkNotNull(parameterName)
+    check(self.size !in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName size must not be between $start and $endInclusive."
+    }
+    return self
+}
+
+/** nullable 맵의 크기가 닫힌 범위 밖인지 검증합니다. */
+inline fun <K, V> Map<K, V>?.checkNotSizeInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Map<K, V> {
+    contract {
+        returnsNotNull() implies (this@checkNotSizeInRange != null)
+    }
+    val self = this.checkNotNull(parameterName)
+    check(self.size !in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName size must not be between $start and $endInclusive."
+    }
+    return self
+}
+
+/** nullable 배열의 크기가 닫힌 범위 밖인지 검증합니다. */
+inline fun <T> Array<T>?.checkNotSizeInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Array<T> {
+    contract {
+        returnsNotNull() implies (this@checkNotSizeInRange != null)
+    }
+    val self = this.checkNotNull(parameterName)
+    check(self.size !in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName size must not be between $start and $endInclusive."
+    }
+    return self
+}
+
 /**
  * nullable 문자 시퀀스가 [regex]와 일치하는지 확인합니다.
  *
@@ -749,6 +957,100 @@ inline fun Float.checkFinite(parameterName: String, noinline lazyMessage: (() ->
 inline fun Double.checkFinite(parameterName: String, noinline lazyMessage: (() -> Any)? = null): Double = apply {
     check(isFinite()) {
         lazyMessage?.invoke() ?: "$parameterName must be finite."
+    }
+}
+
+/** `Float` 값이 유한하지 않은지 검증합니다. */
+inline fun Float.checkNotFinite(parameterName: String, noinline lazyMessage: (() -> Any)? = null): Float = apply {
+    check(!isFinite()) {
+        lazyMessage?.invoke() ?: "$parameterName must not be finite."
+    }
+}
+
+/** `Double` 값이 유한하지 않은지 검증합니다. */
+inline fun Double.checkNotFinite(parameterName: String, noinline lazyMessage: (() -> Any)? = null): Double = apply {
+    check(!isFinite()) {
+        lazyMessage?.invoke() ?: "$parameterName must not be finite."
+    }
+}
+
+/** `Float` 값이 유한한 양수인지 검증합니다. */
+inline fun Float.checkFinitePositiveNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Float = apply {
+    check(isFinite() && this > 0.0f) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite positive number."
+    }
+}
+
+/** `Float` 값이 유한한 0 이하인지 검증합니다. */
+inline fun Float.checkFiniteZeroOrNegativeNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Float = apply {
+    check(isFinite() && this <= 0.0f) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite zero or negative number."
+    }
+}
+
+/** `Float` 값이 유한한 0 이상인지 검증합니다. */
+inline fun Float.checkFiniteZeroOrPositiveNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Float = apply {
+    check(isFinite() && this >= 0.0f) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite zero or positive number."
+    }
+}
+
+/** `Float` 값이 유한한 음수인지 검증합니다. */
+inline fun Float.checkFiniteNegativeNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Float = apply {
+    check(isFinite() && this < 0.0f) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite negative number."
+    }
+}
+
+/** `Double` 값이 유한한 양수인지 검증합니다. */
+inline fun Double.checkFinitePositiveNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Double = apply {
+    check(isFinite() && this > 0.0) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite positive number."
+    }
+}
+
+/** `Double` 값이 유한한 0 이하인지 검증합니다. */
+inline fun Double.checkFiniteZeroOrNegativeNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Double = apply {
+    check(isFinite() && this <= 0.0) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite zero or negative number."
+    }
+}
+
+/** `Double` 값이 유한한 0 이상인지 검증합니다. */
+inline fun Double.checkFiniteZeroOrPositiveNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Double = apply {
+    check(isFinite() && this >= 0.0) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite zero or positive number."
+    }
+}
+
+/** `Double` 값이 유한한 음수인지 검증합니다. */
+inline fun Double.checkFiniteNegativeNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Double = apply {
+    check(isFinite() && this < 0.0) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite negative number."
     }
 }
 

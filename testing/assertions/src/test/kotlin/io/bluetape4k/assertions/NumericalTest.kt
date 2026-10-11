@@ -793,6 +793,19 @@ class NumericalTest {
         }
     }
 
+    @Test
+    fun `Float near pair preserves infinite tolerance and complements equal infinities`() {
+        1.0f.shouldBeNear(2.0f, Float.POSITIVE_INFINITY)
+        assertFailsWith<AssertionFailedError> {
+            1.0f.shouldNotBeNear(2.0f, Float.POSITIVE_INFINITY)
+        }
+
+        Float.POSITIVE_INFINITY.shouldBeNear(Float.POSITIVE_INFINITY, 0.0f)
+        assertFailsWith<AssertionFailedError> {
+            Float.POSITIVE_INFINITY.shouldNotBeNear(Float.POSITIVE_INFINITY, 0.0f)
+        }
+    }
+
     // ── shouldBeNear (BigDecimal) ─────────────────────────────────────────
 
     @Test
@@ -839,6 +852,19 @@ class NumericalTest {
         }
         assertFailsWith<IllegalArgumentException> {
             1.0.shouldNotBeNear(2.0, Double.NaN)
+        }
+    }
+
+    @Test
+    fun `Double near pair preserves infinite tolerance and complements equal infinities`() {
+        1.0.shouldBeNear(2.0, Double.POSITIVE_INFINITY)
+        assertFailsWith<AssertionFailedError> {
+            1.0.shouldNotBeNear(2.0, Double.POSITIVE_INFINITY)
+        }
+
+        Double.POSITIVE_INFINITY.shouldBeNear(Double.POSITIVE_INFINITY, 0.0)
+        assertFailsWith<AssertionFailedError> {
+            Double.POSITIVE_INFINITY.shouldNotBeNear(Double.POSITIVE_INFINITY, 0.0)
         }
     }
 

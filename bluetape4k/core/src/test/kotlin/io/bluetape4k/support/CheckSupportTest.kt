@@ -50,6 +50,16 @@ class CheckSupportTest {
 
         shouldFailCheck { "blue".checkNullOrEmpty("value") }
         shouldFailCheck { "blue".checkNullOrBlank("value") }
+
+        val array: Array<Int>? = emptyArray()
+        array.checkNullOrEmpty("items")
+        val collection: Collection<Int>? = emptyList()
+        collection.checkNullOrEmpty("items")
+        val map: Map<String, Int>? = emptyMap()
+        map.checkNullOrEmpty("items")
+        shouldFailCheck { arrayOf(1).checkNullOrEmpty("items") }
+        shouldFailCheck { listOf(1).checkNullOrEmpty("items") }
+        shouldFailCheck { mapOf("a" to 1).checkNullOrEmpty("items") }
     }
 
     @Test
@@ -202,5 +212,93 @@ class CheckSupportTest {
         shouldFailCheck { map.checkHasValue(99, "map") }
         shouldFailCheck { map.checkContains("a", 99, "map") }
         shouldFailCheck { (null as Map<String, Int>?).checkHasKey("a", "map") }
+    }
+
+    @Test
+    fun `check negative helpers complement the selected positive helpers`() {
+        41.checkNotEquals(42, "value") shouldBeEqualTo 41
+        shouldFailCheck { 42.checkNotEquals(42, "value") }
+
+        "hello".checkNotContains("world", "value") shouldBeEqualTo "hello"
+        "hello".checkNotStartsWith("world", "value") shouldBeEqualTo "hello"
+        "hello".checkNotEndsWith("world", "value") shouldBeEqualTo "hello"
+        shouldFailCheck { "hello".checkNotContains("ell", "value") }
+        shouldFailCheck { "hello".checkNotStartsWith("he", "value") }
+        shouldFailCheck { "hello".checkNotEndsWith("llo", "value") }
+        "Hello".checkNotStartsWith("WORLD", "value", ignoreCase = true)
+        "Hello".checkNotEndsWith("WORLD", "value", ignoreCase = true)
+
+        shouldFailCheck { 5.checkNotInRange(1, 10, "value") }
+        0.checkNotInRange(1, 10, "value")
+        10.checkNotInOpenRange(1, 10, "value")
+        shouldFailCheck { 5.checkNotInOpenRange(1, 10, "value") }
+        0.checkNotInRange(1, 10) { "unused" }
+        10.checkNotInOpenRange(1, 10) { "unused" }
+
+        shouldFailCheck { "blue".checkNotLengthInRange(1, 4, "text") }
+        "".checkNotLengthInRange(1, 4, "text")
+        shouldFailCheck { listOf(1, 2).checkNotSizeInRange(1, 3, "items") }
+        emptyList<Int>().checkNotSizeInRange(1, 3, "items")
+        shouldFailCheck { mapOf("a" to 1).checkNotSizeInRange(1, 2, "items") }
+        emptyMap<String, Int>().checkNotSizeInRange(1, 2, "items")
+        shouldFailCheck { arrayOf(1).checkNotSizeInRange(1, 2, "items") }
+        emptyArray<Int>().checkNotSizeInRange(1, 2, "items")
+
+        mapOf("a" to 1).checkNotHasKey("b", "map")
+        mapOf("a" to 1).checkNotHasValue(2, "map")
+        mapOf("a" to 1).checkNotContains("a", 2, "map")
+        emptyMap<String, Int>().checkNotHasKey("a", "map")
+        shouldFailCheck { mapOf("a" to 1).checkNotHasKey("a", "map") }
+        shouldFailCheck { mapOf("a" to 1).checkNotHasValue(1, "map") }
+        shouldFailCheck { mapOf("a" to 1).checkNotContains("a", 1, "map") }
+        shouldFailCheck { (null as Map<String, Int>?).checkNotHasKey("a", "map") }
+
+        Float.NaN.checkNotFinite("value")
+        Double.NEGATIVE_INFINITY.checkNotFinite("value")
+        shouldFailCheck { 0.0.checkNotFinite("value") }
+        shouldFailCheck { 1.0f.checkNotFinite("value") }
+
+        1.0f.checkFinitePositiveNumber("value")
+        0.0f.checkFiniteZeroOrNegativeNumber("value")
+        0.0.checkFiniteZeroOrPositiveNumber("value")
+        (-1.0).checkFiniteNegativeNumber("value")
+        shouldFailCheck { Float.NaN.checkFinitePositiveNumber("value") }
+        shouldFailCheck { Float.NEGATIVE_INFINITY.checkFiniteZeroOrNegativeNumber("value") }
+        shouldFailCheck { Double.POSITIVE_INFINITY.checkFiniteNegativeNumber("value") }
+        shouldFailCheck { (-1.0).checkFiniteZeroOrPositiveNumber("value") }
+    }
+
+    @Test
+    fun `check negative helpers preserve callbacks, empty ranges, and map membership semantics`() {
+        var callbackCount = 0
+        0.checkNotInRange(1, 10) {
+            callbackCount++
+            "unused"
+        }
+        10.checkNotInOpenRange(1, 10) {
+            callbackCount++
+            "unused"
+        }
+        callbackCount shouldBeEqualTo 0
+
+        val sentinel = IllegalStateException("sentinel")
+        var thrown: IllegalStateException? = null
+        try {
+            "hello".checkNotContains("ell") {
+                callbackCount++
+                throw sentinel
+            }
+        } catch (error: IllegalStateException) {
+            thrown = error
+        }
+        thrown shouldBe sentinel
+        callbackCount shouldBeEqualTo 1
+
+        val nullableValueMap = mapOf("present" to null)
+        nullableValueMap.checkContains("present", null, "map")
+        nullableValueMap.checkNotContains("missing", null, "map")
+        shouldFailCheck { nullableValueMap.checkContains("missing", null, "map") }
+        shouldFailCheck { nullableValueMap.checkNotContains("present", null, "map") }
+        (emptyMap<String, Int?>()).checkNotContains("missing", null, "map")
     }
 }
