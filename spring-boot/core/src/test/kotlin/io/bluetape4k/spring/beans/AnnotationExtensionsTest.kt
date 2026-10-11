@@ -58,22 +58,19 @@ class AnnotationExtensionsTest: AbstractSpringTest() {
     annotation class Marker(val value: String)
 
     @SampleAnnotation(name = "test", value = 42)
-    fun annotatedMethod() {
-    }
+    fun annotatedMethod() = Unit
 
     @HttpRoute("/api/users")
-    fun composedRouteMethod() {
-    }
+    fun composedRouteMethod() = Unit
 
     @MetaSearchMarker
-    fun metaAnnotatedMethod() {
-    }
+    fun metaAnnotatedMethod() = Unit
 
-    fun plainMethod() {}
+    fun plainMethod() = Unit
 
     @Marker("first")
     @Marker("second")
-    fun repeatedMarkerMethod() {}
+    fun repeatedMarkerMethod() = Unit
 
     @Test
     fun `findMergedAnnotationOrNull - composed annotation 속성을 병합한다`() {
