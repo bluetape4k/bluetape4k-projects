@@ -65,7 +65,10 @@ class SpringFactoriesLoaderExtensionsTest {
     fun `loads no argument factory and accepts explicit null strategies`() {
         Collections.list(javaClass.classLoader.getResources(TEST_RESOURCE_LOCATION)).size shouldBeEqualTo 1
         loader().load<TestFactory>().single().name shouldBeEqualTo "default"
-        loader().load<TestFactory>(argumentResolver = null, failureHandler = null).single().name shouldBeEqualTo "default"
+        loader()
+            .load<TestFactory>(argumentResolver = null, failureHandler = null)
+            .single()
+            .name shouldBeEqualTo "default"
         loader().load<TestFactory>(argumentResolver = null).single().name shouldBeEqualTo "default"
         loader().load<TestFactory>(failureHandler = null).single().name shouldBeEqualTo "default"
     }
