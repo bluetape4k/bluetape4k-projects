@@ -305,8 +305,15 @@ val memgraph = MemgraphServer.Launcher.memgraph
 val driver = GraphDatabase.driver(memgraph.boltUrl, AuthTokens.none())
 
 // PostgreSQL with Apache AGE
-val age = PostgreSQLAgeServer.Launcher.postgresqlAge
-val conn = DriverManager.getConnection(age.jdbcUrl, age.username, age.password)
+PostgreSQLAgeServer.Launcher.getDataSource {
+    maximumPoolSize = 5
+}.use { dataSource ->
+    dataSource.connection.use { conn ->
+        conn.createStatement().use { stmt ->
+            stmt.executeQuery("SELECT * FROM ag_graph")
+        }
+    }
+}
 ```
 
 ### HTTP Mock Server
