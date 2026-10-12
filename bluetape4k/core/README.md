@@ -155,6 +155,95 @@ fun validateScore(score: Double) {
 }
 ```
 
+#### Paired validation helpers
+
+`RequireSupport` and `CheckSupport` expose the commonly used validation
+families as matching positive and negative pairs. `requireXxx` throws
+`IllegalArgumentException`; `checkXxx` throws `IllegalStateException`. Both
+families return the original receiver on success, and lazy message callbacks
+run only when validation fails.
+
+| Family | `require` pair | `check` pair | Contract |
+|--------|----------------|--------------|----------|
+| Equality | `requireEquals` / `requireNotEquals` | `checkEquals` / `checkNotEquals` | Value equality / inequality |
+| Null or empty | `requireNullOrEmpty` / `requireNotEmpty` | `checkNullOrEmpty` / `checkNotEmpty` | `CharSequence?`, `Array<*>?`, `Collection<*>?`, `Map<*, *>?` |
+| Blank | `requireNullOrBlank` / `requireNotBlank` | `checkNullOrBlank` / `checkNotBlank` | `CharSequence?`; null-or-blank and non-blank |
+| CharSequence | `requireContains` / `requireNotContains`<br>`requireStartsWith` / `requireNotStartsWith`<br>`requireEndsWith` / `requireNotEndsWith` | `checkContains` / `checkNotContains`<br>`checkStartsWith` / `checkNotStartsWith`<br>`checkEndsWith` / `checkNotEndsWith` | Same argument and `ignoreCase` overloads |
+| Map | `requireContains` / `requireNotContains`<br>`requireHasKey` / `requireNotHasKey`<br>`requireHasValue` / `requireNotHasValue` | `checkContains` / `checkNotContains`<br>`checkHasKey` / `checkNotHasKey`<br>`checkHasValue` / `checkNotHasValue` | Key presence is checked separately from a nullable value |
+| Ranges | `requireInRange` / `requireNotInRange`<br>`requireInOpenRange` / `requireNotInOpenRange` | `checkInRange` / `checkNotInRange`<br>`checkInOpenRange` / `checkNotInOpenRange` | Closed and open-end boundaries |
+| Length and size | `requireLengthInRange` / `requireNotLengthInRange`<br>`requireSizeInRange` / `requireNotSizeInRange` | `checkLengthInRange` / `checkNotLengthInRange`<br>`checkSizeInRange` / `checkNotSizeInRange` | `CharSequence`, `Collection`, `Map`, and `Array` overloads |
+| Floating-point finite | `requireFinite` / `requireNotFinite` | `checkFinite` / `checkNotFinite` | `Float` and `Double` only |
+| Sign-only number | `requirePositiveNumber` / `requireZeroOrNegativeNumber`<br>`requireZeroOrPositiveNumber` / `requireNegativeNumber` | `checkPositiveNumber` / `checkZeroOrNegativeNumber`<br>`checkZeroOrPositiveNumber` / `checkNegativeNumber` | `Number` sign comparison; non-finite values are not filtered |
+| Finite sign | `requireFinitePositiveNumber` / `requireFiniteZeroOrNegativeNumber`<br>`requireFiniteZeroOrPositiveNumber` / `requireFiniteNegativeNumber` | `checkFinitePositiveNumber` / `checkFiniteZeroOrNegativeNumber`<br>`checkFiniteZeroOrPositiveNumber` / `checkFiniteNegativeNumber` | Primitive `Float`/`Double`; NaN and both infinities fail all four |
+| Java duration | `requirePositiveDuration` / `requireZeroOrNegativeDuration`<br>`requireZeroOrPositiveDuration` / `requireNegativeDuration` | `checkPositiveDuration` / `checkZeroOrNegativeDuration`<br>`checkZeroOrPositiveDuration` / `checkNegativeDuration` | `java.time.Duration` |
+| Kotlin duration | `requirePositiveDuration` / `requireZeroOrNegativeDuration`<br>`requireZeroOrPositiveDuration` / `requireNegativeDuration` | `checkPositiveDuration` / `checkZeroOrNegativeDuration`<br>`checkZeroOrPositiveDuration` / `checkNegativeDuration` | `kotlin.time.Duration`; `INFINITE` follows its sign |
+
+Sign-only helpers intentionally use the normal numeric comparisons. For
+`Float`/`Double`, `NaN` matches none of the positive, zero-or-negative,
+zero-or-positive, or negative conditions; positive and negative infinity
+follow their sign. These helpers do not apply an `isFinite()` check. Use the
+finite family when infinity and NaN must be rejected. The finite-sign pairs
+are complementary for finite values and reject every non-finite value.
+
+The map pair checks both `containsKey` and value equality. A missing key with a
+`null` expected value therefore differs from an existing key whose value is
+`null`.
+
+```kotlin
+import io.bluetape4k.javatimes.checkNegativeDuration as checkJavaNegativeDuration
+import io.bluetape4k.javatimes.checkPositiveDuration as checkJavaPositiveDuration
+import io.bluetape4k.javatimes.checkZeroOrNegativeDuration as checkJavaZeroOrNegativeDuration
+import io.bluetape4k.javatimes.checkZeroOrPositiveDuration as checkJavaZeroOrPositiveDuration
+import io.bluetape4k.javatimes.requireNegativeDuration as requireJavaNegativeDuration
+import io.bluetape4k.javatimes.requirePositiveDuration as requireJavaPositiveDuration
+import io.bluetape4k.javatimes.requireZeroOrNegativeDuration as requireJavaZeroOrNegativeDuration
+import io.bluetape4k.javatimes.requireZeroOrPositiveDuration as requireJavaZeroOrPositiveDuration
+import io.bluetape4k.support.checkNegativeDuration as checkKotlinNegativeDuration
+import io.bluetape4k.support.checkPositiveDuration as checkKotlinPositiveDuration
+import io.bluetape4k.support.checkZeroOrNegativeDuration as checkKotlinZeroOrNegativeDuration
+import io.bluetape4k.support.checkZeroOrPositiveDuration as checkKotlinZeroOrPositiveDuration
+import io.bluetape4k.support.requireNegativeDuration as requireKotlinNegativeDuration
+import io.bluetape4k.support.requirePositiveDuration as requireKotlinPositiveDuration
+import io.bluetape4k.support.requireZeroOrNegativeDuration as requireKotlinZeroOrNegativeDuration
+import io.bluetape4k.support.requireZeroOrPositiveDuration as requireKotlinZeroOrPositiveDuration
+import java.time.Duration as JavaDuration
+import kotlin.time.Duration as KotlinDuration
+import kotlin.time.Duration.Companion.seconds
+
+fun validateFinite(value: Double): Double {
+    value.requireFinite("value")
+        .requireFinitePositiveNumber("value")
+    return value
+}
+
+fun validateDurations(): Pair<JavaDuration, KotlinDuration> {
+    val javaDuration = JavaDuration.ofSeconds(1)
+    javaDuration.requireJavaPositiveDuration("duration")
+    javaDuration.requireJavaZeroOrPositiveDuration("duration")
+    javaDuration.checkJavaPositiveDuration("duration")
+    javaDuration.checkJavaZeroOrPositiveDuration("duration")
+
+    val negativeJavaDuration = JavaDuration.ofSeconds(-1)
+    negativeJavaDuration.requireJavaZeroOrNegativeDuration("duration")
+    negativeJavaDuration.requireJavaNegativeDuration("duration")
+    negativeJavaDuration.checkJavaZeroOrNegativeDuration("duration")
+    negativeJavaDuration.checkJavaNegativeDuration("duration")
+
+    val kotlinDuration: KotlinDuration = 1.seconds
+    kotlinDuration.requireKotlinPositiveDuration("duration")
+    kotlinDuration.requireKotlinZeroOrPositiveDuration("duration")
+    kotlinDuration.checkKotlinPositiveDuration("duration")
+    kotlinDuration.checkKotlinZeroOrPositiveDuration("duration")
+
+    val negativeKotlinDuration: KotlinDuration = (-1).seconds
+    negativeKotlinDuration.requireKotlinZeroOrNegativeDuration("duration")
+    negativeKotlinDuration.requireKotlinNegativeDuration("duration")
+    negativeKotlinDuration.checkKotlinZeroOrNegativeDuration("duration")
+    negativeKotlinDuration.checkKotlinNegativeDuration("duration")
+    return javaDuration to kotlinDuration
+}
+```
+
 #### State Invariant Checks
 
 `CheckSupport` mirrors the `RequireSupport` API for object and component state. Failed checks throw `IllegalStateException` instead of `IllegalArgumentException`.

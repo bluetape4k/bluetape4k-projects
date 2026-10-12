@@ -227,3 +227,89 @@ infix fun LocalTime.shouldBeOnOrBefore(expected: LocalTime): LocalTime {
     }
     return this
 }
+
+// ── negative comparisons ────────────────────────────────────────────────────
+
+infix fun LocalDateTime.shouldNotBeAfter(expected: LocalDateTime): LocalDateTime {
+    if (this.isAfter(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be after", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun LocalDateTime.shouldNotBeBefore(expected: LocalDateTime): LocalDateTime {
+    if (this.isBefore(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be before", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun LocalDateTime.shouldNotBeOnOrAfter(expected: LocalDateTime): LocalDateTime {
+    if (!this.isBefore(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be on or after", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun LocalDateTime.shouldNotBeOnOrBefore(expected: LocalDateTime): LocalDateTime {
+    if (!this.isAfter(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be on or before", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun LocalDate.shouldNotBeAfter(expected: LocalDate): LocalDate {
+    if (this.isAfter(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be after", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun LocalDate.shouldNotBeBefore(expected: LocalDate): LocalDate {
+    if (this.isBefore(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be before", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun LocalDate.shouldNotBeOnOrAfter(expected: LocalDate): LocalDate {
+    if (!this.isBefore(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be on or after", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun LocalDate.shouldNotBeOnOrBefore(expected: LocalDate): LocalDate {
+    if (!this.isAfter(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be on or before", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun LocalTime.shouldNotBeAfter(expected: LocalTime): LocalTime {
+    if (this.isAfter(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be after", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun LocalTime.shouldNotBeBefore(expected: LocalTime): LocalTime {
+    if (this.isBefore(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be before", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun LocalTime.shouldNotBeOnOrAfter(expected: LocalTime): LocalTime {
+    if (!this.isBefore(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be on or after", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun LocalTime.shouldNotBeOnOrBefore(expected: LocalTime): LocalTime {
+    if (!this.isAfter(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be on or before", expected, this), expected, this)
+    }
+    return this
+}

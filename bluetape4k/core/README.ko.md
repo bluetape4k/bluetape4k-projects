@@ -152,6 +152,95 @@ fun validateScore(score: Double) {
 }
 ```
 
+#### 긍정/부정 대칭 검증 helper
+
+`RequireSupport`와 `CheckSupport`는 자주 사용하는 검증 family를 긍정/부정
+쌍으로 제공합니다. `requireXxx`는 `IllegalArgumentException`을,
+`checkXxx`는 `IllegalStateException`을 던집니다. 두 family 모두 성공하면
+원래 receiver를 반환하며, lazy message callback은 검증에 실패할 때만
+실행합니다.
+
+| Family | `require` 쌍 | `check` 쌍 | 계약 |
+|--------|--------------|------------|------|
+| 동등성 | `requireEquals` / `requireNotEquals` | `checkEquals` / `checkNotEquals` | 값 동등 / 비동등 |
+| null 또는 empty | `requireNullOrEmpty` / `requireNotEmpty` | `checkNullOrEmpty` / `checkNotEmpty` | `CharSequence?`, `Array<*>?`, `Collection<*>?`, `Map<*, *>?` |
+| blank | `requireNullOrBlank` / `requireNotBlank` | `checkNullOrBlank` / `checkNotBlank` | `CharSequence?`; null 또는 blank / non-blank |
+| CharSequence | `requireContains` / `requireNotContains`<br>`requireStartsWith` / `requireNotStartsWith`<br>`requireEndsWith` / `requireNotEndsWith` | `checkContains` / `checkNotContains`<br>`checkStartsWith` / `checkNotStartsWith`<br>`checkEndsWith` / `checkNotEndsWith` | 같은 인자와 `ignoreCase` overload |
+| Map | `requireContains` / `requireNotContains`<br>`requireHasKey` / `requireNotHasKey`<br>`requireHasValue` / `requireNotHasValue` | `checkContains` / `checkNotContains`<br>`checkHasKey` / `checkNotHasKey`<br>`checkHasValue` / `checkNotHasValue` | key 존재와 nullable value를 별도로 확인 |
+| 범위 | `requireInRange` / `requireNotInRange`<br>`requireInOpenRange` / `requireNotInOpenRange` | `checkInRange` / `checkNotInRange`<br>`checkInOpenRange` / `checkNotInOpenRange` | 닫힌 범위와 open-end 경계 |
+| 길이와 크기 | `requireLengthInRange` / `requireNotLengthInRange`<br>`requireSizeInRange` / `requireNotSizeInRange` | `checkLengthInRange` / `checkNotLengthInRange`<br>`checkSizeInRange` / `checkNotSizeInRange` | `CharSequence`, `Collection`, `Map`, `Array` overload |
+| 부동소수점 유한수 | `requireFinite` / `requireNotFinite` | `checkFinite` / `checkNotFinite` | `Float`, `Double`만 제공 |
+| sign-only 숫자 | `requirePositiveNumber` / `requireZeroOrNegativeNumber`<br>`requireZeroOrPositiveNumber` / `requireNegativeNumber` | `checkPositiveNumber` / `checkZeroOrNegativeNumber`<br>`checkZeroOrPositiveNumber` / `checkNegativeNumber` | `Number` 부호 비교; 비유한수는 별도 차단하지 않음 |
+| 유한수 부호 | `requireFinitePositiveNumber` / `requireFiniteZeroOrNegativeNumber`<br>`requireFiniteZeroOrPositiveNumber` / `requireFiniteNegativeNumber` | `checkFinitePositiveNumber` / `checkFiniteZeroOrNegativeNumber`<br>`checkFiniteZeroOrPositiveNumber` / `checkFiniteNegativeNumber` | primitive `Float`/`Double`; NaN과 양·음의 무한대는 모두 실패 |
+| Java Duration | `requirePositiveDuration` / `requireZeroOrNegativeDuration`<br>`requireZeroOrPositiveDuration` / `requireNegativeDuration` | `checkPositiveDuration` / `checkZeroOrNegativeDuration`<br>`checkZeroOrPositiveDuration` / `checkNegativeDuration` | `java.time.Duration` |
+| Kotlin Duration | `requirePositiveDuration` / `requireZeroOrNegativeDuration`<br>`requireZeroOrPositiveDuration` / `requireNegativeDuration` | `checkPositiveDuration` / `checkZeroOrNegativeDuration`<br>`checkZeroOrPositiveDuration` / `checkNegativeDuration` | `kotlin.time.Duration`; `INFINITE`는 부호에 따름 |
+
+sign-only helper는 의도적으로 일반 숫자 비교를 사용합니다. `Float`/`Double`의
+`NaN`은 양수, 0 이하, 0 이상, 음수 조건 어디에도 해당하지 않습니다. 양의
+무한대와 음의 무한대는 일반 비교 연산에 따라 처리합니다. 이 helper는
+`isFinite()` 검사를 하지 않습니다. 무한대와 NaN을 거부해야 하면 finite
+family를 사용하세요. finite-sign 쌍은 유한수에서 서로 반대이며 모든
+비유한수에서 실패합니다.
+
+Map 쌍은 `containsKey`와 value equality를 함께 확인합니다. 따라서 `null`을
+expected value로 사용했을 때 없는 key와 실제로 `null`을 저장한 key를
+구분합니다.
+
+```kotlin
+import io.bluetape4k.javatimes.checkNegativeDuration as checkJavaNegativeDuration
+import io.bluetape4k.javatimes.checkPositiveDuration as checkJavaPositiveDuration
+import io.bluetape4k.javatimes.checkZeroOrNegativeDuration as checkJavaZeroOrNegativeDuration
+import io.bluetape4k.javatimes.checkZeroOrPositiveDuration as checkJavaZeroOrPositiveDuration
+import io.bluetape4k.javatimes.requireNegativeDuration as requireJavaNegativeDuration
+import io.bluetape4k.javatimes.requirePositiveDuration as requireJavaPositiveDuration
+import io.bluetape4k.javatimes.requireZeroOrNegativeDuration as requireJavaZeroOrNegativeDuration
+import io.bluetape4k.javatimes.requireZeroOrPositiveDuration as requireJavaZeroOrPositiveDuration
+import io.bluetape4k.support.checkNegativeDuration as checkKotlinNegativeDuration
+import io.bluetape4k.support.checkPositiveDuration as checkKotlinPositiveDuration
+import io.bluetape4k.support.checkZeroOrNegativeDuration as checkKotlinZeroOrNegativeDuration
+import io.bluetape4k.support.checkZeroOrPositiveDuration as checkKotlinZeroOrPositiveDuration
+import io.bluetape4k.support.requireNegativeDuration as requireKotlinNegativeDuration
+import io.bluetape4k.support.requirePositiveDuration as requireKotlinPositiveDuration
+import io.bluetape4k.support.requireZeroOrNegativeDuration as requireKotlinZeroOrNegativeDuration
+import io.bluetape4k.support.requireZeroOrPositiveDuration as requireKotlinZeroOrPositiveDuration
+import java.time.Duration as JavaDuration
+import kotlin.time.Duration as KotlinDuration
+import kotlin.time.Duration.Companion.seconds
+
+fun validateFinite(value: Double): Double {
+    value.requireFinite("value")
+        .requireFinitePositiveNumber("value")
+    return value
+}
+
+fun validateDurations(): Pair<JavaDuration, KotlinDuration> {
+    val javaDuration = JavaDuration.ofSeconds(1)
+    javaDuration.requireJavaPositiveDuration("duration")
+    javaDuration.requireJavaZeroOrPositiveDuration("duration")
+    javaDuration.checkJavaPositiveDuration("duration")
+    javaDuration.checkJavaZeroOrPositiveDuration("duration")
+
+    val negativeJavaDuration = JavaDuration.ofSeconds(-1)
+    negativeJavaDuration.requireJavaZeroOrNegativeDuration("duration")
+    negativeJavaDuration.requireJavaNegativeDuration("duration")
+    negativeJavaDuration.checkJavaZeroOrNegativeDuration("duration")
+    negativeJavaDuration.checkJavaNegativeDuration("duration")
+
+    val kotlinDuration: KotlinDuration = 1.seconds
+    kotlinDuration.requireKotlinPositiveDuration("duration")
+    kotlinDuration.requireKotlinZeroOrPositiveDuration("duration")
+    kotlinDuration.checkKotlinPositiveDuration("duration")
+    kotlinDuration.checkKotlinZeroOrPositiveDuration("duration")
+
+    val negativeKotlinDuration: KotlinDuration = (-1).seconds
+    negativeKotlinDuration.requireKotlinZeroOrNegativeDuration("duration")
+    negativeKotlinDuration.requireKotlinNegativeDuration("duration")
+    negativeKotlinDuration.checkKotlinZeroOrNegativeDuration("duration")
+    negativeKotlinDuration.checkKotlinNegativeDuration("duration")
+    return javaDuration to kotlinDuration
+}
+```
+
 #### 상태 불변식 검증
 
 `CheckSupport`는 객체와 컴포넌트의 상태를 검증할 수 있도록 `RequireSupport`와 대칭인 API를 제공합니다. 검증에 실패하면 `IllegalArgumentException` 대신 `IllegalStateException`이 발생합니다.

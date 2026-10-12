@@ -2,9 +2,12 @@ package io.bluetape4k.javatimes
 
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
+import io.bluetape4k.assertions.shouldFailCheck
+import io.bluetape4k.assertions.shouldFailRequire
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
 import org.junit.jupiter.api.Test
+import java.time.Duration
 
 class DurationSupportTest {
 
@@ -62,5 +65,31 @@ class DurationSupportTest {
     fun `parse ISO formatted duration`() {
         val duration = parseIsoFormattedDuration("P0Y0M5DT4H3M9.123S")
         duration.shouldNotBeNull()
+    }
+
+    @Test
+    fun `duration sign require and check helpers are complementary`() {
+        val positive = Duration.ofSeconds(1)
+        val negative = Duration.ofSeconds(-1)
+
+        positive.requirePositiveDuration("duration") shouldBeEqualTo positive
+        negative.requireZeroOrNegativeDuration("duration") shouldBeEqualTo negative
+        Duration.ZERO.requireZeroOrPositiveDuration("duration") shouldBeEqualTo Duration.ZERO
+        Duration.ZERO.requireZeroOrNegativeDuration("duration") shouldBeEqualTo Duration.ZERO
+
+        shouldFailRequire { Duration.ZERO.requirePositiveDuration("duration") }
+        shouldFailRequire { positive.requireZeroOrNegativeDuration("duration") }
+        shouldFailRequire { negative.requireZeroOrPositiveDuration("duration") }
+        shouldFailRequire { negative.requirePositiveDuration("duration") }
+
+        positive.checkPositiveDuration("duration") shouldBeEqualTo positive
+        negative.checkZeroOrNegativeDuration("duration") shouldBeEqualTo negative
+        Duration.ZERO.checkZeroOrPositiveDuration("duration") shouldBeEqualTo Duration.ZERO
+        Duration.ZERO.checkZeroOrNegativeDuration("duration") shouldBeEqualTo Duration.ZERO
+
+        shouldFailCheck { Duration.ZERO.checkPositiveDuration("duration") }
+        shouldFailCheck { positive.checkZeroOrNegativeDuration("duration") }
+        shouldFailCheck { negative.checkZeroOrPositiveDuration("duration") }
+        shouldFailCheck { negative.checkPositiveDuration("duration") }
     }
 }

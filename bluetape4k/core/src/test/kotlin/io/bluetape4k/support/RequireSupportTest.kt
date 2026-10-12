@@ -61,6 +61,16 @@ class RequireSupportTest {
 
         empty.requireNullOrBlank("x"); "".requireNullOrBlank("x"); "   ".requireNullOrBlank("x")
         shouldFailRequire { "hello".requireNullOrBlank("x") }
+
+        val array: Array<Int>? = emptyArray()
+        array.requireNullOrEmpty("items")
+        val collection: Collection<Int>? = emptyList()
+        collection.requireNullOrEmpty("items")
+        val map: Map<String, Int>? = emptyMap()
+        map.requireNullOrEmpty("items")
+        shouldFailRequire { arrayOf(1).requireNullOrEmpty("items") }
+        shouldFailRequire { listOf(1).requireNullOrEmpty("items") }
+        shouldFailRequire { mapOf("a" to 1).requireNullOrEmpty("items") }
     }
 
     @Test
@@ -75,6 +85,9 @@ class RequireSupportTest {
         "hello world".requireEndsWith("world", "x")
         shouldFailRequire { "hello world".requireEndsWith("hello", "x") }
         "Hello World".requireEndsWith("WORLD", "x", ignoreCase = true)
+        "hello world".requireEndsWith("world") { "unexpected suffix mismatch" }
+        shouldFailRequire { (null as String?).requireEndsWith("world", "x") }
+        shouldFailRequire { (null as String?).requireEndsWith("world") { "missing text" } }
     }
 
     @Test
@@ -233,5 +246,93 @@ class RequireSupportTest {
         mapOf("a" to 1, "b" to 2).requireContains("a", 1, "x")
         shouldFailRequire { mapOf("a" to 1).requireContains("a", 99, "x") }
         shouldFailRequire { (null as Map<String, Int>?).requireContains("a", 1, "x") }
+    }
+
+    @Test
+    fun `require negative helpers complement the selected positive helpers`() {
+        41.requireNotEquals(42, "x")
+        shouldFailRequire { 42.requireNotEquals(42, "x") }
+
+        "hello".requireNotContains("world", "x")
+        "hello".requireNotStartsWith("world", "x")
+        "hello".requireNotEndsWith("world", "x")
+        shouldFailRequire { "hello".requireNotContains("ell", "x") }
+        shouldFailRequire { "hello".requireNotStartsWith("he", "x") }
+        shouldFailRequire { "hello".requireNotEndsWith("llo", "x") }
+        "Hello".requireNotStartsWith("WORLD", "x", ignoreCase = true)
+        "Hello".requireNotEndsWith("WORLD", "x", ignoreCase = true)
+
+        shouldFailRequire { 5.requireNotInRange(1, 10, "x") }
+        0.requireNotInRange(1, 10, "x")
+        10.requireNotInOpenRange(1, 10, "x")
+        shouldFailRequire { 5.requireNotInOpenRange(1, 10, "x") }
+        0.requireNotInRange(1, 10) { "unused" }
+        10.requireNotInOpenRange(1, 10) { "unused" }
+
+        shouldFailRequire { "blue".requireNotLengthInRange(1, 4, "text") }
+        "".requireNotLengthInRange(1, 4, "text")
+        shouldFailRequire { listOf(1, 2).requireNotSizeInRange(1, 3, "items") }
+        emptyList<Int>().requireNotSizeInRange(1, 3, "items")
+        shouldFailRequire { mapOf("a" to 1).requireNotSizeInRange(1, 2, "items") }
+        emptyMap<String, Int>().requireNotSizeInRange(1, 2, "items")
+        shouldFailRequire { arrayOf(1).requireNotSizeInRange(1, 2, "items") }
+        emptyArray<Int>().requireNotSizeInRange(1, 2, "items")
+
+        mapOf("a" to 1).requireNotHasKey("b", "map")
+        mapOf("a" to 1).requireNotHasValue(2, "map")
+        mapOf("a" to 1).requireNotContains("a", 2, "map")
+        emptyMap<String, Int>().requireNotHasKey("a", "map")
+        shouldFailRequire { mapOf("a" to 1).requireNotHasKey("a", "map") }
+        shouldFailRequire { mapOf("a" to 1).requireNotHasValue(1, "map") }
+        shouldFailRequire { mapOf("a" to 1).requireNotContains("a", 1, "map") }
+        shouldFailRequire { (null as Map<String, Int>?).requireNotHasKey("a", "map") }
+
+        Float.NaN.requireNotFinite("value")
+        Double.POSITIVE_INFINITY.requireNotFinite("value")
+        shouldFailRequire { 0.0.requireNotFinite("value") }
+        shouldFailRequire { 1.0f.requireNotFinite("value") }
+
+        1.0f.requireFinitePositiveNumber("value")
+        0.0f.requireFiniteZeroOrNegativeNumber("value")
+        0.0.requireFiniteZeroOrPositiveNumber("value")
+        (-1.0).requireFiniteNegativeNumber("value")
+        shouldFailRequire { Float.NaN.requireFinitePositiveNumber("value") }
+        shouldFailRequire { Float.POSITIVE_INFINITY.requireFiniteZeroOrNegativeNumber("value") }
+        shouldFailRequire { Double.NEGATIVE_INFINITY.requireFiniteNegativeNumber("value") }
+        shouldFailRequire { (-1.0).requireFiniteZeroOrPositiveNumber("value") }
+    }
+
+    @Test
+    fun `require negative helpers preserve callbacks, empty ranges, and map membership semantics`() {
+        var callbackCount = 0
+        0.requireNotInRange(1, 10) {
+            callbackCount++
+            "unused"
+        }
+        10.requireNotInOpenRange(1, 10) {
+            callbackCount++
+            "unused"
+        }
+        callbackCount shouldBeEqualTo 0
+
+        val sentinel = IllegalArgumentException("sentinel")
+        var thrown: IllegalArgumentException? = null
+        try {
+            "hello".requireNotContains("ell") {
+                callbackCount++
+                throw sentinel
+            }
+        } catch (error: IllegalArgumentException) {
+            thrown = error
+        }
+        thrown shouldBe sentinel
+        callbackCount shouldBeEqualTo 1
+
+        val nullableValueMap = mapOf("present" to null)
+        nullableValueMap.requireContains("present", null, "map")
+        nullableValueMap.requireNotContains("missing", null, "map")
+        shouldFailRequire { nullableValueMap.requireContains("missing", null, "map") }
+        shouldFailRequire { nullableValueMap.requireNotContains("present", null, "map") }
+        (emptyMap<String, Int?>()).requireNotContains("missing", null, "map")
     }
 }

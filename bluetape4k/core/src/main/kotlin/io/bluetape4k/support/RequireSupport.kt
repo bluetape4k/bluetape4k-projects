@@ -94,10 +94,34 @@ inline fun <T: CharSequence> T?.requireNullOrEmpty(parameterName: String): T? =
     requireNullOrEmpty { "$parameterName[$this] must be null or empty." }
 
 inline fun <T: CharSequence> T?.requireNullOrEmpty(lazyMessage: () -> Any): T? {
-    contract {
-        returns() implies (this@requireNullOrEmpty == null)
-    }
     require(this.isNullOrEmpty()) { lazyMessage() }
+    return this
+}
+
+/** 배열이 null 또는 비어 있는지 검증합니다. */
+inline fun <T> Array<T>?.requireNullOrEmpty(parameterName: String): Array<T>? =
+    requireNullOrEmpty { "$parameterName[$this] must be null or empty." }
+
+inline fun <T> Array<T>?.requireNullOrEmpty(lazyMessage: () -> Any): Array<T>? {
+    require(this == null || isEmpty()) { lazyMessage() }
+    return this
+}
+
+/** 컬렉션이 null 또는 비어 있는지 검증합니다. */
+inline fun <T> Collection<T>?.requireNullOrEmpty(parameterName: String): Collection<T>? =
+    requireNullOrEmpty { "$parameterName[$this] must be null or empty." }
+
+inline fun <T> Collection<T>?.requireNullOrEmpty(lazyMessage: () -> Any): Collection<T>? {
+    require(this == null || isEmpty()) { lazyMessage() }
+    return this
+}
+
+/** 맵이 null 또는 비어 있는지 검증합니다. */
+inline fun <K, V> Map<K, V>?.requireNullOrEmpty(parameterName: String): Map<K, V>? =
+    requireNullOrEmpty { "$parameterName[$this] must be null or empty." }
+
+inline fun <K, V> Map<K, V>?.requireNullOrEmpty(lazyMessage: () -> Any): Map<K, V>? {
+    require(this == null || isEmpty()) { lazyMessage() }
     return this
 }
 
@@ -143,9 +167,6 @@ inline fun <T: CharSequence> T?.requireNullOrBlank(parameterName: String): T? =
     requireNullOrBlank { "$parameterName[$this] must be null or blank." }
 
 inline fun <T: CharSequence> T?.requireNullOrBlank(noinline lazyMessage: () -> Any): T? {
-    contract {
-        returns() implies (this@requireNullOrBlank == null)
-    }
     require(this.isNullOrBlank()) { lazyMessage() }
     return this
 }
@@ -218,9 +239,67 @@ inline fun <T: CharSequence> T?.requireEndsWith(
     parameterName: String,
     ignoreCase: Boolean = false,
 ): T {
-    val result = requireNotNull(parameterName)
+    val result = this.requireNotNull(parameterName)
     require(result.endsWith(suffix, ignoreCase)) { "$parameterName[$result] must end with $suffix" }
     return result
+}
+
+inline fun <T: CharSequence> T?.requireEndsWith(
+    suffix: CharSequence,
+    ignoreCase: Boolean = false,
+    lazyMessage: () -> Any,
+): T {
+    val result = this.requireNotNull(lazyMessage)
+    require(result.endsWith(suffix, ignoreCase)) { lazyMessage() }
+    return result
+}
+
+/** 문자 시퀀스가 지정한 문자열을 포함하지 않는지 검증합니다. */
+inline fun <T: CharSequence> T?.requireNotContains(other: CharSequence, parameterName: String): T =
+    requireNotContains(other) { "$parameterName[$this] must not contain $other" }
+
+inline fun <T: CharSequence> T?.requireNotContains(other: CharSequence, lazyMessage: () -> Any): T {
+    val value = requireNotNull(lazyMessage)
+    require(!value.contains(other)) { lazyMessage() }
+    return value
+}
+
+/** 문자 시퀀스가 지정한 접두사로 시작하지 않는지 검증합니다. */
+inline fun <T: CharSequence> T?.requireNotStartsWith(
+    prefix: CharSequence,
+    parameterName: String,
+    ignoreCase: Boolean = false,
+): T = requireNotStartsWith(prefix, ignoreCase) {
+    "$parameterName[$this] must not start with $prefix"
+}
+
+inline fun <T: CharSequence> T?.requireNotStartsWith(
+    prefix: CharSequence,
+    ignoreCase: Boolean = false,
+    lazyMessage: () -> Any,
+): T {
+    val value = requireNotNull(lazyMessage)
+    require(!value.startsWith(prefix, ignoreCase)) { lazyMessage() }
+    return value
+}
+
+/** 문자 시퀀스가 지정한 접미사로 끝나지 않는지 검증합니다. */
+inline fun <T: CharSequence> T?.requireNotEndsWith(
+    suffix: CharSequence,
+    parameterName: String,
+    ignoreCase: Boolean = false,
+): T = requireNotEndsWith(suffix, ignoreCase) {
+    "$parameterName[$this] must not end with $suffix"
+}
+
+inline fun <T: CharSequence> T?.requireNotEndsWith(
+    suffix: CharSequence,
+    ignoreCase: Boolean = false,
+    lazyMessage: () -> Any,
+): T {
+    val value = requireNotNull(lazyMessage)
+    require(!value.endsWith(suffix, ignoreCase)) { lazyMessage() }
+    return value
 }
 
 /**
@@ -241,6 +320,15 @@ inline fun <T> T.requireEquals(expected: T, parameterName: String): T =
 
 inline fun <T> T.requireEquals(expected: T, lazyMessage: () -> Any): T {
     require(this == expected) { lazyMessage() }
+    return this
+}
+
+/** 수신 값이 기대 값과 같지 않은지 검증합니다. */
+inline fun <T> T.requireNotEquals(expected: T, parameterName: String): T =
+    requireNotEquals(expected) { "$parameterName[$this] must not be equal to $expected" }
+
+inline fun <T> T.requireNotEquals(expected: T, lazyMessage: () -> Any): T {
+    require(this != expected) { lazyMessage() }
     return this
 }
 
@@ -368,6 +456,32 @@ inline fun <T: Comparable<T>> T.requireInOpenRange(start: T, endExclusive: T, pa
 
 inline fun <T: Comparable<T>> T.requireInOpenRange(start: T, endExclusive: T, lazyMessage: () -> Any): T {
     require(this in start..<endExclusive) { lazyMessage() }
+    return this
+}
+
+/** 수신 값이 닫힌 범위 밖에 있는지 검증합니다. */
+inline fun <T: Comparable<T>> T.requireNotInRange(start: T, endInclusive: T, parameterName: String): T =
+    requireNotInRange(start, endInclusive) { "$parameterName[$this] must not be in range ($start .. $endInclusive)" }
+
+inline fun <T: Comparable<T>> T.requireNotInRange(
+    start: T,
+    endInclusive: T,
+    lazyMessage: () -> Any,
+): T {
+    require(this !in start..endInclusive) { lazyMessage() }
+    return this
+}
+
+/** 수신 값이 반열린 범위 밖에 있는지 검증합니다. */
+inline fun <T: Comparable<T>> T.requireNotInOpenRange(start: T, endExclusive: T, parameterName: String): T =
+    requireNotInOpenRange(start, endExclusive) { "$parameterName[$this] must not be in [$start, $endExclusive)" }
+
+inline fun <T: Comparable<T>> T.requireNotInOpenRange(
+    start: T,
+    endExclusive: T,
+    lazyMessage: () -> Any,
+): T {
+    require(this !in start..<endExclusive) { lazyMessage() }
     return this
 }
 
@@ -596,7 +710,48 @@ inline fun <K, V> Map<K, V>?.requireContains(key: K, value: V, parameterName: St
 
 inline fun <K, V> Map<K, V>?.requireContains(key: K, value: V, lazyMessage: () -> Any): Map<K, V> {
     val self = this ?: throw IllegalArgumentException(lazyMessage().toString())
-    require(self[key] == value) { lazyMessage() }
+    require(self.containsKey(key) && self[key] == value) { lazyMessage() }
+    return self
+}
+
+/** 맵에 지정한 키가 없는지 검증합니다. */
+inline fun <K, V> Map<K, V>?.requireNotHasKey(key: K, parameterName: String): Map<K, V> {
+    val self = this ?: throw IllegalArgumentException("$parameterName must not be null.")
+    require(!self.containsKey(key)) { "$parameterName must not contain key $key" }
+    return self
+}
+
+inline fun <K, V> Map<K, V>?.requireNotHasKey(key: K, lazyMessage: () -> Any): Map<K, V> {
+    val self = this ?: throw IllegalArgumentException(lazyMessage().toString())
+    require(!self.containsKey(key)) { lazyMessage() }
+    return self
+}
+
+/** 맵에 지정한 값이 없는지 검증합니다. */
+inline fun <K, V> Map<K, V>?.requireNotHasValue(value: V, parameterName: String): Map<K, V> {
+    val self = this ?: throw IllegalArgumentException("$parameterName must not be null.")
+    require(!self.containsValue(value)) { "$parameterName must not contain value $value" }
+    return self
+}
+
+inline fun <K, V> Map<K, V>?.requireNotHasValue(value: V, lazyMessage: () -> Any): Map<K, V> {
+    val self = this ?: throw IllegalArgumentException(lazyMessage().toString())
+    require(!self.containsValue(value)) { lazyMessage() }
+    return self
+}
+
+/** 맵에 지정한 키와 값 쌍이 없는지 검증합니다. */
+inline fun <K, V> Map<K, V>?.requireNotContains(key: K, value: V, parameterName: String): Map<K, V> {
+    val self = this ?: throw IllegalArgumentException("$parameterName must not be null.")
+    require(!(self.containsKey(key) && self[key] == value)) {
+        "$parameterName must not contain ($key, $value)"
+    }
+    return self
+}
+
+inline fun <K, V> Map<K, V>?.requireNotContains(key: K, value: V, lazyMessage: () -> Any): Map<K, V> {
+    val self = this ?: throw IllegalArgumentException(lazyMessage().toString())
+    require(!(self.containsKey(key) && self[key] == value)) { lazyMessage() }
     return self
 }
 
@@ -694,6 +849,74 @@ inline fun <T> Array<T>?.requireSizeInRange(
     return self
 }
 
+/** nullable 문자 시퀀스의 길이가 닫힌 범위 밖인지 검증합니다. */
+inline fun <T: CharSequence> T?.requireNotLengthInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): T {
+    contract {
+        returnsNotNull() implies (this@requireNotLengthInRange != null)
+    }
+    val self = this.requireNotNull(parameterName)
+    require(self.length !in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName length must not be between $start and $endInclusive."
+    }
+    return self
+}
+
+/** nullable 컬렉션의 크기가 닫힌 범위 밖인지 검증합니다. */
+inline fun <T> Collection<T>?.requireNotSizeInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Collection<T> {
+    contract {
+        returnsNotNull() implies (this@requireNotSizeInRange != null)
+    }
+    val self = this.requireNotNull(parameterName)
+    require(self.size !in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName size must not be between $start and $endInclusive."
+    }
+    return self
+}
+
+/** nullable 맵의 크기가 닫힌 범위 밖인지 검증합니다. */
+inline fun <K, V> Map<K, V>?.requireNotSizeInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Map<K, V> {
+    contract {
+        returnsNotNull() implies (this@requireNotSizeInRange != null)
+    }
+    val self = this.requireNotNull(parameterName)
+    require(self.size !in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName size must not be between $start and $endInclusive."
+    }
+    return self
+}
+
+/** nullable 배열의 크기가 닫힌 범위 밖인지 검증합니다. */
+inline fun <T> Array<T>?.requireNotSizeInRange(
+    start: Int,
+    endInclusive: Int,
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Array<T> {
+    contract {
+        returnsNotNull() implies (this@requireNotSizeInRange != null)
+    }
+    val self = this.requireNotNull(parameterName)
+    require(self.size !in start..endInclusive) {
+        lazyMessage?.invoke() ?: "$parameterName size must not be between $start and $endInclusive."
+    }
+    return self
+}
+
 /**
  * Requires a nullable character sequence to match [regex].
  *
@@ -738,6 +961,96 @@ inline fun Float.requireFinite(parameterName: String, noinline lazyMessage: (() 
  */
 inline fun Double.requireFinite(parameterName: String, noinline lazyMessage: (() -> Any)? = null): Double = apply {
     require(isFinite()) { lazyMessage?.invoke() ?: "$parameterName must be finite." }
+}
+
+/** `Float` 값이 유한하지 않은지 검증합니다. */
+inline fun Float.requireNotFinite(parameterName: String, noinline lazyMessage: (() -> Any)? = null): Float = apply {
+    require(!isFinite()) { lazyMessage?.invoke() ?: "$parameterName must not be finite." }
+}
+
+/** `Double` 값이 유한하지 않은지 검증합니다. */
+inline fun Double.requireNotFinite(parameterName: String, noinline lazyMessage: (() -> Any)? = null): Double = apply {
+    require(!isFinite()) { lazyMessage?.invoke() ?: "$parameterName must not be finite." }
+}
+
+/** `Float` 값이 유한한 양수인지 검증합니다. */
+inline fun Float.requireFinitePositiveNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Float = apply {
+    require(isFinite() && this > 0.0f) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite positive number."
+    }
+}
+
+/** `Float` 값이 유한한 0 이하인지 검증합니다. */
+inline fun Float.requireFiniteZeroOrNegativeNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Float = apply {
+    require(isFinite() && this <= 0.0f) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite zero or negative number."
+    }
+}
+
+/** `Float` 값이 유한한 0 이상인지 검증합니다. */
+inline fun Float.requireFiniteZeroOrPositiveNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Float = apply {
+    require(isFinite() && this >= 0.0f) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite zero or positive number."
+    }
+}
+
+/** `Float` 값이 유한한 음수인지 검증합니다. */
+inline fun Float.requireFiniteNegativeNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Float = apply {
+    require(isFinite() && this < 0.0f) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite negative number."
+    }
+}
+
+/** `Double` 값이 유한한 양수인지 검증합니다. */
+inline fun Double.requireFinitePositiveNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Double = apply {
+    require(isFinite() && this > 0.0) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite positive number."
+    }
+}
+
+/** `Double` 값이 유한한 0 이하인지 검증합니다. */
+inline fun Double.requireFiniteZeroOrNegativeNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Double = apply {
+    require(isFinite() && this <= 0.0) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite zero or negative number."
+    }
+}
+
+/** `Double` 값이 유한한 0 이상인지 검증합니다. */
+inline fun Double.requireFiniteZeroOrPositiveNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Double = apply {
+    require(isFinite() && this >= 0.0) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite zero or positive number."
+    }
+}
+
+/** `Double` 값이 유한한 음수인지 검증합니다. */
+inline fun Double.requireFiniteNegativeNumber(
+    parameterName: String,
+    noinline lazyMessage: (() -> Any)? = null,
+): Double = apply {
+    require(isFinite() && this < 0.0) {
+        lazyMessage?.invoke() ?: "$parameterName must be a finite negative number."
+    }
 }
 
 fun Boolean.requireBeTrue(parameterName: String): Boolean = apply {

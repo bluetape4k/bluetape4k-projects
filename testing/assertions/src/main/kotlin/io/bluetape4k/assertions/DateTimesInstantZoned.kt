@@ -227,3 +227,89 @@ infix fun OffsetDateTime.shouldBeOnOrBefore(expected: OffsetDateTime): OffsetDat
     }
     return this
 }
+
+// ── negative comparisons ────────────────────────────────────────────────────
+
+infix fun Instant.shouldNotBeAfter(expected: Instant): Instant {
+    if (this.isAfter(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be after", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun Instant.shouldNotBeBefore(expected: Instant): Instant {
+    if (this.isBefore(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be before", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun Instant.shouldNotBeOnOrAfter(expected: Instant): Instant {
+    if (!this.isBefore(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be on or after", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun Instant.shouldNotBeOnOrBefore(expected: Instant): Instant {
+    if (!this.isAfter(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be on or before", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun ZonedDateTime.shouldNotBeAfter(expected: ZonedDateTime): ZonedDateTime {
+    if (this.isAfter(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be after", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun ZonedDateTime.shouldNotBeBefore(expected: ZonedDateTime): ZonedDateTime {
+    if (this.isBefore(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be before", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun ZonedDateTime.shouldNotBeOnOrAfter(expected: ZonedDateTime): ZonedDateTime {
+    if (!this.isBefore(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be on or after", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun ZonedDateTime.shouldNotBeOnOrBefore(expected: ZonedDateTime): ZonedDateTime {
+    if (!this.isAfter(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be on or before", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun OffsetDateTime.shouldNotBeAfter(expected: OffsetDateTime): OffsetDateTime {
+    if (this.isAfter(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be after", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun OffsetDateTime.shouldNotBeBefore(expected: OffsetDateTime): OffsetDateTime {
+    if (this.isBefore(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be before", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun OffsetDateTime.shouldNotBeOnOrAfter(expected: OffsetDateTime): OffsetDateTime {
+    if (!this.isBefore(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be on or after", expected, this), expected, this)
+    }
+    return this
+}
+
+infix fun OffsetDateTime.shouldNotBeOnOrBefore(expected: OffsetDateTime): OffsetDateTime {
+    if (!this.isAfter(expected)) {
+        Failures.failComparison(Messages.expectedNotToBe("be on or before", expected, this), expected, this)
+    }
+    return this
+}
