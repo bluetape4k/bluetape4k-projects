@@ -66,7 +66,7 @@ Feel free to open an Issue if you need something that isn't here yet.
 
 - **Java**: 25 (default JVM toolchain and `.java-version`); `virtualthread/jdk21` and its minimal `virtualthread-api`/`logging`/testing dependency closure explicitly preserve Java 21 compatibility
 - **Kotlin**: 2.4 (Language, API, and JVM 25 target by default)
-- **Gradle**: 9.7.0 via the checked-in Wrapper
+- **Gradle**: 9.8.1 via the checked-in Wrapper
 - **Spring Boot**: 4.x only. Historical planning and review notes may mention retired Spring Boot 3 modules, but current-facing modules and examples target Spring Boot 4.x.
 - **JetBrains Exposed**: 1.5.0 from the central `bt4k` catalog (distinct from the independently released `bluetape4k-exposed` artifacts)
 - **Databases**: H2, PostgreSQL, MySQL

@@ -465,8 +465,7 @@ subprojects {
     }
 
     dependencyManagement {
-        val usesNetty4CompatibilityLine = path == ":bluetape4k-testcontainers"
-        val managedNettyVersion = bt4kVersion(if (usesNetty4CompatibilityLine) "netty4" else "netty")
+        val managedNettyVersion = bt4kVersion("netty")
 
         // HINT: Gradle 빌드 시, detachedConfiguration 이 많이 발생하는데, setApplyMavenExclusions(false) 를 추가하면 속도가 개선됩니다.
         // https://discuss.gradle.org/t/what-is-detachedconfiguration-i-have-a-lots-of-them-for-each-subproject-and-resolving-them-takes-95-of-build-time/31595/6
@@ -495,9 +494,7 @@ subprojects {
             mavenBom(bt4kLibrary("protobuf-bom").get().toString())
             mavenBom(bt4kLibrary("fabric8-kubernetes-client-bom").get().toString())
             mavenBom(rootBt4k.resilience4j.bom.get().toString())
-            if (!usesNetty4CompatibilityLine) {
-                mavenBom(bt4kLibrary("netty-bom").get().toString())
-            }
+            mavenBom(bt4kLibrary("netty-bom").get().toString())
             mavenBom("com.fasterxml.jackson:jackson-bom:${bt4kVersion("jackson2")}")
 
             mavenBom("org.jetbrains.kotlinx:kotlinx-coroutines-bom:${bt4kVersion("kotlinx-coroutines")}")
@@ -974,19 +971,6 @@ subprojects {
             // ByteBuddy
             dependency(rootBt4k.byte.buddy.asProvider().get().toString())
             dependency(rootBt4k.byte.buddy.agent.get().toString())
-        }
-    }
-
-    if (path == ":bluetape4k-testcontainers") {
-        dependencyManagement {
-            imports {
-                mavenBom("io.netty:netty-bom:${bt4kVersion("netty4")}")
-                mavenBom(bt4kLibrary("vertx4-dependencies").get().toString())
-            }
-            dependencies {
-                dependency("io.vertx:vertx-core:${bt4kVersion("vertx4")}")
-                dependency("io.vertx:vertx-web-client:${bt4kVersion("vertx4")}")
-            }
         }
     }
 

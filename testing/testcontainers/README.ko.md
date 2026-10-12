@@ -484,6 +484,13 @@ client.use {
 > `@Tag("k8s")`를 붙여 권한 있는 런너를 사용하는 nightly CI 에서만 실행되도록 제한하세요.
 > 테스트 런타임 클래스패스에 `io.fabric8:kubernetes-client` 의존성을 추가해야 합니다.
 
+Lettuce 7과 같은 런타임에서 실행할 때는 Fabric8의 기본
+`io.fabric8:kubernetes-httpclient-vertx`를 제외하고, 같은 Fabric8 버전의
+`io.fabric8:kubernetes-httpclient-okhttp`를 추가하세요. Vert.x 4는 Netty 4.1을,
+Lettuce 7은 Netty 4.2를 요구하므로 하나의 버전을 두 클라이언트에 강제하면
+런타임 클래스 연결이 실패합니다. 이 모듈의 테스트는 OkHttp 구현을 사용하고
+Redis 연결과 Kubernetes HTTP 요청을 함께 검증합니다.
+
 ### 카오스 테스트 (Toxiproxy)
 
 ![(Toxiproxy) diagram](../../docs/images/readme-diagrams/testing-testcontainers-sequence-02.png)

@@ -128,6 +128,7 @@ jobs:
               {
                   "group": "storage-cache",
                   "test_patterns": " ".join([
+                      "io.bluetape4k.testcontainers.storage.ClientRuntimeCompatibilityTest",
                       "io.bluetape4k.testcontainers.storage.HazelcastServerTest",
                       "io.bluetape4k.testcontainers.storage.Ignite3ServerTest",
                       "io.bluetape4k.testcontainers.storage.InfluxDBServerTest",
