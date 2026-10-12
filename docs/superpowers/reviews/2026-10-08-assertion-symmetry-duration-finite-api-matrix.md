@@ -120,7 +120,9 @@ Core는 Assertions 전체를 복제하지 않는다. 아래 선택한 common hel
 
 ## 주 세션 inline fallback 최종 코드 리뷰 (2026-10-12)
 
-독립 reviewer lane이 완료되지 않아 주 세션에서 승인된 inline fallback 리뷰를 수행했다. `d9e175f240b16b4f6d6964ff35867ec9d09cd739..f31dd91a0c426a7213e69d75a7f79c11dad04feb` 변경을 검토했다. 최신 base의 추가 변경은 `ClassSupport`와 그 테스트에 한정되어 이 PR의 Assertions/Core API 영역과 겹치지 않음을 확인한 뒤, 변경된 API, 테스트, fixture, README, runner 및 계획·검토 문서에서 정확성, 부정 쌍의 경계, null 동작, 유한수·Duration 의미, JVM/API 호환성, 검증 artifact 연결을 다시 확인했다. **Inline verdict: PASS; P0=0, P1=0.** 아래 P2 두 건과 검증 추적성 한 건은 모두 수정했다.
+독립 reviewer lane이 완료되지 않아 주 세션에서 승인된 inline fallback 리뷰를 수행했다. `d9e175f240b16b4f6d6964ff35867ec9d09cd739..f31dd91a0c426a7213e69d75a7f79c11dad04feb` 변경을 검토했다. 최신 base의 추가 변경은 `ClassSupport`와 그 테스트에 한정되어 이 PR의 Assertions/Core API 영역과 겹치지 않음을 확인한 뒤, 변경된 API, 테스트, fixture, README, runner 및 계획·검토 문서에서 정확성, 부정 쌍의 경계, null 동작, 유한수·Duration 의미, JVM/API 호환성, 검증 artifact 연결을 다시 확인했다. 아래 P2 두 건과 검증 추적성 한 건은 모두 수정했다.
+
+**Inline verdict: PASS; P0=0, P1=0.**
 
 | Finding | 근거와 조치 | 상태 |
 |---|---|---|
