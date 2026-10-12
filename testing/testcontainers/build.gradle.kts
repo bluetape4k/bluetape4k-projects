@@ -5,6 +5,9 @@ configurations {
         // kafka-clients 등이 org.lz4:lz4-java 를 transitively 가져온다.
         // at.yawk.lz4:lz4-java:1.11.0 으로 대체한다.
         exclude(group = "org.lz4", module = "lz4-java")
+        // Fabric8의 기본 Vert.x 4 전송은 Lettuce 7의 Netty 4.2와 함께 실행할 수 없다.
+        // Kubernetes는 같은 Fabric8 버전의 OkHttp 전송을 사용해 Netty에서 분리한다.
+        exclude(group = "io.fabric8", module = "kubernetes-httpclient-vertx")
     }
 }
 
@@ -146,6 +149,7 @@ dependencies {
     api(libs.testcontainers.k3s)
     compileOnly(bt4k.fabric8.kubernetes.client)
     testImplementation(bt4k.fabric8.kubernetes.client)
+    testRuntimeOnly("io.fabric8:kubernetes-httpclient-okhttp:${bt4k.versions.fabric8.kubernetes.client.get()}")
 
     // Graph DB (Neo4j)
     compileOnly(libs.testcontainers.neo4j)

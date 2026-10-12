@@ -68,7 +68,7 @@ Kotlin 언어를 배우고, 사용하면서, Backend 개발에 자주 사용하�
 
 - **Java**: 25 (기본 JVM toolchain 및 `.java-version`); `virtualthread/jdk21`과 최소 `virtualthread-api`/`logging`/testing dependency closure는 Java 21 호환성을 명시적으로 유지합니다.
 - **Kotlin**: 2.4 (기본 Language, API 및 JVM 25 target)
-- **Gradle**: 저장소에 포함된 Wrapper 기준 9.7.0
+- **Gradle**: 저장소에 포함된 Wrapper 기준 9.8.1
 - **Spring Boot**: 4.x 전용. 과거 계획서와 리뷰 문서에는 은퇴한 Spring Boot 3 모듈 언급이 남아 있을 수 있지만, 현재 사용자 대상 모듈과 예제는 Spring Boot 4.x를 기준으로 합니다.
 - **JetBrains Exposed**: 중앙 `bt4k` catalog의 1.5.0 (독립적으로 릴리스하는 `bluetape4k-exposed` artifact 버전과는 별개)
 - **데이터베이스**: H2, PostgreSQL, MySQL

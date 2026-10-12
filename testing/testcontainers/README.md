@@ -479,6 +479,13 @@ client.use {
 > with `@Tag("k8s")` so they can be confined to nightly CI runs where a privileged
 > runner is available. Add `io.fabric8:kubernetes-client` to the test runtime classpath.
 
+When sharing a runtime with Lettuce 7, exclude Fabric8's default
+`io.fabric8:kubernetes-httpclient-vertx` and add
+`io.fabric8:kubernetes-httpclient-okhttp` at the same Fabric8 version. Vert.x 4
+requires Netty 4.1, while Lettuce 7 requires Netty 4.2; forcing either version
+across both clients breaks runtime linkage. This module's tests use the OkHttp
+provider and verify Kubernetes HTTP requests alongside Redis connections.
+
 ### Toxiproxy (Chaos Testing)
 
 ![Toxiproxy (Chaos Testing) diagram](../../docs/images/readme-diagrams/testing-testcontainers-sequence-02.png)

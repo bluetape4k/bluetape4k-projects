@@ -58,7 +58,7 @@ repo-test-summary -- ./gradlew :module:test
 
 - Java 25 default toolchain and `.java-version`.
 - Kotlin 2.4 language/API with JVM 25 as the default target.
-- Gradle Wrapper 9.7.0.
+- Gradle Wrapper 9.8.1.
 - `virtualthread/jdk21` and its minimal `virtualthread-api`, `logging`,
   `assertions`, and `junit5` dependency closure explicitly retain Java/JVM 21.
 - Spring Boot 4.x only.
