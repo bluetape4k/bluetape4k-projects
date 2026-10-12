@@ -1,10 +1,13 @@
 package io.bluetape4k.testcontainers.graphdb
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.info
 import io.bluetape4k.support.requireNotBlank
 import io.bluetape4k.testcontainers.PropertyExportingServer
 import io.bluetape4k.testcontainers.database.JdbcServer
+import io.bluetape4k.testcontainers.database.getDataSource
 import io.bluetape4k.testcontainers.exposeCustomPorts
 import io.bluetape4k.utils.ShutdownQueue
 import org.testcontainers.containers.wait.strategy.Wait
@@ -170,5 +173,24 @@ class PostgreSQLAgeServer private constructor(
                 ShutdownQueue.register(this as AutoCloseable)
             }
         }
+
+        /**
+         * AGE 확장 초기화가 적용된 JDBC [HikariDataSource]를 제공합니다.
+         *
+         * 각 풀 연결에서 AGE 라이브러리를 로드하고 `ag_catalog`를 검색 경로에 추가합니다.
+         * [builder]를 사용해 풀 크기 등 Hikari 설정을 조정할 수 있으며,
+         * 기본 [connectionInitSql][HikariConfig.connectionInitSql]도 재정의할 수 있습니다.
+         *
+         * ```kotlin
+         * val dataSource = PostgreSQLAgeServer.Launcher.getDataSource {
+         *     maximumPoolSize = 5
+         * }
+         * ```
+         */
+        fun getDataSource(builder: HikariConfig.() -> Unit = {}): HikariDataSource =
+            postgresqlAge.getDataSource {
+                connectionInitSql = "LOAD 'age'; SET search_path = ag_catalog, \"${'$'}user\", public;"
+                builder()
+            }
     }
 }

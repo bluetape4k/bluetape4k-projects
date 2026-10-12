@@ -6,7 +6,6 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.AbstractContainerTest
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -27,14 +26,7 @@ class PostgreSQLAgeServerTest: AbstractContainerTest() {
 
     @BeforeAll
     fun beforeAll() {
-        server = PostgreSQLAgeServer().apply { start() }
-    }
-
-    @AfterAll
-    fun afterAll() {
-        if (this::server.isInitialized && server.isRunning) {
-            server.close()
-        }
+        server = PostgreSQLAgeServer.Launcher.postgresqlAge
     }
 
     @Test
@@ -50,6 +42,28 @@ class PostgreSQLAgeServerTest: AbstractContainerTest() {
     fun `JDBC 연결이 성공한다`() {
         DriverManager.getConnection(server.jdbcUrl, server.username, server.password).use { conn ->
             conn.isValid(3).shouldBeTrue()
+        }
+    }
+
+    @Test
+    fun `Launcher DataSource가 AGE 연결을 초기화하고 설정을 적용한다`() {
+        PostgreSQLAgeServer.Launcher.getDataSource {
+            maximumPoolSize = 5
+        }.use { dataSource ->
+            dataSource.driverClassName shouldBeEqualTo PostgreSQLAgeServer.DRIVER_CLASS_NAME
+            dataSource.jdbcUrl shouldBeEqualTo server.jdbcUrl
+            dataSource.username shouldBeEqualTo server.username
+            dataSource.password shouldBeEqualTo server.password
+            dataSource.maximumPoolSize shouldBeEqualTo 5
+            dataSource.connectionInitSql shouldBeEqualTo
+                "LOAD 'age'; SET search_path = ag_catalog, \"${'$'}user\", public;"
+
+            dataSource.connection.use { conn ->
+                conn.createStatement().use { stmt ->
+                    val resultSet = stmt.executeQuery("SELECT * FROM ag_graph")
+                    resultSet.shouldNotBeNull()
+                }
+            }
         }
     }
 
