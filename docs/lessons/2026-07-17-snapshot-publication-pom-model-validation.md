@@ -43,6 +43,12 @@ namespace가 포함되므로, 하위 노드는 namespace를 제거한 local name
 모듈 자체가 특정 BOM 버전을 가져오는 경우에는 전역 BOM을 중복 추가하지 말고 해당
 모듈의 우선순위를 유지한다.
 
+항목 fingerprint는 구분자만 연결해서 만들지 않는다. POM 값에 구분자가 포함되면
+서로 다른 텍스트와 자식 경계가 같은 문자열이 되어 exclusion이 다른 선언을 중복으로
+지울 수 있다. 요소 종류, 속성 키·값, 텍스트와 자식 요소를 길이 접두 방식으로
+인코딩하고 속성과 자식 개수를 기록한다. 구분자 충돌 회귀 테스트에서 서로 다른
+exclusion이 제거되지 않고 충돌로 실패하는지 검증한다.
+
 수정 뒤에는 모든 publication POM을 강제 생성하고 `ruby scripts/publication/validate_poms.rb`로
 effective Maven model을 확인한다. 중복 좌표 검사는
 `ruby scripts/publication/publication_pom_audit_test.rb`에 회귀 테스트를 둔다.
