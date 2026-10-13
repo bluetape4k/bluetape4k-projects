@@ -123,6 +123,48 @@ class PublishingSigningSupportTest {
     }
 
     @Test
+    fun `fingerprint 연결 충돌로 서로 다른 exclusion을 가진 항목을 동일 취급하지 않는다`() {
+        val pom = XmlParser(false, false).parseText(
+            """
+                <project>
+                    <dependencyManagement>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.example</groupId>
+                                <artifactId>managed</artifactId>
+                                <version>1.0</version>
+                                <exclusions>
+                                    <exclusion>
+                                        <groupId>com.z</groupId>
+                                        <artifactId>xgroupIdcom.y</artifactId>
+                                    </exclusion>
+                                </exclusions>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.example</groupId>
+                                <artifactId>managed</artifactId>
+                                <version>1.0</version>
+                                <exclusions>
+                                    <exclusion>
+                                        <groupId>com.ygroupIdcom.z</groupId>
+                                        <artifactId>x</artifactId>
+                                    </exclusion>
+                                </exclusions>
+                            </dependency>
+                        </dependencies>
+                    </dependencyManagement>
+                </project>
+            """.trimIndent(),
+        )
+
+        val failure = assertFailsWith<GradleException> {
+            normalizeDependencyManagementDuplicates(pom)
+        }
+
+        assertTrue(failure.message.orEmpty().contains("conflicting dependencyManagement entries"))
+    }
+
+    @Test
     fun `같은 관리 좌표의 서로 다른 버전은 명시적으로 실패한다`() {
         val pom = pomWithNettyBom("4.1.139.Final", "4.2.19.Final")
 

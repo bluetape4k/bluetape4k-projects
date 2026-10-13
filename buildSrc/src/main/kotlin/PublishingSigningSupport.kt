@@ -187,26 +187,34 @@ private fun Node.childText(name: String): String =
 
 private fun Node.elementName(): String = name().toString().substringAfterLast('}')
 
-private fun Node.canonicalFingerprint(): String = buildString {
-    append(elementName())
-    val rawAttributes = attributes() as Map<*, *>
-    val attributes = rawAttributes.entries
+private fun Node.canonicalFingerprint(): String {
+    val normalizedAttributes = (attributes() as Map<*, *>).entries
         .sortedBy { it.key.toString() }
-        .joinToString(separator = ",") { entry ->
-            "${entry.key}=${entry.value.toString().trim()}"
-        }
-    if (attributes.isNotEmpty()) {
-        append("[$attributes]")
-    }
-    children()
+    val normalizedChildren = children()
         .mapNotNull { child ->
             when (child) {
-                is Node -> child.canonicalFingerprint()
-                else -> child?.toString()?.trim()?.takeIf { it.isNotEmpty() }
+                is Node -> "N${child.canonicalFingerprint()}"
+                else -> child?.toString()?.trim()?.takeIf { it.isNotEmpty() }?.let { "T$it" }
             }
         }
         .sorted()
-        .forEach(::append)
+
+    return buildString {
+        appendFingerprintPart('E', elementName())
+        append('A').append(normalizedAttributes.size).append(':')
+        normalizedAttributes.forEach { attribute ->
+            appendFingerprintPart('K', attribute.key.toString())
+            appendFingerprintPart('V', attribute.value.toString().trim())
+        }
+        append('C').append(normalizedChildren.size).append(':')
+        normalizedChildren.forEach { child ->
+            appendFingerprintPart('C', child)
+        }
+    }
+}
+
+private fun StringBuilder.appendFingerprintPart(kind: Char, value: String) {
+    append(kind).append(value.length).append(':').append(value)
 }
 
 /**
