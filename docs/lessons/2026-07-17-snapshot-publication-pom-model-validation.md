@@ -1,4 +1,4 @@
-# Snapshot publication POM model validation
+# Gradle -SNAPSHOT POM 모델 검증
 
 ## 배경
 
@@ -8,8 +8,8 @@ Generated publication POM에는 version 없는 Spring Boot와 Jackson BOM import
 
 ## 결정
 
-Published BOM import의 version source로 중앙 `bt4k` catalog를 사용한다. CI, snapshot
-publishing, release publishing 전에 모든 generated POM을 구조적으로 검증한 뒤 effective
+Published BOM import의 version source로 중앙 `bt4k` catalog를 사용한다. CI 및
+`-SNAPSHOT`·release 게시 전에 모든 generated POM을 구조적으로 검증한 뒤 effective
 Maven model을 build한다.
 
 ## 결과
@@ -60,3 +60,52 @@ Testcontainers는 Netty core를 `netty-bom` 4.1.x에 맞춘다. `netty-tcnative*
 2.0.x 계열이므로 Netty core 버전과 비교하지 않는다. Netty 4.1.136 BOM은 core artifact에
 project version을 사용하고 tcnative에는 별도 `tcnative.version`을 사용한다
 ([공식 BOM POM](https://raw.githubusercontent.com/netty/netty/netty-4.1.136.Final/bom/pom.xml)).
+
+## Issue #1831: 최종 POM 산출물에서 정규화한다 (2026-10-15)
+
+### 맥락
+
+root `build.gradle.kts`와 BuildSrc의 `configurePublishingSigning` 경로에
+`dependencyManagement` 정규화가 각각 있었다. Maven POM XML callback이 끝난 뒤에도
+dependency-management plugin이 항목을 추가할 수 있으므로, callback에서 정리한 결과만으로는
+최종 POM의 중복과 충돌을 보장할 수 없다. 기존 fixture는 모든 기여자를 helper 설정 전에
+등록해 이 실행 순서 차이를 드러내지 못했다. #1831의 독립 리뷰에서 이 공백을 확인했다.
+
+### 결정
+
+정규화 경로를 최종 `GenerateMavenPom` 후처리 action으로 단일화한다. root의 중복
+`pom.withXml` callback은 제거하고, BuildSrc가 모든 기여가 반영된 파일을 다시 읽어 중복을
+정리하거나 의미가 다른 같은 좌표를 실패시킨다.
+
+회귀 fixture는 기본 POM 기여자를 등록하고 `configurePublishingSigning`을 호출한 다음,
+두 번째 `pom.withXml` 기여자를 등록한다. 실제 `GenerateMavenPom` action을 실행한 파일에서
+늦게 추가한 동일 항목이 첫 등장 순서만 남기는지, 같은 좌표에 exclusions가 다르면 충돌로
+실패하는지 확인한다. callback 등록 순서나 helper 호출만 검사하는 테스트는 최종 산출물의
+계약을 증명하지 못한다.
+
+### 결과와 검증
+
+`:buildSrc:test`를 필수 CI에 추가하고 Nightly 표준·전체 실행에서 실행한다. `run_standard`
+출력이 `false`인 smoke 실행은 이 단계를 건너뛴다. 로컬 BuildSrc 전체 테스트는 다음 명령으로
+실행해 37개 테스트가 실패·오류·건너뜀 없이 통과했다.
+
+```bash
+./gradlew :buildSrc:cleanTest :buildSrc:test --no-configuration-cache --no-daemon --no-build-cache --console=plain
+```
+
+핵심 회귀 테스트의 결과는
+`buildSrc/build/test-results/test/TEST-io.bluetape4k.gradle.PublishingSigningSupportTest.xml`에
+기록된다. 수정 workflow 두 개도 다음 명령으로 검사했다.
+
+```bash
+actionlint .github/workflows/ci.yml .github/workflows/nightly-tests.yml
+```
+
+이 검증은 로컬 결과이며 원격 CI 실행을 뜻하지 않는다.
+
+### 향후 지침
+
+- `dependencyManagement` 정규화는 최종 `GenerateMavenPom` 파일에서 한 번만 수행한다.
+- 회귀 fixture는 production callback 뒤에 새 기여자를 등록하고 실제 task 출력에서 결과를
+  확인한다. 동일 항목은 첫 등장 순서를 보존하고, exclusions나 다른 의미가 다르면 조용히
+  삭제하지 않고 실패시킨다.
