@@ -358,6 +358,11 @@ jobs:
           gradle-version: wrapper
           cache-read-only: ${{ github.event_name == 'pull_request' }}
 
+      - name: Test BuildSrc
+        run: ./gradlew :buildSrc:test --no-daemon --no-configuration-cache --no-build-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
       - name: Build (compile only)
         run: |
           for attempt in 1 2 3; do

@@ -306,6 +306,12 @@ jobs:
           gradle-version: wrapper
           cache-read-only: false
 
+      - name: Test BuildSrc (standard and full runs)
+        if: ${{ needs.plan.outputs.run_standard == 'true' }}
+        run: ./gradlew :buildSrc:test --no-daemon --no-configuration-cache --no-build-cache
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
       - name: Build (compile only, excluding examples and benchmarks)
         shell: bash
         run: |

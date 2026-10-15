@@ -190,6 +190,55 @@ class PublishingSigningSupportTest {
     }
 
     @Test
+    fun `최종 GenerateMavenPom 산출물은 첫 등장 순서대로 중복 항목을 정리한다`() {
+        val destination = generatePomWithManagedDependencies(
+            ManagedDependencyFixture(version = "4.1.139.Final"),
+            ManagedDependencyFixture(
+                version = "2.2.0",
+                groupId = "org.jetbrains.kotlin",
+                artifactId = "kotlin-bom",
+            ),
+            lateFixtures = listOf(ManagedDependencyFixture(version = "4.1.139.Final")),
+        )
+        try {
+            val pom = XmlParser(false, false).parse(destination)
+
+            assertEquals(
+                listOf("netty-bom", "kotlin-bom"),
+                managedDependencies(pom).map { dependency ->
+                    dependency.children().filterIsInstance<Node>()
+                        .first { it.name().toString() == "artifactId" }
+                        .text()
+                        .trim()
+                },
+            )
+        } finally {
+            assertTrue(destination.delete(), "합성 POM을 정리해야 한다")
+        }
+    }
+
+    @Test
+    fun `최종 GenerateMavenPom 산출물은 서로 다른 exclusions를 가진 같은 좌표를 거부한다`() {
+        val failure = assertFailsWith<GradleException> {
+            generatePomWithManagedDependencies(
+                ManagedDependencyFixture(
+                    version = "4.1.139.Final",
+                    exclusions = listOf("com.example" to "excluded-one"),
+                ),
+                lateFixtures = listOf(
+                    ManagedDependencyFixture(
+                        version = "4.1.139.Final",
+                        exclusions = listOf("com.example" to "excluded-two"),
+                    ),
+                ),
+            )
+        }
+
+        assertTrue(failure.message.orEmpty().contains("io.netty:netty-bom@pom"))
+        assertTrue(failure.message.orEmpty().contains("conflicting dependencyManagement entries"))
+    }
+
+    @Test
     fun `최종 GenerateMavenPom 산출물의 충돌하는 관리 항목을 거부한다`() {
         val failure = assertFailsWith<GradleException> {
             generatePomWithNettyBoms("4.1.139.Final", "4.2.19.Final")
@@ -262,7 +311,22 @@ class PublishingSigningSupportTest {
         return pom
     }
 
-    private fun generatePomWithNettyBoms(vararg versions: String): java.io.File {
+    private data class ManagedDependencyFixture(
+        val version: String,
+        val groupId: String = "io.netty",
+        val artifactId: String = "netty-bom",
+        val exclusions: List<Pair<String, String>> = emptyList(),
+    )
+
+    private fun generatePomWithNettyBoms(vararg versions: String): java.io.File =
+        generatePomWithManagedDependencies(
+            *versions.map { version -> ManagedDependencyFixture(version = version) }.toTypedArray(),
+        )
+
+    private fun generatePomWithManagedDependencies(
+        vararg fixtures: ManagedDependencyFixture,
+        lateFixtures: List<ManagedDependencyFixture> = emptyList(),
+    ): java.io.File {
         val project = ProjectBuilder.builder().build()
         project.pluginManager.apply("maven-publish")
         project.pluginManager.apply("signing")
@@ -272,19 +336,14 @@ class PublishingSigningSupportTest {
         publication.artifactId = "publication"
         publication.version = "1.0"
         publication.pom.withXml {
-            val root = asNode()
-            val dependencyManagement = Node(root, "dependencyManagement")
-            val dependencies = Node(dependencyManagement, "dependencies")
-            versions.forEach { version ->
-                val dependency = Node(dependencies, "dependency")
-                Node(dependency, "groupId", "io.netty")
-                Node(dependency, "artifactId", "netty-bom")
-                Node(dependency, "version", version)
-                Node(dependency, "type", "pom")
-                Node(dependency, "scope", "import")
-            }
+            appendManagedDependencies(asNode(), fixtures.toList())
         }
         project.configurePublishingSigning("test")
+        if (lateFixtures.isNotEmpty()) {
+            publication.pom.withXml {
+                appendManagedDependencies(asNode(), lateFixtures)
+            }
+        }
 
         val destination = java.io.File.createTempFile("publishing-pom-", ".xml")
         try {
@@ -295,6 +354,31 @@ class PublishingSigningSupportTest {
         } catch (failure: Throwable) {
             destination.delete()
             throw failure
+        }
+    }
+
+    private fun appendManagedDependencies(root: Node, fixtures: List<ManagedDependencyFixture>) {
+        val dependencyManagement = root.children().filterIsInstance<Node>()
+            .firstOrNull { it.name().toString() == "dependencyManagement" }
+            ?: Node(root, "dependencyManagement")
+        val dependencies = dependencyManagement.children().filterIsInstance<Node>()
+            .firstOrNull { it.name().toString() == "dependencies" }
+            ?: Node(dependencyManagement, "dependencies")
+        fixtures.forEach { fixture ->
+            val dependency = Node(dependencies, "dependency")
+            Node(dependency, "groupId", fixture.groupId)
+            Node(dependency, "artifactId", fixture.artifactId)
+            Node(dependency, "version", fixture.version)
+            Node(dependency, "type", "pom")
+            Node(dependency, "scope", "import")
+            if (fixture.exclusions.isNotEmpty()) {
+                val exclusions = Node(dependency, "exclusions")
+                fixture.exclusions.forEach { (groupId, artifactId) ->
+                    val exclusion = Node(exclusions, "exclusion")
+                    Node(exclusion, "groupId", groupId)
+                    Node(exclusion, "artifactId", artifactId)
+                }
+            }
         }
     }
 
