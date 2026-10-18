@@ -1,7 +1,19 @@
 version: 2
-# Gradle/Maven library version updates are centralized in bluetape4k-dependencies.
-# Leaf repositories keep Dependabot only for GitHub Actions updates.
+# Gradle/Maven 라이브러리 버전은 `bluetape4k-dependencies`에서 중앙 관리한다.
+# Projects는 빌드 시 해당 저장소의 고정 `bt4k` version catalog를 읽는다.
+# `open-pull-requests-limit: 0`은 정기 버전 업데이트 PR을 끄고 보안 업데이트는 허용한다.
+# 이 설정에서는 생성기가 중앙 `ignore` 규칙을 넣지 않아 보안 업데이트가 차단되지 않게 한다.
+# 제출된 의존성 그래프와 경고는 별도로 검증하며, 중앙 catalog 변경은 하위 저장소에 전파한다.
 updates:
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "Asia/Seoul"
+    # bluetape4k-dependabot-security-updates: enabled
+    open-pull-requests-limit: 0
   - package-ecosystem: "github-actions"
     directory: "/"
     target-branch: "develop"
