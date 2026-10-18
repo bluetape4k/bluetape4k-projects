@@ -14,13 +14,13 @@ Projects는 `settings.gradle.kts`에서 `bluetape4k-dependencies`의 고정 comm
 
 - Dependency Submission workflow는 변경하지 않는다. 제출 실행이 성공했고 artifact에 실패 좌표가 들어 있음을 확인했다.
 - Projects의 Dependabot 설정에 Gradle 항목을 두고 `open-pull-requests-limit: 0`으로 정기 버전 업데이트 PR을 막는다. security update를 위해 `target-branch`는 설정하지 않는다.
-- `open-pull-requests-limit: 0`은 일반 버전 업데이트를 끄지만 보안 업데이트는 허용한다. 생성기는 이 설정의 Gradle 항목에 중앙 `ignore` 블록을 넣지 않고, 생성된 블록만 제거하며 수동 ignore는 보존한다.
+- `open-pull-requests-limit: 0`은 일반 버전 업데이트를 끄지만 보안 업데이트는 허용한다. Projects는 Gradle 항목에 `bluetape4k-dependabot-security-updates: enabled` 주석 marker를 명시해 중앙 `ignore` 블록을 생략한다. marker가 없는 다른 저장소의 zero-limit 설정은 기존 생성 규칙을 유지하며, opt-in 설정에서도 수동 ignore는 보존한다.
 - 버전 업데이트 PR이 켜진 다른 downstream 설정에는 중앙 ignore 규칙이 계속 적용된다. 해당 규칙은 일치하는 보안 업데이트도 억제할 수 있으므로, 중앙 catalog를 갱신한 뒤 고정 참조를 하위 저장소에 전파하고 alert 상태를 따로 확인한다.
 - Ignore는 취약점을 수정하거나 제출한 의존성 그래프를 바꾸지 않는다. Projects 설정 변경만으로 `dependency_not_found`가 해결됐다고 보고하지 않는다.
 
 ## 결과와 검증
 
-- RabbitMQ 좌표는 중앙 저장소 생성 규칙에 포함된다. 새로운 생성기는 버전 업데이트 PR을 받는 downstream에는 중앙 ignore를 유지하고, `open-pull-requests-limit: 0`인 Projects에는 생성하지 않는다.
+- RabbitMQ 좌표는 중앙 저장소 생성 규칙에 포함된다. 새 생성기는 marker가 있는 Projects Gradle 항목에서만 중앙 ignore를 생략하고, Exposed를 포함한 marker 없는 downstream에는 기존 중앙 ignore를 유지한다.
 - 초기 조사 시점의 alert 31건에서 확인한 고유 패키지 좌표 10개가 당시 Projects ignore 목록에 포함됐다. 이는 당시 차단 범위만 증명하며 alert 해소를 의미하지 않는다.
 - 로컬 검증에서는 생성기 단위 테스트, Projects 설정과 생성기 출력의 parity, YAML parse, `git diff --check`를 확인한다. 이 검증은 GitHub Dependabot이 보안 PR을 만들거나 원래 실행 오류가 사라졌음을 증명하지 않는다.
 - 이슈 #1832는 설정 변경 이후 Dependabot security update 실행이 `dependency_not_found` 없이 끝나는지 확인할 때까지 열린 상태로 둔다. 열린 보안 alert의 실제 수정 여부도 별도로 확인한다.
