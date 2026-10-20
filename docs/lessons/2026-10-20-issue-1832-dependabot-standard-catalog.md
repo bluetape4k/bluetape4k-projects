@@ -67,7 +67,15 @@ Ubuntu 22.04 runner 계열은 2026-09-17부터 deprecation 단계에 들어갔�
 
 ## 전달 경계
 
-이 절을 보강한 시점에 PR #1838의 원격 head는 `47cd8034d20366f7e5e1cff9a708f6c6f153483b`였고, 첫 번째 exact-head 보완 run `39412396158`은 아직 진행 중이었다. 새 first-party checkout pin은 아직 원격에 없어서 해당 run과 이전 PR run 어느 것도 최종 검증으로 간주하지 않는다. 새 commit push 후 exact-head CI와 독립 리뷰를 다시 확인해야 한다. merge 후 exact-SHA Dependency Submission과 실제 hosted Dependabot 재실행으로 alert #235를 확인하기 전까지 Issue #1832를 열어 두고 보안 문제가 해결됐다고 보고하지 않는다.
+마지막으로 확인한 Projects 원격 PR head는 `18b67202fdc870ab5c2baab40fca756f115f6052`다. 이 문서와 workflow 보완은 해당 commit 위의 로컬 미커밋 변경이므로 이전 CI나 review가 새 코드를 증명하지 않는다. 변경을 push한 뒤 새 exact-head CI와 독립 리뷰를 확인한다. CI의 제품 job은 PR head를 테스트하고, 별도 merge-result job은 GitHub의 synthetic merge commit에서 workflow contract만 실행한다. 이 두 결과는 서로 다른 범위다. GitHub는 `pull_request` 이벤트의 `github.sha`를 merge branch의 merge commit으로 정의한다([공식 문서](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)). merge 후 exact-SHA Dependency Submission과 실제 hosted Dependabot 재실행으로 alert #235를 확인하기 전까지 Issue #1832를 열어 두고 보안 문제가 해결됐다고 보고하지 않는다.
+
+## Workflow validator가 놓친 checkout 경계
+
+원격 HEAD `18b67202fdc870ab5c2baab40fca756f115f6052`를 본 독립 리뷰는 verifier가 `repository:`가 있는 모든 checkout을 건너뛰어 명시적인 Projects 저장소 checkout이 `PROJECTS_EXPECTED_SHA` 검사를 우회할 수 있다고 지적했다(P2). architecture review는 checkout 탐지가 `actions/checkout@v7`만 인식해 다른 action major의 누락을 놓칠 수 있고, 허용된 외부 repository/ref 조합을 완전히 고정하지 않은 점도 지적했다. 같은 review에서 PR synthetic merge result 검증 job과 `dorny/paths-filter@v4`에 필요한 `pull-requests: read` 권한이 빠진 점, Test/Data runner 규칙에 독립 negative test가 없는 점도 확인했다.
+
+보완 후보는 모든 `actions/checkout@...`을 찾고, repository가 생략됐거나 `bluetape4k/bluetape4k-projects` 또는 `${{ github.repository }}`인 경우 first-party checkout으로 분류해 `PROJECTS_EXPECTED_SHA`를 요구한다. 나머지 external checkout은 job, repository, ref, path의 allowlist와 전체 inventory에 맞아야 한다. 이 계약을 지키지 않는 first-party/ref/외부 checkout 테스트를 추가했다. `changes` job에는 `contents: read`와 `pull-requests: read`를 주고, PR event에서 `github.sha`를 checkout해 head와 base가 포함됐는지 확인한 뒤 workflow contract만 실행하는 `test-merge-result` job을 추가했다. 이 권한은 [dorny/paths-filter 공식 README](https://github.com/dorny/paths-filter)가 PR 파일 조회에 요구한다. Test/Data의 `ubuntu-latest` 금지 규칙도 별도 negative test로 고정했다.
+
+구현 전 RED 결과는 28개 테스트 중 7개 실패였다. 구현 후 로컬 contract suite는 30/30 PASS이며 verifier와 `actionlint`, `ruff check`, Python compile, `git diff --check`가 통과했다. `ruff format --check`는 현재 HEAD에서도 두 파일이 실패해 이번 변경으로 생긴 포맷 회귀는 아니다. 새 변경은 아직 push되지 않아 hosted exact-head CI와 새 SHA의 독립 재리뷰는 미확인이다. 작은 merge-result contract job은 product test suite를 synthetic merge commit에서 실행하지 않으므로, 제품 job의 exact-head 결과를 대체하지 않는다.
 
 ## Writer DoD
 
@@ -80,3 +88,5 @@ Ubuntu 22.04 runner 계열은 2026-09-17부터 deprecation 단계에 들어갔�
 | SPW-05 최종 read-back 및 workflow DoD 기록 | PASS |
 | KO-01..KO-06 사실·문체·용어·표·링크 점검 | PASS |
 | KO-07 contextual terminology audit | PASS, 수정 lesson findings `0`; 계획·testlog는 앞선 검토에서 findings `0` |
+
+**후속 갱신 writer DoD (2026-10-20 20:42 KST):** 한국어 구현 계획과 lesson에 최신 local review finding, 30/30 contract 결과, 아직 push 전인 상태, exact-head CI·fresh review 대기를 추가했다. SPW-01–05와 KO-01–07을 각 문서에 독립 적용했다. 기존 이슈·commit·run 식별자를 보존하고 새 verifier 계약과 CI 증거를 코드·테스트와 대조했다. 두 문서를 마지막으로 읽고 audit 결과 `findings=[]`를 확인했다. `ruff format --check`가 현재 HEAD에서도 실패하는 것은 코드 포맷 검사 범위이며 lesson에 명시했다. 새 원격 CI와 재리뷰는 미확인 상태로 남겼다.
