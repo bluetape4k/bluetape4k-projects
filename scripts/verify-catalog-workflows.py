@@ -33,6 +33,59 @@ EXPECTED_MERGE_RESULT_VERIFY_SCRIPT = (
     'echo "pr base=$PR_BASE_SHA"',
     'echo "merge result=$merge_result_sha"',
 )
+EXPECTED_DEPENDABOT_PARSER_CONTRACT_SCRIPT = (
+    "set -euo pipefail",
+    'mkdir -p "$(dirname "$OUTPUT_PATH")"',
+    'test "$(git -C "$DEPENDABOT_CORE_ROOT" rev-parse HEAD)" = "${{ steps.dependabot-pin.outputs.commit }}"',
+    "bundle exec ruby .gradle/catalog-source/bluetape4k-dependencies/tests/fixtures/project-dependabot-catalog/dependabot-parser-contract.rb",
+)
+EXPECTED_CATALOG_VERIFICATION_COMMANDS = (
+    "set -euo pipefail",
+    "python3.13 .gradle/catalog-source/bluetape4k-dependencies/scripts/project-dependabot-catalog.py \\",
+    "--check",
+    "python3.13 -m unittest tests.test_catalog_workflows",
+    "python3.13 scripts/verify-catalog-workflows.py",
+)
+EXPECTED_CI_STATUS_SCRIPT = (
+    'echo "Job results: $RESULTS"',
+    'if [[ "$CATALOG_GOVERNANCE_RESULT" != "success" ]]; then',
+    'echo "Catalog governance must succeed; got $CATALOG_GOVERNANCE_RESULT"',
+    "exit 1",
+    "fi",
+    'if [[ "$EVENT_NAME" == "pull_request" && "$MERGE_RESULT_RESULT" != "success" ]]; then',
+    'echo "PR merge-result contract must succeed; got $MERGE_RESULT_RESULT"',
+    "exit 1",
+    "fi",
+    'if echo "$RESULTS" | grep -qE "failure|cancelled"; then',
+    'echo "CI failed"',
+    "exit 1",
+    "fi",
+    'if [[ "$SPRING_BOOT_CHANGED" == "true" && "$SPRING_BOOT_RESULT" == "skipped" ]]; then',
+    'echo "Spring Boot changes were detected but the Spring Boot test job was skipped"',
+    "exit 1",
+    "fi",
+    'if [[ "$SCIENCE_CHANGED" == "true" && "$SCIENCE_RESULT" == "skipped" ]]; then',
+    'echo "Science changes were detected but the Science test job was skipped"',
+    "exit 1",
+    "fi",
+    'if [[ "$MEASURED_CHANGED" == "true" && "$MEASURED_RESULT" == "skipped" ]]; then',
+    'echo "Measured changes were detected but the Measured test job was skipped"',
+    "exit 1",
+    "fi",
+    'echo "CI passed; conditional jobs may be skipped when their change scope is empty"',
+)
+EXPECTED_DEPENDENCY_SUBMISSION_VERIFY_SCRIPT = (
+    "set -euo pipefail",
+    'CHECKOUT_SHA="$(git rev-parse HEAD)"',
+    'test "$CHECKOUT_SHA" = "$GITHUB_SHA"',
+    'test "$CHECKOUT_SHA" = "$EXPECTED_SHA"',
+    'echo "run_head_sha=$GITHUB_SHA"',
+    'echo "submission_graph_commit_sha=$CHECKOUT_SHA"',
+    "{",
+    'echo "run_head_sha: \\`$GITHUB_SHA\\`"',
+    'echo "submission_graph_commit_sha: \\`$CHECKOUT_SHA\\`"',
+    '} >> "$GITHUB_STEP_SUMMARY"',
+)
 YAML_ACTION_ALIAS_RE = re.compile(
     r"(?m)^ {6}- (?:uses|\"uses\"|'uses')\s*:\s*[*&][A-Za-z_][A-Za-z0-9_-]*"
     r"|^ {8}(?:uses|\"uses\"|'uses')\s*:\s*[*&][A-Za-z_][A-Za-z0-9_-]*"
@@ -40,6 +93,9 @@ YAML_ACTION_ALIAS_RE = re.compile(
 )
 YAML_ESCAPED_KEY_RE = re.compile(
     r"""(?m)^\s*(?:-\s+)?(?:"[^"\n]*\\[^"\n]*"|'[^'\n]*\\[^'\n]*')\s*:"""
+)
+YAML_ESCAPED_ACTION_VALUE_RE = re.compile(
+    r"""(?m)^\s*(?:-\s*)?(?:uses|"uses"|'uses')\s*:\s*(?:"[^"\n]*\\[^"\n]*"|'[^'\n]*\\[^'\n]*')\s*(?:#.*)?$"""
 )
 YAML_SIMPLE_KEY_RE = (
     r"(?:[A-Za-z_][A-Za-z0-9_-]*|\"[A-Za-z_][A-Za-z0-9_-]*\"|'[A-Za-z_][A-Za-z0-9_-]*')"
@@ -120,12 +176,19 @@ def _workflow_env(text: str, name: str) -> str | None:
     return values[0] if len(values) == 1 else None
 
 
+def _yaml_scalar_value(value: str) -> str:
+    value = value.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+        return value[1:-1]
+    return value
+
+
 def _workflow_env_values(text: str, name: str) -> list[str]:
     values: list[str] = []
     key = _yaml_key_pattern(name)
     for env in _top_level_blocks(text, "env"):
         values.extend(
-            value.strip("'\"")
+            _yaml_scalar_value(value)
             for value in re.findall(rf"(?m)^  {key}:\s*(.*?)\s*$", env)
         )
     return values
@@ -220,7 +283,7 @@ def _step_run_script(step: str) -> list[str] | None:
 def _indented_values(block: str, name: str, indent: int) -> list[str]:
     prefix = " " * indent
     return [
-        value.strip("'\"")
+        _yaml_scalar_value(value)
         for value in re.findall(
             rf"(?m)^{re.escape(prefix)}{_yaml_key_pattern(name)}:\s*(.*?)\s*$",
             block,
@@ -241,7 +304,7 @@ def _step_env_value(step: str, name: str) -> str | None:
                 rf"          {_yaml_key_pattern(name)}:\s*(.*?)\s*", entry
             )
             if match is not None:
-                values.append(match.group(1).strip("'\""))
+                values.append(_yaml_scalar_value(match.group(1)))
     return values[0] if len(values) == 1 else None
 
 
@@ -289,13 +352,16 @@ def _checkout_steps(text: str) -> list[tuple[str, str]]:
 
 
 def _step_values(step: str, name: str) -> list[str]:
-    return [
-        value.strip().strip("'\"")
-        for value in re.findall(
-            rf"(?m)^\s+(?:-\s+)?{_yaml_key_pattern(name)}:\s*([^\n#]+?)\s*$",
-            step,
+    values = []
+    for line in step.splitlines():
+        match = re.fullmatch(
+            rf"[ \t]+(?:-\s+)?{_yaml_key_pattern(name)}:[ \t]*(.*)", line
         )
-    ]
+        if match is None:
+            continue
+        value = _yaml_scalar_value(match.group(1).split(" #", maxsplit=1)[0])
+        values.append(value)
+    return values
 
 
 def _step_value(step: str, name: str) -> str | None:
@@ -303,17 +369,18 @@ def _step_value(step: str, name: str) -> str | None:
     return values[0] if len(values) == 1 else None
 
 
+def _named_step_index(job: str, name: str) -> int | None:
+    matches = [
+        index
+        for index, step in enumerate(_step_blocks(job))
+        if _step_value(step, "name") == name
+    ]
+    return matches[0] if len(matches) == 1 else None
+
+
 def _has_exact_governance_gate(status_job: str) -> bool:
-    return (
-        "CATALOG_GOVERNANCE_RESULT: ${{ needs.catalog-governance.result }}"
-        in status_job
-        and re.search(
-            r'if\s+\[\[\s+"\$CATALOG_GOVERNANCE_RESULT"\s+!=\s+"success"\s+\]\]'
-            r"\s*;?\s*then",
-            status_job,
-        )
-        is not None
-    )
+    check_step = _named_step_block(status_job, "Check all jobs")
+    return _step_run_script(check_step) == list(EXPECTED_CI_STATUS_SCRIPT)
 
 
 def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
@@ -321,6 +388,16 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     errors: list[str] = []
     if YAML_ESCAPED_KEY_RE.search(ci_text):
         errors.append("CI workflow must not use escaped YAML mapping keys")
+    if YAML_ESCAPED_ACTION_VALUE_RE.search(
+        ci_text
+    ) or YAML_ESCAPED_ACTION_VALUE_RE.search(submission_text):
+        errors.append("workflow action values must not use escaped YAML scalars")
+    if re.search(
+        r"(?<![A-Za-z0-9_-])(?:defaults|\"defaults\"|'defaults')\s*:", ci_text
+    ):
+        errors.append(
+            "CI workflow must not define run defaults that can replace the shell"
+        )
     if YAML_ACTION_ALIAS_RE.search(ci_text) or re.search(r"(?m)^\s*<<\s*:", ci_text):
         errors.append(
             "CI workflow must not use YAML anchors and aliases for Actions steps or environment mappings"
@@ -499,13 +576,61 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             not in governance
         ):
             errors.append("catalog-governance must verify the exact catalog tag object SHA")
-        parser_contract = governance.find("dependabot-parser-contract.rb")
-        catalog_check = governance.find(
-            "scripts/project-dependabot-catalog.py"
+        parser_step = _named_step_block(
+            governance, "Run pinned Dependabot Gradle parser contract"
         )
-        if parser_contract < 0 or catalog_check < 0 or parser_contract > catalog_check:
+        catalog_step = _named_step_block(
+            governance, "Verify generated catalog and parser contract"
+        )
+        parser_step_index = _named_step_index(
+            governance, "Run pinned Dependabot Gradle parser contract"
+        )
+        catalog_step_index = _named_step_index(
+            governance, "Verify generated catalog and parser contract"
+        )
+        if (
+            parser_step_index is None
+            or catalog_step_index is None
+            or parser_step_index >= catalog_step_index
+        ):
             errors.append(
                 "catalog-governance must create the pinned parser receipt before catalog check"
+            )
+        if _step_run_script(parser_step) != list(
+            EXPECTED_DEPENDABOT_PARSER_CONTRACT_SCRIPT
+        ):
+            errors.append(
+                "catalog-governance parser contract step must execute the pinned parser script"
+            )
+        if _indented_values(parser_step, "if", 8) or _indented_values(
+            parser_step, "continue-on-error", 8
+        ):
+            errors.append(
+                "catalog-governance parser contract step must run and fail closed"
+            )
+        catalog_script = _step_run_script(catalog_step)
+        catalog_command_positions = (
+            [
+                catalog_script.index(command)
+                for command in EXPECTED_CATALOG_VERIFICATION_COMMANDS
+            ]
+            if catalog_script is not None
+            and all(
+                command in catalog_script
+                for command in EXPECTED_CATALOG_VERIFICATION_COMMANDS
+            )
+            else []
+        )
+        if (
+            len(catalog_command_positions)
+            != len(EXPECTED_CATALOG_VERIFICATION_COMMANDS)
+            or catalog_command_positions != sorted(catalog_command_positions)
+            or len(set(catalog_command_positions)) != len(catalog_command_positions)
+            or _indented_values(catalog_step, "if", 8)
+            or _indented_values(catalog_step, "continue-on-error", 8)
+        ):
+            errors.append(
+                "catalog-governance must execute generated catalog verification and parser tests in its named step"
             )
 
     merge_result = _job_block(ci_text, MERGE_RESULT_JOB)
@@ -645,6 +770,13 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     status_job = _job_block(ci_text, "ci-status")
     if not status_job or not _has_exact_governance_gate(status_job):
         errors.append("ci-status must fail unless catalog-governance result is success")
+    if _indented_values(status_job, "if", 4) != ["always()"]:
+        errors.append("ci-status must run for every event with if: always()")
+    status_step = _named_step_block(status_job, "Check all jobs")
+    if _indented_values(status_step, "if", 8) or _indented_values(
+        status_step, "continue-on-error", 8
+    ):
+        errors.append("ci-status Check all jobs step must run and fail closed")
     if (
         "test-merge-result" not in status_job
         or "MERGE_RESULT_RESULT: ${{ needs.test-merge-result.result }}" not in status_job
@@ -673,22 +805,67 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     if not submission:
         errors.append("workflow must define dependency-submission")
     else:
-        checkout = submission.find("actions/checkout@")
-        head_verification = submission.find('test "$CHECKOUT_SHA" = "$GITHUB_SHA"')
-        graph_logging = submission.find("submission_graph_commit_sha=$CHECKOUT_SHA")
-        graph_action = submission.find("gradle/actions/dependency-submission@")
-        if "ref: ${{ github.sha }}" not in submission:
+        expected_step_names = (
+            "Checkout sources",
+            "Verify dependency submission commit",
+            "Setup Java",
+            "Generate and submit dependency graph",
+        )
+        submission_steps = _step_blocks(submission)
+        actual_step_names = tuple(
+            _step_value(step, "name") for step in submission_steps
+        )
+        if actual_step_names != expected_step_names:
+            errors.append(
+                "dependency-submission steps must preserve checkout, verification, setup, and submission order"
+            )
+
+        checkout_step = _named_step_block(submission, "Checkout sources")
+        verification_step = _named_step_block(
+            submission, "Verify dependency submission commit"
+        )
+        graph_step = _named_step_block(
+            submission, "Generate and submit dependency graph"
+        )
+        if _step_value(checkout_step, "uses") != (
+            "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
+        ):
+            errors.append("dependency-submission must use the pinned checkout action")
+        if _step_value(checkout_step, "ref") != "${{ github.sha }}":
             errors.append("dependency-submission checkout must pin ref to github.sha")
-        if checkout < 0 or head_verification < 0 or checkout > head_verification:
+        if _step_run_script(verification_step) != list(
+            EXPECTED_DEPENDENCY_SUBMISSION_VERIFY_SCRIPT
+        ):
             errors.append(
-                "dependency-submission must verify checkout HEAD against GITHUB_SHA"
+                "dependency-submission must verify checkout HEAD against GITHUB_SHA and EXPECTED_SHA and log both commit SHAs before submission"
             )
-        if graph_logging < 0 or graph_action < 0 or graph_logging > graph_action:
+        if _step_env_block(verification_step) != [
+            "        env:",
+            "          EXPECTED_SHA: ${{ github.sha }}",
+        ]:
             errors.append(
-                "dependency-submission must log run and graph commit SHAs before submission"
+                "dependency-submission verification step must bind EXPECTED_SHA to github.sha"
             )
-        if "run_head_sha=$GITHUB_SHA" not in submission:
-            errors.append("dependency-submission must log run_head_sha")
+        if _indented_values(verification_step, "if", 8) or _indented_values(
+            verification_step, "continue-on-error", 8
+        ):
+            errors.append(
+                "dependency-submission verification step must run and fail closed"
+            )
+        if _step_value(graph_step, "uses") != (
+            "gradle/actions/dependency-submission@3f5f9adaf7d9fecd50b5935e54106014257a94e6"
+        ):
+            errors.append("dependency-submission must use the pinned graph action")
+        if _indented_values(graph_step, "if", 8) or _indented_values(
+            graph_step, "continue-on-error", 8
+        ):
+            errors.append("dependency graph submission step must run and fail closed")
+        if _indented_values(submission, "if", 4) != [
+            "github.event_name == 'push' || github.ref == 'refs/heads/develop'"
+        ]:
+            errors.append(
+                "dependency-submission job must stay scoped to pushes and dispatches on develop"
+            )
 
     return errors
 

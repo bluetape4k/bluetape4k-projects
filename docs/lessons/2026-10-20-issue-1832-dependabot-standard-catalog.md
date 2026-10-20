@@ -128,3 +128,13 @@ PR #1838의 exact head `a702d7f1b2573a8d03ca7e7382d780a99d28528d`를 본 독립 
 **후속 갱신 writer DoD (2026-10-20 20:42 KST):** 한국어 구현 계획과 lesson에 최신 local review finding, 30/30 contract 결과, 아직 push 전인 상태, exact-head CI·fresh review 대기를 추가했다. SPW-01–05와 KO-01–07을 각 문서에 독립 적용했다. 기존 이슈·commit·run 식별자를 보존하고 새 verifier 계약과 CI 증거를 코드·테스트와 대조했다. 두 문서를 마지막으로 읽고 audit 결과 `findings=[]`를 확인했다. `ruff format --check`가 현재 HEAD에서도 실패하는 것은 코드 포맷 검사 범위이며 lesson에 명시했다. 새 원격 CI와 재리뷰는 미확인 상태로 남겼다.
 
 **후속 lesson writer DoD (2026-10-20):** SPW-01 PASS—독자와 source ledger를 고정했다. SPW-02 PASS—context, root cause, decision, outcome, verification, miss, future guard를 연결했다. SPW-03 PASS—Korean naturalness 기준을 적용했다. SPW-04 PASS—독립 review finding, verifier diff, 13개 RED/GREEN 변형, 41/41 결과, old-head CI의 제한을 대조했다. SPW-05 PASS—최종 read-back을 마쳤다. KO-01–KO-06 PASS; KO-07 PASS, 세 변경 문서 term audit `findings=[]`.
+
+## 최신 워크플로 검토에서 발견한 필수 게이트 우회
+
+2026-10-21 독립 `code-reviewer`는 PR head `1a537ec61fd03e285652ab3f34ff16639507dcb4`에서 P1 5건과 P2 1건을 보고했다. 이스케이프된 `uses` scalar, flow 형식 `defaults.run.shell`, 주석으로 대체된 `ci-status` gate, PR에서 건너뛸 수 있는 `ci-status` job, dependency graph 제출과 SHA 검사 순서, 주석 처리된 Dependabot parser 명령이 대상이었다. 여섯 변형 모두 당시 검증기와 actionlint를 통과했다.
+
+각 변형을 위한 테스트를 먼저 추가했고, 기존 검증기에서 6/6 RED를 확인했다. 수정은 이스케이프된 action scalar와 셸 기본값을 거부하고, 이름이 고정된 step의 실제 스크립트, job 조건, 제출 순서 및 SHA 계약을 검사한다. 로컬 후보에서 워크플로 계약 테스트 59/59, 검증기, Ruff lint, Python compile, 두 workflow의 actionlint, `git diff --check`가 통과했다. 상세 발견 사항과 대응은 [PR #1838 워크플로 검증기 리뷰](../reviews/2026-10-21-pr-1838-workflow-verifier-review.md)에 남겼다.
+
+이후 완료로 확인한 run `39458442605`는 `1a537ec`에서 28/28 성공했지만 위 수정 전의 head를 대상으로 한다. 현재 수정의 PR head 기준 GitHub CI와 새 독립 리뷰는 push 이후 확인해야 한다. Dependency Submission과 실제 Dependabot 재실행은 승인된 merge 이후 별도 검증으로 남는다.
+
+**후속 lesson writer DoD (2026-10-21):** SPW-01 PASS—독자는 워크플로 검증기 유지보수자이며, 대상 PR/head, 독립 리뷰, 회귀 테스트, CI run을 근거로 고정했다. SPW-02 PASS—새 P1/P2 발견 사항, 원인, 대응, 검증과 남은 게이트를 추가했다. SPW-03 PASS—자연스러운 한국어 기술 문장과 동일한 용어를 확인했다. SPW-04 PASS—리뷰 결과, 테스트 출력, GitHub Actions run을 서로 다른 head와 범위로 대조했다. SPW-05 PASS—최종 read-back 완료; 현재 수정의 원격 CI·재리뷰와 merge 후 실행은 PENDING이다. KO-01–KO-07 PASS—코드 토큰과 수치를 보존하고 terminology audit을 실행했다.
