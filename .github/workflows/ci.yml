@@ -341,6 +341,7 @@ jobs:
           bundler-cache: true
       - name: Run pinned Dependabot Gradle parser contract
         env:
+          BUNDLE_GEMFILE: ${{ github.workspace }}/.gradle/dependabot-core/Gemfile
           DEPENDABOT_CORE_ROOT: ${{ github.workspace }}/.gradle/dependabot-core
           MAPPING_PATH: ${{ github.workspace }}/.gradle/catalog-source/bluetape4k-dependencies/config/projects-dependabot-catalog.toml
           GENERATED_CATALOG_PATH: ${{ github.workspace }}/gradle/libs.versions.toml
@@ -349,7 +350,7 @@ jobs:
           set -euo pipefail
           mkdir -p "$(dirname "$OUTPUT_PATH")"
           test "$(git -C "$DEPENDABOT_CORE_ROOT" rev-parse HEAD)" = "${{ steps.dependabot-pin.outputs.commit }}"
-          ruby .gradle/catalog-source/bluetape4k-dependencies/tests/fixtures/project-dependabot-catalog/dependabot-parser-contract.rb
+          bundle exec ruby .gradle/catalog-source/bluetape4k-dependencies/tests/fixtures/project-dependabot-catalog/dependabot-parser-contract.rb
       - name: Verify generated catalog and parser contract
         run: |
           set -euo pipefail
