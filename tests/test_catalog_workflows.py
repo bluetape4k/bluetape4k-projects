@@ -1107,6 +1107,122 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
         self.assertTrue(any("checkout HEAD" in error for error in errors), errors)
 
+    def test_rejects_escaped_checkout_action_value_with_compensating_checkout(
+        self,
+    ) -> None:
+        invalid = self.ci.replace(
+            "      - uses: actions/checkout@v7\n",
+            '      - uses: "actions/checkout\\u0040v7"\n',
+            1,
+        )
+        status_job = verifier._job_block(invalid, "ci-status")
+        invalid_status_job = status_job.replace(
+            "      - name: Check all jobs\n",
+            "      - uses: actions/checkout@v7\n"
+            "        with:\n"
+            "          ref: ${{ env.PROJECTS_EXPECTED_SHA }}\n"
+            "      - name: Check all jobs\n",
+            1,
+        )
+        invalid = invalid.replace(status_job, invalid_status_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("escaped YAML scalars" in error for error in errors), errors
+        )
+
+    def test_rejects_flow_style_defaults_that_override_run_shell(self) -> None:
+        invalid = self.ci.replace(
+            "jobs:\n",
+            "defaults: {run: {shell: 'bash -c \"true\" -- {0}'}}\n\njobs:\n",
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("defaults" in error for error in errors), errors)
+
+    def test_rejects_commented_out_ci_status_governance_gate(self) -> None:
+        invalid = self.ci.replace(
+            '          if [[ "$CATALOG_GOVERNANCE_RESULT" != "success" ]]; then\n'
+            '            echo "Catalog governance must succeed; got $CATALOG_GOVERNANCE_RESULT"\n'
+            "            exit 1\n"
+            "          fi",
+            '          # if [[ "$CATALOG_GOVERNANCE_RESULT" != "success" ]]; then\n'
+            '          #   echo "Catalog governance must succeed; got $CATALOG_GOVERNANCE_RESULT"\n'
+            "          #   exit 1\n"
+            "          # fi",
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any(
+                "ci-status must fail unless catalog-governance" in error
+                for error in errors
+            ),
+            errors,
+        )
+
+    def test_rejects_ci_status_job_condition_that_skips_pull_requests(self) -> None:
+        status_job = verifier._job_block(self.ci, "ci-status")
+        invalid_status_job = status_job.replace(
+            "    if: always()",
+            "    if: ${{ github.event_name == 'workflow_dispatch' }}",
+            1,
+        )
+        invalid = self.ci.replace(status_job, invalid_status_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("ci-status must run for every event" in error for error in errors),
+            errors,
+        )
+
+    def test_rejects_submission_before_sha_verification_with_comment_decoys(
+        self,
+    ) -> None:
+        submission_job = verifier._job_block(self.submission, "dependency-submission")
+        verification_step = verifier._named_step_block(
+            submission_job, "Verify dependency submission commit"
+        )
+        graph_step = verifier._named_step_block(
+            submission_job, "Generate and submit dependency graph"
+        )
+        invalid_job = submission_job.replace(graph_step, "", 1).replace(
+            verification_step,
+            '      # test "$CHECKOUT_SHA" = "$GITHUB_SHA"\n'
+            "      # submission_graph_commit_sha=$CHECKOUT_SHA\n"
+            f"{graph_step}\n"
+            f"{verification_step}",
+            1,
+        )
+        invalid = self.submission.replace(submission_job, invalid_job, 1)
+
+        errors = verifier.validate_workflows(self.ci, invalid)
+
+        self.assertTrue(
+            any("steps must preserve checkout" in error for error in errors),
+            errors,
+        )
+
+    def test_rejects_parser_contract_command_that_is_only_a_comment(self) -> None:
+        command = (
+            "bundle exec ruby .gradle/catalog-source/bluetape4k-dependencies/"
+            "tests/fixtures/project-dependabot-catalog/dependabot-parser-contract.rb"
+        )
+        invalid = self.ci.replace(f"          {command}", f"          # {command}", 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("parser contract step must execute" in error for error in errors),
+            errors,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
