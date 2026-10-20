@@ -48,6 +48,34 @@ class CatalogWorkflowsTest(unittest.TestCase):
         self.assertIn("dependabot_core_commit", governance)
         self.assertIn("parser-receipt.json", governance)
 
+    def test_gradle_catalog_tag_resolves_with_its_pinned_commit(self) -> None:
+        settings = (ROOT / "settings.gradle.kts").read_text()
+
+        required_contract = [
+            'providers.gradleProperty("bluetape4kDependenciesCatalogSha")',
+            'providers.environmentVariable("BLUETAPE4K_DEPENDENCIES_CATALOG_SHA")',
+            'Regex("catalog/[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}")',
+            'val bluetape4kDependenciesCatalogCacheKey = bluetape4kDependenciesCatalogSha',
+            '"https://raw.githubusercontent.com/bluetape4k/bluetape4k-dependencies/$bluetape4kDependenciesCatalogSha/gradle"',
+        ]
+        missing_contract = [
+            contract for contract in required_contract if contract not in settings
+        ]
+
+        self.assertEqual(missing_contract, [])
+
+    def test_parser_contract_runs_inside_pinned_dependabot_bundle(self) -> None:
+        governance = verifier._job_block(self.ci, "catalog-governance")
+
+        self.assertIn(
+            "BUNDLE_GEMFILE: ${{ github.workspace }}/.gradle/dependabot-core/Gemfile",
+            governance,
+        )
+        self.assertIn(
+            "bundle exec ruby .gradle/catalog-source/bluetape4k-dependencies/tests/fixtures/project-dependabot-catalog/dependabot-parser-contract.rb",
+            governance,
+        )
+
     def test_dokka_freemarker_uses_central_patched_version(self) -> None:
         build_gradle = (ROOT / "build.gradle.kts").read_text()
 
