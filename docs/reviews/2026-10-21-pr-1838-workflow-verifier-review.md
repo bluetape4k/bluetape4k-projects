@@ -48,6 +48,16 @@ Hosted CI run `39458442605`는 PR head `1a537ec...`에서 28/28 job이 성공했
 
 새 exact-head CI, 재리뷰와 merge 후 실제 보안 업데이트 결과가 확인될 때까지 Issue #1832와 alert #235를 해결된 것으로 처리하지 않는다.
 
+## Inline follow-up: catalog 검증 스크립트의 조기 종료 우회
+
+후속 정적 검토에서 verifier가 catalog 검증 step의 필수 명령들이 순서대로 들어 있는지만 확인하고, step의 전체 실행 본문은 고정하지 않는 점을 발견했다. `set -euo pipefail` 뒤에 `exit 0`을 추가하면 catalog 생성·검사·회귀 테스트를 건너뛰고도 검증기가 통과했다. 이는 P1 게이트 우회였다.
+
+`test_rejects_exit_before_catalog_verification_commands` 회귀 테스트를 먼저 추가했다. 수정 전 `validate_workflows()`가 오류 없는 결과를 반환해 RED였고, 수정 후 기대한 오류가 나와 GREEN이 됐다. 검증기는 이제 catalog verification step의 전체 스크립트를 고정하며, 추가 명령이나 조기 종료를 허용하지 않는다. 전체 workflow contract 60개, verifier, Ruff, Python compile, actionlint, `git diff --check`가 로컬에서 통과했다.
+
+이 inline follow-up은 verifier 변경 및 회귀 테스트의 T3/T4/T7 실행 계약만 검토한다. 이 patch는 Kotlin 제품 코드, 공개 API/ABI, 모듈 발행 계약을 바꾸지 않는다. Inline verdict: PASS; P0=0, P1=0.
+
+이 판정은 독립 리뷰가 아니다. 현재 최종 후보의 hosted exact-head CI와 새 독립 리뷰를 확인해야 merge 준비가 끝난다. 머지 승인 및 merge 후 Dependency Submission/hosted Dependabot 검증도 별도 DoD로 남아 있다.
+
 ## Writer DoD
 
 | Gate | 상태 | 근거 |
@@ -58,3 +68,5 @@ Hosted CI run `39458442605`는 PR head `1a537ec...`에서 28/28 job이 성공했
 | SPW-04 | PASS | 발견 사항 수와 7-Tier 분류를 독립 리뷰 결과에, 59개 테스트와 도구 결과를 현재 실행 출력에, 28/28 CI를 run `39458442605` live read-back에 대조했다. |
 | SPW-05 | PASS | Markdown을 다시 읽고 링크·표·PENDING 상태를 확인했다. 아직 push 전인 새 head의 CI와 재리뷰는 미완료로 표시했다. |
 | KO-01–KO-07 | PASS | 사실·식별자·불확실성을 보존하고, 문장과 표를 검토했으며, 변경 한국어 문서의 terminology audit 결과를 기록했다. |
+
+**후속 inline-review writer DoD (2026-10-21):** SPW-01–05 PASS—검토 대상과 범위를 고정하고, 우회·근본 원인·회귀 테스트·수정·미완료 게이트를 근거와 함께 기록했다. KO-01–KO-07 PASS—수치와 식별자를 보존하고, 한국어 문장을 재검토했으며, 후속 terminology audit 결과를 확인했다. Inline verdict는 검토한 verifier patch의 로컬 근거에만 적용하고 hosted CI 및 독립 리뷰를 PENDING으로 분리했다.

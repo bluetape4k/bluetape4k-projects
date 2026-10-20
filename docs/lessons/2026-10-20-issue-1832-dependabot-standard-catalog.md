@@ -138,3 +138,11 @@ PR #1838의 exact head `a702d7f1b2573a8d03ca7e7382d780a99d28528d`를 본 독립 
 이후 완료로 확인한 run `39458442605`는 `1a537ec`에서 28/28 성공했지만 위 수정 전의 head를 대상으로 한다. 현재 수정의 PR head 기준 GitHub CI와 새 독립 리뷰는 push 이후 확인해야 한다. Dependency Submission과 실제 Dependabot 재실행은 승인된 merge 이후 별도 검증으로 남는다.
 
 **후속 lesson writer DoD (2026-10-21):** SPW-01 PASS—독자는 워크플로 검증기 유지보수자이며, 대상 PR/head, 독립 리뷰, 회귀 테스트, CI run을 근거로 고정했다. SPW-02 PASS—새 P1/P2 발견 사항, 원인, 대응, 검증과 남은 게이트를 추가했다. SPW-03 PASS—자연스러운 한국어 기술 문장과 동일한 용어를 확인했다. SPW-04 PASS—리뷰 결과, 테스트 출력, GitHub Actions run을 서로 다른 head와 범위로 대조했다. SPW-05 PASS—최종 read-back 완료; 현재 수정의 원격 CI·재리뷰와 merge 후 실행은 PENDING이다. KO-01–KO-07 PASS—코드 토큰과 수치를 보존하고 terminology audit을 실행했다.
+
+## 검증 명령의 존재뿐 아니라 전체 실행 본문을 결속할 것
+
+2026-10-21 후속 inline 검토는 `catalog-governance`의 이름 지정 verification step에서 필수 명령을 순서대로 찾는 것만으로는 충분하지 않음을 발견했다. `set -euo pipefail` 뒤에 `exit 0`을 끼우면 이후 generator 검사와 테스트가 실행되지 않지만, 필수 명령 문자열은 여전히 모두 남아 있었다. 검증기는 이 P1 변형을 통과시켰다.
+
+`test_rejects_exit_before_catalog_verification_commands`를 먼저 추가해 수정 전 RED를 확인했다. verifier가 실제 catalog workflow step의 전체 script를 정확히 비교하도록 바꾼 뒤에는 이 회귀 테스트가 GREEN이었고 전체 suite 60/60도 통과했다. 실제 보안 gate를 검증할 때는 중요한 명령의 존재·순서에 더해 그 사이에 실패를 무시하거나 조기 종료하는 실행문이 없는지 확인한다.
+
+**후속 lesson writer DoD (2026-10-21):** SPW-01–05 PASS—Projects workflow verifier 유지보수자를 독자로 두고, 실제 우회, RED/GREEN 근거, 수정과 남은 원격 게이트를 기록했다. KO-01–KO-07 PASS—한국어 문장, 기술 용어, 정확한 명령과 테스트 수를 확인하고 contextual terminology audit을 실행했다.
