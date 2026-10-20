@@ -171,3 +171,17 @@ Workflow verifier는 중요 명령의 존재만 검사해서는 충분하지 않
 회귀 변형을 먼저 추가해 verifier가 `errors=[]`로 통과하는 RED를 확인했다. `catalog-governance` pin step의 `working-directory` 선언을 거부하도록 수정한 뒤 targeted test와 전체 66개 contract test가 GREEN이었다. 수정은 commit `fe4b33b94`에 들어갔다. 보호 workflow의 산출값을 검증할 때는 명령 본문뿐 아니라 shell, 작업 디렉터리, 환경과 조건이 같은 신뢰 경계를 공유하는지 확인한다.
 
 **후속 lesson writer DoD (2026-10-21):** SPW-01 PASS—독자는 Dependabot pin 검증기 유지보수자이며 PR base/head, 상대 경로, 후속 checkout과 로컬 수정 commit을 고정했다. SPW-02 PASS—맥락, 원인, RED/GREEN 결과와 재발 방지 기준을 기록했다. SPW-03 PASS—한국어 기술 문장을 다듬고 코드 식별자·경로·commit을 보존했다. SPW-04 PASS—workflow, verifier, 테스트 출력과 commit을 대조했다. SPW-05 PASS—최종 Markdown을 다시 읽고 독자·구조·증거를 확인했다. KO-01–KO-07 PASS—사실과 불확실성, 용어, 문장, 독자 표면을 점검하고 contextual terminology audit을 확인했다.
+
+## PR #1838 환경 mapping 별칭과 Ruby bundle 변수 우회
+
+2026-10-21에 PR code head `99e0675c45aee2cf0263bbdbcd483954f5b10cea`의 verifier에 여섯 환경 변형을 적용했다. 기존 verifier는 CI 전역 `RUBYOPT`, `BUNDLE_GEMFILE`, `catalog-governance`의 `BUNDLE_PATH`, Dependency Submission job으로 전달되는 YAML env alias, 잘못된 parser `BUNDLE_GEMFILE` 경로, CI env anchor를 모두 `errors=[]`로 허용했다. `actionlint`는 이 YAML 별칭 변형도 허용했다.
+
+`RUBYOPT`는 Ruby 실행 전에 PR 관리 코드를 preload할 수 있고, `BUNDLE_GEMFILE`은 `ruby/setup-ruby`의 Bundler 입력 파일을 바꾼다. 보호 job 밖에 선언한 env anchor도 protected job의 alias로 재사용하면 위험한 값을 전달할 수 있다. 검증기가 알려진 일부 변수 이름만 검사하고 모든 env mapping을 읽지 않아 생긴 우회다.
+
+여섯 변형에 대한 회귀 검사를 추가해 수정 전 RED를 확인했다. verifier는 이제 Ruby·Bundler·Node·JVM·동적 로더와 shell 실행 변수를 거부하고, `BUNDLE_GEMFILE`은 고정된 Dependabot Core parser checkout 경로의 parser step에 정확히 한 번만 허용한다. CI와 Dependency Submission 양쪽 workflow에서 env mapping의 YAML anchor, alias, merge key를 거부한다.
+
+코드 commit `3576d10b3c3e5247e18d949edd4c93f96d741661` 기준 workflow 계약 테스트 69개, verifier, Ruff lint, 두 workflow의 `actionlint`, Python AST 구문 검사, `git diff --check`가 통과했다. `ruff format --check`는 기존 두 파일의 미변경 구간 포맷 차이 때문에 실패하며, formatter 제안은 새 diff 밖에만 남는다. 코드 head의 GitHub CI run `39483089186`은 기록 시점에 실행 중이었다. 이 run은 뒤따르는 lesson·review·testlog 문서 커밋 이후의 exact PR head CI를 대체하지 않는다.
+
+독립 reviewer lane은 startup ACK 제한 시간을 넘겨 종료됐으며 판정을 내지 않았다. PR 리뷰 기록에 남긴 inline fallback은 독립 attestation이 아니다. 최종 PR head의 CI는 별도로 확인하고, merge 이후 Dependency Submission과 hosted Dependabot 결과를 읽기 전까지 Issue #1832와 alert #235는 해결 처리하지 않는다.
+
+**3576d10 후속 lesson writer DoD (2026-10-21):** SPW-01–05 PASS—독자, PR base/code head, 취약 환경 변수, 정확한 verifier·테스트와 검증 결과를 원본에 대조하고 한국어 자연스러움 및 최종 Markdown read-back을 완료했다. KO-01–KO-07 PASS—기술 용어, 수치, 식별자, 불확실성과 독자 표면을 확인하고 terminology audit 결과를 기록했다.
