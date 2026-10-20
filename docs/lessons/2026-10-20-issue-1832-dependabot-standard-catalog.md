@@ -87,6 +87,18 @@ Ubuntu 22.04 runner 계열은 2026-09-17부터 deprecation 단계에 들어갔�
 
 2026-10-20 21:07 KST live read-back에서 PR #1838 head는 `54c0513622774eaa1c57bf93a0e43b175425490d`였고 exact-head CI run `39419805598`은 진행 중이었다. 앞선 d80 CI run `39417533841`은 성공했지만 이 수정의 CI 증거는 아니다. 새 SHA code review는 아직 시작하지 않았다.
 
+## YAML 스코프와 실제 셸 실행을 검증할 것
+
+PR #1838의 exact head `a702d7f1b2573a8d03ca7e7382d780a99d28528d`를 본 독립 `code-reviewer`는 P2 두 건을 보고했다(P0=0, P1=0). 첫째, verifier가 top-level `PROJECTS_EXPECTED_SHA`의 문자열만 검사해 job 또는 checkout step의 같은 이름 env 덮어쓰기와 중복 top-level key를 거부하지 않았다. 둘째, ancestry 명령의 텍스트가 `test-merge-result` job 어딘가에 있는지만 검사해 실제 named step에서 제거하거나 비활성 step으로 옮겨도 통과했다. 같은 실행 step 안의 `PR_HEAD_SHA`/`PR_BASE_SHA` 재할당 및 `$GITHUB_ENV` 전달도 검사하지 않았다. `actionlint`는 중복 YAML key를 거부했지만 Projects CI에 actionlint 실행이 없어 verifier의 자체 계약이 필요했다.
+
+근본 원인은 workflow를 단순 문자열로 검사하면서 YAML 적용 스코프와 실제 step의 실행·실패 전파·셸 변수 흐름을 구분하지 않은 점이다. 현재 수정은 `PROJECTS_EXPECTED_SHA`를 단일 top-level 값으로 요구하고 job/step env override를 거부한다. merge-result job의 pull_request 조건을 하나로 고정하고, 이름이 지정된 unconditional `run: |` step에서 순서가 맞는 checkout SHA 및 두 ancestry 명령이 실행되어야 한다. `continue-on-error`, PR SHA 셸 재할당, `GITHUB_ENV` 전달도 거부한다.
+
+먼저 회귀 테스트 8개와 13개 변형을 추가했다. 기존 `a702d7f1` verifier는 각 사례에서 `validate_workflows()`의 빈 오류 목록을 반환했다(RED). 수정 뒤 전체 workflow contract는 41/41 PASS이며 verifier, Ruff lint, Python compile, `git diff --check`도 통과했다. 이전 exact-head CI `39420175917`은 `a702d7f1`의 28개 job 모두 성공했지만 수정 코드는 검사하지 않았다. 최신 변경은 아직 push되지 않았으므로 exact-head CI와 독립 재리뷰는 PENDING이다. 두 Python 파일의 `ruff format --check`는 기존 원본 HEAD에서도 실패했고, 신규 코드 부분에는 format diff가 없다.
+
+다음 workflow verifier를 검토할 때는 key가 정확히 하나 있는지뿐 아니라 허용된 YAML 스코프에 있는지 확인한다. 안전성 명령은 정확히 이름 붙은, 무조건 실행되고 실패가 job에 전파되는 step의 실제 `run` 본문과 인자 출처까지 확인한다. CI에서 별도 YAML linter가 돌지 않으면 duplicate key와 지원하지 않는 우회 문법을 verifier 테스트로 직접 차단한다. workflow 검증 결과는 실행된 product test 범위와 분리해 보고한다.
+
+**후속 lesson writer DoD (2026-10-20):** 독자는 Projects workflow verifier 유지보수자다. exact review head, P2 근거, old-head CI, RED/GREEN test 결과를 검증기와 테스트 소스에 대조했다. `a702d7f1` PR CI PASS와 현재 수정 후보의 PENDING 상태를 분리했다. 한국어 기술 문장을 자연성 기준에 맞춰 검토했고, 문서 read-back 및 contextual term audit 결과는 아래에 기록한다.
+
 ## Writer DoD
 
 | 검사 | 결과 |
@@ -100,3 +112,5 @@ Ubuntu 22.04 runner 계열은 2026-09-17부터 deprecation 단계에 들어갔�
 | KO-07 contextual terminology audit | PASS, 수정 lesson findings `0`; 계획·testlog는 앞선 검토에서 findings `0` |
 
 **후속 갱신 writer DoD (2026-10-20 20:42 KST):** 한국어 구현 계획과 lesson에 최신 local review finding, 30/30 contract 결과, 아직 push 전인 상태, exact-head CI·fresh review 대기를 추가했다. SPW-01–05와 KO-01–07을 각 문서에 독립 적용했다. 기존 이슈·commit·run 식별자를 보존하고 새 verifier 계약과 CI 증거를 코드·테스트와 대조했다. 두 문서를 마지막으로 읽고 audit 결과 `findings=[]`를 확인했다. `ruff format --check`가 현재 HEAD에서도 실패하는 것은 코드 포맷 검사 범위이며 lesson에 명시했다. 새 원격 CI와 재리뷰는 미확인 상태로 남겼다.
+
+**후속 lesson writer DoD (2026-10-20):** SPW-01 PASS—독자와 source ledger를 고정했다. SPW-02 PASS—context, root cause, decision, outcome, verification, miss, future guard를 연결했다. SPW-03 PASS—Korean naturalness 기준을 적용했다. SPW-04 PASS—독립 review finding, verifier diff, 13개 RED/GREEN 변형, 41/41 결과, old-head CI의 제한을 대조했다. SPW-05 PASS—최종 read-back을 마쳤다. KO-01–KO-06 PASS; KO-07 PASS, 세 변경 문서 term audit `findings=[]`.
