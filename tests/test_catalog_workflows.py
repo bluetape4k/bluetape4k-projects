@@ -389,6 +389,47 @@ class CatalogWorkflowsTest(unittest.TestCase):
             errors,
         )
 
+    def test_rejects_quoted_projects_expected_sha_keys(self) -> None:
+        expected = "  PROJECTS_EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}\n"
+        invalid_duplicate = self.ci.replace(
+            expected,
+            expected + '  "PROJECTS_EXPECTED_SHA": ${{ github.sha }}\n',
+            1,
+        )
+        test_core = verifier._job_block(self.ci, "test-core")
+        invalid_test_core = test_core.replace(
+            "  test-core:\n",
+            '  test-core:\n    env:\n      "PROJECTS_EXPECTED_SHA": ${{ github.sha }}\n',
+            1,
+        )
+        invalid_override = self.ci.replace(test_core, invalid_test_core, 1)
+        invalid_test_core = test_core.replace(
+            "  test-core:\n",
+            "  test-core:\n"
+            "    env:\n"
+            "      <<: &merged_environment\n"
+            "        PROJECTS_EXPECTED_SHA: ${{ github.sha }}\n",
+            1,
+        )
+        invalid_merge_override = self.ci.replace(test_core, invalid_test_core, 1)
+
+        for description, invalid in (
+            ("quoted duplicate", invalid_duplicate),
+            ("quoted override", invalid_override),
+            ("merged override", invalid_merge_override),
+        ):
+            with self.subTest(description=description):
+                errors = verifier.validate_workflows(invalid, self.submission)
+
+                self.assertTrue(
+                    any(
+                        "PROJECTS_EXPECTED_SHA" in error
+                        and ("exactly one" in error or "overridden" in error)
+                        for error in errors
+                    ),
+                    errors,
+                )
+
     def test_rejects_job_level_projects_expected_sha_override(self) -> None:
         test_core = verifier._job_block(self.ci, "test-core")
         invalid_test_core = test_core.replace(
@@ -500,6 +541,370 @@ class CatalogWorkflowsTest(unittest.TestCase):
                 self.assertTrue(
                     any(
                         "named merge-result verification step" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_rejects_fail_open_or_pr_sha_reassignment_shell_commands(self) -> None:
+        merge_job = verifier._job_block(self.ci, "test-merge-result")
+        step_name = "Verify synthetic merge result contains the current PR commits"
+        verify_step = verifier._named_step_block(merge_job, step_name)
+        bypasses = (
+            "set +e",
+            "trap 'exit 0' ERR",
+            "git() { return 0; }",
+            'printf -v PR_HEAD_SHA "%s" "$merge_result_sha"',
+            'read -r PR_BASE_SHA <<< "$merge_result_sha"',
+            "source <(printf 'PR_HEAD_SHA=%s\\n' \"$merge_result_sha\")",
+        )
+
+        for bypass in bypasses:
+            with self.subTest(bypass=bypass):
+                invalid_verify_step = verify_step.replace(
+                    "          set -euo pipefail\n",
+                    f"          set -euo pipefail\n          {bypass}\n",
+                    1,
+                )
+                invalid_merge_job = merge_job.replace(
+                    verify_step, invalid_verify_step, 1
+                )
+                invalid = self.ci.replace(merge_job, invalid_merge_job, 1)
+
+                errors = verifier.validate_workflows(invalid, self.submission)
+
+                self.assertTrue(
+                    any("exact fail-closed allowlist" in error for error in errors),
+                    errors,
+                )
+
+    def test_detects_checkout_actions_when_uses_follows_step_name(self) -> None:
+        test_core = verifier._job_block(self.ci, "test-core")
+        checkout = (
+            "      - name: Additional first-party checkout\n"
+            "        uses: actions/checkout@v7\n"
+            "        with:\n"
+            "          ref: ${{ github.sha }}\n"
+        )
+        expected_checkout = (
+            "      - uses: actions/checkout@v7\n"
+            "        with:\n"
+            "          ref: ${{ env.PROJECTS_EXPECTED_SHA }}\n"
+        )
+        invalid_test_core = test_core.replace(
+            expected_checkout, expected_checkout + checkout, 1
+        )
+        invalid = self.ci.replace(test_core, invalid_test_core, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("first-party Projects checkout" in error for error in errors),
+            errors,
+        )
+
+    def test_detects_quoted_checkout_uses_key_after_step_name(self) -> None:
+        test_core = verifier._job_block(self.ci, "test-core")
+        expected_checkout = (
+            "      - uses: actions/checkout@v7\n"
+            "        with:\n"
+            "          ref: ${{ env.PROJECTS_EXPECTED_SHA }}\n"
+        )
+        quoted_checkout = (
+            "      - name: Additional quoted checkout\n"
+            '        "uses": actions/checkout@v7\n'
+            "        with:\n"
+            "          ref: ${{ github.sha }}\n"
+        )
+        invalid_test_core = test_core.replace(
+            expected_checkout, expected_checkout + quoted_checkout, 1
+        )
+        invalid = self.ci.replace(test_core, invalid_test_core, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("first-party Projects checkout" in error for error in errors),
+            errors,
+        )
+
+    def test_detects_quoted_checkout_action_values_after_step_name(self) -> None:
+        test_core = verifier._job_block(self.ci, "test-core")
+        expected_checkout = (
+            "      - uses: actions/checkout@v7\n"
+            "        with:\n"
+            "          ref: ${{ env.PROJECTS_EXPECTED_SHA }}\n"
+        )
+
+        for quote in ('"', "'"):
+            with self.subTest(quote=quote):
+                quoted_checkout = (
+                    "      - name: Additional quoted checkout value\n"
+                    f"        uses: {quote}actions/checkout@v7{quote}\n"
+                    "        with:\n"
+                    "          ref: ${{ github.sha }}\n"
+                )
+                invalid_test_core = test_core.replace(
+                    expected_checkout, expected_checkout + quoted_checkout, 1
+                )
+                invalid = self.ci.replace(test_core, invalid_test_core, 1)
+
+                errors = verifier.validate_workflows(invalid, self.submission)
+
+                self.assertTrue(
+                    any("first-party Projects checkout" in error for error in errors),
+                    errors,
+                )
+
+    def test_rejects_escaped_checkout_uses_key(self) -> None:
+        test_core = verifier._job_block(self.ci, "test-core")
+        projects_checkout = (
+            "      - uses: actions/checkout@v7\n"
+            "        with:\n"
+            "          ref: ${{ env.PROJECTS_EXPECTED_SHA }}\n"
+        )
+        escaped_checkout = (
+            "      - name: Escaped-key checkout\n"
+            '        "\\u0075ses": actions/checkout@v7\n'
+            "        with:\n"
+            "          ref: ${{ github.sha }}\n"
+        )
+        invalid_test_core = test_core.replace(
+            projects_checkout, projects_checkout + escaped_checkout, 1
+        )
+        invalid = self.ci.replace(test_core, invalid_test_core, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("escaped YAML mapping keys" in error for error in errors), errors
+        )
+
+    def test_rejects_quoted_external_checkout_repository_key(self) -> None:
+        test_core = verifier._job_block(self.ci, "test-core")
+        projects_checkout = (
+            "      - uses: actions/checkout@v7\n"
+            "        with:\n"
+            "          ref: ${{ env.PROJECTS_EXPECTED_SHA }}\n"
+        )
+        external_checkout = (
+            "      - uses: actions/checkout@v7\n"
+            "        with:\n"
+            '          "repository": attacker/foreign-repository\n'
+            "          ref: ${{ env.PROJECTS_EXPECTED_SHA }}\n"
+        )
+        invalid_test_core = test_core.replace(projects_checkout, external_checkout, 1)
+        invalid = self.ci.replace(test_core, invalid_test_core, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("external checkout" in error for error in errors), errors
+        )
+
+    def test_rejects_duplicate_checkout_repository_keys(self) -> None:
+        test_core = verifier._job_block(self.ci, "test-core")
+        projects_checkout = (
+            "      - uses: actions/checkout@v7\n"
+            "        with:\n"
+            "          ref: ${{ env.PROJECTS_EXPECTED_SHA }}\n"
+        )
+        duplicate_repository = (
+            "      - uses: actions/checkout@v7\n"
+            "        with:\n"
+            "          repository: bluetape4k/bluetape4k-projects\n"
+            '          "repository": attacker/foreign-repository\n'
+            "          ref: ${{ env.PROJECTS_EXPECTED_SHA }}\n"
+        )
+        invalid_test_core = test_core.replace(
+            projects_checkout, duplicate_repository, 1
+        )
+        invalid = self.ci.replace(test_core, invalid_test_core, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("duplicate repository/ref/path" in error for error in errors),
+            errors,
+        )
+
+    def test_rejects_duplicate_checkout_action_keys(self) -> None:
+        merge_job = verifier._job_block(self.ci, "test-merge-result")
+        invalid_merge_job = merge_job.replace(
+            "      - uses: actions/checkout@v7\n",
+            "      - uses: actions/checkout@v7\n"
+            "        uses: attacker/untrusted-action@v1\n",
+            1,
+        )
+        invalid = self.ci.replace(merge_job, invalid_merge_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("duplicate uses keys" in error for error in errors), errors)
+
+    def test_rejects_aliased_checkout_action(self) -> None:
+        test_core = verifier._job_block(self.ci, "test-core")
+        expected_checkout = (
+            "      - uses: actions/checkout@v7\n"
+            "        with:\n"
+            "          ref: ${{ env.PROJECTS_EXPECTED_SHA }}\n"
+        )
+        alias_declaration = "  CHECKOUT_ACTION: &checkout_action actions/checkout@v7\n"
+        aliased_checkout = (
+            "      - name: Additional aliased checkout\n"
+            "        uses: *checkout_action\n"
+            "        with:\n"
+            "          ref: ${{ github.sha }}\n"
+        )
+        invalid_test_core = test_core.replace(
+            expected_checkout, expected_checkout + aliased_checkout, 1
+        )
+        invalid = self.ci.replace(
+            "  GITLEAKS_VERSION: 'v8.30.1'\n",
+            alias_declaration + "  GITLEAKS_VERSION: 'v8.30.1'\n",
+            1,
+        ).replace(test_core, invalid_test_core, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("YAML anchors and aliases" in error for error in errors), errors
+        )
+
+    def test_rejects_shell_environment_and_runner_overrides(self) -> None:
+        merge_job = verifier._job_block(self.ci, "test-merge-result")
+        step_name = "Verify synthetic merge result contains the current PR commits"
+        verify_step = verifier._named_step_block(merge_job, step_name)
+        top_level_env = "  PROJECTS_EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}\n"
+        invalid_workflows = (
+            (
+                "top-level BASH_ENV",
+                self.ci.replace(
+                    top_level_env,
+                    "  BASH_ENV: /tmp/fail-open.sh\n" + top_level_env,
+                    1,
+                ),
+            ),
+            (
+                "job PATH override",
+                self.ci.replace(
+                    merge_job,
+                    merge_job.replace(
+                        "    runs-on: ubuntu-latest\n",
+                        "    env:\n      PATH: /tmp/attacker-bin\n    runs-on: ubuntu-latest\n",
+                        1,
+                    ),
+                    1,
+                ),
+            ),
+            (
+                "step BASH_ENV override",
+                self.ci.replace(
+                    merge_job,
+                    merge_job.replace(
+                        verify_step,
+                        verify_step.replace(
+                            "          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}\n",
+                            "          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}\n"
+                            "          BASH_ENV: /tmp/fail-open.sh\n",
+                            1,
+                        ),
+                        1,
+                    ),
+                    1,
+                ),
+            ),
+            (
+                "step shell override",
+                self.ci.replace(
+                    merge_job,
+                    merge_job.replace(
+                        verify_step,
+                        verify_step.replace(
+                            f"      - name: {step_name}\n",
+                            f"      - name: {step_name}\n        shell: bash -c 'set +e; source \"$1\"' -- {{0}}\n",
+                            1,
+                        ),
+                        1,
+                    ),
+                    1,
+                ),
+            ),
+            (
+                "workflow shell default",
+                self.ci.replace(
+                    "jobs:\n",
+                    "defaults:\n  run:\n    shell: bash {0}\n\njobs:\n",
+                    1,
+                ),
+            ),
+            (
+                "pre-verification step",
+                self.ci.replace(
+                    verify_step,
+                    "      - name: Prepare shell environment\n"
+                    "        run: echo '/tmp/attacker-bin' >> \"$GITHUB_PATH\"\n"
+                    + verify_step,
+                    1,
+                ),
+            ),
+        )
+
+        for description, invalid in invalid_workflows:
+            with self.subTest(description=description):
+                errors = verifier.validate_workflows(invalid, self.submission)
+
+                self.assertTrue(
+                    any(
+                        "merge-result execution environment" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_rejects_quoted_environment_and_shell_override_keys(self) -> None:
+        merge_job = verifier._job_block(self.ci, "test-merge-result")
+        step_name = "Verify synthetic merge result contains the current PR commits"
+        verify_step = verifier._named_step_block(merge_job, step_name)
+        quoted_job_env = self.ci.replace(
+            merge_job,
+            merge_job.replace(
+                "    runs-on: ubuntu-latest\n",
+                '    "env":\n      PATH: /tmp/attacker-bin\n    runs-on: ubuntu-latest\n',
+                1,
+            ),
+            1,
+        )
+        quoted_step_shell = self.ci.replace(
+            merge_job,
+            merge_job.replace(
+                verify_step,
+                verify_step.replace(
+                    f"      - name: {step_name}\n",
+                    f'      - name: {step_name}\n        "shell": bash -c \'set +e; source "$1"\' -- {{0}}\n',
+                    1,
+                ),
+                1,
+            ),
+            1,
+        )
+        quoted_workflow_shell = self.ci.replace(
+            "jobs:\n",
+            '"defaults":\n  run:\n    "shell": bash {0}\n\njobs:\n',
+            1,
+        )
+
+        for description, invalid in (
+            ("quoted job env", quoted_job_env),
+            ("quoted step shell", quoted_step_shell),
+            ("quoted workflow shell default", quoted_workflow_shell),
+        ):
+            with self.subTest(description=description):
+                errors = verifier.validate_workflows(invalid, self.submission)
+
+                self.assertTrue(
+                    any(
+                        "merge-result execution environment" in error
                         for error in errors
                     ),
                     errors,

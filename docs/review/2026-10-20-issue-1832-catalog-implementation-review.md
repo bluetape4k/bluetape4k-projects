@@ -88,3 +88,52 @@
 | KO-07 contextual terminology audit | PASS, 최종 audit 결과를 계획에 기록 |
 
 **후속 독립 리뷰 기록 writer DoD (2026-10-20):** SPW-01–05와 KO-01–07을 이 문서의 후속 독립 review 섹션에 별도로 적용했다. 독립 reviewer의 exact head, `REQUEST CHANGES` 판정, P2 두 건과 세부 위치를 review 원문 및 현재 verifier/tests와 대조했다. 로컬 41/41 결과와 old-head CI 성공을 구분했고, 수정본 exact-head CI 및 독립 재리뷰는 PENDING으로 유지했다. 세 문서 read-back과 term audit `findings=[]`를 확인했다.
+
+## Inline fallback review (2026-10-21)
+
+### 범위와 reviewer provenance
+
+- 대상 저장소/PR: `bluetape4k/bluetape4k-projects`, PR #1838, base `develop`.
+- 검토 기준: 원격 PR HEAD `a8a118f554a71e6937269f9de2411f15e3deebbc`에 이번 변경을 더한 `scripts/verify-catalog-workflows.py`와 `tests/test_catalog_workflows.py` diff.
+- 리뷰 경로: inline fallback. `review_code_a8a118f5`와 `review_arch_a8a118f5`는 usage limit으로 verdict를 내지 못했다. architecture lane의 중간 finding과 두 lane의 실패 상태를 보존했다. 이 기록은 독립 reviewer attestation이 아니다.
+- 모델: 요청 기준은 `gpt-6-luna max`; 이 세션의 실제 모델/provider provenance는 검증할 수 없다.
+- GitHub human-review subgate: `N/A (single-developer lane)`. 새 exact-head CI와 최신 review/thread read-back은 별도 merge gate로 남아 있다.
+
+### 7-Tier 결과
+
+| Tier | 판정 | 근거 |
+|---|---|---|
+| 보안·요구사항 | PASS | first-party checkout SHA, merge-result ancestry, 실패 전파를 검증한다. 이번 inline review에서 찾은 quoted/escaped YAML key·value 및 중복 key 우회는 수정하고 negative tests를 추가했다. P0/P1 잔여 finding은 없다. FreeMarker alert #235 해결은 별도 hosted Dependabot 증거가 없어 PENDING이다. |
+| 정확성·수명주기 | PASS | merge-result checkout 다음에 이름이 고정된 검증 step만 허용하고, 해당 step의 shell script와 PR head/base env를 exact allowlist로 묶는다. 추가 step, `continue-on-error`, shell/environment override는 거부한다. |
+| 구조·재사용 | PASS | YAML simple key matcher를 공유해 workflow env, checkout metadata, shell 설정을 검사한다. 새 dependency나 library runtime abstraction은 추가하지 않았다. YAML anchors/aliases, merge keys, escaped mapping keys는 verifier가 해석하지 않고 fail closed로 거부한다. |
+| Kotlin API·ABI·공개 계약 | N/A | 이번 diff는 Python workflow verifier와 unittest뿐이며 Kotlin/Java production source나 published API/ABI를 바꾸지 않는다. catalog/POM/GMM 영향은 Task 7의 별도 비교 결과에 기록했다. |
+| 테스트·호출자 | PASS | 전체 contract suite 53/53 통과. 6개 신규 test method의 9개 YAML 변형은 수정 전 RED였고 수정 뒤 통과했다. 기존 Python verifier 호출 경로는 유지된다. |
+| 성능 | PASS | Python 검증기와 Actions CI만 바뀐다. Kotlin library 실행 경로는 바꾸지 않았고 별도 runtime benchmark 대상은 없다. |
+| 문서·CI·유지보수 | PASS / PENDING | 계획·review·lesson에 원인, RED/GREEN, 범위, 한계를 기록한다. `ruff format --check`는 원본 `a702d7f1`에서도 실패했고, 최신 format diff는 기존 줄만 제안한다. 현재 dirty 후보의 exact-head CI는 아직 실행되지 않았다. |
+
+### 수정한 inline finding
+
+| 심각도 | 위치 | 재현 | 처분 |
+|---|---|---|---|
+| P2 | `scripts/verify-catalog-workflows.py:41-52, 270-366` | `uses: "actions/checkout@v7"`, `"repository"` key, `"\\u0075ses"` key, 또는 중복 `uses`/`repository` key로 checkout inventory를 우회할 수 있었다. escaped-key 예제는 로컬 `actionlint`에서도 유효했다. | simple quoted action/key 표기는 정확히 파싱하고 checkout metadata 중복을 거부한다. escaped mapping keys는 workflow 전체에서 거부한다. 회귀 테스트 5개로 RED/GREEN을 고정했다. |
+| P2 | `scripts/verify-catalog-workflows.py:118-160, 215-263, 500-619` | quoted `"env"`, `"shell"`, `"defaults"` key가 job/step/workflow 설정 검사를 우회할 수 있었다. 네 가지 대표 quoted workflow 변형은 로컬 `actionlint`에서 유효했다. | 공통 key matcher를 env, top-level block, checkout metadata, indented setting 검사에 적용했다. quoted environment/shell 회귀 테스트에서 job env, step shell, workflow shell default 세 변형을 수정 전 RED로 확인했다. |
+
+두 P2 범주의 하위 finding은 모두 현재 로컬 diff에서 닫혔다. `actionlint`가 PR CI에서 실행되지는 않으므로 structural contract tests가 해당 경계를 계속 검사한다.
+
+### Validation과 한계
+
+- `python3.13 -m unittest tests.test_catalog_workflows -q` — 53/53 PASS.
+- `python3.13 scripts/verify-catalog-workflows.py` — PASS.
+- `ruff check scripts/verify-catalog-workflows.py tests/test_catalog_workflows.py` — PASS.
+- `python3.13 -m py_compile scripts/verify-catalog-workflows.py tests/test_catalog_workflows.py` — PASS.
+- `actionlint .github/workflows/ci.yml .github/workflows/dependency-submission.yml` — PASS. 별도 임시 workflow 변형에서는 quoted checkout/env/shell key 네 사례를 actionlint가 유효하다고 판정했고, escaped `uses` key도 actionlint exit 0이었다.
+- `git diff --check` — PASS.
+- `ruff format --check` — 기존 파일의 미정렬 때문에 FAIL. 원본 `a702d7f1`에서 같은 검사가 실패했다는 선행 증거가 있으며, 현재 `ruff format --diff`는 기존 줄만 제안한다.
+- PR #1838 원격 HEAD는 아직 `a8a118f...`이고 해당 SHA CI run `39424595430`은 성공했으나 이번 dirty diff를 포함하지 않는다. 새 commit exact-head CI와 review/thread 재확인이 필요하다.
+- live read-back: PR #1838 OPEN, Issue #1832 OPEN, alert #235 CRITICAL/OPEN (`fixed_at=null`). 이슈와 alert 해결 verdict는 보류한다.
+
+Inline verdict: PASS; P0=0, P1=0.
+
+미해결 리뷰 finding P0=0, P1=0, P2=0이다. 이 verdict는 main-session inline fallback 결과이며 독립 attestation을 대신하지 않는다. Merge는 fresh approval 전까지 보류한다.
+
+**Inline fallback writer DoD (2026-10-21):** SPW-01 PASS—PR #1838, a8 기준 HEAD, 두 실패 reviewer lane, 요청 모델과 검증 불가 provenance를 분리했다. SPW-02 PASS—7-Tier verdict, severity, 파일 위치, 재현·처분·검증·gap을 기록했다. SPW-03 PASS—한국어 기술 문체와 기존 용어를 유지했다. SPW-04 PASS—53개 테스트, `actionlint` 변형 결과, live PR/issue/alert 상태와 코드·테스트를 대조했다. SPW-05 PASS—문서 read-back 후 final exact-head CI 대기를 남긴다. KO-01–KO-06 PASS; KO-07 기본 `clinic-appointment` term audit는 3개 문서에서 `findings=[]`였다.
