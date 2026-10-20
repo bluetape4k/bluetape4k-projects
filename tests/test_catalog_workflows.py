@@ -333,6 +333,44 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
         self.assertTrue(any("Projects PR head" in error for error in errors), errors)
 
+    def test_rejects_merge_sha_even_when_expected_projects_sha_is_in_a_comment(self) -> None:
+        invalid = self.ci.replace(
+            "  PROJECTS_EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}\n",
+            "  PROJECTS_EXPECTED_SHA: ${{ github.sha }}\n"
+            "  # PROJECTS_EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}\n",
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("Projects PR head" in error for error in errors), errors)
+
+    def test_rejects_merge_result_head_sha_bound_to_github_sha(self) -> None:
+        merge_job = verifier._job_block(self.ci, "test-merge-result")
+        invalid_merge_job = merge_job.replace(
+            "PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}",
+            "PR_HEAD_SHA: ${{ github.sha }}",
+            1,
+        )
+        invalid = self.ci.replace(merge_job, invalid_merge_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("PR_HEAD_SHA" in error for error in errors), errors)
+
+    def test_rejects_merge_result_base_sha_bound_to_github_sha(self) -> None:
+        merge_job = verifier._job_block(self.ci, "test-merge-result")
+        invalid_merge_job = merge_job.replace(
+            "PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}",
+            "PR_BASE_SHA: ${{ github.sha }}",
+            1,
+        )
+        invalid = self.ci.replace(merge_job, invalid_merge_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("PR_BASE_SHA" in error for error in errors), errors)
+
     def test_projects_ci_creates_pinned_parser_receipt_before_catalog_check(self) -> None:
         governance = verifier._job_block(self.ci, "catalog-governance")
         parser_contract = governance.find("dependabot-parser-contract.rb")
