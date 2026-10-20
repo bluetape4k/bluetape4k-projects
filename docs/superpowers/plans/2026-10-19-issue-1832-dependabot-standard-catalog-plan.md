@@ -17,8 +17,8 @@
 | Tasks 1–3 구현·테스트 | 완료 | map v1/v2 및 consumer 회귀 검사를 포함한 Central 전체 suite가 최신 후보에서 515 PASS, 2 SKIP이다. |
 | Task 4 pinned parser | hosted exact-head 검증 완료 | Central PR 최초 run `39285492069`에서 `toml-rb` LoadError를 확인했다. `023569162d070771b67b13f102baa4447ddf4f1a`에서 `bundle exec` 실행을 고쳤고 이후 parser contract가 `39288320776`, `39290083993`, `39293581072`, 최신 exact-head run `39295843422`에서 통과했다. `39288320776`은 더 높은 우선순위의 merge-ref 실행으로 취소됐다. 로컬 Ruby 2.6.10/Bundler 1.17.2에서는 exact parser를 실행하지 못했다. |
 | Tasks 5–6 구현·로컬 검증 | 완료 | Projects workflow contract 8개, verifier, 두 저장소 actionlint, Python compile, diff check 통과. 98개 Dokka configuration, 영향 모듈 classes, 두 mock server Jib 빌드도 앞선 검증에서 통과했다. |
-| Task 7 baseline/candidate 증거 | 부분 완료 | 10개 GAV 선택, POM/GMM 26개 byte-identical, graph 비교를 확인했다. Projects 구현은 clean commit `ec040eb40f57424659913e4125d56b14541ca146`에 있다. 실제 Dokka resolver 98개와 `dependencyInsight` 196건이 중앙 jsoup `1.23.2`/FreeMarker `2.3.35`를 선택했고 잘못된 중앙 catalog 입력 9개가 모두 거부됐다. Central 전체 suite 515 PASS, 2 SKIP이며 `1.9.2-SNAPSHOT` artifact 확인은 HTTP 403으로 건너뛰었다. Projects pin은 기존 서명 tag의 peeled SHA `e9946b18bdb0022f52cd5dc8994d859d470e7bab`을 가리키는 반면 Central canonical HEAD는 `dcc7fa7557d3c0548b9e3fc28c48877827ea2f74`다. strict receipt는 두 값이 같아야 하므로 새 signed tag/pin 전 map/receipt/lock 발행은 보류한다. |
-| Task 8 review·lesson·Central PR | Central PR 병합·동기화 완료; 후속 tag·Projects PR pending | inline 7-Tier review와 lesson writer 검증을 마쳤다. Central commit `03fdf141`를 `develop` 대상 [PR #269](https://github.com/bluetape4k/bluetape4k-dependencies/pull/269)로 열었고 parser 수정 `02356916`, Projects catalog ref 정책 수정 `02df3bf`, 리뷰 문서 기록 commit `78674567`, CI 결과를 반영한 문서 commit `80ae0d6`을 push했다. PR head `80ae0d6bf2525c1d434fabe87993905c0fc10197`는 fresh approval 뒤 `MERGED`됐고 merge SHA는 `dcc7fa7557d3c0548b9e3fc28c48877827ea2f74`다. PR 생성 당시 Issue #1832와 같은 milestone `2.1.0`, labels `security`/`ci`, assignee `debop`을 설정했다. 정확한 head의 run `39295843422`는 9/9 job 성공이다. `Build BOM`은 10m06s, POM contract는 10m12s에 성공했고, catalog script suite 103개 테스트와 Central suite 515개 실행(4 skipped)이 모두 OK였다. 두 CI 조건부 downstream sync와 소비자 입력 목록 생성/업로드 단계는 PR event라 실행되지 않았고, `1.9.2-SNAPSHOT` artifact 검사는 HTTP 403으로 건너뛰었다. 같은 SHA Dependency Submission `39295845219`도 성공했다. 최신 CI 뒤 reviews, issue comments, inline comments, GraphQL review threads는 모두 비어 있고, branch-protection required checks는 GitHub에서 보고되지 않았다. human-reviewer subgate는 단일 개발자 lane 근거로 N/A이며 inline 검토는 독립 reviewer attestation이 아니다. PR 본문과 issue metadata를 공통 template에 맞춰 갱신했다. signed tag, Projects PR, 실제 hosted Dependabot 실행은 별도 승인/선행 조건까지 대기한다. |
+| Task 7 baseline/candidate 증거 | 부분 완료 | 10개 GAV 선택, POM/GMM 26개 byte-identical, graph 비교를 확인했다. Projects 구현은 clean commit `ec040eb40f57424659913e4125d56b14541ca146`에 있다. 실제 Dokka resolver 98개와 `dependencyInsight` 196건이 중앙 jsoup `1.23.2`/FreeMarker `2.3.35`를 선택했고 잘못된 중앙 catalog 입력 9개가 모두 거부됐다. Central 전체 suite 515 PASS, 2 SKIP이며 `1.9.2-SNAPSHOT` artifact 확인은 HTTP 403으로 건너뛰었다. 현재 Projects pin은 기존 서명 tag의 peeled SHA `e9946b18bdb0022f52cd5dc8994d859d470e7bab`을 가리키지만 Central canonical HEAD는 `dcc7fa7557d3c0548b9e3fc28c48877827ea2f74`이고, 새 signed tag `catalog/2026-10-20-01`은 해당 HEAD를 가리킨다. consumer pin과 strict receipt 갱신 전 map/receipt/lock 발행은 보류한다. |
+| Task 8 review·lesson·Central PR | Central PR 병합·동기화 및 signed tag 발행 완료; Projects PR pending | inline 7-Tier review와 lesson writer 검증을 마쳤다. Central commit `03fdf141`를 `develop` 대상 [PR #269](https://github.com/bluetape4k/bluetape4k-dependencies/pull/269)로 열었고 parser 수정 `02356916`, Projects catalog ref 정책 수정 `02df3bf`, 리뷰 문서 기록 commit `78674567`, CI 결과를 반영한 문서 commit `80ae0d6`을 push했다. PR head `80ae0d6bf2525c1d434fabe87993905c0fc10197`는 fresh approval 뒤 `MERGED`됐고 merge SHA는 `dcc7fa7557d3c0548b9e3fc28c48877827ea2f74`다. PR 생성 당시 Issue #1832와 같은 milestone `2.1.0`, labels `security`/`ci`, assignee `debop`을 설정했다. 정확한 head의 run `39295843422`는 9/9 job 성공이다. `Build BOM`은 10m06s, POM contract는 10m12s에 성공했고, catalog script suite 103개 테스트와 Central suite 515개 실행(4 skipped)이 모두 OK였다. 두 CI 조건부 downstream sync와 소비자 입력 목록 생성/업로드 단계는 PR event라 실행되지 않았고, `1.9.2-SNAPSHOT` artifact 검사는 HTTP 403으로 건너뛰었다. 같은 SHA Dependency Submission `39295845219`도 성공했다. 최신 CI 뒤 reviews, issue comments, inline comments, GraphQL review threads는 모두 비어 있고, branch-protection required checks는 GitHub에서 보고되지 않았다. human-reviewer subgate는 단일 개발자 lane 근거로 N/A이며 inline 검토는 독립 reviewer attestation이 아니다. PR 본문과 issue metadata를 공통 template에 맞춰 갱신했다. signed tag 생성/push는 승인 후 완료했고, Projects pin·PR은 exact-head 검증과 별도 merge approval을 기다린다. |
 | Task 9 실제 Dependabot 결과 | 대기 | 2026-10-20 live 조회에서 alert #235가 CRITICAL/OPEN이고 Issue #1832가 OPEN이다. signed central tag, Projects pin/PR/merge, merge SHA Dependency Submission이 선행돼야 hosted 재실행을 한다. |
 
 ### 이번 inline 구현 리뷰에서 발견·수정한 CI 공백
@@ -55,23 +55,23 @@ export REPOSITORY_MAP="$EVIDENCE_DIR/repository-map.json"
 mkdir -p "$EVIDENCE_DIR"
 ```
 - Issue #1832는 OPEN, milestone 2.1.0, labels security/ci, assignee debop이다. 이슈는 새로 만들지 않고 기존 이슈에 연결한다.
-- 같은 중앙 커밋에서 Projects PR을 검증하려면 immutable signed catalog tag가 필요하다. 중앙 PR은 fresh approval 후 병합했으며, 서명 tag 생성/push에는 별도 승인이 필요하다. Tag 승인 전에는 Projects PR과 merge 후 Dependabot 재실행이 PENDING이다.
+- 같은 중앙 커밋에서 Projects PR을 검증하려면 immutable signed catalog tag가 필요하다. 중앙 PR 병합 후 `catalog/2026-10-20-01`을 명시적 승인에 따라 발행했고, GitHub signature verification과 peeled SHA를 확인했다. Projects pin·exact-head 검증·PR은 아직 PENDING이며, merge에는 fresh approval이 필요하다.
 - Dependabot 보안 업데이트의 hosted Try again 재실행은 이전 요청에서 승인됐지만, Projects 변경이 기본 branch에 반영되고 exact-SHA dependency submission이 확인된 뒤에만 실행한다. 한 번의 실행 결과로 모든 alert가 해결됐다고 추정하지 않는다.
 - 현재 Projects workflow receipt는 `verify` PASS, `completion-check` incomplete 상태다. `dependabot-execution`, `dependencies-catalog-promotion`, `projects-standard-catalog-view`와 main verification이 남아 있다. 구현 중 helper가 허용한 evidence만 기록하고, tag/Projects merge/Try again 전에는 완료로 처리하지 않는다. `.bluetape` 파일은 직접 수정하지 않는다.
 
-## Catalog tag 및 Projects consumer closeout checklist (2026-10-20 03:19 UTC)
+## Catalog tag 및 Projects consumer closeout checklist (2026-10-20 03:26 UTC)
 
 이 범위는 Maven stable release가 아니라 중앙 catalog authority tag와 Projects consumer 통합이다. 별도 Maven version/artifact publication은 수행하지 않는다. 이전 13개 게시 모듈의 POM/GMM 26개가 baseline과 byte-identical했고, Central PR exact-head publication contract도 통과했다.
 
 | 고정 항목 | 현재 read-back |
 |---|---|
-| 후보 immutable tag | `catalog/2026-10-20-01`; 2026-10-20 03:19 UTC에 원격에 아직 없음 |
-| 최신 관측 catalog tag | `catalog/2026-10-18-01`, GitHub signature verification `valid`, peeled SHA `e9946b18bdb0022f52cd5dc8994d859d470e7bab` |
+| 후보 immutable tag | `catalog/2026-10-20-01`; GitHub signature verification `valid`, tag object `4919a6f511e57b4349ca6856816500b3a85ace95`, peeled SHA `dcc7fa7557d3c0548b9e3fc28c48877827ea2f74` (verified 2026-10-20 03:25 UTC) |
+| 최신 관측 catalog tag | `catalog/2026-10-20-01`, GitHub signature verification `valid`, peeled SHA `dcc7fa7557d3c0548b9e3fc28c48877827ea2f74`; 직전 tag `catalog/2026-10-18-01`의 peeled SHA는 `e9946b18bdb0022f52cd5dc8994d859d470e7bab` |
 | tag authority | `bluetape4k/bluetape4k-dependencies:develop` merge SHA `dcc7fa7557d3c0548b9e3fc28c48877827ea2f74`; canonical `develop` 및 `origin/develop` 일치 |
 | consumer scope | `bluetape4k/bluetape4k-projects` 한 곳, base `develop`, branch `fix/issue-1832-dependabot-standard-catalog`; 다른 소비자는 변경하지 않는다 |
 | Maven artifact matrix | artifact publication 없음. 기존 13 publisher의 POM/GMM 26개 byte-identical 증거와 Central PR exact-head POM contract PASS를 보존한다 |
 | milestone/issue | Issue #1832 OPEN, milestone `2.1.0`; FreeMarker alert #235 CRITICAL/OPEN, GHSA-27j2-h3m2-8237, first patched `2.3.35` |
-| 현재 실행 hold | Central merge-SHA CI 및 Dependency Submission PASS. Projects local candidate commit `ec040eb40f57424659913e4125d56b14541ca146`, 8개 workflow contract PASS, actionlint PASS, Gradle 9.8.1 `help` PASS. Projects exact-head CI와 hosted Try again은 미실행 |
+| 현재 실행 hold | Central merge-SHA CI run `39359607639` 및 Dependency Submission `39359608560` PASS. Projects candidate HEAD `4fd2314a85806473b12ad82561391d55b32158bf`, 8개 workflow contract PASS, actionlint PASS, Gradle 9.8.1 `help` PASS. Projects exact-head CI와 hosted Try again은 미실행 |
 
 - [x] **CAT-01 — Pin target authority and consumer scope**
   - **Action:** 카탈로그 tag 후보, 정확한 Central commit, consumer 및 Maven publication 범위를 고정한다.
@@ -85,9 +85,9 @@ mkdir -p "$EVIDENCE_DIR"
   - **Action:** 계획한 branch의 Projects 구현, 원본/생성 catalog, workflow와 보안 하한을 검토한다.
   - **Evidence:** Commit `ec040eb40f57424659913e4125d56b14541ca146`; clean worktree; workflow contract 8 PASS; verifier/actionlint/Python compile/diff check PASS; Gradle `help` BUILD SUCCESSFUL; Dokka resolver 98개/196 reports 및 catalog-input guard 9/9.
   - **Failure:** 서명 catalog ref 생성 전 수정 또는 재검토한다.
-- [ ] **CAT-04 — Create and push the signed catalog tag**
+- [x] **CAT-04 — Create and push the signed catalog tag**
   - **Action:** fresh 명시적 권한과 직전 hold 재확인 후 Central merge SHA `dcc7fa7557d3c0548b9e3fc28c48877827ea2f74`에 `catalog/2026-10-20-01`을 서명해 push한다.
-  - **Evidence:** fresh issue/PR/run/tag absence와 workflow hold, 이후 원격 GitHub signature verification `valid` 및 declared commit과 같은 peeled SHA.
+  - **Evidence:** 2026-10-20 03:24 UTC fresh hold에서 issue/PR/run/tag/HEAD를 확인한 뒤 승인에 따라 push했다. GitHub tag object `4919a6f511e57b4349ca6856816500b3a85ace95`의 verification은 `valid`; 원격 peeled SHA는 선언된 Central merge SHA `dcc7fa7557d3c0548b9e3fc28c48877827ea2f74`와 같다. 로컬 `git verify-tag`는 `gpg.ssh.allowedSignersFile` 미설정으로 검증하지 못했으며, GitHub의 독립 서명 검증이 통과했다.
   - **Failure:** ref 변경, signing identity 누락, 서명 실패 또는 기존 tag 존재 시 중단한다.
 - [ ] **CAT-05 — Retarget and verify the Projects consumer**
   - **Action:** 후보에 새 signed tag와 peeled SHA를 pin하고 map, parser receipt, generator receipt, candidate lock을 재생성한 다음 Projects 전체 검증을 실행한다.
