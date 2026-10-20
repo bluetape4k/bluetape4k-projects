@@ -71,10 +71,45 @@ def _job_block(text: str, name: str) -> str:
 
 
 def _workflow_env(text: str, name: str) -> str | None:
-    match = re.search(rf"(?m)^  {re.escape(name)}:\s*([^\s#]+)\s*$", text)
+    env = _top_level_block(text, "env")
+    if not env:
+        return None
+    match = re.search(rf"(?m)^  {re.escape(name)}:\s*(.*?)\s*$", env)
     if match is None:
         return None
     return match.group(1).strip("'\"")
+
+
+def _named_step_block(job: str, name: str) -> str:
+    lines = job.splitlines()
+    starts = [index for index, line in enumerate(lines) if line == f"      - name: {name}"]
+    if len(starts) != 1:
+        return ""
+    start = starts[0]
+    end = next(
+        (
+            index
+            for index in range(start + 1, len(lines))
+            if lines[index].startswith("      - ")
+        ),
+        len(lines),
+    )
+    return "\n".join(lines[start:end])
+
+
+def _step_env_value(step: str, name: str) -> str | None:
+    lines = step.splitlines()
+    values: list[str] = []
+    for index, line in enumerate(lines):
+        if line != "        env:":
+            continue
+        for entry in lines[index + 1 :]:
+            if entry.strip() and len(entry) - len(entry.lstrip()) <= 8:
+                break
+            match = re.fullmatch(rf"          {re.escape(name)}:\s*(.*?)\s*", entry)
+            if match is not None:
+                values.append(match.group(1).strip("'\""))
+    return values[0] if len(values) == 1 else None
 
 
 def _checkout_steps(text: str) -> list[tuple[str, str]]:
@@ -123,9 +158,8 @@ def _has_exact_governance_gate(status_job: str) -> bool:
 def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     """Return contract violations in the Projects GitHub workflows."""
     errors: list[str] = []
-    if (
-        "PROJECTS_EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}"
-        not in ci_text
+    if _workflow_env(ci_text, "PROJECTS_EXPECTED_SHA") != (
+        "${{ github.event.pull_request.head.sha || github.sha }}"
     ):
         errors.append("CI must resolve the Projects PR head instead of its merge SHA")
     first_party_repositories = {
@@ -308,6 +342,18 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             if required not in merge_result:
                 errors.append(
                     f"PR merge-result contract job is missing {required!r}"
+                )
+        verify_merge_step = _named_step_block(
+            merge_result,
+            "Verify synthetic merge result contains the current PR commits",
+        )
+        for name, expected in (
+            ("PR_HEAD_SHA", "${{ github.event.pull_request.head.sha }}"),
+            ("PR_BASE_SHA", "${{ github.event.pull_request.base.sha }}"),
+        ):
+            if _step_env_value(verify_merge_step, name) != expected:
+                errors.append(
+                    f"PR merge-result verification step must set {name} to {expected!r}"
                 )
 
     status_job = _job_block(ci_text, "ci-status")

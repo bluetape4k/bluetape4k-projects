@@ -77,6 +77,14 @@ Ubuntu 22.04 runner 계열은 2026-09-17부터 deprecation 단계에 들어갔�
 
 구현 전 RED 결과는 28개 테스트 중 7개 실패였다. 구현 후 로컬 contract suite는 30/30 PASS이며 verifier와 `actionlint`, `ruff check`, Python compile, `git diff --check`가 통과했다. `ruff format --check`는 현재 HEAD에서도 두 파일이 실패해 이번 변경으로 생긴 포맷 회귀는 아니다. 새 변경은 아직 push되지 않아 hosted exact-head CI와 새 SHA의 독립 재리뷰는 미확인이다. 작은 merge-result contract job은 product test suite를 synthetic merge commit에서 실행하지 않으므로, 제품 job의 exact-head 결과를 대체하지 않는다.
 
+## SHA 환경값 substring 검증 우회
+
+새 exact-head architecture review는 `d80db8dbda0b311a2e119a290c3a9f9911264534`에서 verifier가 `PROJECTS_EXPECTED_SHA`의 올바른 문자열이 주석에 남아 있기만 해도 통과하고, merge-result 검사에 쓰는 `PR_HEAD_SHA`와 `PR_BASE_SHA`가 `${{ github.sha }}`로 바뀌어 ancestry 검사가 자기 자신을 확인하게 되어도 통과하는 P2를 재현했다. workflow의 현재 값은 올바랐지만, 기존 substring 검사는 보호하려는 계약을 값과 위치에 결속하지 못했다.
+
+각 우회 negative test를 먼저 추가해 기존 verifier에서 세 개 모두 `validate_workflows()`의 빈 오류 목록으로 실패하는 RED를 확인했다. 수정본은 top-level `env.PROJECTS_EXPECTED_SHA`를 실제 key/value로 읽고, 이름이 고정된 merge verification step 안에서 `PR_HEAD_SHA`와 `PR_BASE_SHA`의 단일 env 값을 검사한다. 주석의 복사 문자열은 계약으로 인정하지 않는다. 세 회귀 테스트는 수정 후 통과했다.
+
+현재 로컬 후보는 전체 workflow contract 33/33, `verify-catalog-workflows.py`, `actionlint .github/workflows/ci.yml`, `ruff check`, Python compile, `git diff --check`를 통과했다. 수정은 아직 새 commit/push 전이므로 이 결과는 hosted CI 증거가 아니다. d80 code-review lane은 제한 시간 내 결과를 내지 못해 probe grace 만료 후 workflow receipt에 중단을 기록했고 native interrupt를 실행했다. 새 후보 SHA의 독립 code review와 exact-head CI가 남아 있다. merge 후 Dependency Submission 및 실제 hosted Dependabot이 alert #235의 해결을 입증하기 전까지 Issue #1832와 alert #235를 계속 열어 둔다.
+
 ## Writer DoD
 
 | 검사 | 결과 |
