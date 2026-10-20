@@ -364,6 +364,8 @@ jobs:
             --projects-root "$GITHUB_WORKSPACE" \
             --central-root "$GITHUB_WORKSPACE/.gradle/catalog-source/bluetape4k-dependencies" \
             --output "$evidence_dir/repository-map.json"
+          # Central's compatibility pin check consumes a SHA-valued REF. The signed tag was peeled above.
+          export BLUETAPE4K_DEPENDENCIES_CATALOG_REF="$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"
           python3.13 .gradle/catalog-source/bluetape4k-dependencies/scripts/project-dependabot-catalog.py \
             --projects-root "$GITHUB_WORKSPACE" \
             --central-root "$GITHUB_WORKSPACE/.gradle/catalog-source/bluetape4k-dependencies" \

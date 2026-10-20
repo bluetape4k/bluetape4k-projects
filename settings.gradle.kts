@@ -39,7 +39,7 @@ require(
     "bluetape4k-dependencies catalog ref must be a commit SHA or a catalog tag paired with an exact commit SHA: " +
         "ref=$bluetape4kDependenciesCatalogRef sha=$bluetape4kDependenciesCatalogSha"
 }
-val bluetape4kDependenciesCatalogCacheKey = bluetape4kDependenciesCatalogSha
+val bluetape4kDependenciesCatalogCacheSha = bluetape4kDependenciesCatalogSha
 
 fun catalogSha256(file: File): String {
     val digest = java.security.MessageDigest.getInstance("SHA-256")
@@ -123,8 +123,8 @@ fun resolveBluetape4kDependenciesCatalogFile(): File {
             return catalogFile
         }
 
-    val catalogFile = file(".gradle/bluetape4k-dependencies/$bluetape4kDependenciesCatalogCacheKey/libs.versions.toml")
-    val checksumFile = file(".gradle/bluetape4k-dependencies/$bluetape4kDependenciesCatalogCacheKey/libs.versions.toml.sha256")
+    val catalogFile = file(".gradle/bluetape4k-dependencies/$bluetape4kDependenciesCatalogCacheSha/libs.versions.toml")
+    val checksumFile = file(".gradle/bluetape4k-dependencies/$bluetape4kDependenciesCatalogCacheSha/libs.versions.toml.sha256")
     if (!catalogChecksumMatches(catalogFile, checksumFile)) {
         require(catalogFile.parentFile.mkdirs() || catalogFile.parentFile.isDirectory) {
             "Cannot create bluetape4k-dependencies catalog cache: ${catalogFile.parentFile}"

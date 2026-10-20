@@ -32,6 +32,11 @@ class CatalogWorkflowsTest(unittest.TestCase):
             "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: 'dcc7fa7557d3c0548b9e3fc28c48877827ea2f74'",
             self.ci,
         )
+        governance = verifier._job_block(self.ci, "catalog-governance")
+        self.assertIn(
+            'export BLUETAPE4K_DEPENDENCIES_CATALOG_REF="$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"',
+            governance,
+        )
         settings = (ROOT / "settings.gradle.kts").read_text()
         self.assertIn(
             '.orElse("dcc7fa7557d3c0548b9e3fc28c48877827ea2f74")',
@@ -55,7 +60,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
             'providers.gradleProperty("bluetape4kDependenciesCatalogSha")',
             'providers.environmentVariable("BLUETAPE4K_DEPENDENCIES_CATALOG_SHA")',
             'Regex("catalog/[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}")',
-            'val bluetape4kDependenciesCatalogCacheKey = bluetape4kDependenciesCatalogSha',
+            'val bluetape4kDependenciesCatalogCacheSha = bluetape4kDependenciesCatalogSha',
             '"https://raw.githubusercontent.com/bluetape4k/bluetape4k-dependencies/$bluetape4kDependenciesCatalogSha/gradle"',
         ]
         missing_contract = [
