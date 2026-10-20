@@ -371,6 +371,234 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
         self.assertTrue(any("PR_BASE_SHA" in error for error in errors), errors)
 
+    def test_rejects_duplicate_projects_expected_sha_definitions(self) -> None:
+        expected = "  PROJECTS_EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}\n"
+        invalid = self.ci.replace(
+            expected,
+            expected + "  PROJECTS_EXPECTED_SHA: ${{ github.sha }}\n",
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any(
+                "exactly one top-level PROJECTS_EXPECTED_SHA" in error
+                for error in errors
+            ),
+            errors,
+        )
+
+    def test_rejects_job_level_projects_expected_sha_override(self) -> None:
+        test_core = verifier._job_block(self.ci, "test-core")
+        invalid_test_core = test_core.replace(
+            "  test-core:\n",
+            "  test-core:\n    env:\n      PROJECTS_EXPECTED_SHA: ${{ github.sha }}\n",
+            1,
+        )
+        invalid = self.ci.replace(test_core, invalid_test_core, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any(
+                "PROJECTS_EXPECTED_SHA must not be overridden" in error
+                for error in errors
+            ),
+            errors,
+        )
+
+    def test_rejects_checkout_step_projects_expected_sha_override(self) -> None:
+        expected_ref = "          ref: ${{ env.PROJECTS_EXPECTED_SHA }}\n"
+        invalid = self.ci.replace(
+            expected_ref,
+            expected_ref
+            + "        env:\n"
+            + "          PROJECTS_EXPECTED_SHA: ${{ github.sha }}\n",
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any(
+                "PROJECTS_EXPECTED_SHA must not be overridden" in error
+                for error in errors
+            ),
+            errors,
+        )
+
+    def test_rejects_ancestry_commands_outside_the_named_verification_step(
+        self,
+    ) -> None:
+        merge_job = verifier._job_block(self.ci, "test-merge-result")
+        step_name = "Verify synthetic merge result contains the current PR commits"
+        verify_step = verifier._named_step_block(merge_job, step_name)
+        ancestry_commands = (
+            '          git merge-base --is-ancestor "$PR_HEAD_SHA" "$merge_result_sha"\n',
+            '          git merge-base --is-ancestor "$PR_BASE_SHA" "$merge_result_sha"\n',
+        )
+        invalid_verify_step = verify_step
+        for command in ancestry_commands:
+            invalid_verify_step = invalid_verify_step.replace(command, "", 1)
+        disabled_step = (
+            "\n      - name: Disabled ancestry check\n"
+            "        if: false\n"
+            "        run: |\n" + "".join(ancestry_commands)
+        )
+        invalid_merge_job = merge_job.replace(verify_step, invalid_verify_step, 1)
+        invalid_merge_job = invalid_merge_job.replace(
+            "      - uses: actions/setup-python@v7\n",
+            disabled_step + "      - uses: actions/setup-python@v7\n",
+            1,
+        )
+        invalid = self.ci.replace(merge_job, invalid_merge_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("named merge-result verification step" in error for error in errors),
+            errors,
+        )
+
+    def test_rejects_disabled_nonfatal_or_folded_merge_verification(self) -> None:
+        merge_job = verifier._job_block(self.ci, "test-merge-result")
+        step_name = "Verify synthetic merge result contains the current PR commits"
+        verify_step = verifier._named_step_block(merge_job, step_name)
+        invalid_steps = (
+            (
+                "if: false",
+                verify_step.replace(
+                    f"      - name: {step_name}\n",
+                    f"      - name: {step_name}\n        if: false\n",
+                    1,
+                ),
+            ),
+            (
+                "continue-on-error: true",
+                verify_step.replace(
+                    f"      - name: {step_name}\n",
+                    f"      - name: {step_name}\n        continue-on-error: true\n",
+                    1,
+                ),
+            ),
+            (
+                "folded run scalar",
+                verify_step.replace("        run: |\n", "        run: >\n", 1),
+            ),
+        )
+
+        for description, invalid_verify_step in invalid_steps:
+            with self.subTest(description=description):
+                invalid_merge_job = merge_job.replace(
+                    verify_step, invalid_verify_step, 1
+                )
+                invalid = self.ci.replace(merge_job, invalid_merge_job, 1)
+
+                errors = verifier.validate_workflows(invalid, self.submission)
+
+                self.assertTrue(
+                    any(
+                        "named merge-result verification step" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_rejects_ambiguous_or_tolerated_merge_result_job(self) -> None:
+        merge_job = verifier._job_block(self.ci, "test-merge-result")
+        current_condition = "    if: ${{ github.event_name == 'pull_request' }}\n"
+        invalid_jobs = (
+            (
+                "duplicate job condition",
+                merge_job.replace(
+                    current_condition,
+                    current_condition + "    if: false\n",
+                    1,
+                ),
+                "one exact pull_request condition",
+            ),
+            (
+                "continue-on-error",
+                merge_job.replace(
+                    "    runs-on: ubuntu-latest\n",
+                    "    continue-on-error: true\n    runs-on: ubuntu-latest\n",
+                    1,
+                ),
+                "must not use continue-on-error",
+            ),
+        )
+
+        for description, invalid_merge_job, expected_error in invalid_jobs:
+            with self.subTest(description=description):
+                invalid = self.ci.replace(merge_job, invalid_merge_job, 1)
+
+                errors = verifier.validate_workflows(invalid, self.submission)
+
+                self.assertTrue(
+                    any(expected_error in error for error in errors),
+                    errors,
+                )
+
+    def test_rejects_pr_sha_shell_reassignment(self) -> None:
+        merge_job = verifier._job_block(self.ci, "test-merge-result")
+        step_name = "Verify synthetic merge result contains the current PR commits"
+        verify_step = verifier._named_step_block(merge_job, step_name)
+        assignments = (
+            'PR_HEAD_SHA="$merge_result_sha"',
+            'export PR_BASE_SHA="$merge_result_sha"',
+        )
+
+        for assignment in assignments:
+            with self.subTest(assignment=assignment):
+                invalid_verify_step = verify_step.replace(
+                    "          set -euo pipefail\n",
+                    f"          set -euo pipefail\n          {assignment}\n",
+                    1,
+                )
+                invalid_merge_job = merge_job.replace(
+                    verify_step, invalid_verify_step, 1
+                )
+                invalid = self.ci.replace(merge_job, invalid_merge_job, 1)
+
+                errors = verifier.validate_workflows(invalid, self.submission)
+
+                self.assertTrue(
+                    any(
+                        "PR_HEAD_SHA and PR_BASE_SHA must not be reassigned" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_rejects_pr_sha_writes_to_github_env(self) -> None:
+        merge_job = verifier._job_block(self.ci, "test-merge-result")
+        step_name = "Verify synthetic merge result contains the current PR commits"
+        verify_step = verifier._named_step_block(merge_job, step_name)
+
+        for variable in ("PR_HEAD_SHA", "PR_BASE_SHA"):
+            with self.subTest(variable=variable):
+                assignment = f'echo "{variable}=$merge_result_sha" >> "$GITHUB_ENV"'
+                invalid_verify_step = verify_step.replace(
+                    "          set -euo pipefail\n",
+                    f"          set -euo pipefail\n          {assignment}\n",
+                    1,
+                )
+                invalid_merge_job = merge_job.replace(
+                    verify_step, invalid_verify_step, 1
+                )
+                invalid = self.ci.replace(merge_job, invalid_merge_job, 1)
+
+                errors = verifier.validate_workflows(invalid, self.submission)
+
+                self.assertTrue(
+                    any(
+                        "must not write PR SHA values to GITHUB_ENV" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
     def test_projects_ci_creates_pinned_parser_receipt_before_catalog_check(self) -> None:
         governance = verifier._job_block(self.ci, "catalog-governance")
         parser_contract = governance.find("dependabot-parser-contract.rb")

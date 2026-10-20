@@ -40,13 +40,19 @@ EXPECTED_EXTERNAL_CHECKOUTS = (
 )
 
 
+def _top_level_blocks(text: str, name: str) -> list[str]:
+    matches = list(re.finditer(rf"(?m)^{re.escape(name)}:\s*$", text))
+    blocks: list[str] = []
+    for match in matches:
+        following = re.search(r"(?m)^[A-Za-z_][A-Za-z0-9_-]*:\s*$", text[match.end() :])
+        end = match.end() + following.start() if following else len(text)
+        blocks.append(text[match.start() : end])
+    return blocks
+
+
 def _top_level_block(text: str, name: str) -> str:
-    match = re.search(rf"(?m)^{re.escape(name)}:\s*$", text)
-    if match is None:
-        return ""
-    following = re.search(r"(?m)^[A-Za-z_][A-Za-z0-9_-]*:\s*$", text[match.end() :])
-    end = match.end() + following.start() if following else len(text)
-    return text[match.start() : end]
+    blocks = _top_level_blocks(text, name)
+    return blocks[0] if blocks else ""
 
 
 def _job_blocks(text: str) -> list[tuple[str, str]]:
@@ -71,13 +77,42 @@ def _job_block(text: str, name: str) -> str:
 
 
 def _workflow_env(text: str, name: str) -> str | None:
-    env = _top_level_block(text, "env")
-    if not env:
-        return None
-    match = re.search(rf"(?m)^  {re.escape(name)}:\s*(.*?)\s*$", env)
-    if match is None:
-        return None
-    return match.group(1).strip("'\"")
+    values = _workflow_env_values(text, name)
+    return values[0] if len(values) == 1 else None
+
+
+def _workflow_env_values(text: str, name: str) -> list[str]:
+    values: list[str] = []
+    for env in _top_level_blocks(text, "env"):
+        values.extend(
+            value.strip("'\"")
+            for value in re.findall(rf"(?m)^  {re.escape(name)}:\s*(.*?)\s*$", env)
+        )
+    return values
+
+
+def _has_job_or_step_env_override(text: str, name: str) -> bool:
+    for _, job in _job_blocks(text):
+        lines = job.splitlines()
+        for index, line in enumerate(lines):
+            match = re.fullmatch(r"(?P<indent> {4}| {8})env:\s*(?P<inline>.*)", line)
+            if match is None:
+                continue
+            scope_indent = len(match.group("indent"))
+            inline = match.group("inline")
+            if inline and re.search(rf"\b{re.escape(name)}\s*:", inline):
+                return True
+            for entry in lines[index + 1 :]:
+                entry_indent = len(entry) - len(entry.lstrip())
+                if entry.strip() and entry_indent <= scope_indent:
+                    break
+                if (
+                    entry.strip()
+                    and entry_indent == scope_indent + 2
+                    and re.match(rf"{re.escape(name)}\s*:", entry.lstrip())
+                ):
+                    return True
+    return False
 
 
 def _named_step_block(job: str, name: str) -> str:
@@ -95,6 +130,40 @@ def _named_step_block(job: str, name: str) -> str:
         len(lines),
     )
     return "\n".join(lines[start:end])
+
+
+def _step_run_script(step: str) -> list[str] | None:
+    lines = step.splitlines()
+    run_lines = [
+        (index, len(line) - len(line.lstrip()), line.split(":", 1)[1].strip())
+        for index, line in enumerate(lines)
+        if re.match(r"^\s+run:\s*", line)
+    ]
+    if len(run_lines) != 1:
+        return None
+
+    start, run_indent, inline = run_lines[0]
+    if re.fullmatch(r"\|[+-]?", inline) is None:
+        return None
+
+    script: list[str] = []
+    for line in lines[start + 1 :]:
+        indent = len(line) - len(line.lstrip())
+        if line.strip() and indent <= run_indent:
+            break
+        if line.strip():
+            script.append(line.strip())
+    return script
+
+
+def _indented_values(block: str, name: str, indent: int) -> list[str]:
+    prefix = " " * indent
+    return [
+        value.strip("'\"")
+        for value in re.findall(
+            rf"(?m)^{re.escape(prefix)}{re.escape(name)}:\s*(.*?)\s*$", block
+        )
+    ]
 
 
 def _step_env_value(step: str, name: str) -> str | None:
@@ -158,10 +227,15 @@ def _has_exact_governance_gate(status_job: str) -> bool:
 def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     """Return contract violations in the Projects GitHub workflows."""
     errors: list[str] = []
-    if _workflow_env(ci_text, "PROJECTS_EXPECTED_SHA") != (
+    expected_sha_values = _workflow_env_values(ci_text, "PROJECTS_EXPECTED_SHA")
+    if len(expected_sha_values) != 1:
+        errors.append("CI must define exactly one top-level PROJECTS_EXPECTED_SHA")
+    elif _workflow_env(ci_text, "PROJECTS_EXPECTED_SHA") != (
         "${{ github.event.pull_request.head.sha || github.sha }}"
     ):
         errors.append("CI must resolve the Projects PR head instead of its merge SHA")
+    if _has_job_or_step_env_override(ci_text, "PROJECTS_EXPECTED_SHA"):
+        errors.append("PROJECTS_EXPECTED_SHA must not be overridden in job or step env")
     first_party_repositories = {
         PROJECTS_REPOSITORY,
         "${{ github.repository }}",
@@ -330,14 +404,18 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         errors.append("CI must define the PR merge-result contract job")
     else:
         required_merge_result = (
-            "if: ${{ github.event_name == 'pull_request' }}",
             "ref: ${{ github.sha }}",
-            'test "$merge_result_sha" = "$GITHUB_SHA"',
-            'git merge-base --is-ancestor "$PR_HEAD_SHA" "$merge_result_sha"',
-            'git merge-base --is-ancestor "$PR_BASE_SHA" "$merge_result_sha"',
             "python3 -m unittest tests.test_catalog_workflows -v",
             "python3 scripts/verify-catalog-workflows.py",
         )
+        if _indented_values(merge_result, "if", 4) != [
+            "${{ github.event_name == 'pull_request' }}"
+        ]:
+            errors.append(
+                "PR merge-result job must have one exact pull_request condition"
+            )
+        if _indented_values(merge_result, "continue-on-error", 4):
+            errors.append("PR merge-result job must not use continue-on-error")
         for required in required_merge_result:
             if required not in merge_result:
                 errors.append(
@@ -347,6 +425,56 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             merge_result,
             "Verify synthetic merge result contains the current PR commits",
         )
+        if _indented_values(verify_merge_step, "if", 8) or _indented_values(
+            verify_merge_step, "continue-on-error", 8
+        ):
+            errors.append(
+                "named merge-result verification step must run unconditionally and fail the job"
+            )
+        verify_script = _step_run_script(verify_merge_step)
+        required_verification_commands = (
+            "set -euo pipefail",
+            'merge_result_sha="$(git rev-parse HEAD)"',
+            'test "$merge_result_sha" = "$GITHUB_SHA"',
+            'git merge-base --is-ancestor "$PR_HEAD_SHA" "$merge_result_sha"',
+            'git merge-base --is-ancestor "$PR_BASE_SHA" "$merge_result_sha"',
+        )
+        command_positions = (
+            [verify_script.index(command) for command in required_verification_commands]
+            if verify_script is not None
+            and all(
+                command in verify_script for command in required_verification_commands
+            )
+            else []
+        )
+        if (
+            verify_script is None
+            or len(command_positions) != len(required_verification_commands)
+            or command_positions != sorted(command_positions)
+            or len(set(command_positions)) != len(command_positions)
+            or any(
+                re.match(r"^(?:if|elif|then|else|fi|case|for|while|until)\b", line)
+                for line in verify_script
+            )
+        ):
+            errors.append(
+                "PR merge-result ancestry checks must run in order as commands in the named merge-result verification step"
+            )
+        verify_script_text = "\n".join(verify_script or [])
+        if re.search(
+            r"(?m)(?:^|[;&|]\s*)(?:export\s+|declare\s+(?:-x\s+)?|readonly\s+)?"
+            r"PR_(?:HEAD|BASE)_SHA(?:\s*\+?=|\s+)",
+            verify_script_text,
+        ) or re.search(
+            r"(?m)^\s*unset\s+.*\bPR_(?:HEAD|BASE)_SHA\b", verify_script_text
+        ):
+            errors.append("PR_HEAD_SHA and PR_BASE_SHA must not be reassigned")
+        if "GITHUB_ENV" in merge_result and re.search(
+            r"\bPR_(?:HEAD|BASE)_SHA\b", merge_result
+        ):
+            errors.append(
+                "PR merge-result job must not write PR SHA values to GITHUB_ENV"
+            )
         for name, expected in (
             ("PR_HEAD_SHA", "${{ github.event.pull_request.head.sha }}"),
             ("PR_BASE_SHA", "${{ github.event.pull_request.base.sha }}"),
