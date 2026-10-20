@@ -1489,6 +1489,39 @@ class CatalogWorkflowsTest(unittest.TestCase):
                 self.submission,
             ),
             (
+                "CI workflow RUBYOPT",
+                self.ci.replace(
+                    "  JAVA_VERSION: '25'\n",
+                    "  RUBYOPT: '-r./.github/evil'\n  JAVA_VERSION: '25'\n",
+                    1,
+                ),
+                self.submission,
+            ),
+            (
+                "CI workflow BUNDLE_GEMFILE",
+                self.ci.replace(
+                    "  JAVA_VERSION: '25'\n",
+                    "  BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile\n"
+                    "  JAVA_VERSION: '25'\n",
+                    1,
+                ),
+                self.submission,
+            ),
+            (
+                "catalog-governance job BUNDLE_PATH",
+                self.ci.replace(
+                    governance,
+                    governance.replace(
+                        "    runs-on: ubuntu-latest\n",
+                        "    env:\n      BUNDLE_PATH: /tmp/attacker-gems\n"
+                        "    runs-on: ubuntu-latest\n",
+                        1,
+                    ),
+                    1,
+                ),
+                self.submission,
+            ),
+            (
                 "catalog-governance job GIT_CONFIG_GLOBAL",
                 self.ci.replace(
                     governance,
@@ -1589,11 +1622,65 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
                 self.assertTrue(
                     any(
-                        "unsafe execution environment variable" in error
+                        (
+                            "BUNDLE_GEMFILE only in the pinned parser contract"
+                            if description == "CI workflow BUNDLE_GEMFILE"
+                            else "unsafe execution environment variable"
+                        )
+                        in error
                         for error in errors
                     ),
                     errors,
                 )
+
+    def test_rejects_environment_aliases_in_dependency_submission(self) -> None:
+        invalid_submission = self.submission.replace(
+            "  dependency-submission:\n",
+            "  env-source:\n"
+            "    runs-on: ubuntu-latest\n"
+            "    env: &unsafe_env\n"
+            "      BASH_ENV: /tmp/fail-open.sh\n"
+            "    steps:\n"
+            "      - run: echo no-op\n"
+            "  dependency-submission:\n"
+            "    env: *unsafe_env\n",
+            1,
+        )
+
+        errors = verifier.validate_workflows(self.ci, invalid_submission)
+
+        self.assertTrue(any("environment mapping" in error for error in errors), errors)
+
+    def test_rejects_environment_aliases_in_ci(self) -> None:
+        invalid_ci = self.ci.replace(
+            "  catalog-governance:\n",
+            "  env-source:\n"
+            "    runs-on: ubuntu-latest\n"
+            "    env: &unused_env\n"
+            "      CATALOG_CACHE_DIR: /tmp/catalog-cache\n"
+            "    steps:\n"
+            "      - run: echo no-op\n"
+            "  catalog-governance:\n",
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid_ci, self.submission)
+
+        self.assertTrue(any("environment mapping" in error for error in errors), errors)
+
+    def test_pins_bundle_gemfile_to_dependabot_parser_checkout(self) -> None:
+        invalid_ci = self.ci.replace(
+            "          BUNDLE_GEMFILE: ${{ github.workspace }}/.gradle/dependabot-core/Gemfile\n",
+            "          BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile\n",
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid_ci, self.submission)
+
+        self.assertTrue(
+            any("parser contract step environment" in error for error in errors),
+            errors,
+        )
 
 
 if __name__ == "__main__":

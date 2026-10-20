@@ -39,6 +39,14 @@ EXPECTED_DEPENDABOT_PARSER_CONTRACT_SCRIPT = (
     'test "$(git -C "$DEPENDABOT_CORE_ROOT" rev-parse HEAD)" = "${{ steps.dependabot-pin.outputs.commit }}"',
     "bundle exec ruby .gradle/catalog-source/bluetape4k-dependencies/tests/fixtures/project-dependabot-catalog/dependabot-parser-contract.rb",
 )
+EXPECTED_DEPENDABOT_PARSER_CONTRACT_ENV = (
+    "        env:",
+    "          BUNDLE_GEMFILE: ${{ github.workspace }}/.gradle/dependabot-core/Gemfile",
+    "          DEPENDABOT_CORE_ROOT: ${{ github.workspace }}/.gradle/dependabot-core",
+    "          MAPPING_PATH: ${{ github.workspace }}/.gradle/catalog-source/bluetape4k-dependencies/config/projects-dependabot-catalog.toml",
+    "          GENERATED_CATALOG_PATH: ${{ github.workspace }}/gradle/libs.versions.toml",
+    "          OUTPUT_PATH: ${{ github.workspace }}/.gradle/issue-1832-evidence/parser-receipt.json",
+)
 EXPECTED_DEPENDABOT_CORE_PIN_SCRIPT = (
     "python3.13 - <<'PY' >> \"$GITHUB_OUTPUT\"",
     "import tomllib",
@@ -135,6 +143,8 @@ YAML_ACTION_ALIAS_RE = re.compile(
     r"|^ {8}(?:uses|\"uses\"|'uses')\s*:\s*[*&][A-Za-z_][A-Za-z0-9_-]*"
     r"|^ {6}- [*&][A-Za-z_][A-Za-z0-9_-]*"
 )
+YAML_ENV_ALIAS_VALUE_RE = re.compile(r"(?:^|[:,\[\-]\s*)[*&][A-Za-z_][A-Za-z0-9_-]*\b")
+YAML_MERGE_KEY_RE = re.compile(r"(?<![A-Za-z0-9_-])<<\s*:")
 YAML_ESCAPED_KEY_RE = re.compile(
     r"""(?m)^\s*(?:-\s+)?(?:"[^"\n]*\\[^"\n]*"|'[^'\n]*\\[^'\n]*')\s*:"""
 )
@@ -267,6 +277,49 @@ def _env_mapping_keys(lines: list[str], start: int, scope_indent: int) -> set[st
     return keys
 
 
+def _has_environment_mapping_alias_or_merge(text: str) -> bool:
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        match = re.fullmatch(
+            rf"(?P<indent> {{0,8}}){_yaml_key_pattern('env')}:\s*(?P<inline>.*)",
+            line,
+        )
+        if match is None:
+            continue
+
+        scope_indent = len(match.group("indent"))
+        inline_value = match.group("inline")
+        if YAML_ENV_ALIAS_VALUE_RE.search(inline_value) or YAML_MERGE_KEY_RE.search(
+            inline_value
+        ):
+            return True
+
+        for entry in lines[index + 1 :]:
+            if entry.strip() and len(entry) - len(entry.lstrip()) <= scope_indent:
+                break
+            if not entry.strip():
+                continue
+            value = entry.strip()
+            if YAML_ENV_ALIAS_VALUE_RE.search(value) or YAML_MERGE_KEY_RE.search(value):
+                return True
+
+    return False
+
+
+def _environment_mapping_key_count(text: str, name: str) -> int:
+    count = 0
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        match = re.fullmatch(
+            rf"(?P<indent> {{0,8}}){_yaml_key_pattern('env')}:\s*.*", line
+        )
+        if match is None:
+            continue
+        keys = _env_mapping_keys(lines, index, len(match.group("indent")))
+        count += sum(key.upper() == name.upper() for key in keys)
+    return count
+
+
 def _unsafe_execution_environment_names(
     text: str, protected_jobs: tuple[str, ...]
 ) -> list[str]:
@@ -289,8 +342,38 @@ def _unsafe_execution_environment_names(
     return sorted(
         key
         for key in keys
-        if key.upper() in {"BASH_ENV", "ENV", "PATH", "PYTHONPATH", "PYTHONHOME"}
-        or key.upper().startswith("GIT_")
+        if key.upper()
+        in {
+            "BASH_ENV",
+            "BASHOPTS",
+            "CDPATH",
+            "CLASSPATH",
+            "DYLD_INSERT_LIBRARIES",
+            "DYLD_LIBRARY_PATH",
+            "ENV",
+            "GEM_HOME",
+            "GEM_PATH",
+            "GEMRC",
+            "JAVA_OPTS",
+            "JAVA_TOOL_OPTIONS",
+            "JDK_JAVA_OPTIONS",
+            "LD_LIBRARY_PATH",
+            "LD_PRELOAD",
+            "NODE_OPTIONS",
+            "NODE_PATH",
+            "PATH",
+            "PERL5LIB",
+            "PERL5OPT",
+            "PYTHONHOME",
+            "PYTHONPATH",
+            "RUBYLIB",
+            "RUBYOPT",
+            "SHELLOPTS",
+            "_JAVA_OPTIONS",
+        }
+        or key.upper().startswith(("GIT_", "BASH_FUNC_", "GRADLE_", "KOTLIN_"))
+        or key.upper().startswith("BUNDLE_")
+        and key.upper() != "BUNDLE_GEMFILE"
     )
 
 
@@ -505,9 +588,17 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         errors.append(
             "dependency-submission workflow must not define run defaults that can replace the shell"
         )
-    if YAML_ACTION_ALIAS_RE.search(ci_text) or re.search(r"(?m)^\s*<<\s*:", ci_text):
+    if (
+        YAML_ACTION_ALIAS_RE.search(ci_text)
+        or re.search(r"(?m)^\s*<<\s*:", ci_text)
+        or _has_environment_mapping_alias_or_merge(ci_text)
+    ):
         errors.append(
             "CI workflow must not use YAML anchors and aliases for Actions steps or environment mappings"
+        )
+    if _has_environment_mapping_alias_or_merge(submission_text):
+        errors.append(
+            "dependency-submission workflow must not use YAML anchors and aliases in environment mappings"
         )
     expected_sha_values = _workflow_env_values(ci_text, "PROJECTS_EXPECTED_SHA")
     if len(expected_sha_values) != 1:
@@ -746,6 +837,16 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         ):
             errors.append(
                 "catalog-governance parser contract step must execute the pinned parser script"
+            )
+        if _step_env_block(parser_step) != list(
+            EXPECTED_DEPENDABOT_PARSER_CONTRACT_ENV
+        ):
+            errors.append(
+                "catalog-governance parser contract step environment must pin the expected paths and values"
+            )
+        if _environment_mapping_key_count(ci_text, "BUNDLE_GEMFILE") != 1:
+            errors.append(
+                "CI must define BUNDLE_GEMFILE only in the pinned parser contract step environment"
             )
         if _step_values(parser_step, "shell"):
             errors.append(
