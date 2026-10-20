@@ -1392,6 +1392,201 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
         self.assertTrue(any("defaults" in error for error in errors), errors)
 
+    def test_rejects_dependabot_pin_step_shell_and_script_overrides(self) -> None:
+        governance = verifier._job_block(self.ci, "catalog-governance")
+        step_name = "Read pinned Dependabot Core commit"
+        pin_step = verifier._named_step_block(governance, step_name)
+        invalid_steps = (
+            (
+                "custom shell",
+                pin_step.replace(
+                    "        shell: bash\n",
+                    "        shell: bash -c 'exit 0' -- {0}\n",
+                    1,
+                ),
+            ),
+            (
+                "attacker output before pin parser",
+                pin_step.replace(
+                    "        run: |\n",
+                    '        run: |\n          echo "commit=attacker" >> "$GITHUB_OUTPUT"\n',
+                    1,
+                ),
+            ),
+            (
+                "early successful exit",
+                pin_step.replace(
+                    "        run: |\n",
+                    "        run: |\n          exit 0\n",
+                    1,
+                ),
+            ),
+            (
+                "conditional step",
+                pin_step.replace(
+                    f"      - name: {step_name}\n",
+                    f"      - name: {step_name}\n        if: false\n",
+                    1,
+                ),
+            ),
+            (
+                "step BASH_ENV override",
+                pin_step.replace(
+                    "        run: |\n",
+                    "        env:\n          BASH_ENV: /tmp/fail-open.sh\n"
+                    "        run: |\n",
+                    1,
+                ),
+            ),
+            (
+                "duplicate output id",
+                pin_step.replace(
+                    "        id: dependabot-pin\n",
+                    "        id: dependabot-pin\n        id: attacker\n",
+                    1,
+                ),
+            ),
+        )
+
+        for description, invalid_step in invalid_steps:
+            with self.subTest(mutation=description):
+                invalid_job = governance.replace(pin_step, invalid_step, 1)
+                invalid_ci = self.ci.replace(governance, invalid_job, 1)
+
+                errors = verifier.validate_workflows(invalid_ci, self.submission)
+
+                self.assertTrue(
+                    any(
+                        "pinned Dependabot Core commit step" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_rejects_unsafe_environment_overrides_on_protected_workflows(self) -> None:
+        governance = verifier._job_block(self.ci, "catalog-governance")
+        status_job = verifier._job_block(self.ci, "ci-status")
+        submission_job = verifier._job_block(self.submission, "dependency-submission")
+        verification_step = verifier._named_step_block(
+            submission_job, "Verify dependency submission commit"
+        )
+        invalid_workflows = (
+            (
+                "CI workflow BASH_ENV",
+                self.ci.replace(
+                    "  JAVA_VERSION: '25'\n",
+                    "  \"BASH_ENV\": /tmp/fail-open.sh\n  JAVA_VERSION: '25'\n",
+                    1,
+                ),
+                self.submission,
+            ),
+            (
+                "catalog-governance job GIT_CONFIG_GLOBAL",
+                self.ci.replace(
+                    governance,
+                    governance.replace(
+                        "    runs-on: ubuntu-latest\n",
+                        "    env:\n      GIT_CONFIG_GLOBAL: /tmp/attacker.gitconfig\n"
+                        "    runs-on: ubuntu-latest\n",
+                        1,
+                    ),
+                    1,
+                ),
+                self.submission,
+            ),
+            (
+                "ci-status job PATH",
+                self.ci.replace(
+                    status_job,
+                    status_job.replace(
+                        "    runs-on: ubuntu-latest\n",
+                        "    env:\n      PATH: /tmp/attacker-bin\n"
+                        "    runs-on: ubuntu-latest\n",
+                        1,
+                    ),
+                    1,
+                ),
+                self.submission,
+            ),
+            (
+                "ci-status inline flow PATH",
+                self.ci.replace(
+                    status_job,
+                    status_job.replace(
+                        "    runs-on: ubuntu-latest\n",
+                        "    env: { 'PATH': /tmp/attacker-bin }\n"
+                        "    runs-on: ubuntu-latest\n",
+                        1,
+                    ),
+                    1,
+                ),
+                self.submission,
+            ),
+            (
+                "Dependency Submission workflow ENV",
+                self.ci,
+                self.submission.replace(
+                    "  JAVA_VERSION: '25'\n",
+                    "  ENV: /tmp/fail-open.sh\n  JAVA_VERSION: '25'\n",
+                    1,
+                ),
+            ),
+            (
+                "Dependency Submission job BASH_ENV",
+                self.ci,
+                self.submission.replace(
+                    submission_job,
+                    submission_job.replace(
+                        "    runs-on: ubuntu-latest\n",
+                        "    env:\n      BASH_ENV: /tmp/fail-open.sh\n"
+                        "    runs-on: ubuntu-latest\n",
+                        1,
+                    ),
+                    1,
+                ),
+            ),
+            (
+                "Dependency Submission job PYTHONPATH",
+                self.ci,
+                self.submission.replace(
+                    submission_job,
+                    submission_job.replace(
+                        "    runs-on: ubuntu-latest\n",
+                        "    env:\n      PYTHONPATH: /tmp/attacker-modules\n"
+                        "    runs-on: ubuntu-latest\n",
+                        1,
+                    ),
+                    1,
+                ),
+            ),
+            (
+                "Dependency Submission step PATH",
+                self.ci,
+                self.submission.replace(
+                    verification_step,
+                    verification_step.replace(
+                        "          EXPECTED_SHA: ${{ github.sha }}\n",
+                        "          EXPECTED_SHA: ${{ github.sha }}\n"
+                        "          PATH: /tmp/attacker-bin\n",
+                        1,
+                    ),
+                    1,
+                ),
+            ),
+        )
+
+        for description, invalid_ci, invalid_submission in invalid_workflows:
+            with self.subTest(scope=description):
+                errors = verifier.validate_workflows(invalid_ci, invalid_submission)
+
+                self.assertTrue(
+                    any(
+                        "unsafe execution environment variable" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
 
 if __name__ == "__main__":
     unittest.main()

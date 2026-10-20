@@ -109,3 +109,18 @@ CI run `39465440177`은 f648 head에서 28/28 job 성공으로 완료됐다. 이
 Issue #1832와 alert #235는 merge 후 실제 dependency graph 제출 및 hosted 보안 업데이트 결과를 확인하기 전까지 해결 처리하지 않는다.
 
 **후속 review writer DoD (2026-10-21):** SPW-01 PASS—독자는 PR #1838의 workflow verifier 유지보수자이며 head/base, lane, 범위와 판정을 고정했다. SPW-02 PASS—세 우회, 심각도, 수정, RED/GREEN, 검증과 미완료 게이트를 source 및 live run에 대조했다. SPW-03 PASS—한국어 기술 문장과 동일한 CI 용어를 유지하고 식별자·명령을 보존했다. SPW-04 PASS—독립 리뷰 출력, 테스트 출력, verifier 및 GitHub Actions 결과를 각 head에 연결했다. SPW-05 PASS—문서를 다시 읽고 PENDING 범위와 수치를 확인했다. KO-01–KO-07 PASS—사실·표·용어를 읽고 contextual terminology audit을 확인했다.
+
+## 40533a0 exact-head 리뷰 후속
+
+대체 독립 `code-reviewer` lane `issue1832_40533a0_code_reviewer_retry1`은 base `34c84a6115c80e3b3dfcde84be54106084259cfa`와 PR head `40533a0a1743327c13f22a513da03fffc5c2214d`를 검토해 **REQUEST CHANGES**를 반환했다(P0=0, P1=2, P2=0). 이 리뷰는 f648 head에서 발견한 세 P1 우회가 새 head에서 차단된 것도 확인했다.
+
+| 심각도 | Tier | 재현한 우회 | 로컬 수정 후보 |
+|---|---|---|---|
+| P1 | T4, T7 | `.github/workflows/ci.yml`의 `Read pinned Dependabot Core commit` step에 사용자 정의 `shell`이나 추가 `run` 명령을 넣어도 verifier가 허용했다. 조작한 `commit` 출력을 후속 checkout이 사용한다. | step ID, 현재 명시된 `shell: bash`, 실행 스크립트 전체, 조건·오류 처리와 step 환경을 정확히 고정하고 mutation 회귀를 추가했다. |
+| P1 | T3, T4, T7 | `catalog-governance` 및 `ci-status`의 job 환경과 CI/Dependency Submission의 workflow·job·step 환경에서 `BASH_ENV`, `PATH`, `ENV`, `GIT_*`, `PYTHONPATH`를 주입해 검증 전에 명령을 바꾸거나 우회할 수 있다. | 보호 workflow 범위의 모든 `env` mapping을 확인하고 위험 환경 키를 거부한다. 따옴표로 감싼 키와 인라인 flow mapping도 회귀 입력에 포함했다. |
+
+처음 추가한 pin-step 4개와 environment 6개 변형은 수정 전 모두 검증기를 통과해 RED였다. 후속으로 pin-step 환경·중복 ID, `PYTHONPATH`, inline flow mapping 사례를 더해 총 14개 변형을 검증한다. 현재 로컬 후보는 66개 contract test, workflow verifier, Ruff lint, Python compile, 두 workflow의 `actionlint`, `git diff --check`를 통과했다. 새 코드 구간에는 `ruff format --diff` 제안이 없고, non-zero 출력은 기존 미변경 영역에서만 발생한다.
+
+이 후보는 아직 commit/push하지 않았다. 따라서 위 로컬 검증은 PR head `40533a0...`의 hosted CI를 대체하지 않는다. 수정 후보를 push한 후 새 exact-head CI와 독립 리뷰를 확인한다. merge 승인, Dependency Submission, hosted Dependabot 실행과 alert #235 read-back은 계속 PENDING이다. Issue #1832와 CRITICAL alert #235를 해결된 것으로 처리하지 않는다.
+
+**40533a0 리뷰 후속 writer DoD (2026-10-21):** SPW-01 PASS—독자·목적·base/head·review lane·소스 파일과 미확인 hosted 증거를 고정했다. SPW-02 PASS—7-Tier 심각도, 두 P1의 재현·대응, 이전 세 P1의 확인, 검증 범위와 다음 게이트를 기록했다. SPW-03 PASS—한국어 기술 자연스러움 점검을 적용하고 식별자·명령·불확실성을 보존했다. SPW-04 PASS—리뷰 결과, 소스, RED/GREEN 테스트, 로컬 검증 출력을 대조하고 이전 head의 CI를 새 후보 증거로 쓰지 않았다. SPW-05 PASS—최종 Markdown을 다시 읽고 표와 PENDING 상태를 확인했다. KO-01–KO-07 PASS—사실·용어·독자가 보는 내용을 확인하고 변경 문서별 terminology audit 결과를 검토했다.

@@ -39,6 +39,20 @@ EXPECTED_DEPENDABOT_PARSER_CONTRACT_SCRIPT = (
     'test "$(git -C "$DEPENDABOT_CORE_ROOT" rev-parse HEAD)" = "${{ steps.dependabot-pin.outputs.commit }}"',
     "bundle exec ruby .gradle/catalog-source/bluetape4k-dependencies/tests/fixtures/project-dependabot-catalog/dependabot-parser-contract.rb",
 )
+EXPECTED_DEPENDABOT_CORE_PIN_SCRIPT = (
+    "python3.13 - <<'PY' >> \"$GITHUB_OUTPUT\"",
+    "import tomllib",
+    "from pathlib import Path",
+    "mapping_path = Path(",
+    '".gradle/catalog-source/bluetape4k-dependencies/config/projects-dependabot-catalog.toml"',
+    ")",
+    'mapping = tomllib.loads(mapping_path.read_text(encoding="utf-8"))',
+    'commit = mapping.get("dependabot_core_commit")',
+    'if not isinstance(commit, str) or len(commit) != 40 or any(c not in "0123456789abcdef" for c in commit):',
+    'raise SystemExit("Dependabot Core pin must be a full lowercase commit SHA")',
+    'print(f"commit={commit}")',
+    "PY",
+)
 EXPECTED_CATALOG_VERIFICATION_SCRIPT = (
     "set -euo pipefail",
     'git switch -c ci-project-catalog "$PROJECTS_EXPECTED_SHA"',
@@ -222,6 +236,62 @@ def _workflow_env_values(text: str, name: str) -> list[str]:
             for value in re.findall(rf"(?m)^  {key}:\s*(.*?)\s*$", env)
         )
     return values
+
+
+def _yaml_mapping_keys(value: str) -> set[str]:
+    return {
+        _yaml_scalar_value(match.group(1))
+        for match in re.finditer(
+            rf"(?<![A-Za-z0-9_-])({YAML_SIMPLE_KEY_RE})\s*:", value
+        )
+    }
+
+
+def _env_mapping_keys(lines: list[str], start: int, scope_indent: int) -> set[str]:
+    line = lines[start]
+    prefix = " " * scope_indent
+    match = re.fullmatch(
+        rf"{re.escape(prefix)}{_yaml_key_pattern('env')}:\s*(.*)", line
+    )
+    if match is None:
+        return set()
+
+    keys = _yaml_mapping_keys(match.group(1))
+    for entry in lines[start + 1 :]:
+        if entry.strip() and len(entry) - len(entry.lstrip()) <= scope_indent:
+            break
+        if entry.strip() and len(entry) - len(entry.lstrip()) == scope_indent + 2:
+            key_match = re.match(rf"({YAML_SIMPLE_KEY_RE})\s*:", entry.lstrip())
+            if key_match is not None:
+                keys.add(_yaml_scalar_value(key_match.group(1)))
+    return keys
+
+
+def _unsafe_execution_environment_names(
+    text: str, protected_jobs: tuple[str, ...]
+) -> list[str]:
+    keys: set[str] = set()
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        if re.fullmatch(rf"{_yaml_key_pattern('env')}:\s*.*", line):
+            keys.update(_env_mapping_keys(lines, index, 0))
+
+    for job_name in protected_jobs:
+        job_lines = _job_block(text, job_name).splitlines()
+        for index, line in enumerate(job_lines):
+            for scope_indent in (4, 8):
+                if re.fullmatch(
+                    rf"{' ' * scope_indent}{_yaml_key_pattern('env')}:\s*.*",
+                    line,
+                ):
+                    keys.update(_env_mapping_keys(job_lines, index, scope_indent))
+
+    return sorted(
+        key
+        for key in keys
+        if key.upper() in {"BASH_ENV", "ENV", "PATH", "PYTHONPATH", "PYTHONHOME"}
+        or key.upper().startswith("GIT_")
+    )
 
 
 def _has_job_or_step_env_override(text: str, name: str) -> bool:
@@ -615,6 +685,38 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             not in governance
         ):
             errors.append("catalog-governance must verify the exact catalog tag object SHA")
+        pin_step = _named_step_block(governance, "Read pinned Dependabot Core commit")
+        pin_id_steps = [
+            step
+            for step in _step_blocks(governance)
+            if "dependabot-pin" in _step_values(step, "id")
+        ]
+        if (
+            len(pin_id_steps) != 1
+            or _step_value(pin_step, "id") != "dependabot-pin"
+            or len(_step_values(pin_step, "id")) != 1
+        ):
+            errors.append(
+                "catalog-governance must define one pinned Dependabot Core commit step with id dependabot-pin"
+            )
+        if _step_run_script(pin_step) != list(EXPECTED_DEPENDABOT_CORE_PIN_SCRIPT):
+            errors.append(
+                "catalog-governance pinned Dependabot Core commit step must execute its exact script"
+            )
+        if _step_values(pin_step, "shell") != ["bash"]:
+            errors.append(
+                "catalog-governance pinned Dependabot Core commit step must use the exact fail-closed bash shell"
+            )
+        if _indented_values(pin_step, "if", 8) or _indented_values(
+            pin_step, "continue-on-error", 8
+        ):
+            errors.append(
+                "catalog-governance pinned Dependabot Core commit step must run and fail closed"
+            )
+        if _indented_values(pin_step, "env", 8):
+            errors.append(
+                "catalog-governance pinned Dependabot Core commit step must not override its execution environment"
+            )
         parser_step = _named_step_block(
             governance, "Run pinned Dependabot Gradle parser contract"
         )
@@ -664,6 +766,15 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             errors.append(
                 "catalog verification step must not override the fail-closed shell"
             )
+
+    unsafe_ci_environment = _unsafe_execution_environment_names(
+        ci_text, ("catalog-governance", "ci-status")
+    )
+    if unsafe_ci_environment:
+        errors.append(
+            "CI protected execution scopes must not define unsafe execution environment variable(s): "
+            + ", ".join(unsafe_ci_environment)
+        )
 
     merge_result = _job_block(ci_text, MERGE_RESULT_JOB)
     if not merge_result:
@@ -847,6 +958,14 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     if not submission:
         errors.append("workflow must define dependency-submission")
     else:
+        unsafe_submission_environment = _unsafe_execution_environment_names(
+            submission_text, ("dependency-submission",)
+        )
+        if unsafe_submission_environment:
+            errors.append(
+                "dependency-submission protected execution scopes must not define unsafe execution environment variable(s): "
+                + ", ".join(unsafe_submission_environment)
+            )
         if _indented_values(submission, "continue-on-error", 4):
             errors.append(
                 "dependency-submission must not use job-level continue-on-error"
