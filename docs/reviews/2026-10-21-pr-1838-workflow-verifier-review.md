@@ -54,7 +54,9 @@ Hosted CI run `39458442605`는 PR head `1a537ec...`에서 28/28 job이 성공했
 
 `test_rejects_exit_before_catalog_verification_commands` 회귀 테스트를 먼저 추가했다. 수정 전 `validate_workflows()`가 오류 없는 결과를 반환해 RED였고, 수정 후 기대한 오류가 나와 GREEN이 됐다. 검증기는 이제 catalog verification step의 전체 스크립트를 고정하며, 추가 명령이나 조기 종료를 허용하지 않는다. 전체 workflow contract 60개, verifier, Ruff, Python compile, actionlint, `git diff --check`가 로컬에서 통과했다.
 
-이 inline follow-up은 verifier 변경 및 회귀 테스트의 T3/T4/T7 실행 계약만 검토한다. 이 patch는 Kotlin 제품 코드, 공개 API/ABI, 모듈 발행 계약을 바꾸지 않는다. Inline verdict: PASS; P0=0, P1=0.
+이 inline follow-up은 verifier 변경 및 회귀 테스트의 T3/T4/T7 실행 계약만 검토한다. 이 patch는 Kotlin 제품 코드, 공개 API/ABI, 모듈 발행 계약을 바꾸지 않는다.
+
+Inline verdict: PASS; P0=0, P1=0.
 
 이 판정은 독립 리뷰가 아니다. 현재 최종 후보의 hosted exact-head CI와 새 독립 리뷰를 확인해야 merge 준비가 끝난다. 머지 승인 및 merge 후 Dependency Submission/hosted Dependabot 검증도 별도 DoD로 남아 있다.
 
