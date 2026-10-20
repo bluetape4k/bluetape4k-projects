@@ -78,6 +78,50 @@ val excludeBenchmarks = providers.gradleProperty("excludeBenchmarks")
     .map(String::toBoolean)
     .orElse(false)
 
+val bt4kCatalog = extensions.getByType<org.gradle.api.artifacts.VersionCatalogsExtension>().named("bt4k")
+fun bt4kVersion(alias: String): String {
+    val version = bt4kCatalog.findVersion(alias).get()
+    return version.requiredVersion
+        .ifBlank { version.preferredVersion }
+        .ifBlank { version.strictVersion }
+}
+
+fun dottedReleaseComponents(version: String): List<Int> {
+    val components = version.split('.')
+    require(components.isNotEmpty() && components.all(String::isNotEmpty)) {
+        "Expected a dotted-release version, found: $version"
+    }
+    return components.map { component ->
+        require(component.all(Char::isDigit)) {
+            "Expected a dotted-release version, found: $version"
+        }
+        component.toIntOrNull()
+            ?: error("Dotted-release version component is out of range: $version")
+    }
+}
+
+fun isAtLeastDottedRelease(version: String, minimum: String): Boolean {
+    val actual = dottedReleaseComponents(version)
+    val required = dottedReleaseComponents(minimum)
+    for (index in 0 until maxOf(actual.size, required.size)) {
+        val actualComponent = actual.getOrElse(index) { 0 }
+        val requiredComponent = required.getOrElse(index) { 0 }
+        if (actualComponent != requiredComponent) {
+            return actualComponent > requiredComponent
+        }
+    }
+    return true
+}
+
+val dokkaJsoupVersion = bt4kVersion("jsoup")
+require(isAtLeastDottedRelease(dokkaJsoupVersion, "1.23.1")) {
+    "Dokka jsoup version $dokkaJsoupVersion is below the first patched release 1.23.1"
+}
+val dokkaFreemarkerVersion = bt4kVersion("freemarker")
+require(isAtLeastDottedRelease(dokkaFreemarkerVersion, "2.3.35")) {
+    "Dokka FreeMarker version $dokkaFreemarkerVersion is below the first patched release 2.3.35"
+}
+
 abstract class TestcontainersMutexService: BuildService<BuildServiceParameters.None>
 
 val testcontainersMutex = gradle.sharedServices.registerIfAbsent(
@@ -102,13 +146,15 @@ allprojects {
 
     configurations.matching { it.name.startsWith("dokka") }.configureEach {
         resolutionStrategy.eachDependency {
-            if (
-                requested.group == "org.jsoup" &&
-                requested.name == "jsoup" &&
-                requested.version == "1.16.1"
-            ) {
-                useVersion("1.23.1")
-                because("CVE-2026-71497: Dokka tooling must use the first patched jsoup release")
+            when (requested.group to requested.name) {
+                "org.jsoup" to "jsoup" -> {
+                    useVersion(dokkaJsoupVersion)
+                    because("Dokka tooling must use the centrally managed jsoup version")
+                }
+                "org.freemarker" to "freemarker" -> {
+                    useVersion(dokkaFreemarkerVersion)
+                    because("Dokka tooling must use the centrally managed FreeMarker version")
+                }
             }
         }
     }
@@ -118,14 +164,7 @@ allprojects {
 // where `libs` is not in scope (different receiver type in the lambda).
 val rootLibs = libs
 val rootBt4k = bt4k
-val bt4kCatalog = extensions.getByType<org.gradle.api.artifacts.VersionCatalogsExtension>().named("bt4k")
 fun bt4kLibrary(alias: String) = bt4kCatalog.findLibrary(alias).get()
-fun bt4kVersion(alias: String): String {
-    val version = bt4kCatalog.findVersion(alias).get()
-    return version.requiredVersion
-        .ifBlank { version.preferredVersion }
-        .ifBlank { version.strictVersion }
-}
 
 
 fun Project.isSampleOrBenchmarkProject(): Boolean {

@@ -50,7 +50,9 @@ repo-test-summary -- ./gradlew :module:test   # summarized test output
   `virtualthread-api`, `logging`, `assertions`, and `junit5` dependency closure
   explicitly target Java/JVM 21.
 - Spring Boot line: 4.x only.
-- Version catalog: `gradle/libs.versions.toml`.
+- Generated Dependabot catalog: `gradle/libs.versions.toml`; source catalog and
+  alias allowlist: `gradle/libs.project.versions.toml` and
+  `gradle/libs.project.versions.allowlist.json`.
 - Project coordinates: `gradle.properties` owns `projectGroup`, `baseVersion`, `snapshotVersion`, and external `exposedVersion`.
 - Gradle daemon is tuned for ZGC, 4-8 GB heap, and parallel build.
 

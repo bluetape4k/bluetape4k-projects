@@ -42,6 +42,7 @@ env:
   ORG_GRADLE_PROJECT_excludeBenchmarks: 'true'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   BLUETAPE4K_DEPENDENCIES_CATALOG_REF: 'e9946b18bdb0022f52cd5dc8994d859d470e7bab'
+  BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: 'e9946b18bdb0022f52cd5dc8994d859d470e7bab'
   BLUETAPE4K_MANUAL_REF: '4e3c00262adb12cd61e4e8a30b6488aa6a287acc'
   GITLEAKS_VERSION: 'v8.30.1'
 
@@ -277,17 +278,22 @@ jobs:
   catalog-governance:
     name: Central Catalog Governance
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/checkout@v7
         with:
           repository: bluetape4k/bluetape4k-dependencies
           ref: ${{ env.BLUETAPE4K_DEPENDENCIES_CATALOG_REF }}
-          path: .catalog/bluetape4k-dependencies
+          path: .gradle/catalog-source/bluetape4k-dependencies
+          fetch-depth: 0
       - uses: actions/setup-python@v7
         with:
-          python-version: '3.12'
+          python-version: '3.13'
+      - name: Record catalog governance Python
+        run: python3 --version
       - uses: actions/setup-java@v6.0.1
         with:
           java-version: ${{ env.JAVA_VERSION }}
@@ -297,17 +303,88 @@ jobs:
           gradle-version: wrapper
           cache-read-only: ${{ github.event_name == 'pull_request' }}
       - name: Verify immutable catalog checkout
-        run: test "$(git -C .catalog/bluetape4k-dependencies rev-parse HEAD)" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_REF"
+        run: |
+          set -euo pipefail
+          head_sha="$(git -C .gradle/catalog-source/bluetape4k-dependencies rev-parse HEAD)"
+          peeled_sha="$(git -C .gradle/catalog-source/bluetape4k-dependencies rev-parse "${BLUETAPE4K_DEPENDENCIES_CATALOG_REF}^{commit}")"
+          test "$head_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"
+          test "$peeled_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"
+          echo "catalog ref=$BLUETAPE4K_DEPENDENCIES_CATALOG_REF"
+          echo "catalog head=$head_sha"
+          echo "catalog peeled=$peeled_sha"
+      - name: Read pinned Dependabot Core commit
+        id: dependabot-pin
+        shell: bash
+        run: |
+          python3.13 - <<'PY' >> "$GITHUB_OUTPUT"
+          import tomllib
+          from pathlib import Path
+
+          mapping_path = Path(
+              ".gradle/catalog-source/bluetape4k-dependencies/config/projects-dependabot-catalog.toml"
+          )
+          mapping = tomllib.loads(mapping_path.read_text(encoding="utf-8"))
+          commit = mapping.get("dependabot_core_commit")
+          if not isinstance(commit, str) or len(commit) != 40 or any(c not in "0123456789abcdef" for c in commit):
+              raise SystemExit("Dependabot Core pin must be a full lowercase commit SHA")
+          print(f"commit={commit}")
+          PY
+      - uses: actions/checkout@v7
+        with:
+          repository: dependabot/dependabot-core
+          ref: ${{ steps.dependabot-pin.outputs.commit }}
+          path: .gradle/dependabot-core
+          fetch-depth: 1
+      - uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1
+        with:
+          working-directory: .gradle/dependabot-core
+          bundler-cache: true
+      - name: Run pinned Dependabot Gradle parser contract
+        env:
+          DEPENDABOT_CORE_ROOT: ${{ github.workspace }}/.gradle/dependabot-core
+          MAPPING_PATH: ${{ github.workspace }}/.gradle/catalog-source/bluetape4k-dependencies/config/projects-dependabot-catalog.toml
+          GENERATED_CATALOG_PATH: ${{ github.workspace }}/gradle/libs.versions.toml
+          OUTPUT_PATH: ${{ github.workspace }}/.gradle/issue-1832-evidence/parser-receipt.json
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$OUTPUT_PATH")"
+          test "$(git -C "$DEPENDABOT_CORE_ROOT" rev-parse HEAD)" = "${{ steps.dependabot-pin.outputs.commit }}"
+          ruby .gradle/catalog-source/bluetape4k-dependencies/tests/fixtures/project-dependabot-catalog/dependabot-parser-contract.rb
+      - name: Verify generated catalog and parser contract
+        run: |
+          set -euo pipefail
+          git switch -c ci-project-catalog "$GITHUB_SHA"
+          git -C .gradle/catalog-source/bluetape4k-dependencies switch -c ci-central-catalog "$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"
+          git remote set-url origin git@github.com:bluetape4k/bluetape4k-projects.git
+          git -C .gradle/catalog-source/bluetape4k-dependencies remote set-url origin git@github.com:bluetape4k/bluetape4k-dependencies.git
+          evidence_dir="$GITHUB_WORKSPACE/.gradle/issue-1832-evidence"
+          mkdir -p "$evidence_dir"
+          python3.13 .gradle/catalog-source/bluetape4k-dependencies/scripts/catalog_candidate.py build-project-map \
+            --projects-root "$GITHUB_WORKSPACE" \
+            --central-root "$GITHUB_WORKSPACE/.gradle/catalog-source/bluetape4k-dependencies" \
+            --output "$evidence_dir/repository-map.json"
+          python3.13 .gradle/catalog-source/bluetape4k-dependencies/scripts/project-dependabot-catalog.py \
+            --projects-root "$GITHUB_WORKSPACE" \
+            --central-root "$GITHUB_WORKSPACE/.gradle/catalog-source/bluetape4k-dependencies" \
+            --repository-map "$evidence_dir/repository-map.json" \
+            --evidence-dir "$evidence_dir" \
+            --check
+          python3.13 -m unittest discover \
+            -s .gradle/catalog-source/bluetape4k-dependencies/tests \
+            -p 'test_project_dependabot_catalog.py'
+          python3.13 -m unittest tests.test_catalog_workflows
+          python3.13 scripts/verify-catalog-workflows.py
       - name: Check central catalog adoption
         run: |
-          python3 .catalog/bluetape4k-dependencies/scripts/sync-shared-versions.py \
+          python3.13 .gradle/catalog-source/bluetape4k-dependencies/scripts/sync-shared-versions.py \
             --workspace "$(dirname "$GITHUB_WORKSPACE")" \
             --repo "${GITHUB_REPOSITORY#*/}" \
+            --catalog-filename libs.project.versions.toml \
             --check \
             --summary
       - name: Resolve Gradle catalog from checked-out source
         env:
-          BLUETAPE4K_DEPENDENCIES_CATALOG_PATH: ${{ github.workspace }}/.catalog/bluetape4k-dependencies/gradle/libs.versions.toml
+          BLUETAPE4K_DEPENDENCIES_CATALOG_PATH: ${{ github.workspace }}/.gradle/catalog-source/bluetape4k-dependencies/gradle/libs.versions.toml
         run: |
           set -euo pipefail
           gradle10_removal_pattern='(scheduled (to be removed|for removal)|will (be )?removed|will become (an )?error|will fail with an error)[^[:cntrl:]]*Gradle 10([.][0-9]+){0,2}'
@@ -1516,6 +1593,7 @@ jobs:
       - name: Check all jobs
         env:
           RESULTS: ${{ join(needs.*.result, ',') }}
+          CATALOG_GOVERNANCE_RESULT: ${{ needs.catalog-governance.result }}
           SPRING_BOOT_CHANGED: ${{ needs.changes.outputs['spring-boot'] }}
           SPRING_BOOT_RESULT: ${{ needs.test-spring-boot.result }}
           SCIENCE_CHANGED: ${{ needs.changes.outputs.science }}
@@ -1524,6 +1602,10 @@ jobs:
           MEASURED_RESULT: ${{ needs.test-measured.result }}
         run: |
           echo "Job results: $RESULTS"
+          if [[ "$CATALOG_GOVERNANCE_RESULT" != "success" ]]; then
+            echo "Catalog governance must succeed; got $CATALOG_GOVERNANCE_RESULT"
+            exit 1
+          fi
           if echo "$RESULTS" | grep -qE "failure|cancelled"; then
             echo "CI failed"
             exit 1
@@ -1540,4 +1622,4 @@ jobs:
             echo "Measured changes were detected but the Measured test job was skipped"
             exit 1
           fi
-          echo "CI passed (skipped jobs treated as success)"
+          echo "CI passed; conditional jobs may be skipped when their change scope is empty"
