@@ -39,6 +39,25 @@ def _workflow_env(text: str, name: str) -> str | None:
     return match.group(1).strip("'\"")
 
 
+def _checkout_steps(text: str) -> list[str]:
+    lines = text.splitlines()
+    checkout_steps: list[str] = []
+    for index, line in enumerate(lines):
+        if re.match(r"^\s+- uses: actions/checkout@v7\s*$", line) is None:
+            continue
+
+        step_indent = len(line) - len(line.lstrip())
+        end = index + 1
+        while end < len(lines):
+            following = lines[end]
+            following_indent = len(following) - len(following.lstrip())
+            if following.strip() and following_indent <= step_indent:
+                break
+            end += 1
+        checkout_steps.append("\n".join(lines[index:end]))
+    return checkout_steps
+
+
 def _has_exact_governance_gate(status_job: str) -> bool:
     return (
         "CATALOG_GOVERNANCE_RESULT: ${{ needs.catalog-governance.result }}"
@@ -60,6 +79,13 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         not in ci_text
     ):
         errors.append("CI must resolve the Projects PR head instead of its merge SHA")
+    for checkout in _checkout_steps(ci_text):
+        if re.search(r"(?m)^\s+repository:\s*\S+", checkout) is not None:
+            continue
+        if "ref: ${{ env.PROJECTS_EXPECTED_SHA }}" not in checkout:
+            errors.append(
+                "every first-party Projects checkout in CI must pin PROJECTS_EXPECTED_SHA"
+            )
 
     data_job = _job_block(ci_text, "test-data")
     if "runs-on: ubuntu-22.04" not in data_job:

@@ -56,6 +56,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
@@ -70,6 +72,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
       - uses: actions/checkout@v7
         with:
           repository: bluetape4k/bluetape4k.github.io
@@ -97,6 +101,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
@@ -126,6 +132,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
@@ -140,6 +148,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
           fetch-depth: 0
       - name: Install gitleaks
         run: |
@@ -158,6 +167,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
       - uses: gradle/actions/wrapper-validation@v6.4.0
 
   # ── 1-b. 변경된 모듈 감지 ─────────────────────────────────────────────────
@@ -184,6 +195,8 @@ jobs:
       spring-boot: ${{ steps.filter.outputs.spring-boot }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
       - name: Validate CSV CI coverage
         run: ruby scripts/validate-ci-csv-coverage.rb
 
@@ -439,6 +452,8 @@ jobs:
     needs: [validate-wrapper, catalog-governance]
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/setup-java@v6.0.1
         with:
@@ -490,6 +505,8 @@ jobs:
     if: ${{ needs.changes.outputs.core == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/setup-java@v6.0.1
         with:
@@ -572,6 +589,8 @@ jobs:
     if: ${{ needs.changes.outputs.io == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/setup-java@v6.0.1
         with:
@@ -646,6 +665,8 @@ jobs:
     if: ${{ needs.changes.outputs['io-http'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/setup-java@v6.0.1
         with:
@@ -725,6 +746,8 @@ jobs:
     if: ${{ needs.changes.outputs['testcontainers-spring'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/setup-java@v6.0.1
         with:
@@ -771,6 +794,8 @@ jobs:
     if: ${{ needs.changes.outputs.ktor == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/setup-java@v6.0.1
         with:
@@ -841,6 +866,8 @@ jobs:
       BLUETAPE4K_MANUAL_ROOT: ${{ github.workspace }}/.manual-site/docs/manual/bluetape4k-projects
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/checkout@v7
         with:
@@ -933,6 +960,8 @@ jobs:
     if: ${{ needs.changes.outputs.measured == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/setup-java@v6.0.1
         with:
@@ -989,6 +1018,8 @@ jobs:
     if: ${{ needs.changes.outputs.science == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/setup-java@v6.0.1
         with:
@@ -1050,6 +1081,8 @@ jobs:
     if: ${{ needs.changes.outputs.infra == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/setup-java@v6.0.1
         with:
@@ -1134,6 +1167,8 @@ jobs:
     if: ${{ needs.changes.outputs['search-messaging'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/setup-java@v6.0.1
         with:
@@ -1196,6 +1231,8 @@ jobs:
     if: ${{ needs.changes.outputs['kafka-infra'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/setup-java@v6.0.1
         with:
@@ -1258,6 +1295,8 @@ jobs:
     if: ${{ needs.changes.outputs['telemetry-infra'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/setup-java@v6.0.1
         with:
@@ -1320,6 +1359,8 @@ jobs:
     if: ${{ needs.changes.outputs.data == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/setup-java@v6.0.1
         with:
@@ -1421,6 +1462,8 @@ jobs:
             kover_tasks: ""
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/setup-java@v6.0.1
         with:
@@ -1500,6 +1543,8 @@ jobs:
     if: always()
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - name: Prepare expected coverage manifest
         id: expected-coverage

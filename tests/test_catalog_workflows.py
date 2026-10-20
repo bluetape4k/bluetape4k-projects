@@ -119,7 +119,41 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
         errors = verifier.validate_workflows(invalid, self.submission)
 
-        self.assertTrue(any("Projects PR head" in error for error in errors), errors)
+        self.assertTrue(
+            any("first-party Projects checkout" in error for error in errors),
+            errors,
+        )
+
+    def test_product_test_job_checks_out_projects_expected_head(self) -> None:
+        test_core = verifier._job_block(self.ci, "test-core")
+        expected_checkout = "      - uses: actions/checkout@v7\n        with:\n          ref: ${{ env.PROJECTS_EXPECTED_SHA }}"
+        self.assertIn(expected_checkout, test_core)
+
+    def test_rejects_product_test_checkout_at_pull_request_merge_sha(self) -> None:
+        test_core = verifier._job_block(self.ci, "test-core")
+        expected_ref = "ref: ${{ env.PROJECTS_EXPECTED_SHA }}"
+        if expected_ref in test_core:
+            invalid_test_core = test_core.replace(
+                expected_ref,
+                "ref: ${{ github.sha }}",
+                1,
+            )
+        else:
+            invalid_test_core = test_core.replace(
+                "      - uses: actions/checkout@v7\n",
+                "      - uses: actions/checkout@v7\n"
+                "        with:\n"
+                "          ref: ${{ github.sha }}\n",
+                1,
+            )
+        invalid = self.ci.replace(test_core, invalid_test_core, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("first-party Projects checkout" in error for error in errors),
+            errors,
+        )
 
     def test_rejects_projects_expected_sha_bound_to_pull_request_merge_commit(self) -> None:
         invalid = self.ci.replace(
