@@ -91,6 +91,19 @@ EXPECTED_CI_STATUS_SCRIPT = (
     "fi",
     'echo "CI passed; conditional jobs may be skipped when their change scope is empty"',
 )
+EXPECTED_CI_STATUS_ENV = (
+    "        env:",
+    "          RESULTS: ${{ join(needs.*.result, ',') }}",
+    "          CATALOG_GOVERNANCE_RESULT: ${{ needs.catalog-governance.result }}",
+    "          MERGE_RESULT_RESULT: ${{ needs.test-merge-result.result }}",
+    "          EVENT_NAME: ${{ github.event_name }}",
+    "          SPRING_BOOT_CHANGED: ${{ needs.changes.outputs['spring-boot'] }}",
+    "          SPRING_BOOT_RESULT: ${{ needs.test-spring-boot.result }}",
+    "          SCIENCE_CHANGED: ${{ needs.changes.outputs.science }}",
+    "          SCIENCE_RESULT: ${{ needs.test-science.result }}",
+    "          MEASURED_CHANGED: ${{ needs.changes.outputs.measured }}",
+    "          MEASURED_RESULT: ${{ needs.test-measured.result }}",
+)
 EXPECTED_DEPENDENCY_SUBMISSION_VERIFY_SCRIPT = (
     "set -euo pipefail",
     'CHECKOUT_SHA="$(git rev-parse HEAD)"',
@@ -415,6 +428,13 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         errors.append(
             "CI workflow must not define run defaults that can replace the shell"
         )
+    if re.search(
+        r"(?<![A-Za-z0-9_-])(?:defaults|\"defaults\"|'defaults')\s*:",
+        submission_text,
+    ):
+        errors.append(
+            "dependency-submission workflow must not define run defaults that can replace the shell"
+        )
     if YAML_ACTION_ALIAS_RE.search(ci_text) or re.search(r"(?m)^\s*<<\s*:", ci_text):
         errors.append(
             "CI workflow must not use YAML anchors and aliases for Actions steps or environment mappings"
@@ -532,6 +552,8 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     if not governance:
         errors.append("CI must define catalog-governance")
     else:
+        if _indented_values(governance, "continue-on-error", 4):
+            errors.append("catalog-governance must not use job-level continue-on-error")
         if not re.search(
             r"(?m)^      - uses: actions/checkout@v7\n"
             r"        with:\n"
@@ -619,6 +641,10 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             errors.append(
                 "catalog-governance parser contract step must execute the pinned parser script"
             )
+        if _step_values(parser_step, "shell"):
+            errors.append(
+                "catalog-governance parser contract step must not override the fail-closed shell"
+            )
         if _indented_values(parser_step, "if", 8) or _indented_values(
             parser_step, "continue-on-error", 8
         ):
@@ -633,6 +659,10 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         ):
             errors.append(
                 "catalog verification step must execute its exact script and fail closed"
+            )
+        if _step_values(catalog_step, "shell"):
+            errors.append(
+                "catalog verification step must not override the fail-closed shell"
             )
 
     merge_result = _job_block(ci_text, MERGE_RESULT_JOB)
@@ -693,7 +723,7 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             errors.append(
                 "merge-result execution environment requires checkout followed immediately by its verification step"
             )
-        if _indented_values(verify_merge_step, "shell", 8):
+        if _step_values(verify_merge_step, "shell"):
             errors.append(
                 "merge-result execution environment must use the default fail-closed shell in the named verification step"
             )
@@ -772,6 +802,8 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     status_job = _job_block(ci_text, "ci-status")
     if not status_job or not _has_exact_governance_gate(status_job):
         errors.append("ci-status must fail unless catalog-governance result is success")
+    if _indented_values(status_job, "continue-on-error", 4):
+        errors.append("ci-status must not use job-level continue-on-error")
     if _indented_values(status_job, "if", 4) != ["always()"]:
         errors.append("ci-status must run for every event with if: always()")
     status_step = _named_step_block(status_job, "Check all jobs")
@@ -779,6 +811,14 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         status_step, "continue-on-error", 8
     ):
         errors.append("ci-status Check all jobs step must run and fail closed")
+    if _step_values(status_step, "shell"):
+        errors.append(
+            "ci-status Check all jobs step must not override the fail-closed shell"
+        )
+    if _step_env_block(status_step) != list(EXPECTED_CI_STATUS_ENV):
+        errors.append(
+            "ci-status Check all jobs step must use the exact gate environment"
+        )
     if (
         "test-merge-result" not in status_job
         or "MERGE_RESULT_RESULT: ${{ needs.test-merge-result.result }}" not in status_job
@@ -807,6 +847,10 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     if not submission:
         errors.append("workflow must define dependency-submission")
     else:
+        if _indented_values(submission, "continue-on-error", 4):
+            errors.append(
+                "dependency-submission must not use job-level continue-on-error"
+            )
         expected_step_names = (
             "Checkout sources",
             "Verify dependency submission commit",
@@ -840,6 +884,10 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         ):
             errors.append(
                 "dependency-submission must verify checkout HEAD against GITHUB_SHA and EXPECTED_SHA and log both commit SHAs before submission"
+            )
+        if _step_values(verification_step, "shell"):
+            errors.append(
+                "dependency-submission verification step must not override the fail-closed shell"
             )
         if _step_env_block(verification_step) != [
             "        env:",

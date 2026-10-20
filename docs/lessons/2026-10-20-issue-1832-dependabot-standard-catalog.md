@@ -146,3 +146,20 @@ PR #1838의 exact head `a702d7f1b2573a8d03ca7e7382d780a99d28528d`를 본 독립 
 `test_rejects_exit_before_catalog_verification_commands`를 먼저 추가해 수정 전 RED를 확인했다. verifier가 실제 catalog workflow step의 전체 script를 정확히 비교하도록 바꾼 뒤에는 이 회귀 테스트가 GREEN이었고 전체 suite 60/60도 통과했다. 실제 보안 gate를 검증할 때는 중요한 명령의 존재·순서에 더해 그 사이에 실패를 무시하거나 조기 종료하는 실행문이 없는지 확인한다.
 
 **후속 lesson writer DoD (2026-10-21):** SPW-01–05 PASS—Projects workflow verifier 유지보수자를 독자로 두고, 실제 우회, RED/GREEN 근거, 수정과 남은 원격 게이트를 기록했다. KO-01–KO-07 PASS—한국어 문장, 기술 용어, 정확한 명령과 테스트 수를 확인하고 contextual terminology audit을 실행했다.
+
+## 실행 shell과 실패 전파도 workflow 계약에 고정한다
+
+2026-10-21 독립 리뷰는 PR head `f648113d3e17b6bd38c8436d2bc917190ea9437a`에서 세 P1 우회를 재현했다. 필수 `run` step이 사용자 정의 `shell`을 받아 검증 본문을 실행하지 않아도 성공할 수 있었고, 세 fail-closed job의 job-level `continue-on-error: true`도 허용됐다. `ci-status`의 `RESULTS`, `CATALOG_GOVERNANCE_RESULT`, `EVENT_NAME`은 step-level env에서 성공값으로 덮어쓸 수 있었다.
+
+Workflow verifier는 중요 명령의 존재만 검사해서는 충분하지 않다. 다음을 함께 고정한다.
+
+- 이름이 지정된 보안 gate step은 사용자 정의 `shell`을 받지 않는다. workflow-level `defaults.run.shell`도 같은 실행 경계를 바꿀 수 있으므로 검사한다.
+- 실패를 집계하거나 보안 증거를 만드는 job은 job-level `continue-on-error`를 사용하지 않는다. step 내부만 검사하면 실패가 job 결과에서 성공으로 변할 수 있다.
+- aggregate gate의 step-level env mapping 전체를 정확히 비교한다. 특정 변수 존재 여부만 검사하면 같은 변수의 덮어쓰기나 중복 선언을 놓칠 수 있다.
+- 우회 변형을 verifier와 actionlint에 함께 넣어 검사한다. actionlint가 유효한 YAML이라고 판단하는 것은 해당 step이 필수 검증을 실제 실행한다는 증거가 아니다.
+
+네 회귀 테스트에서 12개 변형을 모두 수정 전 허용하는 RED를 확인하고, 최소 verifier 변경 후 GREEN을 확인했다. 전체 workflow contract suite는 64/64 PASS이며 verifier, Ruff lint, Python compile, 두 workflow actionlint, `git diff --check`도 통과했다. `ruff format --diff`는 변경하지 않은 기존 구간의 포맷 차이만 보고하고 새 테스트 구간은 변경하지 않았다.
+
+정확한 f648 head의 hosted CI run `39465440177`은 28/28 성공했지만, 세 P1 수정 이전의 run이므로 새 후보를 검증하지 않는다. 새 exact-head CI와 독립 리뷰, merge 승인, merge 후 Dependency Submission 및 hosted Dependabot 실행은 각각 별도 단계다. 보안 alert를 해결 처리하기 전에 제출된 dependency graph와 실제 보안 업데이트 결과를 다시 읽는다.
+
+**후속 lesson writer DoD (2026-10-21):** SPW-01–05 PASS—workflow 보안 검증기를 유지하는 개발자를 독자로 두고 원인·대응·검증·잔여 gate를 기록했다. KO-01–KO-07 PASS—한국어 문장, 기술 용어, 수치와 명령을 확인하고 contextual terminology audit 결과를 대조했다.

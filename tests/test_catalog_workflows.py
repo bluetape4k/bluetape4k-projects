@@ -1246,6 +1246,152 @@ class CatalogWorkflowsTest(unittest.TestCase):
             errors,
         )
 
+    def test_rejects_shell_overrides_on_fail_closed_steps(self) -> None:
+        def with_custom_shell(step: str) -> str:
+            return step.replace(
+                "        run: |\n",
+                "        shell: bash -c 'exit 0' -- {0}\n        run: |\n",
+                1,
+            )
+
+        ci_cases = (
+            (
+                "parser contract",
+                "catalog-governance",
+                "Run pinned Dependabot Gradle parser contract",
+            ),
+            (
+                "catalog verification",
+                "catalog-governance",
+                "Verify generated catalog and parser contract",
+            ),
+            ("ci-status", "ci-status", "Check all jobs"),
+        )
+        for description, job_name, step_name in ci_cases:
+            with self.subTest(step=description):
+                job = verifier._job_block(self.ci, job_name)
+                step = verifier._named_step_block(job, step_name)
+                invalid_job = job.replace(step, with_custom_shell(step), 1)
+                invalid_ci = self.ci.replace(job, invalid_job, 1)
+
+                errors = verifier.validate_workflows(invalid_ci, self.submission)
+
+                self.assertTrue(
+                    any(
+                        "must not override the fail-closed shell" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+        submission_job = verifier._job_block(self.submission, "dependency-submission")
+        verification_step = verifier._named_step_block(
+            submission_job, "Verify dependency submission commit"
+        )
+        invalid_job = submission_job.replace(
+            verification_step, with_custom_shell(verification_step), 1
+        )
+        invalid_submission = self.submission.replace(submission_job, invalid_job, 1)
+
+        errors = verifier.validate_workflows(self.ci, invalid_submission)
+
+        self.assertTrue(
+            any("must not override the fail-closed shell" in error for error in errors),
+            errors,
+        )
+
+    def test_rejects_job_level_continue_on_error_for_fail_closed_jobs(self) -> None:
+        cases = (
+            ("CI catalog-governance", self.ci, "catalog-governance", "ci"),
+            ("CI ci-status", self.ci, "ci-status", "ci"),
+            (
+                "dependency-submission",
+                self.submission,
+                "dependency-submission",
+                "submission",
+            ),
+        )
+        for description, source, job_name, workflow in cases:
+            with self.subTest(job=description):
+                job = verifier._job_block(source, job_name)
+                invalid_job = job.replace(
+                    f"  {job_name}:\n",
+                    f"  {job_name}:\n    continue-on-error: true\n",
+                    1,
+                )
+                invalid_source = source.replace(job, invalid_job, 1)
+                if workflow == "ci":
+                    invalid_ci, invalid_submission = invalid_source, self.submission
+                else:
+                    invalid_ci, invalid_submission = self.ci, invalid_source
+
+                errors = verifier.validate_workflows(invalid_ci, invalid_submission)
+
+                self.assertTrue(
+                    any(
+                        f"{job_name} must not use job-level continue-on-error" in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_rejects_ci_status_gate_environment_overrides_and_duplicates(self) -> None:
+        status_job = verifier._job_block(self.ci, "ci-status")
+        status_step = verifier._named_step_block(status_job, "Check all jobs")
+        mutations = (
+            (
+                "RESULTS override",
+                "          RESULTS: ${{ join(needs.*.result, ',') }}\n",
+                "          RESULTS: success\n",
+            ),
+            (
+                "catalog result override",
+                "          CATALOG_GOVERNANCE_RESULT: ${{ needs.catalog-governance.result }}\n",
+                "          CATALOG_GOVERNANCE_RESULT: success\n",
+            ),
+            (
+                "event name override",
+                "          EVENT_NAME: ${{ github.event_name }}\n",
+                "          EVENT_NAME: push\n",
+            ),
+            (
+                "duplicate event name",
+                "          EVENT_NAME: ${{ github.event_name }}\n",
+                (
+                    "          EVENT_NAME: ${{ github.event_name }}\n"
+                    "          EVENT_NAME: push\n"
+                ),
+            ),
+        )
+
+        for description, expected, replacement in mutations:
+            with self.subTest(mutation=description):
+                invalid_step = status_step.replace(expected, replacement, 1)
+                invalid_job = status_job.replace(status_step, invalid_step, 1)
+                invalid_ci = self.ci.replace(status_job, invalid_job, 1)
+
+                errors = verifier.validate_workflows(invalid_ci, self.submission)
+
+                self.assertTrue(
+                    any(
+                        "Check all jobs step must use the exact gate environment"
+                        in error
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_rejects_dependency_submission_workflow_shell_defaults(self) -> None:
+        invalid = (
+            "defaults:\n"
+            "  run:\n"
+            "    shell: bash -c 'exit 0' -- {0}\n\n" + self.submission
+        )
+
+        errors = verifier.validate_workflows(self.ci, invalid)
+
+        self.assertTrue(any("defaults" in error for error in errors), errors)
+
 
 if __name__ == "__main__":
     unittest.main()

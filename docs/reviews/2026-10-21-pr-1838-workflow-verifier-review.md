@@ -72,3 +72,40 @@ Inline verdict: PASS; P0=0, P1=0.
 | KO-01–KO-07 | PASS | 사실·식별자·불확실성을 보존하고, 문장과 표를 검토했으며, 변경 한국어 문서의 terminology audit 결과를 기록했다. |
 
 **후속 inline-review writer DoD (2026-10-21):** SPW-01–05 PASS—검토 대상과 범위를 고정하고, 우회·근본 원인·회귀 테스트·수정·미완료 게이트를 근거와 함께 기록했다. KO-01–KO-07 PASS—수치와 식별자를 보존하고, 한국어 문장을 재검토했으며, 후속 terminology audit 결과를 확인했다. Inline verdict는 검토한 verifier patch의 로컬 근거에만 적용하고 hosted CI 및 독립 리뷰를 PENDING으로 분리했다.
+
+## f648113 리뷰에서 찾은 세 P1 우회
+
+독립 `code-reviewer` lane `issue1832_f648_exact_review`는 base `34c84a6115c80e3b3dfcde84be54106084259cfa`와 PR head `f648113d3e17b6bd38c8436d2bc917190ea9437a`를 비교해 **REQUEST CHANGES**를 반환했다. 판정은 P0 0건, P1 3건, 확인된 P2 0건이다. Kotlin/Java 공개 코드 변경은 없어 API/ABI finding은 없다.
+
+| 심각도 | Tier | 재현한 우회 | 로컬 수정 |
+|---|---|---|---|
+| P1 | T4, T7 | parser, catalog, `ci-status`, Dependency Submission의 필수 `run` step에 `shell: bash -c 'exit 0' -- {0}`를 지정하면 verifier와 actionlint가 통과하고 step 본문을 건너뛴다 | 네 named step에서 `shell` override를 거부하고, Dependency Submission workflow의 `defaults.run.shell`도 거부 |
+| P1 | T4, T7 | `catalog-governance`, `ci-status`, `dependency-submission` job에 `continue-on-error: true`를 추가해도 verifier가 통과한다 | 세 fail-closed job에서 job-level `continue-on-error`를 거부 |
+| P1 | T3, T4, T7 | `ci-status`의 `RESULTS`, `CATALOG_GOVERNANCE_RESULT`, `EVENT_NAME`을 성공값으로 덮어쓰면 실패 gate와 PR merge-result 검사를 건너뛸 수 있다 | `Check all jobs`의 전체 step-level env mapping을 정확히 고정해 override, 누락, 추가 및 중복 변수를 거부 |
+
+네 회귀 테스트를 작성한 뒤 verifier 수정 전 실행했다. 12개 변형은 모두 기존 검증을 통과해 테스트가 의도한 이유로 RED가 됐다. 수정 후에는 네 테스트가 GREEN이다. 기존 CI 검증은 명령 본문과 순서를 확인했지만 실행 shell, job 실패 전파, 실제 shell 입력을 고정하지 않았다.
+
+## 수정 후보의 로컬 증거와 남은 게이트
+
+f648 기반 로컬 수정 후보는 `scripts/verify-catalog-workflows.py`와 `tests/test_catalog_workflows.py`를 바꾼다. workflow YAML, Kotlin/Java 제품 코드, 공개 API/ABI, 발행 모듈은 수정하지 않았다.
+
+| 검사 | 결과 |
+|---|---|
+| 네 새 회귀 테스트 | PASS — 12개 mutation 변형을 거부 |
+| `python3.13 -m unittest tests.test_catalog_workflows -q` | PASS — 64 tests, failures/errors/skipped 0 |
+| `python3.13 scripts/verify-catalog-workflows.py` | PASS |
+| `ruff check scripts/verify-catalog-workflows.py tests/test_catalog_workflows.py` | PASS |
+| `python3.13 -m py_compile scripts/verify-catalog-workflows.py tests/test_catalog_workflows.py` | PASS |
+| `actionlint .github/workflows/ci.yml .github/workflows/dependency-submission.yml` | PASS |
+| `git diff --check` | PASS |
+| `ruff format --diff scripts/verify-catalog-workflows.py tests/test_catalog_workflows.py` | BASELINE GAP — 기존 변경 밖 구간에서만 포맷 제안이 남고, 새 회귀 테스트 구간에는 formatter diff가 없다 |
+
+CI run `39465440177`은 f648 head에서 28/28 job 성공으로 완료됐다. 이 run은 이번 수정 전 head를 검증했으므로 새 수정의 hosted CI 증거가 아니다. 현재 회귀 수정과 이 문서 갱신은 로컬 worktree에만 있다.
+
+- 새 수정 exact-head GitHub CI와 독립 재리뷰: PENDING — commit/push 후 재실행한다.
+- PR #1838 merge: PENDING — 새 exact-head DoD 이후에도 별도의 최신 승인이 필요하다.
+- Dependency Submission 및 hosted Dependabot security update 실행, alert #235 read-back: PENDING — 승인된 merge 후 진행한다.
+
+Issue #1832와 alert #235는 merge 후 실제 dependency graph 제출 및 hosted 보안 업데이트 결과를 확인하기 전까지 해결 처리하지 않는다.
+
+**후속 review writer DoD (2026-10-21):** SPW-01 PASS—독자는 PR #1838의 workflow verifier 유지보수자이며 head/base, lane, 범위와 판정을 고정했다. SPW-02 PASS—세 우회, 심각도, 수정, RED/GREEN, 검증과 미완료 게이트를 source 및 live run에 대조했다. SPW-03 PASS—한국어 기술 문장과 동일한 CI 용어를 유지하고 식별자·명령을 보존했다. SPW-04 PASS—독립 리뷰 출력, 테스트 출력, verifier 및 GitHub Actions 결과를 각 head에 연결했다. SPW-05 PASS—문서를 다시 읽고 PENDING 범위와 수치를 확인했다. KO-01–KO-07 PASS—사실·표·용어를 읽고 contextual terminology audit을 확인했다.
