@@ -47,7 +47,15 @@ PR #1838의 run `39408775102`는 run metadata상 head `3ae9be4d36bdb6eb9d61289cd
 
 P1 회귀를 막기 위해 workflow가 PR에서는 `github.event.pull_request.head.sha`, 다른 event에서는 `github.sha`를 `PROJECTS_EXPECTED_SHA`로 선택하고, catalog-governance checkout 및 generator branch를 이 값에 결속하도록 수정했다. checkout 직후 `git rev-parse HEAD`도 다시 비교한다. verifier 테스트는 checkout을 `github.sha`로 바꾸거나 expected SHA 식을 merge SHA로 바꾸면 실패해야 한다. 해당 부정 테스트는 수정 전 RED였고, 수정 후 workflow contract 14개가 통과했다. `verify-catalog-workflows.py`, `actionlint`, Python compile, `git diff --check`도 통과했다.
 
-이 수정은 현재 로컬 worktree에만 있다. 새 commit에 대한 hosted CI가 통과하기 전까지 exact-HEAD governance 검증은 PENDING이다. run `39408775102`의 나머지 product jobs는 합성 merge tree를 대상으로 하며, 그 결과와 branch-head provenance를 서로 대체하지 않는다.
+run `39408775102`의 나머지 product jobs는 합성 merge tree를 대상으로 했다. 그 결과와 branch-head provenance는 서로 대체하지 않는다.
+
+### Projects의 모든 first-party checkout을 같은 SHA로 고정하기
+
+이후 PR run `39412396158`의 metadata상 head는 `47cd8034d20366f7e5e1cff9a708f6c6f153483b`였다. `catalog-governance`는 예상 PR head를 checkout했지만, 나머지 CI job의 기본 checkout은 계속 `pull_request` 합성 merge SHA를 사용했다. 따라서 governance 외 job이 PR head 코드를 읽는다는 보장이 없었다. 이는 모든 required job에 PR head exact-checkout을 적용한다는 설계 기준을 충족하지 못하는 P1이다.
+
+회귀를 막기 위해 `.github/workflows/ci.yml`의 Projects 저장소 checkout 24곳 모두에 `ref: ${{ env.PROJECTS_EXPECTED_SHA }}`를 지정했다. GitHub Pages, dependencies 저장소, Dependabot Core를 받는 다른 저장소 checkout은 자체 repository/ref를 유지한다. `verify-catalog-workflows.py`는 Projects 저장소 checkout 중 하나라도 이 ref를 빠뜨리거나 다른 값으로 바꾸면 실패한다. 테스트는 product job의 정확한 ref와 merge SHA를 넣은 음성 경로를 확인한다. 두 회귀 검사는 수정 전에 기대한 이유로 RED였고, 수정본에서 catalog workflow contract 20개, verifier, `actionlint`, Python compile, `git diff --check`가 통과했다.
+
+이 변경을 포함하지 않은 run `39412396158`은 head `47cd8034d20366f7e5e1cff9a708f6c6f153483b`의 선행 CI다. run이 완료되더라도 위 checkout 수정의 hosted 증거가 되지 않으므로, push된 새 SHA의 CI에서 각 job checkout과 테스트 결과를 다시 확인해야 한다.
 
 ## MongoDB Testcontainers와 Actions runner 커널 호환성
 
@@ -57,9 +65,9 @@ run `39408775102`의 `Test / Spring Boot (batch-nosql)`은 세 번 재시도한 
 
 Ubuntu 22.04 runner 계열은 2026-09-17부터 deprecation 단계에 들어갔고 2027-04-17 지원 종료가 예정되어 있다. 따라서 이번 고정은 임시 대응이다. 후속 추적 Issue [#1839](https://github.com/bluetape4k/bluetape4k-projects/issues/1839)는 지원되는 runner/kernel 조합으로 이전하고 pin을 제거하도록 2.1.0 milestone에 등록했다. 새 exact-head CI가 Test/Data 및 Spring Boot batch-nosql 결과를 확인하기 전에는 이 수정의 hosted 검증을 완료로 보지 않는다.
 
-## 현재 상태
+## 전달 경계
 
-PR #1838은 열려 있고 현재 원격 head는 `3ae9be4d36bdb6eb9d61289cd62d5ffac9d7461c`이다. run `39408775102`은 Central catalog job을 통과했지만 Projects governance가 synthetic merge SHA를 사용해 exact-head 증거가 아니다. 제품 job 중 Spring Boot batch-nosql은 위 Mongo/kernel 호환 문제로 실패했고, 마지막 조회 때 Test/Data는 진행 중이었다. 로컬 후보는 PR head SHA 검증, signed catalog tag object SHA 고정, 두 MongoDB job의 임시 runner pin을 포함하며 workflow contract 18개와 verifier, `actionlint`, Python compile, `git diff --check`를 통과했다. 아직 commit/push 전이라 새 exact-head hosted CI와 독립 최종 리뷰, merge-ready read-back이 남아 있다. merge 후 exact-SHA Dependency Submission과 실제 hosted Dependabot 재실행으로 alert #235를 확인하기 전까지 Issue #1832를 열어 두고 보안 문제가 해결됐다고 보고하지 않는다.
+이 절을 보강한 시점에 PR #1838의 원격 head는 `47cd8034d20366f7e5e1cff9a708f6c6f153483b`였고, 첫 번째 exact-head 보완 run `39412396158`은 아직 진행 중이었다. 새 first-party checkout pin은 아직 원격에 없어서 해당 run과 이전 PR run 어느 것도 최종 검증으로 간주하지 않는다. 새 commit push 후 exact-head CI와 독립 리뷰를 다시 확인해야 한다. merge 후 exact-SHA Dependency Submission과 실제 hosted Dependabot 재실행으로 alert #235를 확인하기 전까지 Issue #1832를 열어 두고 보안 문제가 해결됐다고 보고하지 않는다.
 
 ## Writer DoD
 
@@ -68,7 +76,7 @@ PR #1838은 열려 있고 현재 원격 head는 `3ae9be4d36bdb6eb9d61289cd62d5ff
 | SPW-01 독자·목적·근거·미확인 사항 | PASS |
 | SPW-02 lesson의 맥락·결정·결과·검증·miss·future guard | PASS |
 | SPW-03 한국어 기술 문체 및 용어 일관성 | PASS |
-| SPW-04 이슈·CI 로그·회귀 테스트·Gradle·advisory 근거 대조 | PASS |
+| SPW-04 이슈·workflow·CI run·회귀 테스트·Gradle·advisory 근거 대조 | PASS |
 | SPW-05 최종 read-back 및 workflow DoD 기록 | PASS |
 | KO-01..KO-06 사실·문체·용어·표·링크 점검 | PASS |
-| KO-07 contextual terminology audit | PASS, lesson·계획·testlog findings `[]` |
+| KO-07 contextual terminology audit | PASS, 수정 lesson findings `0`; 계획·testlog는 앞선 검토에서 findings `0` |
