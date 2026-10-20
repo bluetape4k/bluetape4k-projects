@@ -124,3 +124,17 @@ Issue #1832와 alert #235는 merge 후 실제 dependency graph 제출 및 hosted
 이 후보는 아직 commit/push하지 않았다. 따라서 위 로컬 검증은 PR head `40533a0...`의 hosted CI를 대체하지 않는다. 수정 후보를 push한 후 새 exact-head CI와 독립 리뷰를 확인한다. merge 승인, Dependency Submission, hosted Dependabot 실행과 alert #235 read-back은 계속 PENDING이다. Issue #1832와 CRITICAL alert #235를 해결된 것으로 처리하지 않는다.
 
 **40533a0 리뷰 후속 writer DoD (2026-10-21):** SPW-01 PASS—독자·목적·base/head·review lane·소스 파일과 미확인 hosted 증거를 고정했다. SPW-02 PASS—7-Tier 심각도, 두 P1의 재현·대응, 이전 세 P1의 확인, 검증 범위와 다음 게이트를 기록했다. SPW-03 PASS—한국어 기술 자연스러움 점검을 적용하고 식별자·명령·불확실성을 보존했다. SPW-04 PASS—리뷰 결과, 소스, RED/GREEN 테스트, 로컬 검증 출력을 대조하고 이전 head의 CI를 새 후보 증거로 쓰지 않았다. SPW-05 PASS—최종 Markdown을 다시 읽고 표와 PENDING 상태를 확인했다. KO-01–KO-07 PASS—사실·용어·독자가 보는 내용을 확인하고 변경 문서별 terminology audit 결과를 검토했다.
+
+## fe4b33b94 후속: pin step 작업 디렉터리 우회
+
+PR base `34c84a6115c80e3b3dfcde84be54106084259cfa`와 당시 PR head `afa20f6ad1d9bcb9d2a56908a774d31f05fdfcaa`를 추가 확인했다. 메인 세션의 mutation probe에서 pin step에 `working-directory: injected`를 삽입한 변형을 verifier가 허용했다. 이 step의 `mapping_path`는 상대 경로이고 결과 commit은 이어지는 `dependabot/dependabot-core` checkout의 `ref`로 쓰인다. 따라서 PR 작성자가 같은 상대 경로를 갖는 catalog 파일을 추가하면 승인 catalog 바깥의 commit 값을 주입할 수 있는 P1이다.
+
+회귀 변형은 수정 전 verifier를 통과했고(`errors=[]`), pin step에 `working-directory`가 있으면 거부하도록 수정한 뒤 targeted test가 통과했다. commit `fe4b33b94`에서 전체 66개 workflow contract test, `scripts/verify-catalog-workflows.py`, Ruff, Python compile, 두 workflow `actionlint`, `git diff --check`가 통과했다. `ruff format --diff`의 non-zero 출력은 이 변경 전부터 있던 미변경 구간에만 해당한다.
+
+리뷰 lane `issue1832_afa20f6_review`는 제한 시간 안에 결과를 내지 않아 중단했다. 따라서 이 lane은 독립 판정으로 집계하지 않는다. 최종 수정 헤드의 독립 7-Tier 리뷰는 다시 수행해야 한다.
+
+같은 exact head의 GitHub CI run `39475880048`은 `Test / IO`에서 실패했다. 로그는 Maven Central이 `reactor-test:3.8.7`, `kotlinx-benchmark-runtime:0.5.0`, `protoc:4.36.1` 다운로드에 HTTP 403을 반환한 것을 보였다. Gradle configuration-cache 오류와 coverage 생성 실패는 의존성 해석 실패에 뒤따랐다. 제품 테스트 assertion 실패 증거는 없으며, 이 원인은 PR 코드 결함으로 분류하지 않는다. 수정 commit과 문서 기록을 push한 뒤 exact-head CI를 다시 확인한다.
+
+Issue #1832와 CRITICAL alert #235는 아직 열려 있다. PR merge, Dependency Submission, 실제 hosted Dependabot 실행과 alert 해결 read-back은 모두 남아 있다.
+
+**fe4b33b94 review writer DoD (2026-10-21):** SPW-01 PASS—독자, PR base/head, 대상 step, 정확한 workflow·verifier·테스트 경로, CI run과 미확인 최종 헤드를 고정했다. SPW-02 PASS—P1 재현, 수정, 검증, 중단된 리뷰 lane, hosted CI 실패와 남은 gate를 기록했다. SPW-03 PASS—한국어 기술 문장, tier·상태 용어와 source identifier를 점검했다. SPW-04 PASS—mutation probe, RED/GREEN 출력, commit, GitHub job 로그와 issue/alert read-back을 대조했다. SPW-05 PASS—최종 Markdown과 표·코드·미완료 상태를 다시 읽었다. KO-01–KO-07 PASS—사실·불확실성, 용어, 문장과 독자가 보는 표면을 점검하고 contextual terminology audit을 확인했다.
