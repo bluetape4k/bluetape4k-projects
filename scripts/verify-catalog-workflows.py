@@ -707,6 +707,10 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             errors.append(
                 "catalog-governance pinned Dependabot Core commit step must use the exact fail-closed bash shell"
             )
+        if _step_values(pin_step, "working-directory"):
+            errors.append(
+                "catalog-governance pinned Dependabot Core commit step must read the mapping from the workspace root"
+            )
         if _indented_values(pin_step, "if", 8) or _indented_values(
             pin_step, "continue-on-error", 8
         ):

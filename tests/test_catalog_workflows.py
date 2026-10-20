@@ -1406,6 +1406,14 @@ class CatalogWorkflowsTest(unittest.TestCase):
                 ),
             ),
             (
+                "working-directory override",
+                pin_step.replace(
+                    "        shell: bash\n",
+                    "        working-directory: injected\n        shell: bash\n",
+                    1,
+                ),
+            ),
+            (
                 "attacker output before pin parser",
                 pin_step.replace(
                     "        run: |\n",
