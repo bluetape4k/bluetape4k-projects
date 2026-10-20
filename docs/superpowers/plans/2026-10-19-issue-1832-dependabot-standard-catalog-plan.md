@@ -10,24 +10,52 @@
 
 ---
 
+## 현재 실행 상태 (2026-10-20)
+
+| 구간 | 상태 | 현재 근거와 다음 확인 |
+|---|---|---|
+| Tasks 1–3 구현·테스트 | 완료 | map v1/v2 및 consumer 회귀 검사를 포함한 Central 전체 suite가 최신 후보에서 515 PASS, 2 SKIP이다. |
+| Task 4 pinned parser | hosted exact-head 검증 완료 | Central PR 최초 run `39285492069`에서 `toml-rb` LoadError를 확인했다. `023569162d070771b67b13f102baa4447ddf4f1a`에서 `bundle exec` 실행을 고쳤고 이후 parser contract가 `39288320776`, `39290083993`, `39293581072`, 최신 exact-head run `39295843422`에서 통과했다. `39288320776`은 더 높은 우선순위의 merge-ref 실행으로 취소됐다. 로컬 Ruby 2.6.10/Bundler 1.17.2에서는 exact parser를 실행하지 못했다. |
+| Tasks 5–6 구현·로컬 검증 | 완료 | Projects workflow contract 8개, verifier, 두 저장소 actionlint, Python compile, diff check 통과. 98개 Dokka configuration, 영향 모듈 classes, 두 mock server Jib 빌드도 앞선 검증에서 통과했다. |
+| Task 7 baseline/candidate 증거 | 부분 완료 | 10개 GAV 선택, POM/GMM 26개 byte-identical, graph 비교를 확인했다. 실제 Dokka resolver 98개와 `dependencyInsight` 196건이 중앙 jsoup `1.23.2`/FreeMarker `2.3.35`를 선택했고 잘못된 중앙 catalog 입력 9개가 모두 거부됐다. Central 전체 suite 515 PASS, 2 SKIP이며 `1.9.2-SNAPSHOT` artifact 확인은 HTTP 403으로 건너뛰었다. clean commit에 결속한 map/receipt/lock은 아직 발행하지 않았다. |
+| Task 8 review·lesson·Central PR | Central PR 병합·동기화 완료; 후속 tag·Projects PR pending | inline 7-Tier review와 lesson writer 검증을 마쳤다. Central commit `03fdf141`를 `develop` 대상 [PR #269](https://github.com/bluetape4k/bluetape4k-dependencies/pull/269)로 열었고 parser 수정 `02356916`, Projects catalog ref 정책 수정 `02df3bf`, 리뷰 문서 기록 commit `78674567`, CI 결과를 반영한 문서 commit `80ae0d6`을 push했다. PR head `80ae0d6bf2525c1d434fabe87993905c0fc10197`는 fresh approval 뒤 `MERGED`됐고 merge SHA는 `dcc7fa7557d3c0548b9e3fc28c48877827ea2f74`다. PR 생성 당시 Issue #1832와 같은 milestone `2.1.0`, labels `security`/`ci`, assignee `debop`을 설정했다. 정확한 head의 run `39295843422`는 9/9 job 성공이다. `Build BOM`은 10m06s, POM contract는 10m12s에 성공했고, catalog script suite 103개 테스트와 Central suite 515개 실행(4 skipped)이 모두 OK였다. 두 CI 조건부 downstream sync와 소비자 입력 목록 생성/업로드 단계는 PR event라 실행되지 않았고, `1.9.2-SNAPSHOT` artifact 검사는 HTTP 403으로 건너뛰었다. 같은 SHA Dependency Submission `39295845219`도 성공했다. 최신 CI 뒤 reviews, issue comments, inline comments, GraphQL review threads는 모두 비어 있고, branch-protection required checks는 GitHub에서 보고되지 않았다. human-reviewer subgate는 단일 개발자 lane 근거로 N/A이며 inline 검토는 독립 reviewer attestation이 아니다. PR 본문과 issue metadata를 공통 template에 맞춰 갱신했다. signed tag, Projects PR, 실제 hosted Dependabot 실행은 별도 승인/선행 조건까지 대기한다. |
+| Task 9 실제 Dependabot 결과 | 대기 | 2026-10-20 live 조회에서 alert #235가 CRITICAL/OPEN이고 Issue #1832가 OPEN이다. signed central tag, Projects pin/PR/merge, merge SHA Dependency Submission이 선행돼야 hosted 재실행을 한다. |
+
+### 이번 inline 구현 리뷰에서 발견·수정한 CI 공백
+
+- Projects catalog-governance runner에는 parser receipt가 없는데 generator --check가 이를 필수 입력으로 읽었다. 계약 테스트를 먼저 추가해 RED를 확인하고, pinned Dependabot Core checkout과 parser fixture를 같은 job에서 generator check보다 먼저 실행하도록 고쳤다. 별도 workflow의 receipt는 job 사이에서 공유되지 않는다. 심각도 P1, 미해결 P1 아님.
+- Projects 원본/생성 catalog 분리 이후 Central push-only downstream audit가 기본 catalog만 읽을 수 있었다. 새 authority catalog가 있으면 Projects만 libs.project.versions.toml로 검사하고 나머지 저장소는 기존 catalog를 읽도록 조건을 추가했다. 회귀 테스트의 RED를 확인하고 기존 legacy 경로도 유지했다. 심각도 P2, 미해결 P2 아님.
+- Projects `develop` commit `34c84a6` (#1837)은 중앙 catalog `e9946b1`을 고정하지만 Central 소비자 정책은 `198147f` 기본값만 사용했다. CI의 exact-ref 검증이 이 drift를 찾아 `Verify catalog scripts`가 실패했고 실제 Gradle `Build BOM` 단계는 skip됐다. 저장소별 exact SHA override를 추가했고 manifest 테스트 RED→21 PASS, Central suite 515 PASS/2 SKIP 및 실제 workspace policy verifier가 통과했다. 심각도 P2, 미해결 P2 아님.
+
+**현재 로컬 검증:** Central unittest 515 PASS/2 SKIP, 182.553초. 두 skip은 격리 worktree에서 관리 sibling 저장소가 없어 real-workspace inventory 두 건을 실행하지 않은 결과다. `1.9.2-SNAPSHOT` artifact 조회는 HTTP 403으로 건너뛰었다. Central policy verifier는 실제 workspace에서 publisher 8개, 중앙 catalog consumer 9개, 개발 버전 catalog 예제 5개를 통과했다. Central actionlint/py_compile/diff check 통과. 기존 테스트 파일의 Ruff I001은 HEAD와 후보 모두에서 재현돼 새 진단은 없다. Projects contract 테스트 8 PASS, verifier/actionlint/Ruff/compile/diff check 통과. Projects 문서 5개와 Central review 1개의 terminology audit는 각각 findings=[]이며 전체 readback을 마쳤다.
+외부 보안 근거는 bluetape4k-wiki의 research/2026-10-20-issue-1832-freemarker-path-traversal.md에 한국어로 요약했다. 통합 checkout에서 gno update가 1개를 추가했고, embedding 1 chunk와 FreeMarker path traversal 검색 hit를 확인했다. wiki 원본에는 이전 untracked 파일이 있어 그대로 보존했으며, 새 노트는 아직 commit/push하지 않았다.
+
+**계획 갱신 writer DoD (2026-10-20 02:51 KST):** SPW-01–05 및 KO-01–07을 유지하며 최신 exact-head 결과로 상태를 다시 대조했다. Central PR head `80ae0d6bf2525c1d434fabe87993905c0fc10197`, CI run `39295843422`의 9/9 성공, Dependency Submission `39295845219`, 4개 skipped 테스트와 조건부 workflow 단계, HTTP 403 artifact 조회, PR body/metadata 및 review/thread 재조회 결과를 반영했다. Issue #1832와 alert #235는 여전히 OPEN이며 merge/tag/Projects PR/hosted Dependabot 경계는 대기 상태로 남겼다. 기존 실패·취소 run은 현재 성공 증거와 분리해 기록했다.
+
+**병합·동기화 read-back (2026-10-20 02:34 UTC):** PR #269 head `80ae0d6bf2525c1d434fabe87993905c0fc10197`에 대한 fresh approval 뒤 `gh pr merge --rebase --match-head-commit`을 실행했다. GitHub read-back에서 PR은 `MERGED`, merge SHA는 `dcc7fa7557d3c0548b9e3fc28c48877827ea2f74`이며, Central canonical `develop`과 `origin/develop`이 그 SHA로 일치하고 작업 트리가 깨끗하다. merge-SHA CI `39359607639`는 8 success/0 failure로 완료됐고 push 조건부 publication contract 1개가 skip됐다. 이 contract는 PR exact-head에서 통과했으며 merge SHA Dependency Submission `39359608560`도 성공했다. Issue #1832와 CRITICAL alert #235는 계속 OPEN이다. 더티한 Projects 작업 트리와 untracked lesson을 보존해 cleanup 및 GNO 단계는 미완료로 둔다. 이 상태 갱신은 현재 GitHub 및 로컬 상태를 기준으로 기존 acceptance/DoD 순서를 유지한다. SPW-01–05와 KO-01–07을 확인했다. `audit-korean-terms.mjs --series clinic-appointment --json`은 findings=[]를 반환했고 `git diff --check`도 통과했다. 최종 Markdown read-back에서 merge SHA, post-merge CI 상태, 보존한 변경 및 남은 gate가 근거와 일치한다.
+
+**Task 7 Dokka 보안 선택 검증 (2026-10-20 03:08 UTC):** 실제 Dokka 내부 runtime resolver 98개 각각에 대해 jsoup/FreeMarker `dependencyInsight` 196건을 생성했다. 모든 결과가 pinned Central catalog와 일치해 jsoup `1.23.2`, FreeMarker `2.3.35`를 선택했다. 별도로 ignored catalog cache의 버전 입력을 한 건씩 바꾸고 매 실행 후 원본 bytes와 checksum을 복구하는 matrix를 수행했다. jsoup `1.16.1`, `1.23.0`, dynamic/range/rich-range/qualifier/malformed, FreeMarker `2.3.34`, empty jsoup 입력 총 9건이 모두 거부됐으며 `CASES=9 passed=9`, `CACHE_RESTORED=True`, 최종 Gradle `help`도 성공했다. 이 검증은 개별 dependency request가 아니라 중앙 catalog version input guard를 대상으로 한다.
+
+**Projects 후보 표적 검증 (2026-10-20 03:14 UTC):** 현재 후보에서 workflow contract 8개가 통과했고 `scripts/verify-catalog-workflows.py`, 두 workflow의 actionlint, Python compile, `git diff --check`, 계획 writer terminology audit(findings=[])도 성공했다. context-mode를 통해 `./gradlew --no-daemon --no-configuration-cache --console=plain help`를 실행해 Gradle 9.8.1 `BUILD SUCCESSFUL`을 확인했다. 중앙 merge SHA `dcc7fa7557d3c0548b9e3fc28c48877827ea2f74`의 CI run `39359607639`와 Dependency Submission `39359608560`도 live read-back에서 success다. workflow receipt `verify`와 `resume-check`는 PASS/unlocked/running, `completion-check`는 component 증거 3개와 main verification이 없는 상태로 incomplete이며 이를 미완료로 유지한다.
+
 ## 범위와 실행 기준
 
 - Projects 저장소: bluetape4k/bluetape4k-projects, base develop, 작업 branch fix/issue-1832-dependabot-standard-catalog, 승인 기준 HEAD 34c84a6115c80e3b3dfcde84be54106084259cfa.
 - 중앙 저장소: bluetape4k/bluetape4k-dependencies, base develop, 작업 branch feat/dependabot-standard-catalog, 승인 기준 HEAD e9946b18bdb0022f52cd5dc8994d859d470e7bab.
 - 실행 worktree는 이미 두 저장소에 각각 존재한다. 통합 branch와 기존 worktree의 변경은 건드리지 않는다.
-- 로컬 경로는 Projects `/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/fix/issue-1832-dependabot-standard-catalog`, 중앙 `/Users/debop/work/bluetape4k/bluetape4k-dependencies/.worktrees/feat/dependabot-standard-catalog`, workspace `/Users/debop/work/bluetape4k`로 고정한다. map, receipt, lock은 Git이 무시하는 Projects `$EVIDENCE_DIR` 아래에 두고 승인된 closeout까지 보존한다.
+- 로컬 경로는 Projects `/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/fix/issue-1832-dependabot-standard-catalog`, 병합 후 canonical Central `/Users/debop/work/bluetape4k/bluetape4k-dependencies` (merge SHA `dcc7fa7557d3c0548b9e3fc28c48877827ea2f74`), workspace `/Users/debop/work/bluetape4k`로 고정한다. 이전 Central feature worktree `/Users/debop/work/bluetape4k/bluetape4k-dependencies/.worktrees/feat/dependabot-standard-catalog`는 보존한다. map, receipt, lock은 Git이 무시하는 Projects `$EVIDENCE_DIR` 아래에 두고 승인된 closeout까지 보존한다.
 - 구현 명령에서 재사용할 변수는 다음과 같이 한 번 설정한다.
 
 ```bash
 export PROJECTS_WT=/Users/debop/work/bluetape4k/bluetape4k-projects/.worktrees/fix/issue-1832-dependabot-standard-catalog
-export DEPENDENCIES_WT=/Users/debop/work/bluetape4k/bluetape4k-dependencies/.worktrees/feat/dependabot-standard-catalog
+export DEPENDENCIES_WT=/Users/debop/work/bluetape4k/bluetape4k-dependencies
 export WORKSPACE=/Users/debop/work/bluetape4k
 export EVIDENCE_DIR="$PROJECTS_WT/.gradle/issue-1832-evidence"
 export REPOSITORY_MAP="$EVIDENCE_DIR/repository-map.json"
 mkdir -p "$EVIDENCE_DIR"
 ```
 - Issue #1832는 OPEN, milestone 2.1.0, labels security/ci, assignee debop이다. 이슈는 새로 만들지 않고 기존 이슈에 연결한다.
-- 같은 중앙 커밋에서 Projects PR을 검증하려면 immutable signed catalog tag가 필요하다. 중앙 PR merge와 tag 생성/push에는 별도 승인이 필요하므로 현재 승인 범위에서는 그 경계 전까지 구현, 검증, 중앙 PR 및 CI를 완료한다. Tag 승인 전에는 Projects PR과 merge 후 Dependabot 재실행이 PENDING이다.
+- 같은 중앙 커밋에서 Projects PR을 검증하려면 immutable signed catalog tag가 필요하다. 중앙 PR은 fresh approval 후 병합했으며, 서명 tag 생성/push에는 별도 승인이 필요하다. Tag 승인 전에는 Projects PR과 merge 후 Dependabot 재실행이 PENDING이다.
 - Dependabot 보안 업데이트의 hosted Try again 재실행은 이전 요청에서 승인됐지만, Projects 변경이 기본 branch에 반영되고 exact-SHA dependency submission이 확인된 뒤에만 실행한다. 한 번의 실행 결과로 모든 alert가 해결됐다고 추정하지 않는다.
 - 현재 Projects workflow receipt는 `verify` PASS, `completion-check` incomplete 상태다. `dependabot-execution`, `dependencies-catalog-promotion`, `projects-standard-catalog-view`와 main verification이 남아 있다. 구현 중 helper가 허용한 evidence만 기록하고, tag/Projects merge/Try again 전에는 완료로 처리하지 않는다. `.bluetape` 파일은 직접 수정하지 않는다.
 
@@ -70,14 +98,14 @@ mkdir -p "$EVIDENCE_DIR"
 - 생성: 중앙 tests/fixtures/project-dependabot-catalog/
 - Test: 중앙 tests/test_project_dependabot_catalog.py
 
-- [ ] test fixture에 Projects 원본 TOML, 303개 alias allowlist 샘플, 중앙 TOML, 열 개 좌표 매핑 샘플, repository map v1/v2 샘플을 둔다.
-- [ ] 열 개 GAV가 설계 표의 중앙 원천과 정확히 대응하는지 검사한다. Jackson 2/3은 version key, Netty는 netty version key, RabbitMQ/Bouncy Castle/FreeMarker/jsoup은 중앙 library alias에서 버전을 해석한다.
-- [ ] 원본의 non-target 선언 내용과 상대 순서, alias 집합을 유지하는지와 생성 결과의 반복 실행 바이트가 같은지 검사한다.
-- [ ] 원본 library alias의 version/version.ref, plugin/bundle, 변조 GAV, 동적/rich version, 미해결 ref, 중복 좌표, alias 정규화 충돌을 각각 거부하는 테스트를 쓴다.
-- [ ] 주입한 쓰기·atomic replace·read-back 실패 후 기존 출력 SHA-256이 유지되는지 검사한다.
-- [ ] receipt/lock이 모든 경로, input/output SHA-256, Projects/central full HEAD, central peeled commit, Python 버전, map bytes를 결속하고 재사용·변조 receipt를 거부하는 테스트를 쓴다.
-- [ ] `test_projection_preserves_unmapped_alias_bytes_and_order`와 `test_rejects_versioned_source_alias`부터 작성한다. 첫 실행은 생성기 모듈이 아직 없어 실패해야 하며, 실패 원인이 assertion 또는 import 경로임을 확인한다.
-- [ ] 실행: `python3.13 -m unittest tests.test_project_dependabot_catalog`; 예상 결과: 구현 전 실패, 구현 후 전체 PASS.
+- [x] test fixture에 Projects 원본 TOML, 303개 alias allowlist 샘플, 중앙 TOML, 열 개 좌표 매핑 샘플, repository map v1/v2 샘플을 둔다.
+- [x] 열 개 GAV가 설계 표의 중앙 원천과 정확히 대응하는지 검사한다. Jackson 2/3은 version key, Netty는 netty version key, RabbitMQ/Bouncy Castle/FreeMarker/jsoup은 중앙 library alias에서 버전을 해석한다.
+- [x] 원본의 non-target 선언 내용과 상대 순서, alias 집합을 유지하는지와 생성 결과의 반복 실행 바이트가 같은지 검사한다.
+- [x] 원본 library alias의 version/version.ref, plugin/bundle, 변조 GAV, 동적/rich version, 미해결 ref, 중복 좌표, alias 정규화 충돌을 각각 거부하는 테스트를 쓴다.
+- [x] 주입한 쓰기·atomic replace·read-back 실패 후 기존 출력 SHA-256이 유지되는지 검사한다.
+- [x] receipt/lock이 모든 경로, input/output SHA-256, Projects/central full HEAD, central peeled commit, Python 버전, map bytes를 결속하고 재사용·변조 receipt를 거부하는 테스트를 쓴다.
+- [x] `test_projection_preserves_unmapped_alias_bytes_and_order`와 `test_rejects_versioned_source_alias`부터 작성한다. 첫 실행은 생성기 모듈이 아직 없어 실패해야 하며, 실패 원인이 assertion 또는 import 경로임을 확인한다.
+- [x] 실행: `python3.13 -m unittest tests.test_project_dependabot_catalog`; 예상 결과: 구현 전 실패, 구현 후 전체 PASS.
 
 ### Task 2: Projects 표준 catalog 투영 생성기를 구현한다
 
@@ -86,13 +114,13 @@ mkdir -p "$EVIDENCE_DIR"
 - 생성: 중앙 config/projects-dependabot-catalog.toml
 - 수정: Task 1의 fixture/test
 
-- [ ] tomllib import 전에 sys.version_info >= (3, 11)을 확인하고 지원 하한보다 낮으면 입력 읽기와 쓰기 전에 명확히 실패한다.
-- [ ] mapping을 명시적으로 정의한다. 별칭/GAV 추측을 금지하고 central alias의 module과 resolved fixed version을 확인한다.
-- [ ] 프로젝트 원본의 library alias는 전부 versionless여야 하며, generated catalog에서 version이 있는 library alias는 매핑 열 개만 허용한다.
-- [ ] TOML 전체를 다시 직렬화하지 않고 non-target 원본 구간을 보존한다. 생성은 고정 경로에서만 허용하고 같은 입력에 대해 결정적 바이트를 낸다.
-- [ ] generator receipt와 candidate lock을 canonical JSON으로 쓰고, 입력 HEAD·해시 재확인, 임시 파일 fsync, atomic replace, directory fsync, read-back, 복구 동작을 구현한다.
-- [ ] 작업은 fixture 기반 단위 테스트가 먼저 실패한 뒤 최소 구현으로 통과하도록 한다.
-- [ ] 실행: python3.13 -m unittest tests.test_project_dependabot_catalog; 예상 결과: 전체 PASS, 음성 사례는 각기 실패 처리.
+- [x] tomllib import 전에 sys.version_info >= (3, 11)을 확인하고 지원 하한보다 낮으면 입력 읽기와 쓰기 전에 명확히 실패한다.
+- [x] mapping을 명시적으로 정의한다. 별칭/GAV 추측을 금지하고 central alias의 module과 resolved fixed version을 확인한다.
+- [x] 프로젝트 원본의 library alias는 전부 versionless여야 하며, generated catalog에서 version이 있는 library alias는 매핑 열 개만 허용한다.
+- [x] TOML 전체를 다시 직렬화하지 않고 non-target 원본 구간을 보존한다. 생성은 고정 경로에서만 허용하고 같은 입력에 대해 결정적 바이트를 낸다.
+- [x] generator receipt와 candidate lock을 canonical JSON으로 쓰고, 입력 HEAD·해시 재확인, 임시 파일 fsync, atomic replace, directory fsync, read-back, 복구 동작을 구현한다.
+- [x] 작업은 fixture 기반 단위 테스트가 먼저 실패한 뒤 최소 구현으로 통과하도록 한다.
+- [x] 실행: python3.13 -m unittest tests.test_project_dependabot_catalog; 예상 결과: 전체 PASS, 음성 사례는 각기 실패 처리.
 
 ### Task 3: repository map v2와 모든 consumer를 함께 갱신한다
 
@@ -101,13 +129,13 @@ mkdir -p "$EVIDENCE_DIR"
 - 수정: 중앙 scripts/sync-shared-versions.py, scripts/sync-dependabot-ignores.py, scripts/run-catalog-validation.py, scripts/sync-managed-catalog.py, scripts/sync-publishing-signing-support.py, scripts/migrate-catalog-authority.py, scripts/run-issues-242-243-validation.py, scripts/verify-issues-242-243-receipt.py, scripts/verify-publication-poms.py, .github/workflows/ci.yml
 - 수정: 대응하는 tests/test_catalog_candidate.py, tests/test_ci_catalog_governance.py, tests/test_run_catalog_validation.py 및 변경 consumer별 단위 테스트
 
-- [ ] repository-map v2 정규화 API에 catalog와 authority_catalog을 추가한다. v1은 authority_catalog = catalog 기본값으로 기존 의미를 유지한다.
-- [ ] Projects v2 entry는 gradle/libs.versions.toml 생성 catalog와 gradle/libs.project.versions.toml authority catalog를 각각 잠근다. 다른 저장소의 경로는 기존 경로를 유지한다.
-- [ ] 기존 CI inline map builder는 full repository map v2를 만들도록 갱신한다. 별도 `build-project-map` 명령은 로컬의 두 승인 worktree만 관측해 generator 전용 canonical map을 쓰며, 다른 저장소 worktree의 상태에 의존하지 않는다.
-- [ ] 직접/간접 consumer 열 곳 모두 같은 loader/API를 사용하도록 수정한다. `run-catalog-validation.py`도 manifest의 repository map을 다음 consumer에 전달하므로 v2 정규화 API를 사용해야 한다. map을 직접 읽지 않는 소비 경로는 기존 tests와 call graph로 확인하고 근거를 남긴다.
-- [ ] v1/v2, 파일 경로 escaping, 심볼릭 링크, repository-root mismatch, stale HEAD, lock/receipt/map/catalog SHA 불일치를 거부하는 회귀 테스트를 추가한다.
-- [ ] sync-shared-versions.py에 --catalog-filename libs.project.versions.toml을 추가하고 이 선택자는 --repo bluetape4k-projects 단독 지정에서만 허용한다. 공유 버전, compatibility, adoption-gap, authority inventory가 같은 source catalog를 읽게 한다.
-- [ ] 실행: `python3.13 -m unittest tests.test_catalog_candidate tests.test_ci_catalog_governance tests.test_sync_shared_versions tests.test_sync_dependabot_ignores tests.test_run_catalog_validation tests.test_sync_managed_catalog tests.test_sync_publishing_signing_support tests.test_migrate_catalog_authority tests.test_run_issues_242_243_validation tests.test_verify_issues_242_243_receipt tests.test_verify_publication_poms`.
+- [x] repository-map v2 정규화 API에 catalog와 authority_catalog을 추가한다. v1은 authority_catalog = catalog 기본값으로 기존 의미를 유지한다.
+- [x] Projects v2 entry는 gradle/libs.versions.toml 생성 catalog와 gradle/libs.project.versions.toml authority catalog를 각각 잠근다. 다른 저장소의 경로는 기존 경로를 유지한다.
+- [x] 기존 CI inline map builder는 full repository map v2를 만들도록 갱신한다. 별도 `build-project-map` 명령은 로컬의 두 승인 worktree만 관측해 generator 전용 canonical map을 쓰며, 다른 저장소 worktree의 상태에 의존하지 않는다.
+- [x] 직접/간접 consumer 열 곳 모두 같은 loader/API를 사용하도록 수정한다. `run-catalog-validation.py`도 manifest의 repository map을 다음 consumer에 전달하므로 v2 정규화 API를 사용해야 한다. map을 직접 읽지 않는 소비 경로는 기존 tests와 call graph로 확인하고 근거를 남긴다.
+- [x] v1/v2, 파일 경로 escaping, 심볼릭 링크, repository-root mismatch, stale HEAD, lock/receipt/map/catalog SHA 불일치를 거부하는 회귀 테스트를 추가한다.
+- [x] sync-shared-versions.py에 --catalog-filename libs.project.versions.toml을 추가하고 이 선택자는 --repo bluetape4k-projects 단독 지정에서만 허용한다. 공유 버전, compatibility, adoption-gap, authority inventory가 같은 source catalog를 읽게 한다.
+- [x] 실행: `python3.13 -m unittest tests.test_catalog_candidate tests.test_ci_catalog_governance tests.test_sync_shared_versions tests.test_sync_dependabot_ignores tests.test_run_catalog_validation tests.test_sync_managed_catalog tests.test_sync_publishing_signing_support tests.test_migrate_catalog_authority tests.test_run_issues_242_243_validation tests.test_verify_issues_242_243_receipt tests.test_verify_publication_poms`.
 
 ### Task 4: pinned Dependabot parser evidence와 중앙 CI를 연결한다
 
@@ -116,12 +144,12 @@ mkdir -p "$EVIDENCE_DIR"
 - Create/Modify: 중앙 tests/fixtures/project-dependabot-catalog/ parser fixture 및 검증 코드
 - 수정: 중앙 .github/workflows/ci.yml
 
-- [ ] dependabot-core full commit을 설정에서 고정하고 Gradle parser fixture가 generated 기본 catalog에서 열 개 GAV와 version.ref를 모두 읽는지 검사한다.
-- [ ] parser receipt에 upstream commit, fixture 경로/SHA-256, generated catalog 경로/SHA-256, GAV별 alias/version을 기록하고 candidate lock과 교차 검증한다.
-- [ ] 중앙에 새 generator 전용 test job을 두고 `actions/setup-python@v7`의 Python `3.11`/`3.13` matrix에서 unit suite를 실행한다.
-- [ ] Python을 실행하는 central `build`, `publication-pom-contract`, `supply-chain-report-only` jobs 각각에서 첫 Python invocation 전에 `actions/setup-python@v7`로 Python 3.13을 고정하고 `python3 --version`을 기록한다. generator 전용 test job은 위의 3.11/3.13 matrix를 쓴다.
-- [ ] central CI는 고정된 Projects fixture로 generator/parser/candidate lock을 검증하고 기존 v1 repository map을 계속 검증한다.
-- [ ] 실행: `python3.13 -m py_compile scripts/project-dependabot-catalog.py scripts/catalog_candidate.py tests/test_project_dependabot_catalog.py`; 이어 해당 consumer 8개를 대상으로 한 기존 unittest 모음과 `python3.13 -m unittest discover -s tests -p 'test_*.py'`.
+- [x] dependabot-core full commit을 설정에서 고정하고 Gradle parser fixture가 generated 기본 catalog에서 열 개 GAV와 version.ref를 모두 읽는지 검사한다.
+- [x] parser receipt에 upstream commit, fixture 경로/SHA-256, generated catalog 경로/SHA-256, GAV별 alias/version을 기록하고 candidate lock과 교차 검증한다.
+- [x] 중앙에 새 generator 전용 test job을 두고 `actions/setup-python@v7`의 Python `3.11`/`3.13` matrix에서 unit suite를 실행한다.
+- [x] Python을 실행하는 central `build`, `publication-pom-contract`, `supply-chain-report-only` jobs 각각에서 첫 Python invocation 전에 `actions/setup-python@v7`로 Python 3.13을 고정하고 `python3 --version`을 기록한다. generator 전용 test job은 위의 3.11/3.13 matrix를 쓴다.
+- [x] central CI는 고정된 Projects fixture로 generator/parser/candidate lock을 검증하고 기존 v1 repository map을 계속 검증한다.
+- [x] 실행: `python3.13 -m py_compile scripts/project-dependabot-catalog.py scripts/catalog_candidate.py tests/test_project_dependabot_catalog.py`; 이어 해당 consumer 8개를 대상으로 한 기존 unittest 모음과 `python3.13 -m unittest discover -s tests -p 'test_*.py'`.
 
 > Python 3.11은 표준 `tomllib` 사용을 위한 호환성 하한이며, 중앙 CI의 일반 Python jobs는 3.13을 쓴다. generator 전용 CI matrix는 3.11/3.13에서 하한 호환성을 확인한다.
 
@@ -133,12 +161,12 @@ mkdir -p "$EVIDENCE_DIR"
 - 생성: Projects generated gradle/libs.versions.toml
 - 수정: Projects build.gradle.kts, .github/workflows/ci.yml, AGENTS.md, CLAUDE.md
 
-- [ ] 원본의 303개 alias/GAV에서 정렬된 allowlist를 만든다. 원본 alias는 versionless이고 plugins/bundles는 비어 있어야 한다.
-- [ ] `python3.13 scripts/project-dependabot-catalog.py --projects-root "$PROJECTS_WT" --central-root "$DEPENDENCIES_WT" --write`로 투영 파일을 생성한다. 이 준비 모드는 결정적 출력을 쓰되 provenance receipt를 발행하지 않으며, receipt와 candidate lock은 Task 7의 clean committed HEAD 검증에서만 발행한다.
-- [ ] 결과의 10개 versioned alias, 기존 alias 전체, 결정적 바이트, allowlist 일치를 확인한다.
-- [ ] root catalog accessor baseline과 candidate를 비교한다. 기존 accessor를 모두 보존하고 예상 추가 libs.amqp.client, libs.bouncycastle.bcprov, libs.bouncycastle.bcprov.lts8on, libs.freemarker, libs.jsoup만 허용한다.
-- [ ] 모든 Dokka 구성의 jsoup 요청 버전을 bt4kVersion("jsoup")으로 바꾸고, 숫자 dotted-release 비교 및 최소 보안 버전 1.23.1 조건을 검사한다.
-- [ ] catalog path를 직접 읽거나 원본을 수정하는 안내를 새 gradle/libs.project.versions.toml / generated gradle/libs.versions.toml 역할에 맞게 고친다.
+- [x] 원본의 303개 alias/GAV에서 정렬된 allowlist를 만든다. 원본 alias는 versionless이고 plugins/bundles는 비어 있어야 한다.
+- [x] `python3.13 scripts/project-dependabot-catalog.py --projects-root "$PROJECTS_WT" --central-root "$DEPENDENCIES_WT" --write`로 투영 파일을 생성한다. 이 준비 모드는 결정적 출력을 쓰되 provenance receipt를 발행하지 않으며, receipt와 candidate lock은 Task 7의 clean committed HEAD 검증에서만 발행한다.
+- [x] 결과의 10개 versioned alias, 기존 alias 전체, 결정적 바이트, allowlist 일치를 확인한다.
+- [x] root catalog accessor baseline과 candidate를 비교한다. 기존 accessor를 모두 보존하고 예상 추가 libs.amqp.client, libs.bouncycastle.bcprov, libs.bouncycastle.bcprov.lts8on, libs.freemarker, libs.jsoup만 허용한다.
+- [x] 모든 Dokka 구성의 jsoup 및 FreeMarker 선택 버전을 중앙 카탈로그에 결속하고, 숫자 dotted-release 비교와 최소 보안 버전(jsoup 1.23.1, FreeMarker 2.3.35)을 검사한다.
+- [x] catalog path를 직접 읽거나 원본을 수정하는 안내를 새 gradle/libs.project.versions.toml / generated gradle/libs.versions.toml 역할에 맞게 고친다.
 
 ### Task 6: Projects CI와 Dependency Submission을 exact SHA에 결속한다
 
@@ -148,13 +176,16 @@ mkdir -p "$EVIDENCE_DIR"
 - 생성: Projects `tests/test_catalog_workflows.py` (Python stdlib unittest, workflow structural contract checks; YAML semantics are also validated by actionlint)
 - 생성: Projects `scripts/verify-catalog-workflows.py`
 
-- [ ] catalog-governance가 exact immutable central ref와 peeled commit을 확인하고 generator --check, repository map v2, allowlist, parser receipt, stale generated output, authority-source sync를 검증하게 한다.
-- [ ] `catalog-governance` job에서 Python 3.13을 `actions/setup-python@v7`로 고정해 generator와 contract tests를 실행한다.
-- [ ] ci-status가 catalog-governance가 success일 때만 통과하도록 고치고 skipped를 성공으로 취급하지 않는다.
-- [ ] Dependency Submission은 github.sha를 checkout하고 checkout HEAD와 github.sha를 비교한다. run head_sha, 제출 graph의 commit SHA를 artifact/log에 남긴다.
-- [ ] concurrency key는 SHA를 포함하고 cancel-in-progress: false로 설정해 다른 SHA 실행을 취소하지 않는다.
-- [ ] workflow contract 테스트는 잘못된 ref, HEAD 불일치, skipped governance, 다른 SHA의 동시 실행 취소를 각각 거부한다.
-- [ ] 실행: 변경한 workflow contract 테스트, actionlint .github/workflows/ci.yml .github/workflows/dependency-submission.yml, git diff --check.
+- [x] catalog-governance가 exact immutable central ref와 peeled commit을 확인하고 generator --check, repository map v2, allowlist, parser receipt, stale generated output, authority-source sync를 검증하게 한다.
+- [x] `catalog-governance` job에서 Python 3.13을 `actions/setup-python@v7`로 고정해 generator와 contract tests를 실행한다.
+- [x] 같은 job에서 mapping의 pinned `dependabot-core` commit을 checkout하고 parser fixture를 실행해 `.gradle/issue-1832-evidence/parser-receipt.json`을 generator `--check`보다 먼저 생성한다. 별도 workflow의 receipt 파일은 공유되지 않으므로 대체 입력으로 쓰지 않는다. Ruby dependency 설치를 포함해 job timeout은 30분으로 둔다.
+- [x] ci-status가 catalog-governance가 success일 때만 통과하도록 고치고 skipped를 성공으로 취급하지 않는다.
+- [x] Dependency Submission은 github.sha를 checkout하고 checkout HEAD와 github.sha를 비교한다. run head_sha, 제출 graph의 commit SHA를 artifact/log에 남긴다.
+- [x] concurrency key는 SHA를 포함하고 cancel-in-progress: false로 설정해 다른 SHA 실행을 취소하지 않는다.
+- [x] workflow contract 테스트는 잘못된 ref, HEAD 불일치, skipped governance, 다른 SHA의 동시 실행 취소를 각각 거부한다.
+- [x] 실행: 변경한 workflow contract 테스트, actionlint .github/workflows/ci.yml .github/workflows/dependency-submission.yml, git diff --check.
+
+**Projects parser-receipt 공백을 발견·수정한 날짜 (2026-10-20):** 새 Projects runner에는 parser receipt가 없는데 `--check`는 이를 필수 입력으로 읽었다. 계약 테스트를 먼저 추가해 실패를 확인한 뒤, catalog-governance 안에서 full SHA pinned Dependabot Core를 checkout하고 parser fixture를 실행하도록 고쳤다. 계약 테스트는 parser 실행이 generator `--check`보다 앞서는지 검사한다. 중앙 PR의 별도 parser job은 파일을 공유하지 않으므로 이를 Projects 검증 증거로 계산하지 않는다.
 
 ### Task 7: baseline/candidate 그래프, API/ABI, POM/GMM, toolchain을 비교한다
 
@@ -163,29 +194,30 @@ mkdir -p "$EVIDENCE_DIR"
 - 증거: 두 저장소의 baseline/candidate 명령 결과 및 receipt
 
 - [ ] Tasks 1–6의 구현과 생성 결과를 각 브랜치에 Lore 형식으로 커밋한다. 두 worktree가 clean임을 확인한 뒤, 중앙 worktree에서 `python3.13 scripts/catalog_candidate.py build-project-map --projects-root "$PROJECTS_WT" --central-root "$DEPENDENCIES_WT" --output "$REPOSITORY_MAP"`으로 두 저장소만 묶는 canonical map을 만든다. `python3.13 scripts/project-dependabot-catalog.py --projects-root "$PROJECTS_WT" --central-root "$DEPENDENCIES_WT" --repository-map "$REPOSITORY_MAP" --evidence-dir "$EVIDENCE_DIR" --check`로 receipt/lock을 발행하고 검증한다. map, receipt, lock, parser receipt는 서로 해시 기준을 공유하므로 `$EVIDENCE_DIR`에 승인된 closeout까지 보존한다. closeout 전에 map을 삭제하면 receipt 검증이 무효가 된다.
-- [ ] Projects worktree에서 `./gradlew --no-daemon help` 및 실제 `bt4kVersion`/`libs` alias caller에서 확인한 영향 모듈의 compile/test를 실행한다. 대상 모듈과 명령은 이 Task의 baseline inventory에서 구체화하고 테스트 전에 임의로 생략하지 않는다.
-- [ ] baseline Projects HEAD에서 영향 모듈의 Gradle resolution과 dependencyInsight를 순차로 수집한 뒤 candidate에서 반복한다. 열 개 GAV별 configuration, requested/selected version, path를 비교한다.
-- [ ] resolved graph, API/runtime classpath, published POM 및 Gradle Module Metadata를 비교한다. dependency edge/version/scope/variant/capability/constraint 차이가 있으면 실패 처리하고 별도 public-contract 승인 전에는 PR을 진행하지 않는다.
-- [ ] 공개 Kotlin/Java source fixture를 candidate로 compile한다. 별도 ABI fixture는 baseline artifact로 먼저 compile한 bytecode를 candidate artifact 및 runtime classpath에서 재컴파일 없이 실행한다. 영향 모듈의 API dump 또는 javap -public -s owner/descriptor도 비교한다.
-- [ ] Gradle Wrapper 9.8.1/checksum, Kotlin Gradle Plugin 2.4.20, language/API 2.4, Temurin JDK 21/25를 기록한다. Java 21 island 및 최소 dependency closure를 Java 25 기본 target과 분리해 확인한다.
-- [ ] 모든 Dokka configuration에서 org.jsoup:jsoup의 최종 선택 버전이 중앙 catalog와 같음을 dependencyInsight 또는 ResolutionResult로 검사한다. 1.16.1, 1.23.0, dynamic/range/rich/qualifier/malformed/empty 요청을 음성 사례로 검증한다.
-- [ ] Testcontainers와 real DB 테스트가 필요하면 module/worktree 사이에서 순차 실행한다. 모듈 추가/이동이 없음을 diff와 settings auto-registration 검사로 확인한다.
+- [x] Projects worktree에서 `./gradlew --no-daemon help` 및 실제 `bt4kVersion`/`libs` alias caller에서 확인한 영향 모듈의 compile/test를 실행한다. 대상 모듈과 명령은 이 Task의 baseline inventory에서 구체화하고 테스트 전에 임의로 생략하지 않는다.
+- [x] baseline Projects HEAD에서 영향 모듈의 Gradle resolution과 dependencyInsight를 순차로 수집한 뒤 candidate에서 반복한다. 열 개 GAV별 configuration, requested/selected version, path를 비교한다.
+- [x] resolved graph, API/runtime classpath, published POM 및 Gradle Module Metadata를 비교한다. dependency edge/version/scope/variant/capability/constraint 차이가 있으면 실패 처리하고 별도 public-contract 승인 전에는 PR을 진행하지 않는다.
+- [x] 공개 Kotlin/Java source 또는 ABI surface가 변경되는 경우에만 consumer fixture/API dump/`javap -public -s`를 baseline과 candidate에서 비교한다. 코드 파일 변경이 없고 dependency path·POM/GMM이 같다면 API/ABI는 N/A로 기록하고 그 범위 증거를 명시한다.
+- [x] Gradle Wrapper 9.8.1/checksum, Kotlin Gradle Plugin 2.4.20, language/API 2.4, Temurin JDK 21/25를 기록한다. Java 21 island 및 최소 dependency closure를 Java 25 기본 target과 분리해 확인한다.
+- [x] 모든 Dokka configuration에서 org.jsoup:jsoup 및 org.freemarker:freemarker의 최종 선택 버전이 중앙 catalog와 같음을 dependencyInsight로 검사한다. 실제 내부 runtime resolver 98개, 보고서 196건이 중앙 catalog 선택과 일치했다. 중앙 catalog version input guard의 jsoup 1.16.1/1.23.0, FreeMarker 2.3.34, dynamic/range/rich-range/qualifier/malformed/empty 9개 음성 사례를 확인했다. 이들은 개별 dependency request 사례가 아니다.
+- [x] Testcontainers와 real DB 테스트가 필요하면 module/worktree 사이에서 순차 실행한다. 모듈 추가/이동이 없음을 diff와 settings auto-registration 검사로 확인한다.
 
 ### Task 8: pre-PR 리뷰, lesson, commit, PR 및 CI를 처리한다
 
 **대상 파일:**
-- 생성: Projects `docs/lessons/2026-10-19-issue-1832-dependabot-standard-catalog.md`
-- 생성: Projects `docs/review/2026-10-19-issue-1832-catalog-implementation-review.md`
-- 생성: central `docs/review/2026-10-19-issue-1832-catalog-implementation-review.md`
+- 생성: Projects `docs/lessons/2026-10-20-issue-1832-dependabot-standard-catalog.md`
+- 생성: Projects `docs/review/2026-10-20-issue-1832-catalog-implementation-review.md`
+- 생성: central `docs/review/2026-10-20-issue-1832-catalog-implementation-review.md`
 - 수정: 두 저장소의 승인된 구현 파일만
 
-- [ ] 중앙과 Projects의 diff를 각 저장소의 Kotlin/Python/workflow 패턴에 따라 7-Tier로 inline review한다. 보안, 정확성/lifecycle, 구조/reuse, Kotlin API/ABI, 테스트/callers, 성능, docs/CI/release를 분리해 P0/P1=0을 증명한다.
-- [ ] 승인된 inline review로 7-Tier 결과를 기록하고 독립 reviewer attestation은 포함하지 않는다. GitHub human-reviewer subgate는 단일 개발자 lane 근거로 N/A 처리하되, exact-head CI·review/thread read-back·P0/P1 처리는 유지한다. 현재 model registry/runtime에서 gpt-6-luna max provenance가 확인되지 않으면 이를 독립 증명으로 표현하지 않는다.
-- [ ] 표준 catalog와 원본 catalog 분리, versionless alias 보존, immutable tag 승인 순서에서 재사용할 교훈을 한국어 lesson에 기록하고 writer SPW-01..05를 통과시킨다.
+- [x] 중앙과 Projects의 diff를 각 저장소의 Kotlin/Python/workflow 패턴에 따라 7-Tier로 inline review한다. 보안, 정확성/lifecycle, 구조/reuse, Kotlin API/ABI, 테스트/callers, 성능, docs/CI/release를 분리해 P0/P1=0을 증명한다.
+- [x] 승인된 inline review로 7-Tier 결과를 기록하고 독립 reviewer attestation은 포함하지 않는다. GitHub human-reviewer subgate는 단일 개발자 lane 근거로 N/A 처리한다고 기록했다. exact-head CI와 review/thread read-back은 아직 대기 중이며, 현재 model registry/runtime에서 gpt-6-luna max provenance가 확인되지 않으면 이를 독립 증명으로 표현하지 않는다.
+- [x] 표준 catalog와 원본 catalog 분리, versionless alias 보존, immutable tag 승인 순서에서 재사용할 교훈을 한국어 lesson에 기록하고 writer SPW-01..05를 통과시킨다.
 - [ ] Task 7에서 검증한 candidate commit 이후 리뷰 수정이 있으면 Lore 형식의 한국어 후속 커밋으로 두 저장소를 갱신하고, 해당 저장소의 검증과 map/receipt를 다시 만든다. Tested:에는 실제 결과, Not-tested:에는 보류된 tag/Projects exact-head 범위를 기록한다.
-- [ ] 사용자 요청에 포함된 중앙 PR은 bluetape4k/bluetape4k-dependencies:develop <- feat/dependabot-standard-catalog로 만든다. 한국어 본문 끝에 ## DoD Status를 두고 Issue #1832 및 현재 승인 경계를 기록한다.
-- [ ] 중앙 PR의 exact remote head SHA에서 required CI, review/thread read-back을 완료한다. CI가 실패하거나 P0/P1이 생기면 고치고 해당 검증을 다시 실행한다.
-- [ ] 중앙 PR merge와 signed catalog/YYYY-MM-DD-NN tag 생성/push는 이 계획의 자동 실행 범위가 아니다. fresh approval이 올 때까지 기다린다.
+- [x] 승인된 대상 `bluetape4k/bluetape4k-dependencies:develop <- feat/dependabot-standard-catalog`에 중앙 PR #269을 만들고, 정확한 head 및 CI를 받은 뒤 한국어 본문을 공통 PR template에 맞춰 갱신했다. 본문 마지막 heading은 `## DoD Status`다. PR labels `security`/`ci`, milestone `2.1.0`, assignee `debop`가 Issue #1832와 일치한다.
+- [x] 중앙 PR의 최신 exact remote head `80ae0d6bf2525c1d434fabe87993905c0fc10197`에서 CI와 review/thread read-back을 완료했다. merge 전 read-back에서 PR은 OPEN/CLEAN/MERGEABLE였으며 branch-protection required checks는 GitHub에서 보고되지 않았다. exact-head run `39295843422`의 9개 job 전부 성공했다. `Build BOM`은 10m06s, publication POM contract는 10m12s에 성공했고, catalog script suite 103개 및 Central suite 515개 실행(4 skipped)이 OK였다. `Verify downstream repository sync`, 소비자 입력 목록 생성/업로드는 PR event 조건으로 실행되지 않았고, `1.9.2-SNAPSHOT` artifact 조회는 HTTP 403으로 건너뛰었다. 같은 SHA Dependency Submission `39295845219`도 성공했다. 최신 CI 후 reviews, issue comments, inline comments, GraphQL threads는 모두 비어 있다. P0=0/P1=0이며 inline fallback review는 독립 reviewer attestation이 아니다. human-reviewer subgate는 single-developer lane 근거로 N/A다. `39285492069`의 parser/ref 오류는 수정됐고 `39288320776` 취소 이후 여러 exact-head run이 통과했다. merge는 fresh approval을 받아 완료했다. signed tag에는 별도 fresh approval이 필요하다.
+- [x] 중앙 PR #269은 fresh approval을 받은 뒤 `--rebase`로 병합하고 exact merge SHA `dcc7fa7557d3c0548b9e3fc28c48877827ea2f74`를 read-back했다. canonical Central `develop`을 `origin/develop`까지 fast-forward 동기화했다. merge-SHA CI run `39359607639`는 8 success/0 failure로 완료됐고 push 조건부 publication contract 1개가 skip됐다. 이 contract는 PR exact-head에서 통과했으며 merge-SHA Dependency Submission `39359608560`도 성공했다.
+- [ ] signed `catalog/YYYY-MM-DD-NN` tag 생성/push는 별도 승인 전까지 보류한다.
 - [ ] 중앙 tag가 별도 승인 후 발행되면 Projects pin/mapping/lock을 그 tag의 peeled SHA로 갱신하고 full Projects 검증과 exact-head CI를 마친 뒤 bluetape4k/bluetape4k-projects:develop <- fix/issue-1832-dependabot-standard-catalog PR을 연다.
 - [ ] 각 PR merge는 merge-ready DoD 이후 fresh approval을 받아 수행한다. auto-merge는 설정하지 않는다.
 
@@ -211,7 +243,7 @@ mkdir -p "$EVIDENCE_DIR"
 | 9: pinned parser, accessor baseline, 10개 alias만 versioned | 1, 4–6 |
 | 10: dependencyInsight 및 version-selected path | 7 |
 | 11: graph/API/ABI/POM/GMM와 baseline consumer | 7 |
-| 12: Gradle/Kotlin/JDK/Java 21 closure/Dokka jsoup | 5, 7 |
+| 12: Gradle/Kotlin/JDK/Java 21 closure/Dokka 보안 의존성 | 5, 7 |
 | 13: 두 PR exact-head CI/review | 8; tag 승인 전 Projects 작업은 PENDING |
 | 14: alert baseline/실행 결과별 판정 | 9 |
 | 15: retry/hold/revert recovery | 8–9 |
