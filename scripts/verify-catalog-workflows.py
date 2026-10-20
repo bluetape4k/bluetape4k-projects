@@ -12,6 +12,45 @@ CATALOG_TAG_RE = re.compile(r"^catalog/\d{4}-\d{2}-\d{2}-\d{2}$")
 PROJECTS_REPOSITORY = "bluetape4k/bluetape4k-projects"
 PROJECTS_CHECKOUT_COUNT = 24
 MERGE_RESULT_JOB = "test-merge-result"
+MERGE_RESULT_UNSAFE_ENV = (
+    "BASH_ENV",
+    "ENV",
+    "PATH",
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_EXEC_PATH",
+)
+EXPECTED_MERGE_RESULT_VERIFY_SCRIPT = (
+    "set -euo pipefail",
+    'merge_result_sha="$(git rev-parse HEAD)"',
+    'test "$merge_result_sha" = "$GITHUB_SHA"',
+    'git merge-base --is-ancestor "$PR_HEAD_SHA" "$merge_result_sha"',
+    'git merge-base --is-ancestor "$PR_BASE_SHA" "$merge_result_sha"',
+    'echo "pr head=$PR_HEAD_SHA"',
+    'echo "pr base=$PR_BASE_SHA"',
+    'echo "merge result=$merge_result_sha"',
+)
+YAML_ACTION_ALIAS_RE = re.compile(
+    r"(?m)^ {6}- (?:uses|\"uses\"|'uses')\s*:\s*[*&][A-Za-z_][A-Za-z0-9_-]*"
+    r"|^ {8}(?:uses|\"uses\"|'uses')\s*:\s*[*&][A-Za-z_][A-Za-z0-9_-]*"
+    r"|^ {6}- [*&][A-Za-z_][A-Za-z0-9_-]*"
+)
+YAML_ESCAPED_KEY_RE = re.compile(
+    r"""(?m)^\s*(?:-\s+)?(?:"[^"\n]*\\[^"\n]*"|'[^'\n]*\\[^'\n]*')\s*:"""
+)
+YAML_SIMPLE_KEY_RE = (
+    r"(?:[A-Za-z_][A-Za-z0-9_-]*|\"[A-Za-z_][A-Za-z0-9_-]*\"|'[A-Za-z_][A-Za-z0-9_-]*')"
+)
+
+
+def _yaml_key_pattern(name: str) -> str:
+    escaped = re.escape(name)
+    return rf"(?:{escaped}|\"{escaped}\"|'{escaped}')"
+
+
 EXPECTED_EXTERNAL_CHECKOUTS = (
     (
         "manual-contract",
@@ -41,10 +80,10 @@ EXPECTED_EXTERNAL_CHECKOUTS = (
 
 
 def _top_level_blocks(text: str, name: str) -> list[str]:
-    matches = list(re.finditer(rf"(?m)^{re.escape(name)}:\s*$", text))
+    matches = list(re.finditer(rf"(?m)^{_yaml_key_pattern(name)}:\s*$", text))
     blocks: list[str] = []
     for match in matches:
-        following = re.search(r"(?m)^[A-Za-z_][A-Za-z0-9_-]*:\s*$", text[match.end() :])
+        following = re.search(rf"(?m)^{YAML_SIMPLE_KEY_RE}:\s*$", text[match.end() :])
         end = match.end() + following.start() if following else len(text)
         blocks.append(text[match.start() : end])
     return blocks
@@ -83,24 +122,32 @@ def _workflow_env(text: str, name: str) -> str | None:
 
 def _workflow_env_values(text: str, name: str) -> list[str]:
     values: list[str] = []
+    key = _yaml_key_pattern(name)
     for env in _top_level_blocks(text, "env"):
         values.extend(
             value.strip("'\"")
-            for value in re.findall(rf"(?m)^  {re.escape(name)}:\s*(.*?)\s*$", env)
+            for value in re.findall(rf"(?m)^  {key}:\s*(.*?)\s*$", env)
         )
     return values
 
 
 def _has_job_or_step_env_override(text: str, name: str) -> bool:
+    key = _yaml_key_pattern(name)
     for _, job in _job_blocks(text):
         lines = job.splitlines()
         for index, line in enumerate(lines):
-            match = re.fullmatch(r"(?P<indent> {4}| {8})env:\s*(?P<inline>.*)", line)
+            match = re.fullmatch(
+                rf"(?P<indent> {{4}}| {{8}}){_yaml_key_pattern('env')}:\s*(?P<inline>.*)",
+                line,
+            )
             if match is None:
                 continue
             scope_indent = len(match.group("indent"))
             inline = match.group("inline")
-            if inline and re.search(rf"\b{re.escape(name)}\s*:", inline):
+            if inline and (
+                re.search(rf"(?<![A-Za-z0-9_-]){key}\s*:", inline)
+                or re.search(r"(?:<<\s*:|\*[A-Za-z_][A-Za-z0-9_-]*)", inline)
+            ):
                 return True
             for entry in lines[index + 1 :]:
                 entry_indent = len(entry) - len(entry.lstrip())
@@ -109,10 +156,24 @@ def _has_job_or_step_env_override(text: str, name: str) -> bool:
                 if (
                     entry.strip()
                     and entry_indent == scope_indent + 2
-                    and re.match(rf"{re.escape(name)}\s*:", entry.lstrip())
+                    and (
+                        re.match(rf"{key}\s*:", entry.lstrip())
+                        or re.match(r"<<\s*:", entry.lstrip())
+                    )
                 ):
                     return True
     return False
+
+
+def _step_blocks(job: str) -> list[str]:
+    lines = job.splitlines()
+    starts = [index for index, line in enumerate(lines) if re.match(r"^      - ", line)]
+    return [
+        "\n".join(
+            lines[start : starts[index + 1] if index + 1 < len(starts) else len(lines)]
+        )
+        for index, start in enumerate(starts)
+    ]
 
 
 def _named_step_block(job: str, name: str) -> str:
@@ -161,7 +222,8 @@ def _indented_values(block: str, name: str, indent: int) -> list[str]:
     return [
         value.strip("'\"")
         for value in re.findall(
-            rf"(?m)^{re.escape(prefix)}{re.escape(name)}:\s*(.*?)\s*$", block
+            rf"(?m)^{re.escape(prefix)}{_yaml_key_pattern(name)}:\s*(.*?)\s*$",
+            block,
         )
     ]
 
@@ -170,45 +232,75 @@ def _step_env_value(step: str, name: str) -> str | None:
     lines = step.splitlines()
     values: list[str] = []
     for index, line in enumerate(lines):
-        if line != "        env:":
+        if re.fullmatch(rf"        {_yaml_key_pattern('env')}:\s*", line) is None:
             continue
         for entry in lines[index + 1 :]:
             if entry.strip() and len(entry) - len(entry.lstrip()) <= 8:
                 break
-            match = re.fullmatch(rf"          {re.escape(name)}:\s*(.*?)\s*", entry)
+            match = re.fullmatch(
+                rf"          {_yaml_key_pattern(name)}:\s*(.*?)\s*", entry
+            )
             if match is not None:
                 values.append(match.group(1).strip("'\""))
     return values[0] if len(values) == 1 else None
 
 
+def _step_env_block(step: str) -> list[str] | None:
+    lines = step.splitlines()
+    starts = [
+        index
+        for index, line in enumerate(lines)
+        if re.fullmatch(rf"        {_yaml_key_pattern('env')}:\s*", line)
+    ]
+    if len(starts) != 1:
+        return None
+    start = starts[0]
+    end = next(
+        (
+            index
+            for index in range(start + 1, len(lines))
+            if lines[index].strip()
+            and len(lines[index]) - len(lines[index].lstrip()) <= 8
+        ),
+        len(lines),
+    )
+    return lines[start:end]
+
+
 def _checkout_steps(text: str) -> list[tuple[str, str]]:
     checkout_steps: list[tuple[str, str]] = []
+    checkout_action = (
+        r"(?:actions/checkout@[^\s#\"']+|"
+        r"\"actions/checkout@[^\"\s#]+\"|"
+        r"'actions/checkout@[^'\s#]+')"
+    )
     for job_name, job in _job_blocks(text):
-        lines = job.splitlines()
-        for index, line in enumerate(lines):
-            if re.match(
-                r"^\s+-\s+uses:\s+actions/checkout@[^\s#]+(?:\s+#.*)?$",
-                line,
-            ) is None:
-                continue
-
-            step_indent = len(line) - len(line.lstrip())
-            end = index + 1
-            while end < len(lines):
-                following = lines[end]
-                following_indent = len(following) - len(following.lstrip())
-                if following.strip() and following_indent <= step_indent:
-                    break
-                end += 1
-            checkout_steps.append((job_name, "\n".join(lines[index:end])))
+        for step in _step_blocks(job):
+            if (
+                re.search(
+                    rf"(?m)^      - {_yaml_key_pattern('uses')}\s*:\s*{checkout_action}(?:\s+#.*)?$"
+                    rf"|^        {_yaml_key_pattern('uses')}\s*:\s*{checkout_action}(?:\s+#.*)?$",
+                    step,
+                )
+                is not None
+            ):
+                checkout_steps.append((job_name, step))
     return checkout_steps
 
 
+def _step_values(step: str, name: str) -> list[str]:
+    return [
+        value.strip().strip("'\"")
+        for value in re.findall(
+            rf"(?m)^\s+(?:-\s+)?{_yaml_key_pattern(name)}:\s*([^\n#]+?)\s*$",
+            step,
+        )
+    ]
+
+
 def _step_value(step: str, name: str) -> str | None:
-    match = re.search(rf"(?m)^\s+{re.escape(name)}:\s*([^\n#]+?)\s*$", step)
-    if match is None:
-        return None
-    return match.group(1).strip().strip("'\"")
+    values = _step_values(step, name)
+    return values[0] if len(values) == 1 else None
 
 
 def _has_exact_governance_gate(status_job: str) -> bool:
@@ -227,6 +319,12 @@ def _has_exact_governance_gate(status_job: str) -> bool:
 def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     """Return contract violations in the Projects GitHub workflows."""
     errors: list[str] = []
+    if YAML_ESCAPED_KEY_RE.search(ci_text):
+        errors.append("CI workflow must not use escaped YAML mapping keys")
+    if YAML_ACTION_ALIAS_RE.search(ci_text) or re.search(r"(?m)^\s*<<\s*:", ci_text):
+        errors.append(
+            "CI workflow must not use YAML anchors and aliases for Actions steps or environment mappings"
+        )
     expected_sha_values = _workflow_env_values(ci_text, "PROJECTS_EXPECTED_SHA")
     if len(expected_sha_values) != 1:
         errors.append("CI must define exactly one top-level PROJECTS_EXPECTED_SHA")
@@ -245,6 +343,17 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     projects_checkout_count = 0
     merge_result_checkout_count = 0
     for job_name, checkout in _checkout_steps(ci_text):
+        if len(_step_values(checkout, "uses")) > 1:
+            errors.append("checkout step must not define duplicate uses keys")
+            continue
+        if any(
+            len(_step_values(checkout, name)) > 1
+            for name in ("repository", "ref", "path")
+        ):
+            errors.append(
+                "checkout step must not define duplicate repository/ref/path keys"
+            )
+            continue
         repository = _step_value(checkout, "repository")
         ref = _step_value(checkout, "ref")
         path = _step_value(checkout, "path")
@@ -403,6 +512,18 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     if not merge_result:
         errors.append("CI must define the PR merge-result contract job")
     else:
+        for name in MERGE_RESULT_UNSAFE_ENV:
+            if _workflow_env_values(ci_text, name):
+                errors.append(
+                    f"CI workflow env must not override merge-result execution environment variable {name}"
+                )
+        if any(
+            re.search(rf"(?m)^ {{4}}{_yaml_key_pattern('shell')}:\s*", defaults)
+            for defaults in _top_level_blocks(ci_text, "defaults")
+        ):
+            errors.append(
+                "CI workflow defaults must not override the merge-result execution environment shell"
+            )
         required_merge_result = (
             "ref: ${{ github.sha }}",
             "python3 -m unittest tests.test_catalog_workflows -v",
@@ -416,6 +537,12 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             )
         if _indented_values(merge_result, "continue-on-error", 4):
             errors.append("PR merge-result job must not use continue-on-error")
+        if _indented_values(merge_result, "env", 4) or _indented_values(
+            merge_result, "defaults", 4
+        ):
+            errors.append(
+                "PR merge-result job must not override the merge-result execution environment"
+            )
         for required in required_merge_result:
             if required not in merge_result:
                 errors.append(
@@ -425,6 +552,24 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             merge_result,
             "Verify synthetic merge result contains the current PR commits",
         )
+        merge_steps = _step_blocks(merge_result)
+        first_step_is_checkout = (
+            bool(merge_steps)
+            and re.search(r"(?m)^      - uses: actions/checkout@v7$", merge_steps[0])
+            is not None
+        )
+        if (
+            not first_step_is_checkout
+            or len(merge_steps) < 2
+            or merge_steps[1] != verify_merge_step
+        ):
+            errors.append(
+                "merge-result execution environment requires checkout followed immediately by its verification step"
+            )
+        if _indented_values(verify_merge_step, "shell", 8):
+            errors.append(
+                "merge-result execution environment must use the default fail-closed shell in the named verification step"
+            )
         if _indented_values(verify_merge_step, "if", 8) or _indented_values(
             verify_merge_step, "continue-on-error", 8
         ):
@@ -459,6 +604,19 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         ):
             errors.append(
                 "PR merge-result ancestry checks must run in order as commands in the named merge-result verification step"
+            )
+        if verify_script != list(EXPECTED_MERGE_RESULT_VERIFY_SCRIPT):
+            errors.append(
+                "PR merge-result verification script must match the exact fail-closed allowlist"
+            )
+        expected_step_env = [
+            "        env:",
+            "          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}",
+            "          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}",
+        ]
+        if _step_env_block(verify_merge_step) != expected_step_env:
+            errors.append(
+                "named merge-result verification step must use the exact merge-result execution environment"
             )
         verify_script_text = "\n".join(verify_script or [])
         if re.search(

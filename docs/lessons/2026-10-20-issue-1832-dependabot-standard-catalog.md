@@ -99,6 +99,20 @@ PR #1838의 exact head `a702d7f1b2573a8d03ca7e7382d780a99d28528d`를 본 독립 
 
 **후속 lesson writer DoD (2026-10-20):** 독자는 Projects workflow verifier 유지보수자다. exact review head, P2 근거, old-head CI, RED/GREEN test 결과를 검증기와 테스트 소스에 대조했다. `a702d7f1` PR CI PASS와 현재 수정 후보의 PENDING 상태를 분리했다. 한국어 기술 문장을 자연성 기준에 맞춰 검토했고, 문서 read-back 및 contextual term audit 결과는 아래에 기록한다.
 
+## 인용된 YAML key와 중복 checkout key도 검사하기
+
+2026-10-21 inline 검토에서 정규식 기반 workflow verifier가 YAML key/value 표기의 일부만 인식하는 추가 P2를 재현했다. uses: "actions/checkout@v7"는 actions/checkout@... inventory에서 빠졌다. "repository" key는 external checkout을 first-party checkout으로 오분류할 수 있었다. "env", "shell", "defaults" key는 merge-result 검증의 실행 환경 검사를 우회했다. 중복 uses 또는 checkout metadata key는 실제 값과 scanner가 읽은 값이 달라질 수 있었다. "\u0075ses" 표기도 유효했고 로컬 actionlint가 승인했지만 verifier는 추가 checkout을 세지 못했다.
+
+근본 원인은 텍스트 검증기가 YAML의 의미상 같은 인용 key/value를 동일한 계약 입력으로 정규화하지 않고, 한 key를 여러 번 선언한 경우도 거부하지 않은 점이다. CI에는 actionlint step이 없으므로 로컬 linter만으로는 우회 회귀를 막지 못한다.
+
+수정 전 negative test 6개에서 총 9개 YAML 변형을 실행했으며, 모두 기대한 검증 오류 없이 통과해 RED였다. 수정은 공통 matcher로 plain/single-quoted/double-quoted simple key를 다루고, uses, repository, ref, path 중복을 거부하며, escaped mapping key와 YAML anchor/alias/merge key를 fail closed로 차단한다. 수정 뒤 contract suite 53/53, verifier, Ruff lint, Python compile, actionlint, git diff --check가 통과했다. 임시 workflow 네 개에서 quoted checkout/env/shell key와 quoted checkout action 값은 actionlint가 유효하다고 판정했다. escaped uses key 변형도 actionlint exit 0이었으며, 수정된 verifier는 이를 거부한다.
+
+다음 workflow verifier 변경에서는 plain key만 바꾼 mutation 외에도 quoted scalar/key, escaped key, duplicate mapping key, alias/merge key 변형을 추가한다. linter 통과는 구조 계약 검증과 같지 않다. 보안상 중요한 checkout/runner/environment inventory는 CI에서 실행되는 자체 negative tests로 fail closed하게 유지한다.
+
+이 검토 후에도 PR #1838은 새 candidate를 push하지 않은 상태였으므로 a8a118f...의 green CI는 현재 수정의 증거가 아니다. 최신 inline verdict는 P0=0/P1=0, 잔여 P2=0이며 독립 reviewer attestation이 아니다. Issue #1832와 CRITICAL alert #235는 2026-10-21 live read-back에서 계속 OPEN이고 fixed_at은 null이다. 승인된 merge, merge SHA Dependency Submission, hosted Dependabot 결과가 나올 때까지 둘 다 열어 둔다.
+
+**후속 lesson writer DoD (2026-10-21):** SPW-01 PASS—대상 PR, 검토 코드와 live issue/alert 상태를 고정했다. SPW-02 PASS—원인·결정·결과·검증·miss·재발 방지 규칙을 포함했다. SPW-03 PASS—한국어 기술 표현과 key/value 코드 표기를 확인했다. SPW-04 PASS—6개 회귀 테스트, 9개 변형, actionlint 결과, verifier 구현을 대조했다. SPW-05 PASS—최종 read-back을 완료했고 exact-head CI를 미확인으로 남겼다. KO-01–KO-06 PASS; KO-07 기본 `clinic-appointment` term audit는 3개 문서에서 `findings=[]`였다.
+
 ## Writer DoD
 
 | 검사 | 결과 |
