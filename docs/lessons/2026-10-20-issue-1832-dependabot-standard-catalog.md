@@ -163,3 +163,11 @@ Workflow verifier는 중요 명령의 존재만 검사해서는 충분하지 않
 정확한 f648 head의 hosted CI run `39465440177`은 28/28 성공했지만, 세 P1 수정 이전의 run이므로 새 후보를 검증하지 않는다. 새 exact-head CI와 독립 리뷰, merge 승인, merge 후 Dependency Submission 및 hosted Dependabot 실행은 각각 별도 단계다. 보안 alert를 해결 처리하기 전에 제출된 dependency graph와 실제 보안 업데이트 결과를 다시 읽는다.
 
 **후속 lesson writer DoD (2026-10-21):** SPW-01–05 PASS—workflow 보안 검증기를 유지하는 개발자를 독자로 두고 원인·대응·검증·잔여 gate를 기록했다. KO-01–KO-07 PASS—한국어 문장, 기술 용어, 수치와 명령을 확인하고 contextual terminology audit 결과를 대조했다.
+
+## Dependabot pin 단계의 작업 디렉터리도 검증한다
+
+2026-10-21에 PR #1838의 exact head `afa20f6ad1d9bcb9d2a56908a774d31f05fdfcaa`를 추가로 검사하면서, `Read pinned Dependabot Core commit` step에 `working-directory: injected`를 넣어도 verifier가 통과하는 것을 재현했다. 이 step은 상대 경로 `.gradle/catalog-source/bluetape4k-dependencies/config/projects-dependabot-catalog.toml`을 읽는다. PR 변경에 동일한 상대 경로를 가진 디렉터리와 파일을 추가하면 승인된 Central catalog 대신 PR 관리 파일에서 `dependabot_core_commit`을 읽고 그 값을 후속 Dependabot Core checkout에 전달할 수 있다.
+
+회귀 변형을 먼저 추가해 verifier가 `errors=[]`로 통과하는 RED를 확인했다. `catalog-governance` pin step의 `working-directory` 선언을 거부하도록 수정한 뒤 targeted test와 전체 66개 contract test가 GREEN이었다. 수정은 commit `fe4b33b94`에 들어갔다. 보호 workflow의 산출값을 검증할 때는 명령 본문뿐 아니라 shell, 작업 디렉터리, 환경과 조건이 같은 신뢰 경계를 공유하는지 확인한다.
+
+**후속 lesson writer DoD (2026-10-21):** SPW-01 PASS—독자는 Dependabot pin 검증기 유지보수자이며 PR base/head, 상대 경로, 후속 checkout과 로컬 수정 commit을 고정했다. SPW-02 PASS—맥락, 원인, RED/GREEN 결과와 재발 방지 기준을 기록했다. SPW-03 PASS—한국어 기술 문장을 다듬고 코드 식별자·경로·commit을 보존했다. SPW-04 PASS—workflow, verifier, 테스트 출력과 commit을 대조했다. SPW-05 PASS—최종 Markdown을 다시 읽고 독자·구조·증거를 확인했다. KO-01–KO-07 PASS—사실과 불확실성, 용어, 문장, 독자 표면을 점검하고 contextual terminology audit을 확인했다.
