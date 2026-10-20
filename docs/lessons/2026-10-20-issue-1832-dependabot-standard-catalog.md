@@ -83,7 +83,9 @@ Ubuntu 22.04 runner 계열은 2026-09-17부터 deprecation 단계에 들어갔�
 
 각 우회 negative test를 먼저 추가해 기존 verifier에서 세 개 모두 `validate_workflows()`의 빈 오류 목록으로 실패하는 RED를 확인했다. 수정본은 top-level `env.PROJECTS_EXPECTED_SHA`를 실제 key/value로 읽고, 이름이 고정된 merge verification step 안에서 `PR_HEAD_SHA`와 `PR_BASE_SHA`의 단일 env 값을 검사한다. 주석의 복사 문자열은 계약으로 인정하지 않는다. 세 회귀 테스트는 수정 후 통과했다.
 
-현재 로컬 후보는 전체 workflow contract 33/33, `verify-catalog-workflows.py`, `actionlint .github/workflows/ci.yml`, `ruff check`, Python compile, `git diff --check`를 통과했다. 수정은 아직 새 commit/push 전이므로 이 결과는 hosted CI 증거가 아니다. d80 code-review lane은 제한 시간 내 결과를 내지 못해 probe grace 만료 후 workflow receipt에 중단을 기록했고 native interrupt를 실행했다. 새 후보 SHA의 독립 code review와 exact-head CI가 남아 있다. merge 후 Dependency Submission 및 실제 hosted Dependabot이 alert #235의 해결을 입증하기 전까지 Issue #1832와 alert #235를 계속 열어 둔다.
+현재 로컬 후보는 전체 workflow contract 33/33, `verify-catalog-workflows.py`, `actionlint .github/workflows/ci.yml`, `ruff check`, Python compile, `git diff --check`를 통과했다. 2026-10-20 21:02 KST 당시 후보는 commit/push 전이었으므로 이 결과는 hosted CI 증거가 아니다. d80 code-review lane은 제한 시간 내 결과를 내지 못해 probe grace 만료 후 workflow receipt에 중단을 기록했고 native interrupt를 실행했다. 새 후보 SHA의 독립 code review와 exact-head CI가 남아 있다. merge 후 Dependency Submission 및 실제 hosted Dependabot이 alert #235의 해결을 입증하기 전까지 Issue #1832와 alert #235를 계속 열어 둔다.
+
+2026-10-20 21:07 KST live read-back에서 PR #1838 head는 `54c0513622774eaa1c57bf93a0e43b175425490d`였고 exact-head CI run `39419805598`은 진행 중이었다. 앞선 d80 CI run `39417533841`은 성공했지만 이 수정의 CI 증거는 아니다. 새 SHA code review는 아직 시작하지 않았다.
 
 ## Writer DoD
 
