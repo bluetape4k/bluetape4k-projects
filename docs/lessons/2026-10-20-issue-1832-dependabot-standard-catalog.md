@@ -14,7 +14,7 @@ Projects의 기존 catalog를 versionless 원본으로 분리하고, 중앙 mapp
 
 ## 결과와 검증
 
-- Projects local workflow contract 테스트 11개와 actionlint, verifier, Python compile, diff check가 통과했다.
+- commit `85d0312cf9b7e9c97dc592645582a341a4164ab3` 기준 Projects local workflow contract 테스트 11개와 actionlint, verifier, Python compile, diff check가 통과했다.
 - Central 전체 Python suite 514개 통과, 2개 skip. 두 skip은 관리 sibling 저장소가 격리 worktree에서 보이지 않아 real-workspace inventory를 실행하지 않은 결과다.
 - 외부 1.9.2-SNAPSHOT artifact 검사 한 건은 HTTP 403으로 건너뛰었다. 제품 테스트 실패로 계산하지 않는다.
 - 98개 Dokka configuration에서 FreeMarker 2.3.35와 jsoup 1.23.2를 확인했다. 13개 게시 모듈의 POM과 Gradle Module Metadata는 26개 모두 baseline과 byte-identical했다.
@@ -37,9 +37,13 @@ PR #1838의 첫 exact-head run `39370896190`은 Projects HEAD `ac3d40b70367eec66
 
 수정 HEAD `9dc756c7be448fbb62b7d2f4cde10c4904b8ac67`의 retry `39371790611`은 parser와 JVM settings 단계를 통과했지만, Central generator가 `BLUETAPE4K_DEPENDENCIES_CATALOG_REF`의 tag 문자열을 central commit SHA와 직접 비교해 실패했다. 앞선 단계에서 signed tag의 peeled SHA를 확인했으므로 generator 호출 범위에서만 `REF`에 그 SHA를 전달해 호환 검사를 만족시킨다. 같은 run의 gitleaks는 cache SHA 변수 이름 `CacheKey`와 이를 고정하는 workflow test 문자열에서 generic API key 패턴 두 건을 보고했다. 실제 값은 인증정보가 아니라 commit SHA 식별자이므로 변수명을 `CacheSha`로 바꿨다. clean source archive에서 재실행한 gitleaks는 누출을 찾지 못했고 Central pin guard, 11개 workflow test, verifier, actionlint, Python compile, Gradle help가 통과했다. 이 수정은 commit `85d0312cf9b7e9c97dc592645582a341a4164ab3`에 들어갔지만 아직 PR 원격에 push하지 않았으며 hosted exact-head 검증이 남아 있다.
 
+PR #1838의 다음 exact-head run `39373076530`은 `Central Catalog Governance`의 adoption 검사에서 실패했다. Projects workflow에는 tag 문자열을 `BLUETAPE4K_DEPENDENCIES_CATALOG_REF`로 기록했지만 Central `sync-shared-versions.py`는 이 값을 정규식으로 full commit SHA만 읽는다. 따라서 catalog `settings.gradle.kts`의 SHA pin은 `local=dcc7fa7557d3c0548b9e3fc28c48877827ea2f74`, CI workflow 값은 `central=<missing>`으로 판정됐다. 이 검사는 실패했으며 Build와 14개 Test matrix job, 총 15개 제품 job이 skip됐다. 제품 테스트 실패로 분류하지 않는다.
+
+회귀 검사 두 개는 수정 전에 기대한 이유로 실패했다. 첫 검사는 workflow의 `REF`가 tag라 SHA 계약을 만족하지 않음을 잡았고, 둘째 검사는 verifier가 tag를 canonical `REF`로 받아들이는 것을 잡았다. `REF`는 full SHA로, immutable tag 이름은 별도 `TAG`로 두고 workflow는 `TAG`를 체크아웃과 peeled-commit 확인에 쓰도록 수정했다. `REF`와 `SHA`는 같은 commit으로 유지한다. 수정 후보는 로컬 workflow contract 12개, verifier, actionlint, Python compile, diff check, Central adoption 비교(`[]`), Gradle help를 통과했다. 원격에는 아직 반영되지 않았으므로 새 exact-head CI가 최종 증거다.
+
 ## 현재 상태
 
-PR #1838은 열려 있고 원격 head `9dc756c7be448fbb62b7d2f4cde10c4904b8ac67`의 CI run `39371790611`은 두 설정/스캐너 문제와 15개 동적 build/test job skip으로 실패했다. 로컬 commit `85d0312cf9b7e9c97dc592645582a341a4164ab3`에서 이를 수정하고 targeted validation을 마쳤다. 이 commit의 hosted exact-head CI, 독립 최종 코드 리뷰 및 새 merge 승인이 남아 있다. merge 후 exact-SHA Dependency Submission과 실제 hosted Dependabot 재실행으로 alert #235를 확인하기 전까지 Issue #1832를 열어 두고 보안 문제가 해결됐다고 보고하지 않는다.
+PR #1838은 열려 있다. 원격 head `93285abb7eef770aa155cb330d2c5ad5bb6f818e`의 CI run `39373076530`은 adoption 검사 실패로 끝났고, 제품 Build/Test job 15개는 실행되지 않았다. 별도 `TAG`와 full-SHA `REF`를 쓰는 수정 후보는 현재 로컬에만 있으며 12개 계약 테스트와 targeted checks가 통과했다. 이 후보의 push 및 새 exact-head CI, 독립 최종 코드 리뷰, merge-ready 확인이 남아 있다. merge 후 exact-SHA Dependency Submission과 실제 hosted Dependabot 재실행으로 alert #235를 확인하기 전까지 Issue #1832를 열어 두고 보안 문제가 해결됐다고 보고하지 않는다.
 
 ## Writer DoD
 
@@ -48,7 +52,7 @@ PR #1838은 열려 있고 원격 head `9dc756c7be448fbb62b7d2f4cde10c4904b8ac67`
 | SPW-01 독자·목적·근거·미확인 사항 | PASS |
 | SPW-02 lesson의 맥락·결정·결과·검증·miss·future guard | PASS |
 | SPW-03 한국어 기술 문체 및 용어 일관성 | PASS |
-| SPW-04 이슈·테스트·Gradle·advisory 근거 대조 | PASS |
+| SPW-04 이슈·CI 로그·회귀 테스트·Gradle·advisory 근거 대조 | PASS |
 | SPW-05 최종 read-back 및 workflow DoD 기록 | PASS |
 | KO-01..KO-06 사실·문체·용어·표·링크 점검 | PASS |
-| KO-07 contextual terminology audit | PASS, 최종 audit 결과를 계획에 기록 |
+| KO-07 contextual terminology audit | PASS, lesson·계획·testlog findings `[]` |

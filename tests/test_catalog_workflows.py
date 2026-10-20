@@ -23,9 +23,13 @@ class CatalogWorkflowsTest(unittest.TestCase):
     def test_repository_workflows_satisfy_catalog_contract(self) -> None:
         self.assertEqual(verifier.validate_workflows(self.ci, self.submission), [])
 
-    def test_projects_ci_pins_verified_catalog_tag_to_peeled_commit(self) -> None:
+    def test_projects_ci_pins_catalog_tag_to_peeled_commit(self) -> None:
         self.assertIn(
-            "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: 'catalog/2026-10-20-01'",
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: 'dcc7fa7557d3c0548b9e3fc28c48877827ea2f74'",
+            self.ci,
+        )
+        self.assertIn(
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_TAG: 'catalog/2026-10-20-01'",
             self.ci,
         )
         self.assertIn(
@@ -34,14 +38,29 @@ class CatalogWorkflowsTest(unittest.TestCase):
         )
         governance = verifier._job_block(self.ci, "catalog-governance")
         self.assertIn(
-            'export BLUETAPE4K_DEPENDENCIES_CATALOG_REF="$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"',
+            "ref: ${{ env.BLUETAPE4K_DEPENDENCIES_CATALOG_TAG }}",
             governance,
         )
+        self.assertIn(
+            '"${BLUETAPE4K_DEPENDENCIES_CATALOG_TAG}^{commit}"',
+            governance,
+        )
+        self.assertNotIn("export BLUETAPE4K_DEPENDENCIES_CATALOG_REF=", governance)
         settings = (ROOT / "settings.gradle.kts").read_text()
         self.assertIn(
             '.orElse("dcc7fa7557d3c0548b9e3fc28c48877827ea2f74")',
             settings,
         )
+
+    def test_rejects_catalog_tag_as_the_canonical_ref(self) -> None:
+        invalid = self.ci.replace(
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: 'dcc7fa7557d3c0548b9e3fc28c48877827ea2f74'",
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: 'catalog/2026-10-20-01'",
+        )
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("catalog REF must be a full commit SHA" in error for error in errors), errors)
 
     def test_projects_ci_creates_pinned_parser_receipt_before_catalog_check(self) -> None:
         governance = verifier._job_block(self.ci, "catalog-governance")

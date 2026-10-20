@@ -56,11 +56,16 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     """Return contract violations in the Projects GitHub workflows."""
     errors: list[str] = []
     ref = _workflow_env(ci_text, "BLUETAPE4K_DEPENDENCIES_CATALOG_REF")
+    tag = _workflow_env(ci_text, "BLUETAPE4K_DEPENDENCIES_CATALOG_TAG")
     expected_sha = _workflow_env(ci_text, "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA")
-    if ref is None or not (FULL_SHA_RE.fullmatch(ref) or CATALOG_TAG_RE.fullmatch(ref)):
-        errors.append("catalog ref must be a full commit SHA or immutable catalog tag")
+    if ref is None or FULL_SHA_RE.fullmatch(ref) is None:
+        errors.append("catalog REF must be a full commit SHA")
+    if tag is None or CATALOG_TAG_RE.fullmatch(tag) is None:
+        errors.append("catalog TAG must be an immutable catalog tag")
     if expected_sha is None or FULL_SHA_RE.fullmatch(expected_sha) is None:
         errors.append("catalog SHA must be a full 40-character commit hash")
+    elif ref is not None and ref != expected_sha:
+        errors.append("catalog REF must equal the expected catalog SHA")
 
     governance = _job_block(ci_text, "catalog-governance")
     if not governance:
@@ -68,7 +73,7 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     else:
         required_governance = (
             "repository: bluetape4k/bluetape4k-dependencies",
-            "ref: ${{ env.BLUETAPE4K_DEPENDENCIES_CATALOG_REF }}",
+            "ref: ${{ env.BLUETAPE4K_DEPENDENCIES_CATALOG_TAG }}",
             "path: .gradle/catalog-source/bluetape4k-dependencies",
             "python-version: '3.13'",
             "python3 --version",
@@ -80,9 +85,11 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             "git -C .gradle/catalog-source/bluetape4k-dependencies rev-parse HEAD",
             (
                 "git -C .gradle/catalog-source/bluetape4k-dependencies rev-parse "
-                '"${BLUETAPE4K_DEPENDENCIES_CATALOG_REF}^{commit}"'
+                '"${BLUETAPE4K_DEPENDENCIES_CATALOG_TAG}^{commit}"'
             ),
             '"$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"',
+            'test "$head_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"',
+            'test "$peeled_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"',
             "dependabot_core_commit",
             "repository: dependabot/dependabot-core",
             "ref: ${{ steps.dependabot-pin.outputs.commit }}",
