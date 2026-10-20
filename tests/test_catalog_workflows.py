@@ -23,6 +23,21 @@ class CatalogWorkflowsTest(unittest.TestCase):
     def test_repository_workflows_satisfy_catalog_contract(self) -> None:
         self.assertEqual(verifier.validate_workflows(self.ci, self.submission), [])
 
+    def test_projects_ci_pins_verified_catalog_tag_to_peeled_commit(self) -> None:
+        self.assertIn(
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: 'catalog/2026-10-20-01'",
+            self.ci,
+        )
+        self.assertIn(
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: 'dcc7fa7557d3c0548b9e3fc28c48877827ea2f74'",
+            self.ci,
+        )
+        settings = (ROOT / "settings.gradle.kts").read_text()
+        self.assertIn(
+            '.orElse("dcc7fa7557d3c0548b9e3fc28c48877827ea2f74")',
+            settings,
+        )
+
     def test_projects_ci_creates_pinned_parser_receipt_before_catalog_check(self) -> None:
         governance = verifier._job_block(self.ci, "catalog-governance")
         parser_contract = governance.find("dependabot-parser-contract.rb")
@@ -51,7 +66,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
     def test_rejects_catalog_ref_without_exact_commit_pin(self) -> None:
         invalid = self.ci.replace(
-            "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: 'e9946b18bdb0022f52cd5dc8994d859d470e7bab'",
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: 'dcc7fa7557d3c0548b9e3fc28c48877827ea2f74'",
             "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: 'develop'",
         )
 
