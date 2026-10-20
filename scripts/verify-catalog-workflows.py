@@ -39,10 +39,27 @@ EXPECTED_DEPENDABOT_PARSER_CONTRACT_SCRIPT = (
     'test "$(git -C "$DEPENDABOT_CORE_ROOT" rev-parse HEAD)" = "${{ steps.dependabot-pin.outputs.commit }}"',
     "bundle exec ruby .gradle/catalog-source/bluetape4k-dependencies/tests/fixtures/project-dependabot-catalog/dependabot-parser-contract.rb",
 )
-EXPECTED_CATALOG_VERIFICATION_COMMANDS = (
+EXPECTED_CATALOG_VERIFICATION_SCRIPT = (
     "set -euo pipefail",
+    'git switch -c ci-project-catalog "$PROJECTS_EXPECTED_SHA"',
+    'git -C .gradle/catalog-source/bluetape4k-dependencies switch -c ci-central-catalog "$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"',
+    "git remote set-url origin git@github.com:bluetape4k/bluetape4k-projects.git",
+    "git -C .gradle/catalog-source/bluetape4k-dependencies remote set-url origin git@github.com:bluetape4k/bluetape4k-dependencies.git",
+    'evidence_dir="$GITHUB_WORKSPACE/.gradle/issue-1832-evidence"',
+    'mkdir -p "$evidence_dir"',
+    "python3.13 .gradle/catalog-source/bluetape4k-dependencies/scripts/catalog_candidate.py build-project-map \\",
+    '--projects-root "$GITHUB_WORKSPACE" \\',
+    '--central-root "$GITHUB_WORKSPACE/.gradle/catalog-source/bluetape4k-dependencies" \\',
+    '--output "$evidence_dir/repository-map.json"',
     "python3.13 .gradle/catalog-source/bluetape4k-dependencies/scripts/project-dependabot-catalog.py \\",
+    '--projects-root "$GITHUB_WORKSPACE" \\',
+    '--central-root "$GITHUB_WORKSPACE/.gradle/catalog-source/bluetape4k-dependencies" \\',
+    '--repository-map "$evidence_dir/repository-map.json" \\',
+    '--evidence-dir "$evidence_dir" \\',
     "--check",
+    "python3.13 -m unittest discover \\",
+    "-s .gradle/catalog-source/bluetape4k-dependencies/tests \\",
+    "-p 'test_project_dependabot_catalog.py'",
     "python3.13 -m unittest tests.test_catalog_workflows",
     "python3.13 scripts/verify-catalog-workflows.py",
 )
@@ -609,28 +626,13 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
                 "catalog-governance parser contract step must run and fail closed"
             )
         catalog_script = _step_run_script(catalog_step)
-        catalog_command_positions = (
-            [
-                catalog_script.index(command)
-                for command in EXPECTED_CATALOG_VERIFICATION_COMMANDS
-            ]
-            if catalog_script is not None
-            and all(
-                command in catalog_script
-                for command in EXPECTED_CATALOG_VERIFICATION_COMMANDS
-            )
-            else []
-        )
         if (
-            len(catalog_command_positions)
-            != len(EXPECTED_CATALOG_VERIFICATION_COMMANDS)
-            or catalog_command_positions != sorted(catalog_command_positions)
-            or len(set(catalog_command_positions)) != len(catalog_command_positions)
+            catalog_script != list(EXPECTED_CATALOG_VERIFICATION_SCRIPT)
             or _indented_values(catalog_step, "if", 8)
             or _indented_values(catalog_step, "continue-on-error", 8)
         ):
             errors.append(
-                "catalog-governance must execute generated catalog verification and parser tests in its named step"
+                "catalog verification step must execute its exact script and fail closed"
             )
 
     merge_result = _job_block(ci_text, MERGE_RESULT_JOB)

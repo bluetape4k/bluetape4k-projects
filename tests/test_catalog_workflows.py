@@ -1223,6 +1223,29 @@ class CatalogWorkflowsTest(unittest.TestCase):
             errors,
         )
 
+    def test_rejects_exit_before_catalog_verification_commands(self) -> None:
+        governance = verifier._job_block(self.ci, "catalog-governance")
+        catalog_step = verifier._named_step_block(
+            governance, "Verify generated catalog and parser contract"
+        )
+        invalid_step = catalog_step.replace(
+            "          set -euo pipefail\n",
+            "          set -euo pipefail\n          exit 0\n",
+            1,
+        )
+        invalid_governance = governance.replace(catalog_step, invalid_step, 1)
+        invalid = self.ci.replace(governance, invalid_governance, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any(
+                "catalog verification step must execute its exact script" in error
+                for error in errors
+            ),
+            errors,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
