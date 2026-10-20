@@ -41,9 +41,25 @@ PR #1838의 다음 exact-head run `39373076530`은 `Central Catalog Governance`�
 
 회귀 검사 두 개는 수정 전에 기대한 이유로 실패했다. 첫 검사는 workflow의 `REF`가 tag라 SHA 계약을 만족하지 않음을 잡았고, 둘째 검사는 verifier가 tag를 canonical `REF`로 받아들이는 것을 잡았다. `REF`는 full SHA로, immutable tag 이름은 별도 `TAG`로 두고 workflow는 `TAG`를 체크아웃과 peeled-commit 확인에 쓰도록 수정했다. `REF`와 `SHA`는 같은 commit으로 유지한다. 수정 후보는 로컬 workflow contract 12개, verifier, actionlint, Python compile, diff check, Central adoption 비교(`[]`), Gradle help를 통과했다. 원격에는 아직 반영되지 않았으므로 새 exact-head CI가 최종 증거다.
 
+## PR 검사에서 merge SHA와 PR head SHA를 구분하기
+
+PR #1838의 run `39408775102`는 run metadata상 head `3ae9be4d36bdb6eb9d61289cd62d5ffac9d7461c`에 연결됐지만, `pull_request` event의 기본 checkout은 합성 merge commit `41a685c7…`를 사용했다. `Central Catalog Governance`는 checkout HEAD와 `$GITHUB_SHA`를 Projects generator map 및 receipt에 결속했기 때문에, green job만으로 PR head 자체를 검증했다고 볼 수 없었다. [GitHub Actions 공식 문서](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)는 `pull_request`의 기본 `GITHUB_SHA`가 merge commit이며 head commit만 검사하려면 `github.event.pull_request.head.sha`를 checkout하라고 설명한다.
+
+P1 회귀를 막기 위해 workflow가 PR에서는 `github.event.pull_request.head.sha`, 다른 event에서는 `github.sha`를 `PROJECTS_EXPECTED_SHA`로 선택하고, catalog-governance checkout 및 generator branch를 이 값에 결속하도록 수정했다. checkout 직후 `git rev-parse HEAD`도 다시 비교한다. verifier 테스트는 checkout을 `github.sha`로 바꾸거나 expected SHA 식을 merge SHA로 바꾸면 실패해야 한다. 해당 부정 테스트는 수정 전 RED였고, 수정 후 workflow contract 14개가 통과했다. `verify-catalog-workflows.py`, `actionlint`, Python compile, `git diff --check`도 통과했다.
+
+이 수정은 현재 로컬 worktree에만 있다. 새 commit에 대한 hosted CI가 통과하기 전까지 exact-HEAD governance 검증은 PENDING이다. run `39408775102`의 나머지 product jobs는 합성 merge tree를 대상으로 하며, 그 결과와 branch-head provenance를 서로 대체하지 않는다.
+
+## MongoDB Testcontainers와 Actions runner 커널 호환성
+
+run `39408775102`의 `Test / Spring Boot (batch-nosql)`은 세 번 재시도한 뒤 `ReactiveMongoOperationsCoroutinesTest` 실패로 종료됐다. 테스트 결과 artifact에는 66개 테스트 중 1개 실패가 기록됐고, 원인은 `mongo:8.0.28`이 runner kernel에서 시작을 거부한 것이다. 컨테이너 로그는 Linux kernel `6.19` 이상에 알려진 비호환이 있다고 명시한다. 이는 catalog parser/generator 실패가 아니며, 실행된 MongoDB integration test의 환경 차단으로 분류한다.
+
+[MongoDB 8.0 공식 릴리스 노트](https://www.mongodb.com/docs/manual/release-notes/8.0/)는 kernel `6.19`부터 `7.0.13`까지를 비호환 범위로 안내하고 `7.0.14` 이상을 해결 범위로 든다. 당시 GitHub `ubuntu-latest` job은 Mongo가 거부한 kernel에서 실행됐다. 통합 테스트는 현재 kernel `6.8.0-1070-azure`인 [Ubuntu 22.04 runner 이미지](https://github.com/actions/runner-images/releases/tag/ubuntu22/20261018.327)에서 실행하도록 좁게 고정했다.
+
+Ubuntu 22.04 runner 계열은 2026-09-17부터 deprecation 단계에 들어갔고 2027-04-17 지원 종료가 예정되어 있다. 따라서 이번 고정은 임시 대응이다. 후속 추적 Issue [#1839](https://github.com/bluetape4k/bluetape4k-projects/issues/1839)는 지원되는 runner/kernel 조합으로 이전하고 pin을 제거하도록 2.1.0 milestone에 등록했다. 새 exact-head CI가 Test/Data 및 Spring Boot batch-nosql 결과를 확인하기 전에는 이 수정의 hosted 검증을 완료로 보지 않는다.
+
 ## 현재 상태
 
-PR #1838은 열려 있다. 원격 head `93285abb7eef770aa155cb330d2c5ad5bb6f818e`의 CI run `39373076530`은 adoption 검사 실패로 끝났고, 제품 Build/Test job 15개는 실행되지 않았다. 별도 `TAG`와 full-SHA `REF`를 쓰는 수정 후보는 현재 로컬에만 있으며 12개 계약 테스트와 targeted checks가 통과했다. 이 후보의 push 및 새 exact-head CI, 독립 최종 코드 리뷰, merge-ready 확인이 남아 있다. merge 후 exact-SHA Dependency Submission과 실제 hosted Dependabot 재실행으로 alert #235를 확인하기 전까지 Issue #1832를 열어 두고 보안 문제가 해결됐다고 보고하지 않는다.
+PR #1838은 열려 있고 현재 원격 head는 `3ae9be4d36bdb6eb9d61289cd62d5ffac9d7461c`이다. run `39408775102`은 Central catalog job을 통과했지만 Projects governance가 synthetic merge SHA를 사용해 exact-head 증거가 아니다. 제품 job 중 Spring Boot batch-nosql은 위 Mongo/kernel 호환 문제로 실패했고, 마지막 조회 때 Test/Data는 진행 중이었다. 로컬 후보는 PR head SHA 검증, signed catalog tag object SHA 고정, 두 MongoDB job의 임시 runner pin을 포함하며 workflow contract 18개와 verifier, `actionlint`, Python compile, `git diff --check`를 통과했다. 아직 commit/push 전이라 새 exact-head hosted CI와 독립 최종 리뷰, merge-ready read-back이 남아 있다. merge 후 exact-SHA Dependency Submission과 실제 hosted Dependabot 재실행으로 alert #235를 확인하기 전까지 Issue #1832를 열어 두고 보안 문제가 해결됐다고 보고하지 않는다.
 
 ## Writer DoD
 

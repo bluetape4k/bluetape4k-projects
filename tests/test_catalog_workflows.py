@@ -52,6 +52,54 @@ class CatalogWorkflowsTest(unittest.TestCase):
             settings,
         )
 
+    def test_projects_ci_pins_exact_catalog_tag_object(self) -> None:
+        self.assertIn(
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_TAG_OBJECT_SHA: '4919a6f511e57b4349ca6856816500b3a85ace95'",
+            self.ci,
+        )
+        governance = verifier._job_block(self.ci, "catalog-governance")
+        self.assertIn(
+            'tag_object_sha="$(git -C .gradle/catalog-source/bluetape4k-dependencies '
+            'rev-parse "${BLUETAPE4K_DEPENDENCIES_CATALOG_TAG}^{tag}")"',
+            governance,
+        )
+        self.assertIn(
+            'test "$tag_object_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_TAG_OBJECT_SHA"',
+            governance,
+        )
+
+    def test_rejects_catalog_tag_object_guard_bound_to_commit_sha(self) -> None:
+        invalid = self.ci.replace(
+            'test "$tag_object_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_TAG_OBJECT_SHA"',
+            'test "$tag_object_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"',
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("catalog tag object" in error for error in errors), errors)
+
+    def test_mongodb_container_jobs_use_a_kernel_compatible_runner(self) -> None:
+        data_job = verifier._job_block(self.ci, "test-data")
+        spring_boot_job = verifier._job_block(self.ci, "test-spring-boot")
+
+        self.assertIn("runs-on: ubuntu-22.04", data_job)
+        self.assertIn(
+            "runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}",
+            spring_boot_job,
+        )
+
+    def test_rejects_latest_runner_for_mongodb_container_tests(self) -> None:
+        invalid = self.ci.replace(
+            "runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}",
+            "runs-on: ubuntu-latest",
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("MongoDB container tests" in error for error in errors), errors)
+
     def test_rejects_catalog_tag_as_the_canonical_ref(self) -> None:
         invalid = self.ci.replace(
             "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: 'dcc7fa7557d3c0548b9e3fc28c48877827ea2f74'",
@@ -61,6 +109,28 @@ class CatalogWorkflowsTest(unittest.TestCase):
         errors = verifier.validate_workflows(invalid, self.submission)
 
         self.assertTrue(any("catalog REF must be a full commit SHA" in error for error in errors), errors)
+
+    def test_rejects_projects_governance_checkout_at_pull_request_merge_sha(self) -> None:
+        invalid = self.ci.replace(
+            "ref: ${{ env.PROJECTS_EXPECTED_SHA }}\n          fetch-depth: 0",
+            "ref: ${{ github.sha }}\n          fetch-depth: 0",
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("Projects PR head" in error for error in errors), errors)
+
+    def test_rejects_projects_expected_sha_bound_to_pull_request_merge_commit(self) -> None:
+        invalid = self.ci.replace(
+            "PROJECTS_EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}",
+            "PROJECTS_EXPECTED_SHA: ${{ github.sha }}",
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("Projects PR head" in error for error in errors), errors)
 
     def test_projects_ci_creates_pinned_parser_receipt_before_catalog_check(self) -> None:
         governance = verifier._job_block(self.ci, "catalog-governance")

@@ -41,8 +41,10 @@ env:
   JAVA_DISTRIBUTION: 'temurin'
   ORG_GRADLE_PROJECT_excludeBenchmarks: 'true'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  PROJECTS_EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
   BLUETAPE4K_DEPENDENCIES_CATALOG_REF: 'dcc7fa7557d3c0548b9e3fc28c48877827ea2f74'
   BLUETAPE4K_DEPENDENCIES_CATALOG_TAG: 'catalog/2026-10-20-01'
+  BLUETAPE4K_DEPENDENCIES_CATALOG_TAG_OBJECT_SHA: '4919a6f511e57b4349ca6856816500b3a85ace95'
   BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: 'dcc7fa7557d3c0548b9e3fc28c48877827ea2f74'
   BLUETAPE4K_MANUAL_REF: '4e3c00262adb12cd61e4e8a30b6488aa6a287acc'
   GITLEAKS_VERSION: 'v8.30.1'
@@ -283,7 +285,14 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
           fetch-depth: 0
+      - name: Verify exact Projects head checkout
+        run: |
+          set -euo pipefail
+          projects_head_sha="$(git rev-parse HEAD)"
+          test "$projects_head_sha" = "$PROJECTS_EXPECTED_SHA"
+          echo "projects head=$projects_head_sha"
       - uses: actions/checkout@v7
         with:
           repository: bluetape4k/bluetape4k-dependencies
@@ -306,12 +315,15 @@ jobs:
       - name: Verify immutable catalog checkout
         run: |
           set -euo pipefail
+          tag_object_sha="$(git -C .gradle/catalog-source/bluetape4k-dependencies rev-parse "${BLUETAPE4K_DEPENDENCIES_CATALOG_TAG}^{tag}")"
           head_sha="$(git -C .gradle/catalog-source/bluetape4k-dependencies rev-parse HEAD)"
           peeled_sha="$(git -C .gradle/catalog-source/bluetape4k-dependencies rev-parse "${BLUETAPE4K_DEPENDENCIES_CATALOG_TAG}^{commit}")"
+          test "$tag_object_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_TAG_OBJECT_SHA"
           test "$head_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"
           test "$peeled_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"
           echo "catalog ref=$BLUETAPE4K_DEPENDENCIES_CATALOG_REF"
           echo "catalog tag=$BLUETAPE4K_DEPENDENCIES_CATALOG_TAG"
+          echo "catalog tag object=$tag_object_sha"
           echo "catalog head=$head_sha"
           echo "catalog peeled=$peeled_sha"
       - name: Read pinned Dependabot Core commit
@@ -356,7 +368,7 @@ jobs:
       - name: Verify generated catalog and parser contract
         run: |
           set -euo pipefail
-          git switch -c ci-project-catalog "$GITHUB_SHA"
+          git switch -c ci-project-catalog "$PROJECTS_EXPECTED_SHA"
           git -C .gradle/catalog-source/bluetape4k-dependencies switch -c ci-central-catalog "$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"
           git remote set-url origin git@github.com:bluetape4k/bluetape4k-projects.git
           git -C .gradle/catalog-source/bluetape4k-dependencies remote set-url origin git@github.com:bluetape4k/bluetape4k-dependencies.git
@@ -1302,7 +1314,7 @@ jobs:
   # ── 7-c. Data 모듈 테스트 (Testcontainers) ───────────────────────────────
   test-data:
     name: Test / Data
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 75
     needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs.data == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -1376,7 +1388,7 @@ jobs:
   # spring-boot/** 변경이 PR CI에서 테스트 없이 통과하지 않도록 한다.
   test-spring-boot:
     name: Test / Spring Boot (${{ matrix.group }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}
     timeout-minutes: 75
     needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['spring-boot'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
