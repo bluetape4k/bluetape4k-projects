@@ -14,7 +14,7 @@ Projects의 기존 catalog를 versionless 원본으로 분리하고, 중앙 mapp
 
 ## 결과와 검증
 
-- Projects local workflow contract 8개와 actionlint, verifier, Python compile, Ruff, diff check가 통과했다.
+- Projects local workflow contract 테스트 11개와 actionlint, verifier, Python compile, diff check가 통과했다.
 - Central 전체 Python suite 514개 통과, 2개 skip. 두 skip은 관리 sibling 저장소가 격리 worktree에서 보이지 않아 real-workspace inventory를 실행하지 않은 결과다.
 - 외부 1.9.2-SNAPSHOT artifact 검사 한 건은 HTTP 403으로 건너뛰었다. 제품 테스트 실패로 계산하지 않는다.
 - 98개 Dokka configuration에서 FreeMarker 2.3.35와 jsoup 1.23.2를 확인했다. 13개 게시 모듈의 POM과 Gradle Module Metadata는 26개 모두 baseline과 byte-identical했다.
@@ -29,9 +29,17 @@ Projects의 기존 catalog를 versionless 원본으로 분리하고, 중앙 mapp
 
 새 검증 자료를 추가하면 실행 경계마다 파일이 공유되는지 확인한다. catalog authority를 나누면 정규 map loader뿐 아니라 모든 CI audit와 간접 consumer가 source/generated 역할을 구분하는지 확인한다. 증거 생성 전후로 exact HEAD와 파일 해시를 재검증하며 map, receipt, lock을 closeout까지 보존한다.
 
+## PR exact-head CI에서 찾은 실행 경계 결함
+
+PR #1838의 첫 exact-head run `39370896190`은 Projects HEAD `ac3d40b70367eec66091da02a35d078bdc6bf9b1`에서 실패했다. `JVM Release Contract`는 설정 단계에서 signed tag `catalog/2026-10-20-01`을 commit SHA가 아니라고 거부했다. `Central Catalog Governance`는 Dependabot Core용 `Gemfile` 밖에서 parser fixture를 일반 `ruby`로 실행해 `toml-rb`를 불러오지 못했다. governance 실패가 downstream gate를 닫아 15개 동적 build/test job은 모두 skip되었다. 제품 테스트가 실패한 것은 아니며 해당 run은 제품 테스트 증거도 제공하지 않는다.
+
+수정 commit `9dc756c7be448fbb62b7d2f4cde10c4904b8ac67`은 설정에서 허용된 catalog tag와 peeled exact SHA를 함께 요구하고, 실제 파일 다운로드와 cache key는 SHA로 고정한다. parser fixture는 pinned Dependabot Core `Gemfile`을 `BUNDLE_GEMFILE`로 지정하고 `bundle exec ruby`로 실행한다. 두 실행 경계 회귀 테스트는 수정 전 RED, 수정 후 GREEN을 확인했다. 이후 Projects contract 테스트는 11개로 늘어 모두 통과했다. Dependabot Core bundle의 실제 hosted 실행은 수정된 PR exact-head CI에서 다시 확인해야 한다.
+
+수정 HEAD `9dc756c7be448fbb62b7d2f4cde10c4904b8ac67`의 retry `39371790611`은 parser와 JVM settings 단계를 통과했지만, Central generator가 `BLUETAPE4K_DEPENDENCIES_CATALOG_REF`의 tag 문자열을 central commit SHA와 직접 비교해 실패했다. 앞선 단계에서 signed tag의 peeled SHA를 확인했으므로 generator 호출 범위에서만 `REF`에 그 SHA를 전달해 호환 검사를 만족시킨다. 같은 run의 gitleaks는 cache SHA 변수 이름 `CacheKey`와 이를 고정하는 workflow test 문자열에서 generic API key 패턴 두 건을 보고했다. 실제 값은 인증정보가 아니라 commit SHA 식별자이므로 변수명을 `CacheSha`로 바꿨다. clean source archive에서 재실행한 gitleaks는 누출을 찾지 못했고 Central pin guard, 11개 workflow test, verifier, actionlint, Python compile, Gradle help가 통과했다. 이 수정은 commit `85d0312cf9b7e9c97dc592645582a341a4164ab3`에 들어갔지만 아직 PR 원격에 push하지 않았으며 hosted exact-head 검증이 남아 있다.
+
 ## 현재 상태
 
-로컬 구현과 inline 7-Tier review는 완료 단계다. Central PR exact-head CI, 중앙 merge 및 signed tag, Projects tag pin/PR/merge, merge SHA Dependency Submission, hosted Dependabot 재시도는 아직 수행하지 않았다. 이 단계가 끝나기 전에는 보안 alert나 Issue #1832가 해결됐다고 보고하지 않는다.
+PR #1838은 열려 있고 원격 head `9dc756c7be448fbb62b7d2f4cde10c4904b8ac67`의 CI run `39371790611`은 두 설정/스캐너 문제와 15개 동적 build/test job skip으로 실패했다. 로컬 commit `85d0312cf9b7e9c97dc592645582a341a4164ab3`에서 이를 수정하고 targeted validation을 마쳤다. 이 commit의 hosted exact-head CI, 독립 최종 코드 리뷰 및 새 merge 승인이 남아 있다. merge 후 exact-SHA Dependency Submission과 실제 hosted Dependabot 재실행으로 alert #235를 확인하기 전까지 Issue #1832를 열어 두고 보안 문제가 해결됐다고 보고하지 않는다.
 
 ## Writer DoD
 
