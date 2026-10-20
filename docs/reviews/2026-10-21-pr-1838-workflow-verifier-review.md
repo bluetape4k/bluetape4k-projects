@@ -1,4 +1,4 @@
-# PR #1838 워크플로 검증기 독립 리뷰 후속
+# PR #1838 워크플로 검증기 리뷰 기록
 
 ## 검토 범위와 판정
 
@@ -138,3 +138,45 @@ PR base `34c84a6115c80e3b3dfcde84be54106084259cfa`와 당시 PR head `afa20f6ad1
 Issue #1832와 CRITICAL alert #235는 아직 열려 있다. PR merge, Dependency Submission, 실제 hosted Dependabot 실행과 alert 해결 read-back은 모두 남아 있다.
 
 **fe4b33b94 review writer DoD (2026-10-21):** SPW-01 PASS—독자, PR base/head, 대상 step, 정확한 workflow·verifier·테스트 경로, CI run과 미확인 최종 헤드를 고정했다. SPW-02 PASS—P1 재현, 수정, 검증, 중단된 리뷰 lane, hosted CI 실패와 남은 gate를 기록했다. SPW-03 PASS—한국어 기술 문장, tier·상태 용어와 source identifier를 점검했다. SPW-04 PASS—mutation probe, RED/GREEN 출력, commit, GitHub job 로그와 issue/alert read-back을 대조했다. SPW-05 PASS—최종 Markdown과 표·코드·미완료 상태를 다시 읽었다. KO-01–KO-07 PASS—사실·불확실성, 용어, 문장과 독자가 보는 표면을 점검하고 contextual terminology audit을 확인했다.
+
+## 3576d10 exact code head inline fallback review
+
+- 저장소: `bluetape4k/bluetape4k-projects`
+- code review head: `3576d10b3c3e5247e18d949edd4c93f96d741661`
+- base: `34c84a6115c80e3b3dfcde84be54106084259cfa`
+- 검토 파일: `scripts/verify-catalog-workflows.py`, `tests/test_catalog_workflows.py`
+- 방식: 독립 `issue1832_99e0675_review_retry1` (`code-reviewer`) lane의 startup ACK 기한이 만료되어 취소됐다. 저장소 workflow의 inline fallback 규칙에 따라 메인 세션이 별도로 검토했다. 요청 모델은 `gpt-6-luna max`였으며 실제 실행 모델/effort provenance는 도구에서 확인할 수 없다.
+
+### 발견과 수정
+
+수정 전 verifier는 다음 여섯 환경 변형을 모두 허용했다: 전역 `RUBYOPT`, 전역 `BUNDLE_GEMFILE`, `catalog-governance` job의 `BUNDLE_PATH`, Dependency Submission의 env alias, parser 단계의 다른 `BUNDLE_GEMFILE` 경로, CI env anchor. Ruby/Bundler가 검증 전에 실행할 수 있고 env alias가 protected job의 실행 환경을 바꿀 수 있어 P1이었다.
+
+변수 차단 목록과 prefix 검사를 넓히고, 두 workflow 모두에서 env mapping의 anchor·alias·merge를 거부한다. parser step의 전체 env mapping을 정확히 비교하며 `BUNDLE_GEMFILE`이 지정된 Dependabot Core `Gemfile` 경로에 한 번만 나타나는지 검사한다. 수정 전 여섯 변형은 모두 `errors=[]`였고, 수정 후 회귀 테스트는 모두 거부했다.
+
+| Tier | 검토 | 판정 |
+|---|---|---|
+| T1 보안 | `scripts/verify-catalog-workflows.py:280`, `:323`에서 Ruby·Bundler preload 변수와 보호 job 환경 alias를 거부; 회귀 위치 `tests/test_catalog_workflows.py:1492`, `:1636` | P1 수정; 새 P0/P1 없음 |
+| T2 정확성·수명주기 | `scripts/verify-catalog-workflows.py:842`에서 parser 실행 환경과 checkout 경로를 고정; 회귀 위치 `tests/test_catalog_workflows.py:1671` | PASS; 비동기 작업이나 자원 lifecycle 변경 없음 |
+| T3 구조·재사용 | 기존 표준 라이브러리 기반 workflow 검사 helper만 확장; 새 dependency 없음 | PASS |
+| T4 공개 API/ABI | Python CI verifier와 테스트만 변경; Kotlin/Java 공개 타입, JVM ABI, 발행 모듈은 변경하지 않음 | N/A; scope 근거 확인 |
+| T5 테스트·호출자 | 69 workflow contract tests PASS; Kotlin 제품 호출자 변경 없음 | PASS |
+| T6 성능 | 작은 workflow 텍스트에 env scope 단일 순회 추가 | PASS; CI 검증 비용에 유의미한 영향 없음 |
+| T7 문서·CI·릴리스 | lesson과 이 리뷰를 갱신; 새 code head CI run `39483089186`은 기록 시점에 진행 중; release surface 변경 없음 | CI PENDING |
+
+### 검증과 판정
+
+| 검사 | 결과 |
+|---|---|
+| `PYTHONDONTWRITEBYTECODE=1 python3.13 -m unittest tests.test_catalog_workflows -q` | PASS — 69 tests; failures/errors/skipped 0 |
+| `python3.13 scripts/verify-catalog-workflows.py` | PASS |
+| `ruff check scripts/verify-catalog-workflows.py tests/test_catalog_workflows.py` | PASS |
+| `actionlint .github/workflows/ci.yml .github/workflows/dependency-submission.yml` | PASS |
+| Python `ast.parse` on both changed Python files | PASS |
+| `git diff --check` | PASS |
+| `ruff format --check` on both files | BASELINE GAP — 현재 diff가 아닌 기존 미변경 구간만 formatter 제안; base files도 같은 검사에서 non-zero |
+
+이 verdict는 inline review이며 독립 attestation이 아니다. 새 exact PR-head CI 및 PR thread/review read-back 뒤에 merge 준비를 다시 판단한다. 머지는 fresh explicit approval까지 대기한다. Dependency Submission과 hosted Dependabot, alert #235 read-back은 승인된 merge 이후 별도 단계다.
+
+Inline verdict: PASS; P0=0, P1=0.
+
+**3576d10 review writer DoD (2026-10-21):** SPW-01–05 PASS—검토 범위, 한국어 독자, source·test·CI 근거, 7-Tier 판정, 불확실성, 용어와 최종 Markdown을 확인했다. KO-01–KO-07 PASS—한국어 문장과 보존한 식별자를 검토하고 contextual terminology audit 결과를 기록했다. 이 결과는 inline fallback이며 독립 리뷰 증거가 아니다.
