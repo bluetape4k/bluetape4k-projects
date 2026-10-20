@@ -100,6 +100,17 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
         self.assertTrue(any("MongoDB container tests" in error for error in errors), errors)
 
+    def test_rejects_latest_runner_for_data_container_tests(self) -> None:
+        data_job = verifier._job_block(self.ci, "test-data")
+        invalid_data_job = data_job.replace(
+            "runs-on: ubuntu-22.04", "runs-on: ubuntu-latest", 1
+        )
+        invalid = self.ci.replace(data_job, invalid_data_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("Test/Data" in error for error in errors), errors)
+
     def test_rejects_catalog_tag_as_the_canonical_ref(self) -> None:
         invalid = self.ci.replace(
             "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: 'dcc7fa7557d3c0548b9e3fc28c48877827ea2f74'",
@@ -121,6 +132,162 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
         self.assertTrue(
             any("first-party Projects checkout" in error for error in errors),
+            errors,
+        )
+
+    def test_rejects_explicit_first_party_repository_checkout_without_expected_sha(self) -> None:
+        test_core = verifier._job_block(self.ci, "test-core")
+        expected_checkout = (
+            "      - uses: actions/checkout@v7\n"
+            "        with:\n"
+            "          ref: ${{ env.PROJECTS_EXPECTED_SHA }}"
+        )
+        bypass_checkout = (
+            "      - uses: actions/checkout@v7\n"
+            "        with:\n"
+            "          repository: bluetape4k/bluetape4k-projects\n"
+            "          ref: ${{ github.sha }}"
+        )
+        invalid_test_core = test_core.replace(expected_checkout, bypass_checkout, 1)
+        invalid = self.ci.replace(test_core, invalid_test_core, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("first-party Projects checkout" in error for error in errors),
+            errors,
+        )
+
+    def test_rejects_github_repository_checkout_without_expected_sha(self) -> None:
+        test_core = verifier._job_block(self.ci, "test-core")
+        expected_checkout = (
+            "      - uses: actions/checkout@v7\n"
+            "        with:\n"
+            "          ref: ${{ env.PROJECTS_EXPECTED_SHA }}"
+        )
+        bypass_checkout = (
+            "      - uses: actions/checkout@v7\n"
+            "        with:\n"
+            "          repository: ${{ github.repository }}\n"
+            "          ref: ${{ github.sha }}"
+        )
+        invalid_test_core = test_core.replace(expected_checkout, bypass_checkout, 1)
+        invalid = self.ci.replace(test_core, invalid_test_core, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("first-party Projects checkout" in error for error in errors),
+            errors,
+        )
+
+    def test_rejects_checkout_v8_without_the_expected_projects_ref(self) -> None:
+        test_core = verifier._job_block(self.ci, "test-core")
+        expected_checkout = (
+            "      - uses: actions/checkout@v7\n"
+            "        with:\n"
+            "          ref: ${{ env.PROJECTS_EXPECTED_SHA }}"
+        )
+        invalid_checkout = (
+            "      - uses: actions/checkout@v8\n"
+            "        with:\n"
+            "          ref: ${{ github.sha }}"
+        )
+        invalid_test_core = test_core.replace(expected_checkout, invalid_checkout, 1)
+        invalid = self.ci.replace(test_core, invalid_test_core, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("first-party Projects checkout" in error for error in errors),
+            errors,
+        )
+
+    def test_rejects_unpinned_external_repository_checkout(self) -> None:
+        manual_job = verifier._job_block(self.ci, "manual-contract")
+        invalid_manual_job = manual_job.replace(
+            "ref: ${{ env.BLUETAPE4K_MANUAL_REF }}",
+            "ref: refs/heads/main",
+            1,
+        )
+        invalid = self.ci.replace(manual_job, invalid_manual_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("external checkout" in error for error in errors), errors
+        )
+
+    def test_rejects_unapproved_external_repository_checkout(self) -> None:
+        invalid = self.ci.replace(
+            "repository: bluetape4k/bluetape4k.github.io",
+            "repository: attacker/unreviewed-repository",
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("allowlisted external checkout" in error for error in errors),
+            errors,
+        )
+
+    def test_requires_pull_request_read_permission_for_changed_paths(self) -> None:
+        changes_job = verifier._job_block(self.ci, "changes")
+        invalid_changes_job = changes_job.replace(
+            "    permissions:\n      contents: read\n      pull-requests: read\n",
+            "",
+            1,
+        )
+        invalid = self.ci.replace(changes_job, invalid_changes_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertIn("dorny/paths-filter@v4", changes_job)
+        self.assertTrue(
+            any("pull-requests: read" in error for error in errors), errors
+        )
+
+    def test_requires_a_merge_result_contract_job_for_pull_requests(self) -> None:
+        merge_job = verifier._job_block(self.ci, "test-merge-result")
+        invalid = self.ci.replace(merge_job, "", 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("merge-result" in error for error in errors), errors
+        )
+
+    def test_merge_result_job_checks_the_synthetic_merge_commit(self) -> None:
+        merge_job = verifier._job_block(self.ci, "test-merge-result")
+        required_contract = (
+            "if: ${{ github.event_name == 'pull_request' }}",
+            "ref: ${{ github.sha }}",
+            'test "$merge_result_sha" = "$GITHUB_SHA"',
+            'git merge-base --is-ancestor "$PR_HEAD_SHA" "$merge_result_sha"',
+            'git merge-base --is-ancestor "$PR_BASE_SHA" "$merge_result_sha"',
+            "python3 -m unittest tests.test_catalog_workflows -v",
+        )
+
+        missing = [item for item in required_contract if item not in merge_job]
+        self.assertEqual(missing, [])
+
+        status_job = verifier._job_block(self.ci, "ci-status")
+        self.assertIn("test-merge-result", status_job)
+
+    def test_rejects_ci_status_that_does_not_require_the_merge_result_job(self) -> None:
+        status_job = verifier._job_block(self.ci, "ci-status")
+        invalid_status_job = status_job.replace(
+            "MERGE_RESULT_RESULT: ${{ needs.test-merge-result.result }}",
+            "MERGE_RESULT_RESULT: skipped",
+            1,
+        )
+        invalid = self.ci.replace(status_job, invalid_status_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("require a successful merge-result" in error for error in errors),
             errors,
         )
 

@@ -176,6 +176,9 @@ jobs:
     name: Detect changed modules
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
     needs: validate-wrapper
     outputs:
       shared: ${{ steps.filter.outputs.shared }}
@@ -444,6 +447,39 @@ jobs:
             echo 'Gradle 10 removal warnings detected.' >&2
             exit 1
           fi
+
+  # Product jobs test the exact PR head; this lane also tests the synthetic
+  # merge result that GitHub presents for pull_request events.
+  test-merge-result:
+    name: Test / PR merge-result contract
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Verify synthetic merge result contains the current PR commits
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          merge_result_sha="$(git rev-parse HEAD)"
+          test "$merge_result_sha" = "$GITHUB_SHA"
+          git merge-base --is-ancestor "$PR_HEAD_SHA" "$merge_result_sha"
+          git merge-base --is-ancestor "$PR_BASE_SHA" "$merge_result_sha"
+          echo "pr head=$PR_HEAD_SHA"
+          echo "pr base=$PR_BASE_SHA"
+          echo "merge result=$merge_result_sha"
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Run workflow contract checks on the synthetic merge result
+        run: |
+          python3 -m unittest tests.test_catalog_workflows -v
+          python3 scripts/verify-catalog-workflows.py
 
   build:
     name: Build
@@ -1647,13 +1683,15 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [release-policy, manual-contract, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, test-ktor, test-key-utils, test-measured, test-science, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot, coverage-report]
+    needs: [release-policy, manual-contract, jvm-release-contract, codeql-policy, catalog-governance, test-merge-result, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, test-ktor, test-key-utils, test-measured, test-science, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot, coverage-report]
     if: always()
     steps:
       - name: Check all jobs
         env:
           RESULTS: ${{ join(needs.*.result, ',') }}
           CATALOG_GOVERNANCE_RESULT: ${{ needs.catalog-governance.result }}
+          MERGE_RESULT_RESULT: ${{ needs.test-merge-result.result }}
+          EVENT_NAME: ${{ github.event_name }}
           SPRING_BOOT_CHANGED: ${{ needs.changes.outputs['spring-boot'] }}
           SPRING_BOOT_RESULT: ${{ needs.test-spring-boot.result }}
           SCIENCE_CHANGED: ${{ needs.changes.outputs.science }}
@@ -1664,6 +1702,10 @@ jobs:
           echo "Job results: $RESULTS"
           if [[ "$CATALOG_GOVERNANCE_RESULT" != "success" ]]; then
             echo "Catalog governance must succeed; got $CATALOG_GOVERNANCE_RESULT"
+            exit 1
+          fi
+          if [[ "$EVENT_NAME" == "pull_request" && "$MERGE_RESULT_RESULT" != "success" ]]; then
+            echo "PR merge-result contract must succeed; got $MERGE_RESULT_RESULT"
             exit 1
           fi
           if echo "$RESULTS" | grep -qE "failure|cancelled"; then
