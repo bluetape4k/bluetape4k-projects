@@ -21,7 +21,7 @@ pluginManagement {
 
 val bluetape4kDependenciesCatalogRef = providers.gradleProperty("bluetape4kDependenciesCatalogRef")
     .orElse(providers.environmentVariable("BLUETAPE4K_DEPENDENCIES_CATALOG_REF"))
-        .orElse("dcc7fa7557d3c0548b9e3fc28c48877827ea2f74")
+        .orElse("9bd4fa16e6d64677641b1babf4629ae5b4ef6d80")
     .get()
 val bluetape4kDependenciesCatalogCommitPattern = Regex("[0-9a-f]{40}|[0-9a-f]{64}")
 val bluetape4kDependenciesCatalogTagPattern = Regex("catalog/[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}")
