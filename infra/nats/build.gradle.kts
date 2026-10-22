@@ -10,6 +10,8 @@ dependencies {
 
     // NATS
     api(bt4k.jnats)
+    // jnats의 전이 버전은 취약하므로 Maven 소비자도 패치 버전을 선택하도록 중앙 catalog를 런타임에 선언합니다.
+    runtimeOnly(bt4k.bouncycastle.bcprov.lts8on)
     // nats-spring은 Spring Boot 3/4 통합 시 사용자가 직접 선언 (compileOnly로 API만 노출)
     compileOnly(bt4k.nats.spring)
 
