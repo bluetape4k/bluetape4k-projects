@@ -14,7 +14,7 @@ class SoftlyVirtualThreadTest {
         val executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory())
         val errors = ConcurrentHashMap.newKeySet<Throwable>()
 
-        val futures: List<Future<*>> = (1..threadCount).map { i ->
+        val futures: List<Future<*>> = List(threadCount) { i ->
             executor.submit {
                 try {
                     assertSoftly {
@@ -42,7 +42,7 @@ class SoftlyVirtualThreadTest {
         val executor = Executors.newThreadPerTaskExecutor(Thread.ofVirtual().factory())
         val failureErrors = ConcurrentHashMap.newKeySet<Throwable>()
 
-        val futures: List<Future<*>> = (1..threadCount).map { i ->
+        val futures: List<Future<*>> = List(threadCount) { i ->
             executor.submit {
                 try {
                     assertSoftly {

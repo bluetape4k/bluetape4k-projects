@@ -100,7 +100,7 @@ inline fun <T: CharSequence> T?.requireNullOrEmpty(lazyMessage: () -> Any): T? {
 
 /** 배열이 null 또는 비어 있는지 검증합니다. */
 inline fun <T> Array<T>?.requireNullOrEmpty(parameterName: String): Array<T>? =
-    requireNullOrEmpty { "$parameterName[$this] must be null or empty." }
+    requireNullOrEmpty { "$parameterName[${this.contentToString()}] must be null or empty." }
 
 inline fun <T> Array<T>?.requireNullOrEmpty(lazyMessage: () -> Any): Array<T>? {
     require(this == null || isEmpty()) { lazyMessage() }
@@ -1067,4 +1067,18 @@ fun Boolean.requireBeFalse(parameterName: String): Boolean = apply {
 
 fun Boolean.requireBeFalse(lazyMessage: () -> Any): Boolean = apply {
     require(!this) { lazyMessage.invoke() }
+}
+
+fun <T:Any> T.requireIn(collection: Collection<T>, parameterName: String): T = apply {
+    requireIn(collection) { "$parameterName[$this] must be in collection[$collection]." }
+}
+inline fun <T:Any> T.requireIn(collection: Collection<T>, lazyMessage: () -> Any): T = apply {
+    require( this in collection ) { lazyMessage.invoke() }
+}
+
+fun <T:Any> T.requireNotIn(collection: Collection<T>, parameterName: String): T = apply {
+    requireNotIn(collection) { "$parameterName[$this] must be not in collection[$collection]." }
+}
+inline fun <T:Any> T.requireNotIn(collection: Collection<T>, lazyMessage: () -> Any): T = apply {
+    require( this !in collection ) { lazyMessage.invoke() }
 }

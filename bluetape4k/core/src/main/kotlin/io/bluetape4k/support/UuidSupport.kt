@@ -5,6 +5,7 @@ package io.bluetape4k.support
 import io.bluetape4k.utils.BigIntegerPair
 import java.math.BigInteger
 import java.util.*
+import kotlin.uuid.Uuid
 
 @JvmField
         /**

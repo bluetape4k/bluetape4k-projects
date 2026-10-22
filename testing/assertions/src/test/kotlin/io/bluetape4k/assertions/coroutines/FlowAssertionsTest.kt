@@ -2,6 +2,7 @@ package io.bluetape4k.assertions.coroutines
 
 import io.bluetape4k.assertions.assertFailsWith
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -23,6 +24,19 @@ class FlowAssertionsTest {
     }
 
     @Test
+    fun `shouldBeEmpty passes for empty flow`() = runTest {
+        flowOf<Int>().shouldBeEmpty()
+        emptyFlow<Int>().assertEmpty()
+    }
+
+    @Test
+    fun `shouldBeEmpty fails for non-empty flow`() = runTest {
+        assertFailsWith<AssertionFailedError> {
+            flowOf(1, 2, 3).shouldBeEmpty()
+        }
+    }
+
+    @Test
     fun `assertResult with vararg passes for matching sequence`() = runTest {
         flowOf(1, 2, 3).assertResult(1, 2, 3)
     }
@@ -33,6 +47,7 @@ class FlowAssertionsTest {
             flowOf(1, 2, 3).assertResult(3, 2, 1)
         }
     }
+
 
     @Test
     fun `assertResult with Flow passes for matching sequence`() = runTest {
@@ -110,7 +125,7 @@ class FlowAssertionsTest {
 
     @Test
     fun `assertFailure rethrows CancellationException`() = runTest {
-        val cancelledFlow = flow<Int> {
+        val cancelledFlow = flow {
             emit(1)
             throw CancellationException("cancelled")
         }

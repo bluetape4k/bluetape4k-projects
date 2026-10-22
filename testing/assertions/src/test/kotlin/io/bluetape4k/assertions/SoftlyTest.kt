@@ -23,7 +23,7 @@ class SoftlyTest {
                 add { 3 shouldBeEqualTo 3 }        // pass
             }
         }
-        assert(ex.failures.size == 2) { "Expected 2 failures, got ${ex.failures.size}" }
+        ex.failures shouldHaveSize 2
     }
 
     @Test
@@ -35,7 +35,7 @@ class SoftlyTest {
             }
         }
         val messages = ex.failures.joinToString { it.message ?: "" }
-        assert(messages.contains("99")) { "Should contain expected value" }
+        messages shouldContain "99"
     }
 
     @Test
