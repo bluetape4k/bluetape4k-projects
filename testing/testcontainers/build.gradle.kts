@@ -191,6 +191,8 @@ dependencies {
 
     // NATS
     compileOnly(bt4k.jnats)
+    // NATS의 전이 버전 대신 중앙 catalog의 패치 버전을 선택합니다.
+    compileOnly(bt4k.bouncycastle.bcprov.lts8on)
 
     // RabbitMQ
     compileOnly(libs.testcontainers.rabbitmq)
@@ -285,4 +287,68 @@ dependencies {
     // InfluxDB
     compileOnly(libs.testcontainers.influxdb)
 
+}
+
+fun registerBouncyCastleClasspathVersionCheck(taskName: String, classpathName: String) =
+    tasks.register(taskName) {
+        group = "verification"
+        description = "${classpathName}가 패치된 Bouncy Castle LTS 버전을 선택하는지 확인합니다."
+        inputs.files(configurations.getByName(classpathName))
+
+        doLast {
+            val artifacts = inputs.files.files.filter {
+                it.name.startsWith("bcprov-lts8on-") && it.name.endsWith(".jar")
+            }
+            check(artifacts.size == 1) {
+                "${classpathName}에서 bcprov-lts8on artifact를 정확히 하나 확인해야 합니다. " +
+                    "실제: ${artifacts.map { it.name }}"
+            }
+
+            val artifact = artifacts.single()
+            val version = Regex("""^bcprov-lts8on-(\d+(?:\.\d+)+)\.jar$""")
+                .matchEntire(artifact.name)?.groupValues?.get(1)
+                ?: error("Bouncy Castle artifact 버전을 읽을 수 없습니다: ${artifact.name}")
+            val actualVersion = version.split(".").map { segment ->
+                segment.toIntOrNull() ?: error("Bouncy Castle artifact 버전을 비교할 수 없습니다: $version")
+            }
+            val minimumVersion = listOf(2, 73, 12)
+            val comparison = (0 until maxOf(actualVersion.size, minimumVersion.size))
+                .map { index ->
+                    actualVersion.getOrElse(index) { 0 }
+                        .compareTo(minimumVersion.getOrElse(index) { 0 })
+                }
+                .firstOrNull { it != 0 } ?: 0
+
+            check(comparison >= 0) {
+                "${classpathName}에서 취약한 Bouncy Castle 버전을 선택했습니다: $version (최소: 2.73.12)"
+            }
+            logger.lifecycle("$classpathName Bouncy Castle 버전 검증 통과: $version")
+        }
+    }
+
+val verifyTestcontainersBouncyCastleCompileClasspathVersion = registerBouncyCastleClasspathVersionCheck(
+    "verifyTestcontainersBouncyCastleCompileClasspathVersion",
+    "compileClasspath",
+)
+val verifyTestcontainersBouncyCastleTestCompileClasspathVersion = registerBouncyCastleClasspathVersionCheck(
+    "verifyTestcontainersBouncyCastleTestCompileClasspathVersion",
+    "testCompileClasspath",
+)
+val verifyTestcontainersBouncyCastleTestRuntimeClasspathVersion = registerBouncyCastleClasspathVersionCheck(
+    "verifyTestcontainersBouncyCastleTestRuntimeClasspathVersion",
+    "testRuntimeClasspath",
+)
+
+val verifyTestcontainersBouncyCastleClasspathVersion = tasks.register("verifyTestcontainersBouncyCastleClasspathVersion") {
+    group = "verification"
+    description = "Testcontainers의 NATS 컴파일·테스트 경로가 패치된 Bouncy Castle 버전을 선택하는지 확인합니다."
+    dependsOn(
+        verifyTestcontainersBouncyCastleCompileClasspathVersion,
+        verifyTestcontainersBouncyCastleTestCompileClasspathVersion,
+        verifyTestcontainersBouncyCastleTestRuntimeClasspathVersion,
+    )
+}
+
+tasks.named("check") {
+    dependsOn(verifyTestcontainersBouncyCastleClasspathVersion)
 }
