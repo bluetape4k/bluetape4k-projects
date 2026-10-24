@@ -21,15 +21,6 @@ on:
       - '.claude/**'
   pull_request:
     branches: [develop, main]
-    paths-ignore:
-      - 'docs/**'
-      - '.gitignore'
-      - '.editorconfig'
-      - '.gitleaks.toml'
-      - 'CHANGELOG.md'
-      - 'LICENSE'
-      - '.omc/**'
-      - '.claude/**'
   workflow_dispatch:
 
 concurrency:
@@ -464,14 +455,21 @@ jobs:
         env:
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_BASE_REF: ${{ github.base_ref }}
         run: |
           set -euo pipefail
           merge_result_sha="$(git rev-parse HEAD)"
           test "$merge_result_sha" = "$GITHUB_SHA"
           git merge-base --is-ancestor "$PR_HEAD_SHA" "$merge_result_sha"
           git merge-base --is-ancestor "$PR_BASE_SHA" "$merge_result_sha"
+          test -n "$PR_BASE_REF"
+          git fetch --no-tags origin "refs/heads/$PR_BASE_REF:refs/remotes/origin/$PR_BASE_REF"
+          current_base_sha="$(git rev-parse "origin/$PR_BASE_REF")"
+          git merge-base --is-ancestor "$current_base_sha" "$PR_HEAD_SHA"
           echo "pr head=$PR_HEAD_SHA"
           echo "pr base=$PR_BASE_SHA"
+          echo "current base ref=$PR_BASE_REF"
+          echo "current base sha=$current_base_sha"
           echo "merge result=$merge_result_sha"
       - uses: actions/setup-python@v7
         with:
