@@ -75,6 +75,17 @@ class CatalogWorkflowsTest(unittest.TestCase):
             governance,
         )
 
+    def test_pull_request_trigger_cannot_skip_required_status_checks(self) -> None:
+        invalid = self.ci.replace(
+            "  pull_request:\n    branches: [develop, main]\n",
+            "  pull_request:\n    branches: [develop, main]\n    paths-ignore:\n      - 'docs/**'\n",
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("path filters" in error for error in errors), errors)
+
     def test_rejects_catalog_tag_object_guard_bound_to_commit_sha(self) -> None:
         invalid = self.ci.replace(
             'test "$tag_object_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_TAG_OBJECT_SHA"',
@@ -2416,6 +2427,9 @@ class CatalogWorkflowsTest(unittest.TestCase):
             'test "$merge_result_sha" = "$GITHUB_SHA"',
             'git merge-base --is-ancestor "$PR_HEAD_SHA" "$merge_result_sha"',
             'git merge-base --is-ancestor "$PR_BASE_SHA" "$merge_result_sha"',
+            'test -n "$PR_BASE_REF"',
+            'git fetch --no-tags origin "refs/heads/$PR_BASE_REF:refs/remotes/origin/$PR_BASE_REF"',
+            'git merge-base --is-ancestor "$current_base_sha" "$PR_HEAD_SHA"',
             "python3 -m unittest tests.test_catalog_workflows -v",
         )
 
@@ -2424,6 +2438,22 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
         status_job = verifier._job_block(self.ci, "ci-status")
         self.assertIn("test-merge-result", status_job)
+
+    def test_rejects_merge_result_job_without_current_base_ref(self) -> None:
+        merge_job = verifier._job_block(self.ci, "test-merge-result")
+        invalid_merge_job = merge_job.replace(
+            "          PR_BASE_REF: ${{ github.base_ref }}\n",
+            "",
+            1,
+        )
+        invalid = self.ci.replace(merge_job, invalid_merge_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("exact merge-result execution environment" in error for error in errors),
+            errors,
+        )
 
     def test_rejects_ci_status_that_does_not_require_the_merge_result_job(self) -> None:
         status_job = verifier._job_block(self.ci, "ci-status")
