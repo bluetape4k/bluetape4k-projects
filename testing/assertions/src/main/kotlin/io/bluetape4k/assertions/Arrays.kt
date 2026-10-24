@@ -840,10 +840,10 @@ infix fun CharArray?.shouldContainSame(expected: CharArray?): CharArray {
  */
 infix fun <T> Array<T>?.shouldContentEqual(expected: Array<T>?): Array<T>? {
     val equal = when {
-        this === expected          -> true
+        this === expected                -> true
         this == null || expected == null -> false
-        this.size != expected.size -> false
-        else                       -> this.contentEquals(expected)
+        this.size != expected.size       -> false
+        else                             -> this.contentEquals(expected)
     }
     if (!equal) {
         Failures.failComparison(
@@ -860,15 +860,15 @@ infix fun <T> Array<T>?.shouldContentEqual(expected: Array<T>?): Array<T>? {
 //
 
 private fun intArrayContentEquals(a: IntArray?, b: IntArray?): Boolean = when {
-    a === b -> true
+    a === b                -> true
     a == null || b == null -> false
-    else    -> a.contentEquals(b)
+    else                   -> a.contentEquals(b)
 }
 
 private fun longArrayContentEquals(a: LongArray?, b: LongArray?): Boolean = when {
-    a === b -> true
+    a === b                -> true
     a == null || b == null -> false
-    else    -> a.contentEquals(b)
+    else                   -> a.contentEquals(b)
 }
 
 /**
@@ -878,10 +878,10 @@ private fun longArrayContentEquals(a: LongArray?, b: LongArray?): Boolean = when
  * - -0.0 != 0.0 → 구분
  */
 private fun doubleArrayContentEquals(a: DoubleArray?, b: DoubleArray?): Boolean = when {
-    a === b          -> true
+    a === b                -> true
     a == null || b == null -> false
-    a.size != b.size -> false
-    else             -> a.indices.all { i ->
+    a.size != b.size       -> false
+    else                   -> a.indices.all { i ->
         java.lang.Double.doubleToRawLongBits(a[i]) == java.lang.Double.doubleToRawLongBits(b[i])
     }
 }
@@ -893,36 +893,36 @@ private fun doubleArrayContentEquals(a: DoubleArray?, b: DoubleArray?): Boolean 
  * - -0.0f != 0.0f → 구분
  */
 private fun floatArrayContentEquals(a: FloatArray?, b: FloatArray?): Boolean = when {
-    a === b          -> true
+    a === b                -> true
     a == null || b == null -> false
-    a.size != b.size -> false
-    else             -> a.indices.all { i ->
+    a.size != b.size       -> false
+    else                   -> a.indices.all { i ->
         java.lang.Float.floatToRawIntBits(a[i]) == java.lang.Float.floatToRawIntBits(b[i])
     }
 }
 
 private fun byteArrayContentEquals(a: ByteArray?, b: ByteArray?): Boolean = when {
-    a === b -> true
+    a === b                -> true
     a == null || b == null -> false
-    else    -> a.contentEquals(b)
+    else                   -> a.contentEquals(b)
 }
 
 private fun shortArrayContentEquals(a: ShortArray?, b: ShortArray?): Boolean = when {
-    a === b -> true
+    a === b                -> true
     a == null || b == null -> false
-    else    -> a.contentEquals(b)
+    else                   -> a.contentEquals(b)
 }
 
 private fun charArrayContentEquals(a: CharArray?, b: CharArray?): Boolean = when {
-    a === b -> true
+    a === b                -> true
     a == null || b == null -> false
-    else    -> a.contentEquals(b)
+    else                   -> a.contentEquals(b)
 }
 
 private fun booleanArrayContentEquals(a: BooleanArray?, b: BooleanArray?): Boolean = when {
-    a === b -> true
+    a === b                -> true
     a == null || b == null -> false
-    else    -> a.contentEquals(b)
+    else                   -> a.contentEquals(b)
 }
 
 //
@@ -1108,10 +1108,10 @@ infix fun BooleanArray?.shouldNotContentEqual(expected: BooleanArray?): BooleanA
 /** 두 객체 배열의 내용이 다름을 검증한다. */
 infix fun <T> Array<T>?.shouldNotContentEqual(expected: Array<T>?): Array<T>? = apply {
     val equal = when {
-        this === expected -> true
+        this === expected                -> true
         this == null || expected == null -> false
-        this.size != expected.size -> false
-        else -> this.contentEquals(expected)
+        this.size != expected.size       -> false
+        else                             -> this.contentEquals(expected)
     }
     if (equal) {
         Failures.failComparison(Messages.expectedNotToBe("content-equal to", expected, this), expected, this)

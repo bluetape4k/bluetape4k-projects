@@ -1,5 +1,7 @@
 package io.bluetape4k.assertions
 
+import org.junit.jupiter.api.Test
+import org.opentest4j.AssertionFailedError
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
@@ -8,9 +10,7 @@ import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.util.Date
-import org.junit.jupiter.api.Test
-import org.opentest4j.AssertionFailedError
+import java.util.*
 
 class AssertionSymmetryTest {
 
@@ -30,7 +30,7 @@ class AssertionSymmetryTest {
 
     @Test
     fun `char sequence negative overloads complement positive overloads`() {
-        "kotlin".shouldContainAny("java", "kot")
+        "kotlin" shouldContainAny listOf("java", "kot")
         "kotlin" shouldNotContainAll listOf("java", "rust")
         "kotlin".shouldNotContainAll("java", "rust")
         "kotlin" shouldNotMatch "\\d+"
@@ -71,7 +71,7 @@ class AssertionSymmetryTest {
         listOf(1, 2, 3) shouldNotContainAll listOf(1, 4)
         listOf(1, 2, 3) shouldNotMatchAllWith { it > 2 }
         listOf(1, 2, 3) shouldNotMatchAtLeastOneOf { it > 3 }
-        listOf(1, 2, 3) shouldNotHaveSize(4)
+        listOf(1, 2, 3) shouldNotHaveSize (4)
         listOf(1, 2, 3) shouldNotContentEqual listOf(3, 2, 1)
         listOf(1, 2, 2) shouldNotContainSame listOf(1, 2, 3)
         sequenceOf(1, 2) shouldNotContentEqual sequenceOf(2, 1)
@@ -82,7 +82,7 @@ class AssertionSymmetryTest {
         assertFailsWith<AssertionFailedError> { emptyList<Int>() shouldNotMatchAllWith { true } }
         val nullable: List<Int>? = null
         assertFailsWith<AssertionFailedError> { nullable shouldNotMatchAllWith { true } }
-        assertFailsWith<AssertionFailedError> { listOf(1, 2) shouldNotHaveSize(2) }
+        assertFailsWith<AssertionFailedError> { listOf(1, 2) shouldNotHaveSize (2) }
         assertFailsWith<AssertionFailedError> { listOf(1, 2) shouldNotContentEqual listOf(1, 2) }
         assertFailsWith<AssertionFailedError> { listOf(1, 2) shouldNotContainSame listOf(2, 1) }
         assertFailsWith<AssertionFailedError> { sequenceOf(1, 2) shouldNotContentEqual sequenceOf(1, 2) }
@@ -93,12 +93,12 @@ class AssertionSymmetryTest {
         val map = mapOf("present" to null)
         map shouldContain ("present" to null)
         map shouldNotContain ("missing" to null)
-        map shouldNotHaveSize(2)
+        map shouldNotHaveSize (2)
         map shouldNotContainSame mapOf("missing" to null)
 
         assertFailsWith<AssertionFailedError> { map shouldContain ("missing" to null) }
         assertFailsWith<AssertionFailedError> { map shouldNotContain ("present" to null) }
-        assertFailsWith<AssertionFailedError> { map shouldNotHaveSize(1) }
+        assertFailsWith<AssertionFailedError> { map shouldNotHaveSize (1) }
         assertFailsWith<AssertionFailedError> { map shouldNotContainSame map }
 
         val nullableMap: Map<String, Int>? = null
