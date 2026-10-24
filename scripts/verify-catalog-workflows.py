@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import ast
+import json
 import re
 import sys
+import textwrap
 from collections import Counter
 from pathlib import Path
 
@@ -126,6 +129,82 @@ EXPECTED_CI_STATUS_ENV = (
     "          MEASURED_CHANGED: ${{ needs.changes.outputs.measured }}",
     "          MEASURED_RESULT: ${{ needs.test-measured.result }}",
 )
+EXPECTED_NIGHTLY_TESTCONTAINERS_PLAN_SHELL_PREFIX = (
+    "set -euo pipefail",
+    "",
+    'if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then',
+    '  scope="${{ inputs.scope }}"',
+    'elif [[ "${{ github.event.schedule }}" == "0 18 * * 0" ]]; then',
+    '  scope="full"',
+    "else",
+    '  scope="smoke"',
+    "fi",
+    "",
+    'case "$scope" in',
+    '  smoke) run_smoke="true"; run_standard="false" ;;',
+    '  full) run_smoke="true"; run_standard="true" ;;',
+    '  *) run_smoke="false"; run_standard="false" ;;',
+    "esac",
+    "",
+    'case "$scope" in',
+    '  full|testcontainers) run_testcontainers_coverage="true" ;;',
+    '  *) run_testcontainers_coverage="false" ;;',
+    "esac",
+    "",
+)
+EXPECTED_NIGHTLY_STATUS_SCRIPT = (
+    'echo "Nightly results: $RESULTS"',
+    'if echo "$RESULTS" | grep -qE "failure|cancelled"; then',
+    'echo "Nightly tests failed"',
+    "exit 1",
+    "fi",
+    'if [ "$SCOPE" = full ]; then',
+    'IFS=, read -ra full_results <<< "$RESULTS"',
+    'for result in "${full_results[@]}"; do',
+    'if [ "$result" != success ]; then',
+    'echo "Full Nightly required jobs must all succeed"',
+    "exit 1",
+    "fi",
+    "done",
+    "fi",
+    'if [ "$PLAN_RESULT" != success ]; then',
+    'echo "Nightly plan job is not successful"',
+    "exit 1",
+    "fi",
+    'if [ "$SCOPE" != "$EXPECTED_SCOPE" ]; then',
+    'echo "Nightly plan scope does not match the requested scope"',
+    "exit 1",
+    "fi",
+    'if [ "$COVERAGE_REPORT_RESULT" != success ]; then',
+    'echo "Nightly coverage report job is not successful"',
+    "exit 1",
+    "fi",
+    'if [ "$TESTCONTAINERS_RESULT" != success ]; then',
+    'echo "Nightly Testcontainers job is not successful for the selected scope"',
+    "exit 1",
+    "fi",
+    'if [ "$SCOPE" = smoke ] && { [ "$DETEKT_RESULT" != success ] || [ "$TEST_CORE_RESULT" != success ]; }; then',
+    'echo "Smoke Nightly Detekt and core tests must succeed"',
+    "exit 1",
+    "fi",
+    'if { [ "$SCOPE" = full ] || [ "$SCOPE" = testcontainers ]; } && [ "$TESTCONTAINERS_SPRING_RESULT" != success ]; then',
+    'echo "Nightly Testcontainers Spring bridge is not successful for the selected scope"',
+    "exit 1",
+    "fi",
+    'if [ "$SCOPE" = full ] && [ "$TEST_DATA_RESULT" != success ]; then',
+    'echo "Full Nightly data tests are not successful"',
+    "exit 1",
+    "fi",
+    'if [ "$SCOPE" = full ] && [ "$TEST_SPRING_DOCKER_RESULT" != success ]; then',
+    'echo "Full Nightly Spring Docker tests are not successful"',
+    "exit 1",
+    "fi",
+    'if [ "$SCOPE" = full ] && [ "$X64_GATE_RESULT" != success ]; then',
+    'echo "Full Nightly native image gate is not successful"',
+    "exit 1",
+    "fi",
+    'echo "Nightly tests passed"',
+)
 EXPECTED_DEPENDENCY_SUBMISSION_VERIFY_SCRIPT = (
     "set -euo pipefail",
     'CHECKOUT_SHA="$(git rev-parse HEAD)"',
@@ -223,6 +302,60 @@ def _job_blocks(text: str) -> list[tuple[str, str]]:
 
 def _job_block(text: str, name: str) -> str:
     return dict(_job_blocks(text)).get(name, "")
+
+
+def _job_values(job: str, name: str) -> list[str]:
+    values = []
+    key = _yaml_key_pattern(name)
+    for line in job.splitlines():
+        match = re.fullmatch(rf"    {key}:[ \t]*(.*)", line)
+        if match is not None:
+            value = match.group(1).split(" #", maxsplit=1)[0]
+            values.append(_yaml_scalar_value(value))
+    return values
+
+
+def _matrix_group_blocks(job: str) -> list[tuple[str, str]]:
+    matrix_match = re.search(r"(?m)^      matrix:\s*$", job)
+    if matrix_match is None:
+        return []
+    matrix_tail = job[matrix_match.end() :]
+    steps_match = re.search(r"(?m)^    steps:\s*$", matrix_tail)
+    matrix = matrix_tail[: steps_match.start()] if steps_match else matrix_tail
+    matches = list(re.finditer(r"(?m)^          - group: ([A-Za-z0-9_-]+)\s*$", matrix))
+    return [
+        (
+            match.group(1),
+            matrix[match.start() : matches[index + 1].start()]
+            if index + 1 < len(matches)
+            else matrix[match.start() :],
+        )
+        for index, match in enumerate(matches)
+    ]
+
+
+def _matrix_group_test_tasks(group: str) -> list[str]:
+    match = re.search(r"(?m)^            test_tasks:[ \t]*>-[ \t]*$", group)
+    if match is None:
+        return []
+    tasks = []
+    for line in group[match.end() :].splitlines():
+        if not line.strip():
+            continue
+        indent = len(line) - len(line.lstrip())
+        if indent < 14:
+            break
+        task = line.strip()
+        if not task.startswith("#"):
+            tasks.append(task)
+    return tasks
+
+
+def _matrix_group_test_task_errors(group: str) -> list[str]:
+    tasks = _matrix_group_test_tasks(group)
+    if any(re.fullmatch(r":[A-Za-z0-9_.:-]+", task) is None for task in tasks):
+        return ["test_tasks must contain only Gradle task paths"]
+    return []
 
 
 def _workflow_env(text: str, name: str) -> str | None:
@@ -439,28 +572,69 @@ def _named_step_block(job: str, name: str) -> str:
     return "\n".join(lines[start:end])
 
 
-def _step_run_script(step: str) -> list[str] | None:
+def _step_script_lines(step: str, name: str) -> list[str] | None:
     lines = step.splitlines()
-    run_lines = [
+    script_lines = [
         (index, len(line) - len(line.lstrip()), line.split(":", 1)[1].strip())
         for index, line in enumerate(lines)
-        if re.match(r"^\s+run:\s*", line)
+        if re.match(rf"^\s+{_yaml_key_pattern(name)}:\s*", line)
     ]
-    if len(run_lines) != 1:
+    if len(script_lines) != 1:
         return None
 
-    start, run_indent, inline = run_lines[0]
-    if re.fullmatch(r"\|[+-]?", inline) is None:
-        return None
+    start, script_indent, inline = script_lines[0]
+    block_scalar = re.fullmatch(
+        r"([|>])(?:[+-]?[1-9]?|[1-9][+-]?)?(?:[ \t]+#.*)?", inline
+    )
+    if block_scalar is None:
+        return [_yaml_scalar_value(inline)] if inline else None
 
-    script: list[str] = []
+    paragraphs: list[list[str]] = [[]]
     for line in lines[start + 1 :]:
         indent = len(line) - len(line.lstrip())
-        if line.strip() and indent <= run_indent:
+        if line.strip() and indent <= script_indent:
             break
-        if line.strip():
-            script.append(line.strip())
-    return script
+        if not line.strip():
+            if block_scalar.group(1) == ">" and paragraphs[-1]:
+                paragraphs.append([])
+            continue
+        paragraphs[-1].append(line.strip())
+    if block_scalar.group(1) == ">":
+        return [" ".join(paragraph) for paragraph in paragraphs if paragraph]
+    return [line for paragraph in paragraphs for line in paragraph]
+
+
+def _step_script_source(step: str, name: str) -> str | None:
+    lines = step.splitlines()
+    script_lines = [
+        (index, len(line) - len(line.lstrip()), line.split(":", 1)[1].strip())
+        for index, line in enumerate(lines)
+        if re.match(rf"^\s+{_yaml_key_pattern(name)}:\s*", line)
+    ]
+    if len(script_lines) != 1:
+        return None
+
+    start, script_indent, inline = script_lines[0]
+    block_scalar = re.fullmatch(
+        r"([|>])(?:[+-]?[1-9]?|[1-9][+-]?)?(?:[ \t]+#.*)?", inline
+    )
+    if block_scalar is None:
+        return _yaml_scalar_value(inline) if inline else None
+
+    body = []
+    for line in lines[start + 1 :]:
+        if line.strip() and len(line) - len(line.lstrip()) <= script_indent:
+            break
+        body.append(line)
+    return textwrap.dedent("\n".join(body))
+
+
+def _step_run_script(step: str) -> list[str] | None:
+    return _step_script_lines(step, "run")
+
+
+def _step_command_script(step: str) -> list[str] | None:
+    return _step_script_lines(step, "command")
 
 
 def _indented_values(block: str, name: str, indent: int) -> list[str]:
@@ -513,6 +687,205 @@ def _step_env_block(step: str) -> list[str] | None:
     return lines[start:end]
 
 
+def _step_environment_keys(step: str) -> set[str] | None:
+    lines = step.splitlines()
+    starts = [
+        index
+        for index, line in enumerate(lines)
+        if re.fullmatch(rf"        {_yaml_key_pattern('env')}:\s*", line)
+    ]
+    if len(starts) != 1:
+        return None
+    return _env_mapping_keys(lines, starts[0], 8)
+
+
+def _mongodb_test_environment_errors(
+    workflow_text: str,
+    test_steps: tuple[tuple[str, str, str | None], ...],
+) -> list[str]:
+    protected_jobs = tuple(job_name for job_name, _, _ in test_steps)
+    unsafe_names = _unsafe_execution_environment_names(workflow_text, protected_jobs)
+    disallowed_names = sorted(
+        name for name in unsafe_names if name.upper() != "GRADLE_OPTS"
+    )
+    errors = []
+    if disallowed_names:
+        errors.append(
+            "MongoDB protected execution scopes must not define unsafe execution "
+            "environment variable(s): " + ", ".join(disallowed_names)
+        )
+
+    for job_name, step_name, expected_test_tasks in test_steps:
+        step = _named_step_block(_job_block(workflow_text, job_name), step_name)
+        expected_keys = {"GRADLE_OPTS"}
+        if expected_test_tasks is not None:
+            expected_keys.add("TEST_TASKS")
+        if _step_environment_keys(step) != expected_keys:
+            errors.append(
+                f"{job_name} MongoDB test step environment allowlist must be "
+                f"{sorted(expected_keys)!r}"
+            )
+            continue
+        if _step_env_value(step, "GRADLE_OPTS") != "-Dorg.gradle.daemon=false":
+            errors.append(
+                f"{job_name} MongoDB test step environment allowlist must pin GRADLE_OPTS"
+            )
+        if (
+            expected_test_tasks is not None
+            and _step_env_value(step, "TEST_TASKS") != expected_test_tasks
+        ):
+            errors.append(
+                f"{job_name} MongoDB test step environment allowlist must pin TEST_TASKS"
+            )
+    return errors
+
+
+def _step_with_block(step: str) -> list[str] | None:
+    lines = step.splitlines()
+    starts = [
+        index
+        for index, line in enumerate(lines)
+        if re.fullmatch(rf"        {_yaml_key_pattern('with')}:\s*", line)
+    ]
+    if len(starts) != 1:
+        return None
+    start = starts[0]
+    end = next(
+        (
+            index
+            for index in range(start + 1, len(lines))
+            if lines[index].strip()
+            and len(lines[index]) - len(lines[index].lstrip()) <= 8
+        ),
+        len(lines),
+    )
+    return lines[start:end]
+
+
+def _step_with_input_keys(step: str) -> list[str] | None:
+    with_block = _step_with_block(step)
+    if with_block is None:
+        return None
+
+    keys = []
+    for line in with_block[1:]:
+        if not line.strip():
+            continue
+        indent = len(line) - len(line.lstrip())
+        if indent < 10:
+            return None
+        if indent != 10:
+            continue
+        match = re.match(rf"^          ({YAML_SIMPLE_KEY_RE}|<<)\s*:", line)
+        if match is None:
+            return None
+        keys.append(_yaml_scalar_value(match.group(1)))
+    return keys
+
+
+def _mongodb_retry_action_input_errors(step: str) -> list[str]:
+    input_keys = _step_with_input_keys(step)
+    approved_inputs = {"timeout_minutes", "max_attempts", "shell", "command"}
+    if (
+        input_keys is None
+        or len(input_keys) != len(approved_inputs)
+        or set(input_keys) != approved_inputs
+    ):
+        return ["must use only the approved retry action inputs"]
+
+    with_block = "\n".join(_step_with_block(step) or [])
+    expected_values = {
+        "timeout_minutes": "60",
+        "max_attempts": "3",
+        "shell": "bash",
+    }
+    for name, expected in expected_values.items():
+        if _indented_values(with_block, name, 10) != [expected]:
+            return ["must keep the approved retry action inputs fixed"]
+    return []
+
+
+def _mongodb_test_step_guard_errors(step: str) -> list[str]:
+    errors = []
+    if _indented_values(step, "if", 8):
+        errors.append("must not have a step-level if that can skip MongoDB tests")
+    if _indented_values(step, "continue-on-error", 8):
+        errors.append("must not use step-level continue-on-error to mask failures")
+    return errors
+
+
+def _mongodb_test_job_guard_errors(job: str, expected_if: str) -> list[str]:
+    errors = []
+    if _job_values(job, "if") != [expected_if]:
+        errors.append(
+            "must retain its expected execution guard to avoid skipping MongoDB tests"
+        )
+    if _job_values(job, "continue-on-error"):
+        errors.append("must not use job-level continue-on-error to mask failures")
+    return errors
+
+
+def _matrix_test_step_errors(job: str, step_name: str) -> list[str]:
+    step = _named_step_block(job, step_name)
+    if not step:
+        return ["is missing or duplicated"]
+    guard_errors = _mongodb_test_step_guard_errors(step)
+    if guard_errors:
+        return guard_errors
+    retry_input_errors = _mongodb_retry_action_input_errors(step)
+    if retry_input_errors:
+        return retry_input_errors
+
+    expected_command = [
+        'read -ra tasks <<< "$TEST_TASKS"',
+        './gradlew "${tasks[@]}" --max-workers=2 --no-configuration-cache',
+    ]
+    if (
+        _step_values(step, "uses") != ["nick-fields/retry@v4"]
+        or _step_command_script(step) != expected_command
+        or _step_env_value(step, "TEST_TASKS") != "${{ matrix.test_tasks }}"
+    ):
+        return ["must execute matrix.test_tasks through the expected retry command"]
+    return []
+
+
+def _ci_data_test_step_errors(job: str) -> list[str]:
+    step = _named_step_block(job, "Test data modules")
+    if not step:
+        return ["is missing or duplicated"]
+    guard_errors = _mongodb_test_step_guard_errors(step)
+    if guard_errors:
+        return guard_errors
+    retry_input_errors = _mongodb_retry_action_input_errors(step)
+    if retry_input_errors:
+        return retry_input_errors
+
+    expected_command = [
+        "./gradlew \\",
+        ":bluetape4k-jdbc:test \\",
+        ":bluetape4k-hibernate:test \\",
+        ":bluetape4k-hibernate-cache-lettuce:test \\",
+        ":bluetape4k-hibernate-reactive:test \\",
+        ":bluetape4k-r2dbc:test \\",
+        ":bluetape4k-mongodb:test \\",
+        ":bluetape4k-cassandra:test \\",
+        "--max-workers=2 \\",
+        "--no-configuration-cache",
+    ]
+    if (
+        _step_values(step, "uses") != ["nick-fields/retry@v4"]
+        or _step_command_script(step) != expected_command
+    ):
+        return ["must execute the exact Data test task list through the retry command"]
+    return []
+
+
+def _spring_boot_test_step_errors(job: str) -> list[str]:
+    return _matrix_test_step_errors(
+        job, "Test Spring Boot modules (${{ matrix.group }})"
+    )
+
+
 def _checkout_steps(text: str) -> list[tuple[str, str]]:
     checkout_steps: list[tuple[str, str]] = []
     checkout_action = (
@@ -559,6 +932,931 @@ def _named_step_index(job: str, name: str) -> int | None:
         if _step_value(step, "name") == name
     ]
     return matches[0] if len(matches) == 1 else None
+
+
+def _runner_diagnostics_step_errors(job: str, expected_if: str | None) -> list[str]:
+    step = _named_step_block(job, "Report runner image and kernel")
+    if not step:
+        return ["runner diagnostics step is missing or duplicated"]
+
+    conditions = _step_values(step, "if")
+    if expected_if is None:
+        if conditions:
+            return ["runner diagnostics step must run for every Data job"]
+    elif conditions != [expected_if]:
+        return ["runner diagnostics step must match its expected matrix group"]
+
+    if _step_values(step, "shell") != ["bash"]:
+        return ["runner diagnostics step must use an explicit bash shell"]
+    if _step_values(step, "continue-on-error"):
+        return ["runner diagnostics step must propagate failures"]
+
+    required = [
+        'echo "ImageOS=${ImageOS:-<unset>}"',
+        'echo "ImageVersion=${ImageVersion:-<unset>}"',
+        "cat /etc/os-release",
+        "uname -r",
+    ]
+    script = _step_run_script(step)
+    if script != required:
+        return ["runner diagnostics step must report image and kernel details in order"]
+    return []
+
+
+def _testcontainers_plan_python_source(nightly_text: str) -> str | None:
+    plan_job = _job_block(nightly_text, "plan")
+    plan_steps = [
+        step for step in _step_blocks(plan_job) if _step_values(step, "id") == ["plan"]
+    ]
+    if len(plan_steps) != 1:
+        return None
+    script = _step_script_source(plan_steps[0], "run")
+    if script is None:
+        return None
+    lines = script.splitlines()
+    starts = [
+        index
+        for index, line in enumerate(lines)
+        if line.lstrip().startswith("matrix_json=") and "python3 <<'PY'" in line
+    ]
+    if len(starts) != 1:
+        return None
+    start = starts[0]
+    ends = [index for index in range(start + 1, len(lines)) if lines[index] == "PY"]
+    if not ends:
+        return None
+    return "\n".join(lines[start + 1 : ends[0]])
+
+
+def _assignment_values(tree: ast.Module, name: str) -> list[ast.expr]:
+    return [
+        statement.value
+        for statement in tree.body
+        if isinstance(statement, ast.Assign)
+        and any(
+            isinstance(target, ast.Name) and target.id == name
+            for target in statement.targets
+        )
+    ]
+
+
+def _matches_python_expression(node: ast.expr, source: str) -> bool:
+    expected = ast.parse(source, mode="eval").body
+    return ast.dump(node, include_attributes=False) == ast.dump(
+        expected, include_attributes=False
+    )
+
+
+def _testcontainers_plan_contract_errors(nightly_text: str) -> list[str]:
+    source = _testcontainers_plan_python_source(nightly_text)
+    if source is None:
+        return ["Nightly Testcontainers plan Python block is missing or duplicated"]
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return ["Nightly Testcontainers plan Python block must remain valid Python"]
+
+    expected_statement_shapes = (
+        ("import", ("json",)),
+        ("import", ("os",)),
+        ("assignment", "all_groups"),
+        ("assignment", "scope"),
+        ("assignment", "groups_by_scope"),
+        ("assignment", "selected"),
+        ("matrix-output",),
+    )
+    statement_shapes = []
+    for statement in tree.body:
+        if isinstance(statement, ast.Import):
+            statement_shapes.append(
+                ("import", tuple(alias.name for alias in statement.names))
+            )
+        elif (
+            isinstance(statement, ast.Assign)
+            and len(statement.targets) == 1
+            and isinstance(statement.targets[0], ast.Name)
+        ):
+            statement_shapes.append(("assignment", statement.targets[0].id))
+        elif (
+            isinstance(statement, ast.Expr)
+            and isinstance(statement.value, ast.Call)
+            and isinstance(statement.value.func, ast.Name)
+            and statement.value.func.id == "print"
+        ):
+            statement_shapes.append(("matrix-output",))
+        else:
+            statement_shapes.append(("unexpected",))
+    if tuple(statement_shapes) != expected_statement_shapes:
+        return [
+            (
+                "Nightly storage-cache plan Python block must contain only the ordered "
+                "plan assignments and final matrix output"
+            )
+        ]
+
+    errors = []
+    group_values = _assignment_values(tree, "all_groups")
+    if len(group_values) != 1 or not isinstance(group_values[0], ast.List):
+        return ["Nightly Testcontainers plan must define literal all_groups"]
+
+    storage_cache_groups = []
+    for group in group_values[0].elts:
+        if not isinstance(group, ast.Dict):
+            continue
+        fields = {
+            key.value: value
+            for key, value in zip(group.keys, group.values)
+            if isinstance(key, ast.Constant) and isinstance(key.value, str)
+        }
+        group_name = fields.get("group")
+        if isinstance(group_name, ast.Constant) and group_name.value == "storage-cache":
+            storage_cache_groups.append(fields)
+    if len(storage_cache_groups) != 1:
+        return [
+            "Nightly Testcontainers plan must define exactly one storage-cache group"
+        ]
+
+    test_patterns = storage_cache_groups[0].get("test_patterns")
+    pattern_values = None
+    if (
+        isinstance(test_patterns, ast.Call)
+        and isinstance(test_patterns.func, ast.Attribute)
+        and test_patterns.func.attr == "join"
+        and isinstance(test_patterns.func.value, ast.Constant)
+        and test_patterns.func.value.value == " "
+        and len(test_patterns.args) == 1
+        and isinstance(test_patterns.args[0], ast.List)
+        and all(
+            isinstance(pattern, ast.Constant) and isinstance(pattern.value, str)
+            for pattern in test_patterns.args[0].elts
+        )
+    ):
+        pattern_values = [pattern.value for pattern in test_patterns.args[0].elts]
+    elif isinstance(test_patterns, ast.Constant) and isinstance(
+        test_patterns.value, str
+    ):
+        pattern_values = test_patterns.value.split()
+    if (
+        pattern_values is None
+        or pattern_values.count(
+            "io.bluetape4k.testcontainers.storage.MongoDBServerTest"
+        )
+        != 1
+    ):
+        errors.append(
+            "Nightly storage-cache plan must include MongoDBServerTest as an emitted test pattern"
+        )
+
+    scope_values = _assignment_values(tree, "groups_by_scope")
+    if len(scope_values) != 1 or not isinstance(scope_values[0], ast.Dict):
+        errors.append("Nightly Testcontainers plan must define literal groups_by_scope")
+    else:
+        scope_map = {
+            key.value: value
+            for key, value in zip(scope_values[0].keys, scope_values[0].values)
+            if isinstance(key, ast.Constant) and isinstance(key.value, str)
+        }
+        for scope in ("full", "testcontainers"):
+            value = scope_map.get(scope)
+            if value is None or not _matches_python_expression(
+                value, '[group["group"] for group in all_groups]'
+            ):
+                errors.append(
+                    f"Nightly storage-cache MongoDB tests must be selected by the {scope} scope"
+                )
+
+    selected_scope_values = _assignment_values(tree, "scope")
+    if len(selected_scope_values) != 1 or not _matches_python_expression(
+        selected_scope_values[0], 'os.environ["SCOPE"]'
+    ):
+        errors.append("Nightly Testcontainers plan must select the requested scope")
+
+    selected_values = _assignment_values(tree, "selected")
+    if len(selected_values) != 1 or not _matches_python_expression(
+        selected_values[0], "set(groups_by_scope[scope])"
+    ):
+        errors.append("Nightly Testcontainers plan must select its configured scope")
+    output_calls = [
+        statement.value
+        for statement in tree.body
+        if isinstance(statement, ast.Expr)
+        and isinstance(statement.value, ast.Call)
+        and isinstance(statement.value.func, ast.Name)
+        and statement.value.func.id == "print"
+    ]
+    expected_output = (
+        'print(json.dumps({"include": [group for group in all_groups '
+        'if group["group"] in selected]}, separators=(",", ":")))'
+    )
+    if len(output_calls) != 1 or not _matches_python_expression(
+        output_calls[0], expected_output
+    ):
+        errors.append(
+            "Nightly Testcontainers plan must emit selected groups into the matrix"
+        )
+    return errors
+
+
+def _testcontainers_plan_output_errors(nightly_text: str) -> list[str]:
+    plan_job = _job_block(nightly_text, "plan")
+    plan_steps = [
+        step for step in _step_blocks(plan_job) if _step_values(step, "id") == ["plan"]
+    ]
+    if len(plan_steps) != 1:
+        return ["Nightly Testcontainers plan output step is missing or duplicated"]
+
+    errors = []
+    if _job_values(plan_job, "if"):
+        errors.append("Nightly Testcontainers plan job must not be skippable")
+    if _job_values(plan_job, "continue-on-error"):
+        errors.append("Nightly Testcontainers plan job must not allow errors")
+    if _job_values(plan_job, "env") or any(
+        re.search(r"(?m)^        env:", step) for step in _step_blocks(plan_job)
+    ):
+        errors.append(
+            "Nightly Testcontainers plan job and steps must not define environment overrides"
+        )
+    for output_name, step_output in (
+        ("scope", "scope"),
+        ("run_smoke", "run_smoke"),
+        ("run_standard", "run_standard"),
+        ("run_testcontainers_coverage", "run_testcontainers_coverage"),
+        ("testcontainers_matrix", "testcontainers_matrix"),
+    ):
+        if _indented_values(plan_job, output_name, 6) != [
+            f"${{{{ steps.plan.outputs.{step_output} }}}}"
+        ]:
+            errors.append(
+                f"Nightly Testcontainers plan output must expose {output_name}"
+            )
+
+    plan_step = plan_steps[0]
+    if _step_values(plan_step, "shell") != ["bash"]:
+        errors.append("Nightly Testcontainers plan output step must use bash")
+    if _step_values(plan_step, "if"):
+        errors.append("Nightly Testcontainers plan output step must not be skippable")
+    if _step_values(plan_step, "continue-on-error"):
+        errors.append("Nightly Testcontainers plan output step must not allow errors")
+    script = _step_script_source(plan_step, "run")
+    if script is None:
+        errors.append("Nightly Testcontainers plan output step must have one script")
+        return errors
+
+    lines = script.splitlines()
+    matrix_assignment = 'matrix_json="$(SCOPE="$scope" python3 <<\'PY\''
+    assignment_indexes = [
+        index for index, line in enumerate(lines) if line == matrix_assignment
+    ]
+    if len(assignment_indexes) != 1:
+        errors.append(
+            "Nightly Testcontainers plan must assign its matrix from the validated Python output"
+        )
+        return errors
+    assignment_index = assignment_indexes[0]
+    terminators = [
+        index
+        for index in range(assignment_index + 1, len(lines))
+        if lines[index] == "PY"
+    ]
+    if len(terminators) != 1:
+        errors.append("Nightly Testcontainers plan must have one matrix heredoc")
+        return errors
+
+    expected_tail = [
+        ')"',
+        "",
+        "{",
+        '  echo "scope=$scope"',
+        '  echo "run_smoke=$run_smoke"',
+        '  echo "run_standard=$run_standard"',
+        '  echo "run_testcontainers_coverage=$run_testcontainers_coverage"',
+        '  echo "testcontainers_matrix=$matrix_json"',
+        '} >> "$GITHUB_OUTPUT"',
+    ]
+    if not lines or lines[0] != "set -euo pipefail":
+        errors.append("Nightly Testcontainers plan must fail on shell errors")
+    if lines[:assignment_index] != list(
+        EXPECTED_NIGHTLY_TESTCONTAINERS_PLAN_SHELL_PREFIX
+    ):
+        errors.append(
+            "Nightly Testcontainers plan shell prelude must not override the validated matrix command"
+        )
+    if lines[terminators[0] + 1 :] != expected_tail:
+        errors.append(
+            "Nightly Testcontainers plan must publish the validated matrix unchanged to GITHUB_OUTPUT"
+        )
+    return errors
+
+
+def _nightly_status_contract_errors(nightly_text: str) -> list[str]:
+    status_job = _job_block(nightly_text, "nightly-status")
+    errors = []
+    smoke_guard = "${{ needs.plan.outputs.run_smoke == 'true' }}"
+    standard_guard = "${{ needs.plan.outputs.run_standard == 'true' }}"
+    expected_job_guards = (
+        ("detekt", smoke_guard),
+        ("test-core", smoke_guard),
+        ("test-io", standard_guard),
+        ("test-ktor", standard_guard),
+        ("test-utils", standard_guard),
+        ("test-misc", standard_guard),
+        ("test-infra", standard_guard),
+        ("test-data", standard_guard),
+        ("test-spring-docker", standard_guard),
+        (
+            "test-testcontainers-spring",
+            "${{ always() && (needs.plan.outputs.scope == 'full' || needs.plan.outputs.scope == 'testcontainers') && needs.test-testcontainers.result == 'success' && ((needs.plan.outputs.scope == 'full' && needs.test-testcontainers-image-gate.result == 'success') || (needs.plan.outputs.scope == 'testcontainers' && needs.test-testcontainers-image-gate.result == 'skipped')) }}",
+        ),
+        ("coverage-report", "always()"),
+    )
+    for job_name, expected_if in expected_job_guards:
+        if _job_values(_job_block(nightly_text, job_name), "if") != [expected_if]:
+            errors.append(
+                f"Nightly required job {job_name} must use its exact execution guard"
+            )
+
+    expected_needs = (
+        "plan",
+        "build",
+        "detekt",
+        "test-core",
+        "test-io",
+        "test-io-http",
+        "test-ktor",
+        "test-utils",
+        "test-misc",
+        "test-infra",
+        "test-data",
+        "test-spring-docker",
+        "test-testcontainers",
+        "test-testcontainers-image-gate",
+        "test-testcontainers-spring",
+        "coverage-report",
+    )
+    actual_needs = re.findall(r"(?m)^      - ([A-Za-z0-9_-]+)\s*$", status_job)
+    if actual_needs != list(expected_needs):
+        errors.append("Nightly status must depend on every scope result exactly once")
+    if _job_values(status_job, "if") != ["always()"]:
+        errors.append("Nightly status must run after failed or skipped jobs")
+    if _job_values(status_job, "continue-on-error"):
+        errors.append("Nightly status job must not allow errors")
+    if _job_values(status_job, "env"):
+        errors.append(
+            "Nightly status job must not define job-level environment overrides"
+        )
+
+    status_step = _named_step_block(status_job, "Check all jobs")
+    if _step_values(status_step, "shell") != ["bash"]:
+        errors.append("Nightly status check step must use bash directly")
+    if _step_values(status_step, "if"):
+        errors.append("Nightly status check step must not be skippable")
+    if _step_values(status_step, "continue-on-error"):
+        errors.append("Nightly status check step must not allow errors")
+    if _step_environment_keys(status_step) != {
+        "EXPECTED_SCOPE",
+        "PLAN_RESULT",
+        "RESULTS",
+        "SCOPE",
+        "DETEKT_RESULT",
+        "TEST_CORE_RESULT",
+        "TEST_DATA_RESULT",
+        "TEST_SPRING_DOCKER_RESULT",
+        "TESTCONTAINERS_RESULT",
+        "TESTCONTAINERS_SPRING_RESULT",
+        "X64_GATE_RESULT",
+        "COVERAGE_REPORT_RESULT",
+    }:
+        errors.append(
+            "Nightly status check step environment must be the exact allowlist of required job results"
+        )
+    expected_env = {
+        "EXPECTED_SCOPE": "${{ github.event_name == 'workflow_dispatch' && inputs.scope || github.event.schedule == '0 18 * * 0' && 'full' || 'smoke' }}",
+        "PLAN_RESULT": "${{ needs.plan.result }}",
+        "RESULTS": "${{ join(needs.*.result, ',') }}",
+        "SCOPE": "${{ needs.plan.outputs.scope }}",
+        "DETEKT_RESULT": "${{ needs.detekt.result }}",
+        "TEST_CORE_RESULT": "${{ needs.test-core.result }}",
+        "TEST_DATA_RESULT": "${{ needs.test-data.result }}",
+        "TEST_SPRING_DOCKER_RESULT": "${{ needs.test-spring-docker.result }}",
+        "TESTCONTAINERS_RESULT": "${{ needs.test-testcontainers.result }}",
+        "TESTCONTAINERS_SPRING_RESULT": "${{ needs.test-testcontainers-spring.result }}",
+        "X64_GATE_RESULT": "${{ needs.test-testcontainers-image-gate.result }}",
+        "COVERAGE_REPORT_RESULT": "${{ needs.coverage-report.result }}",
+    }
+    if any(
+        _step_env_value(status_step, name) != value
+        for name, value in expected_env.items()
+    ):
+        errors.append(
+            "Nightly status must bind its result checks to direct job outputs"
+        )
+    if _step_run_script(status_step) != list(EXPECTED_NIGHTLY_STATUS_SCRIPT):
+        errors.append(
+            "Nightly status must fail when any scope-required job is unsuccessful"
+        )
+
+    bridge_job = _job_block(nightly_text, "test-testcontainers-spring")
+    bridge_test_step = _named_step_block(
+        bridge_job, "Test Testcontainers Spring bridge"
+    )
+    if _job_values(bridge_job, "continue-on-error"):
+        errors.append(
+            "Nightly Testcontainers Spring bridge job must propagate failures"
+        )
+    if (
+        not bridge_test_step
+        or _step_values(bridge_test_step, "shell") != ["bash"]
+        or _step_values(bridge_test_step, "if")
+        or _step_values(bridge_test_step, "continue-on-error")
+        or _step_environment_keys(bridge_test_step) != {"GRADLE_OPTS"}
+        or _step_env_value(bridge_test_step, "GRADLE_OPTS")
+        != "-Dorg.gradle.daemon=false"
+        or _step_run_script(bridge_test_step)
+        != ["./gradlew :bluetape4k-testcontainers-spring:test --no-configuration-cache"]
+    ):
+        errors.append(
+            "Nightly Testcontainers Spring bridge test step must run the exact command directly and propagate failures"
+        )
+    return errors
+
+
+def validate_mongodb_image_gate_manifest(manifest_text: str) -> list[str]:
+    """Return manifest contract violations for the MongoDB image-gate family."""
+    try:
+        payload = json.loads(manifest_text)
+    except json.JSONDecodeError:
+        return ["MongoDB image-gate manifest must be valid JSON"]
+    if not isinstance(payload, dict) or not isinstance(payload.get("families"), list):
+        return ["MongoDB image-gate manifest must define a families list"]
+
+    families = [
+        family
+        for family in payload["families"]
+        if isinstance(family, dict) and family.get("id") == "mongo-d-b"
+    ]
+    if len(families) != 1:
+        return ["MongoDB image-gate manifest must contain exactly one mongo-d-b family"]
+    family = families[0]
+    expected = {
+        "server": "MongoDBServer",
+        "image": "mongo",
+        "tag": "8.0.28",
+        "testPattern": "io.bluetape4k.testcontainers.storage.MongoDBServerTest",
+        "workload": "io.bluetape4k.testcontainers.storage.MongoDBServerTest:representative_test",
+    }
+    return [
+        f"MongoDB image-gate manifest {key} must remain {value!r}"
+        for key, value in expected.items()
+        if family.get(key) != value
+    ]
+
+
+def _has_mongodb_test_invocation(script: list[str]) -> bool:
+    active_lines = [line for line in script if not line.lstrip().startswith("#")]
+    return (
+        re.search(
+            r"(?<![A-Za-z0-9_-]):bluetape4k-(?:spring-boot-)?mongodb:test"
+            r"(?![A-Za-z0-9_-])",
+            " ".join(active_lines),
+        )
+        is not None
+    )
+
+
+def _mongodb_test_invocation_errors(
+    workflow_text: str,
+    data_job_name: str,
+    spring_boot_job_name: str,
+    data_expected_runner: str = "ubuntu-24.04",
+) -> list[str]:
+    errors = []
+    expected_spring_runner = (
+        "${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+    )
+    batch_nosql_condition = "${{ matrix.group == 'batch-nosql' }}"
+    for job_name, job in _job_blocks(workflow_text):
+        runner_values = _job_values(job, "runs-on")
+        for step in _step_blocks(job):
+            scripts = (
+                _step_run_script(step),
+                _step_command_script(step),
+            )
+            if not any(
+                script is not None and _has_mongodb_test_invocation(script)
+                for script in scripts
+            ):
+                continue
+
+            data_job_is_compatible = job_name == data_job_name and runner_values == [
+                data_expected_runner
+            ]
+            spring_step_is_compatible = (
+                job_name == spring_boot_job_name
+                and runner_values == [expected_spring_runner]
+                and _step_values(step, "if") == [batch_nosql_condition]
+            )
+            if not data_job_is_compatible and not spring_step_is_compatible:
+                errors.append(
+                    f"MongoDB test invocation in {job_name} must run only on a compatible runner"
+                )
+    return errors
+
+
+def validate_nightly_mongodb_workflow(
+    nightly_text: str, image_gate_manifest_text: str | None = None
+) -> list[str]:
+    """Return MongoDB runner contract violations in the Nightly workflow."""
+    errors: list[str] = []
+    if YAML_ESCAPED_KEY_RE.search(nightly_text):
+        errors.append("Nightly workflow must not use escaped YAML mapping keys")
+    if re.search(
+        r"(?<![A-Za-z0-9_-])(?:defaults|\"defaults\"|'defaults')\s*:",
+        nightly_text,
+    ):
+        errors.append("Nightly workflow must not define custom run shell defaults")
+    data_job = _job_block(nightly_text, "test-data")
+    nightly_execution_if = "${{ needs.plan.outputs.run_standard == 'true' }}"
+    errors.extend(
+        f"Nightly Test/Data MongoDB job {error}"
+        for error in _mongodb_test_job_guard_errors(data_job, nightly_execution_if)
+    )
+    expected_data_runner = (
+        "${{ matrix.group == 'nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+    )
+    if _job_values(data_job, "runs-on") != [expected_data_runner]:
+        errors.append(
+            "Nightly MongoDB tests in the Test/Data nosql group must use a compatible runner"
+        )
+
+    spring_boot_job = _job_block(nightly_text, "test-spring-docker")
+    errors.extend(
+        f"Nightly Spring Boot MongoDB job {error}"
+        for error in _mongodb_test_job_guard_errors(
+            spring_boot_job, nightly_execution_if
+        )
+    )
+    expected_spring_boot_runner = (
+        "${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+    )
+    if _job_values(spring_boot_job, "runs-on") != [expected_spring_boot_runner]:
+        errors.append(
+            "Nightly MongoDB container tests in Spring Boot batch-nosql must use a compatible runner"
+        )
+    errors.extend(
+        _mongodb_test_environment_errors(
+            nightly_text,
+            (
+                (
+                    "test-data",
+                    "Test data modules (${{ matrix.group }})",
+                    "${{ matrix.test_tasks }}",
+                ),
+                (
+                    "test-spring-docker",
+                    "Test spring-boot modules (${{ matrix.group }})",
+                    "${{ matrix.test_tasks }}",
+                ),
+            ),
+        )
+    )
+
+    data_mongodb_groups = [
+        group_name
+        for group_name, group_block in _matrix_group_blocks(data_job)
+        if ":bluetape4k-mongodb:test" in _matrix_group_test_tasks(group_block)
+    ]
+    if data_mongodb_groups != ["nosql"]:
+        errors.append("Nightly MongoDB test task must remain in the nosql group")
+    for group_name, group_block in _matrix_group_blocks(data_job):
+        if group_name == "nosql":
+            errors.extend(
+                f"Nightly Test/Data MongoDB matrix {error}"
+                for error in _matrix_group_test_task_errors(group_block)
+            )
+
+    spring_mongodb_groups = [
+        group_name
+        for group_name, group_block in _matrix_group_blocks(spring_boot_job)
+        if ":bluetape4k-spring-boot-mongodb:test"
+        in _matrix_group_test_tasks(group_block)
+    ]
+    if spring_mongodb_groups != ["batch-nosql"]:
+        errors.append(
+            "Nightly Spring Boot MongoDB test task must remain in batch-nosql"
+        )
+    for group_name, group_block in _matrix_group_blocks(spring_boot_job):
+        if group_name == "batch-nosql":
+            errors.extend(
+                f"Nightly Spring Boot MongoDB matrix {error}"
+                for error in _matrix_group_test_task_errors(group_block)
+            )
+
+    errors.extend(
+        _mongodb_test_invocation_errors(
+            nightly_text,
+            "test-data",
+            "test-spring-docker",
+            data_expected_runner=expected_data_runner,
+        )
+    )
+    errors.extend(
+        f"Nightly Test/Data runner diagnostics {error}"
+        for error in _runner_diagnostics_step_errors(
+            data_job, "${{ matrix.group == 'nosql' }}"
+        )
+    )
+    errors.extend(
+        f"Nightly Spring Boot runner diagnostics {error}"
+        for error in _runner_diagnostics_step_errors(
+            spring_boot_job, "${{ matrix.group == 'batch-nosql' }}"
+        )
+    )
+
+    for job, test_step_name, label in (
+        (data_job, "Test data modules (${{ matrix.group }})", "Nightly Test/Data"),
+        (
+            spring_boot_job,
+            "Test spring-boot modules (${{ matrix.group }})",
+            "Nightly Spring Boot",
+        ),
+    ):
+        errors.extend(
+            f"{label} MongoDB test step {error}"
+            for error in _matrix_test_step_errors(job, test_step_name)
+        )
+        diagnostic_index = _named_step_index(job, "Report runner image and kernel")
+        test_index = _named_step_index(job, test_step_name)
+        if (
+            diagnostic_index is not None
+            and test_index is not None
+            and diagnostic_index >= test_index
+        ):
+            errors.append(f"{label} runner diagnostics must precede the test step")
+
+    testcontainers_job = _job_block(nightly_text, "test-testcontainers")
+    expected_testcontainers_runner = (
+        "${{ matrix.group == 'storage-cache' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+    )
+    if _job_values(testcontainers_job, "runs-on") != [expected_testcontainers_runner]:
+        errors.append(
+            "Nightly test-testcontainers storage-cache MongoDB tests must use a compatible runner"
+        )
+    if _job_values(testcontainers_job, "continue-on-error"):
+        errors.append("Nightly test-testcontainers MongoDB job must propagate failures")
+    if _job_values(testcontainers_job, "if"):
+        errors.append(
+            "Nightly test-testcontainers job must not be conditionally skipped"
+        )
+    if (
+        re.search(
+            r"(?m)^      matrix: \$\{\{ fromJson\(needs\.plan\.outputs\.testcontainers_matrix\) }}$",
+            testcontainers_job,
+        )
+        is None
+    ):
+        errors.append(
+            "Nightly test-testcontainers must use the planned Testcontainers matrix"
+        )
+
+    errors.extend(_testcontainers_plan_contract_errors(nightly_text))
+    errors.extend(_testcontainers_plan_output_errors(nightly_text))
+
+    testcontainers_diagnostics_errors = _runner_diagnostics_step_errors(
+        testcontainers_job, "${{ matrix.group == 'storage-cache' }}"
+    )
+    errors.extend(
+        f"Nightly test-testcontainers runner diagnostics {error}"
+        for error in testcontainers_diagnostics_errors
+    )
+    testcontainers_step_name = "Test testcontainers (${{ matrix.group }})"
+    testcontainers_step = _named_step_block(
+        testcontainers_job, testcontainers_step_name
+    )
+    if not testcontainers_step:
+        errors.append(
+            "Nightly test-testcontainers MongoDB test step is missing or duplicated"
+        )
+    else:
+        errors.extend(
+            f"Nightly test-testcontainers MongoDB test step {error}"
+            for error in _mongodb_test_step_guard_errors(testcontainers_step)
+        )
+        expected_command = [
+            'read -ra patterns <<< "$TEST_PATTERNS"',
+            "tests_args=()",
+            'for pattern in "${patterns[@]}"; do',
+            'tests_args+=(--tests "${pattern}")',
+            "done",
+            'if [[ "$NEEDS_MOCK_SERVERS" != "true" ]]; then',
+            "tests_args+=(",
+            "-x :bluetape4k-mock-web-server:jibDockerBuild",
+            "-x :bluetape4k-mock-webflux-server:jibDockerBuild",
+            ")",
+            "fi",
+            'timeout --kill-after=60s "${TEST_TIMEOUT_MINUTES}m" \\',
+            './gradlew :bluetape4k-testcontainers:test "${tests_args[@]}" --no-configuration-cache',
+        ]
+        if (
+            _step_values(testcontainers_step, "uses") != ["nick-fields/retry@v4"]
+            or _step_with_input_keys(testcontainers_step)
+            != ["timeout_minutes", "max_attempts", "shell", "command"]
+            or _indented_values(
+                "\n".join(_step_with_block(testcontainers_step) or []),
+                "timeout_minutes",
+                10,
+            )
+            != ["${{ matrix.timeout_minutes }}"]
+            or _indented_values(
+                "\n".join(_step_with_block(testcontainers_step) or []),
+                "max_attempts",
+                10,
+            )
+            != ["${{ matrix.max_attempts }}"]
+            or _indented_values(
+                "\n".join(_step_with_block(testcontainers_step) or []),
+                "shell",
+                10,
+            )
+            != ["bash"]
+            or _step_command_script(testcontainers_step) != expected_command
+        ):
+            errors.append(
+                "Nightly test-testcontainers MongoDB test step must execute the planned test patterns through the expected retry command"
+            )
+        if _step_environment_keys(testcontainers_step) != {
+            "GRADLE_OPTS",
+            "TEST_PATTERNS",
+            "TEST_TIMEOUT_MINUTES",
+            "NEEDS_MOCK_SERVERS",
+        } or any(
+            _step_env_value(testcontainers_step, name) != value
+            for name, value in (
+                ("GRADLE_OPTS", "-Dorg.gradle.daemon=false"),
+                ("TEST_PATTERNS", "${{ matrix.test_patterns }}"),
+                ("TEST_TIMEOUT_MINUTES", "${{ matrix.timeout_minutes }}"),
+                ("NEEDS_MOCK_SERVERS", "${{ matrix.needs_mock_servers }}"),
+            )
+        ):
+            errors.append(
+                "Nightly test-testcontainers MongoDB test step environment must stay pinned to the planned matrix"
+            )
+    diagnostic_index = _named_step_index(
+        testcontainers_job, "Report runner image and kernel"
+    )
+    testcontainers_index = _named_step_index(
+        testcontainers_job, testcontainers_step_name
+    )
+    if (
+        diagnostic_index is not None
+        and testcontainers_index is not None
+        and diagnostic_index >= testcontainers_index
+    ):
+        errors.append(
+            "Nightly test-testcontainers runner diagnostics must precede the test step"
+        )
+
+    image_gate_job_name = "test-testcontainers-image-gate-shard"
+    image_gate_aggregate_job_name = "test-testcontainers-image-gate"
+    image_gate_job = _job_block(nightly_text, image_gate_job_name)
+    if _job_values(image_gate_job, "runs-on") != ["ubuntu-24.04"]:
+        errors.append(
+            "Nightly MongoDB image-gate shard must use the compatible ubuntu-24.04 runner"
+        )
+    if _job_values(image_gate_job, "if") != [
+        "${{ needs.plan.outputs.scope == 'full' }}"
+    ]:
+        errors.append(
+            "Nightly MongoDB image-gate shard must remain scoped to full runs"
+        )
+    if _job_values(image_gate_job, "continue-on-error"):
+        errors.append("Nightly MongoDB image-gate job must propagate failures")
+    if _indented_values(image_gate_job, "shard", 8) != ["[0, 1, 2, 3]"]:
+        errors.append(
+            "Nightly MongoDB image-gate shard matrix must include exactly shards 0 through 3"
+        )
+    image_gate_aggregate_job = _job_block(nightly_text, image_gate_aggregate_job_name)
+    if _job_values(image_gate_aggregate_job, "runs-on") != ["ubuntu-24.04"]:
+        errors.append("Nightly image-gate aggregate must use ubuntu-24.04")
+    if _job_values(image_gate_aggregate_job, "if") != [
+        "${{ always() && needs.plan.outputs.scope == 'full' }}"
+    ]:
+        errors.append("Nightly image-gate aggregate must run for every full scope")
+    if _job_values(image_gate_aggregate_job, "needs") != [
+        "[build, plan, test-testcontainers-image-gate-shard]"
+    ]:
+        errors.append("Nightly image-gate aggregate must depend on all shard results")
+    if _job_values(image_gate_aggregate_job, "continue-on-error"):
+        errors.append("Nightly image-gate aggregate must propagate failures")
+    aggregate_step_name = "Aggregate and verify image gate evidence"
+    aggregate_step = _named_step_block(image_gate_aggregate_job, aggregate_step_name)
+    expected_aggregate_script = [
+        "set +e",
+        "python3 scripts/aggregate_testcontainers_image_gate.py \\",
+        "--input-dir shard-artifacts \\",
+        "--output-dir build/reports/testcontainers-image-gate \\",
+        "--manifest scripts/testcontainers_image_gate_manifest.json \\",
+        "--expected-shards 4",
+        "aggregate_exit=$?",
+        "set -e",
+        'test "$SHARD_RESULT" = success',
+        'test "$aggregate_exit" -eq 0',
+    ]
+    if (
+        not aggregate_step
+        or _step_values(aggregate_step, "if") != ["always()"]
+        or _step_values(aggregate_step, "shell") != ["bash"]
+        or _step_values(aggregate_step, "continue-on-error")
+        or _step_environment_keys(aggregate_step) != {"SHARD_RESULT"}
+        or _step_env_value(aggregate_step, "SHARD_RESULT")
+        != "${{ needs.test-testcontainers-image-gate-shard.result }}"
+        or _step_run_script(aggregate_step) != expected_aggregate_script
+    ):
+        errors.append(
+            "Nightly image-gate aggregate must always verify shard status and aggregate exit"
+        )
+    aggregate_step_names = (
+        "Download image gate shard evidence",
+        aggregate_step_name,
+        "Publish aggregate image gate summary",
+        "Stage exact aggregate image gate evidence",
+        "Upload aggregate image gate evidence",
+    )
+    aggregate_step_positions = [
+        image_gate_aggregate_job.find(f"      - name: {name}\n")
+        for name in aggregate_step_names
+    ]
+    if any(
+        position < 0 for position in aggregate_step_positions
+    ) or aggregate_step_positions != sorted(aggregate_step_positions):
+        errors.append(
+            "Nightly image-gate aggregate must run before publishing and artifact staging"
+        )
+    unsafe_names = _unsafe_execution_environment_names(
+        nightly_text,
+        (
+            "plan",
+            "test-testcontainers",
+            image_gate_job_name,
+            image_gate_aggregate_job_name,
+            "nightly-status",
+        ),
+    )
+    unsafe_names = [name for name in unsafe_names if name.upper() != "GRADLE_OPTS"]
+    if unsafe_names:
+        errors.append(
+            "Nightly MongoDB protected workflow scopes must not define unsafe execution environment variable(s): "
+            + ", ".join(unsafe_names)
+        )
+    if _has_environment_mapping_alias_or_merge(nightly_text):
+        errors.append(
+            "Nightly workflow must not use YAML anchors and aliases in environment mappings"
+        )
+    errors.extend(
+        f"Nightly image-gate runner diagnostics {error}"
+        for error in _runner_diagnostics_step_errors(image_gate_job, None)
+    )
+    image_gate_step_name = "Run image family gate shard sequentially"
+    image_gate_step = _named_step_block(image_gate_job, image_gate_step_name)
+    expected_image_gate_command = (
+        "python3 scripts/run_testcontainers_image_gate.py --scope full "
+        "--shard-index ${{ matrix.shard }} --shard-count 4 "
+        "--report-dir build/reports/testcontainers-image-gate "
+        "--default-platform-id amd64 --max-attempts 2 --pull-timeout-seconds 60 "
+        "--timeout-minutes 4 --diagnostic-timeout-seconds 30 --job-budget-minutes 120"
+    )
+    if not image_gate_step:
+        errors.append(
+            "Nightly MongoDB image-gate execution step is missing or duplicated"
+        )
+    elif (
+        _step_run_script(image_gate_step) != [expected_image_gate_command]
+        or _step_values(image_gate_step, "shell") != ["bash"]
+        or _indented_values(image_gate_step, "if", 8)
+        or _indented_values(image_gate_step, "continue-on-error", 8)
+        or _step_environment_keys(image_gate_step) != {"DOCKER_AUTH_CONFIG"}
+        or _step_env_value(image_gate_step, "DOCKER_AUTH_CONFIG")
+        != "${{ secrets.TESTCONTAINERS_DOCKER_AUTH_CONFIG }}"
+    ):
+        errors.append(
+            "Nightly MongoDB image-gate execution must run full scope and propagate failures"
+        )
+    image_gate_diagnostics_index = _named_step_index(
+        image_gate_job, "Report runner image and kernel"
+    )
+    image_gate_execution_index = _named_step_index(image_gate_job, image_gate_step_name)
+    if (
+        image_gate_diagnostics_index is not None
+        and image_gate_execution_index is not None
+        and image_gate_diagnostics_index >= image_gate_execution_index
+    ):
+        errors.append(
+            "Nightly image-gate runner diagnostics must precede the image gate"
+        )
+
+    if image_gate_manifest_text is not None:
+        errors.extend(validate_mongodb_image_gate_manifest(image_gate_manifest_text))
+    errors.extend(_nightly_status_contract_errors(nightly_text))
+    return errors
 
 
 def _has_exact_governance_gate(status_job: str) -> bool:
@@ -678,16 +1976,108 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         )
 
     data_job = _job_block(ci_text, "test-data")
-    if "runs-on: ubuntu-22.04" not in data_job:
-        errors.append("MongoDB container tests in Test/Data must use a compatible runner")
+    ci_data_execution_if = (
+        "${{ needs.changes.outputs.data == 'true' || "
+        "needs.changes.outputs.shared == 'true' || "
+        "github.event_name == 'workflow_dispatch' }}"
+    )
+    errors.extend(
+        f"Test/Data MongoDB job {error}"
+        for error in _mongodb_test_job_guard_errors(data_job, ci_data_execution_if)
+    )
+    if _job_values(data_job, "runs-on") != ["ubuntu-24.04"]:
+        errors.append(
+            "MongoDB container tests in Test/Data must use a compatible runner"
+        )
     spring_boot_job = _job_block(ci_text, "test-spring-boot")
-    if (
-        "runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}"
-        not in spring_boot_job
-    ):
+    errors.extend(
+        _mongodb_test_environment_errors(
+            ci_text,
+            (
+                ("test-data", "Test data modules", None),
+                (
+                    "test-spring-boot",
+                    "Test Spring Boot modules (${{ matrix.group }})",
+                    "${{ matrix.test_tasks }}",
+                ),
+            ),
+        )
+    )
+    ci_spring_execution_if = (
+        "${{ needs.changes.outputs['spring-boot'] == 'true' || "
+        "needs.changes.outputs.shared == 'true' || "
+        "github.event_name == 'workflow_dispatch' }}"
+    )
+    errors.extend(
+        f"Spring Boot MongoDB job {error}"
+        for error in _mongodb_test_job_guard_errors(
+            spring_boot_job, ci_spring_execution_if
+        )
+    )
+    expected_spring_boot_runner = (
+        "${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+    )
+    if _job_values(spring_boot_job, "runs-on") != [expected_spring_boot_runner]:
         errors.append(
             "MongoDB container tests in Spring Boot batch-nosql must use a compatible runner"
         )
+    mongodb_test_groups = [
+        group_name
+        for group_name, group_block in _matrix_group_blocks(spring_boot_job)
+        if ":bluetape4k-spring-boot-mongodb:test"
+        in _matrix_group_test_tasks(group_block)
+    ]
+    if mongodb_test_groups != ["batch-nosql"]:
+        errors.append("Spring Boot MongoDB test task must remain in batch-nosql")
+    for group_name, group_block in _matrix_group_blocks(spring_boot_job):
+        if group_name == "batch-nosql":
+            errors.extend(
+                f"Spring Boot MongoDB matrix {error}"
+                for error in _matrix_group_test_task_errors(group_block)
+            )
+    errors.extend(
+        f"Spring Boot MongoDB test step {error}"
+        for error in _spring_boot_test_step_errors(spring_boot_job)
+    )
+    errors.extend(
+        f"Test/Data MongoDB test step {error}"
+        for error in _ci_data_test_step_errors(data_job)
+    )
+    errors.extend(
+        _mongodb_test_invocation_errors(ci_text, "test-data", "test-spring-boot")
+    )
+    errors.extend(
+        f"Test/Data runner diagnostics {error}"
+        for error in _runner_diagnostics_step_errors(data_job, None)
+    )
+    errors.extend(
+        f"Spring Boot runner diagnostics {error}"
+        for error in _runner_diagnostics_step_errors(
+            spring_boot_job, "${{ matrix.group == 'batch-nosql' }}"
+        )
+    )
+    data_diagnostics_index = _named_step_index(
+        data_job, "Report runner image and kernel"
+    )
+    data_test_index = _named_step_index(data_job, "Test data modules")
+    if (
+        data_diagnostics_index is not None
+        and data_test_index is not None
+        and data_diagnostics_index >= data_test_index
+    ):
+        errors.append("Test/Data runner diagnostics must precede the test step")
+    spring_diagnostics_index = _named_step_index(
+        spring_boot_job, "Report runner image and kernel"
+    )
+    spring_test_index = _named_step_index(
+        spring_boot_job, "Test Spring Boot modules (${{ matrix.group }})"
+    )
+    if (
+        spring_diagnostics_index is not None
+        and spring_test_index is not None
+        and spring_diagnostics_index >= spring_test_index
+    ):
+        errors.append("Spring Boot runner diagnostics must precede the test step")
 
     ref = _workflow_env(ci_text, "BLUETAPE4K_DEPENDENCIES_CATALOG_REF")
     tag = _workflow_env(ci_text, "BLUETAPE4K_DEPENDENCIES_CATALOG_TAG")
@@ -1147,10 +2537,20 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
     ci_path = root / ".github" / "workflows" / "ci.yml"
+    nightly_path = root / ".github" / "workflows" / "nightly-tests.yml"
     submission_path = root / ".github" / "workflows" / "dependency-submission.yml"
+    image_gate_manifest_path = (
+        root / "scripts" / "testcontainers_image_gate_manifest.json"
+    )
     errors = validate_workflows(
         ci_path.read_text(encoding="utf-8"),
         submission_path.read_text(encoding="utf-8"),
+    )
+    errors.extend(
+        validate_nightly_mongodb_workflow(
+            nightly_path.read_text(encoding="utf-8"),
+            image_gate_manifest_path.read_text(encoding="utf-8"),
+        )
     )
     if errors:
         for error in errors:
