@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -16,8 +17,14 @@ SPEC.loader.exec_module(verifier)
 class CatalogWorkflowsTest(unittest.TestCase):
     def setUp(self) -> None:
         self.ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text()
+        self.nightly = (
+            ROOT / ".github" / "workflows" / "nightly-tests.yml"
+        ).read_text()
         self.submission = (
             ROOT / ".github" / "workflows" / "dependency-submission.yml"
+        ).read_text()
+        self.image_gate_manifest = (
+            ROOT / "scripts" / "testcontainers_image_gate_manifest.json"
         ).read_text()
 
     def test_repository_workflows_satisfy_catalog_contract(self) -> None:
@@ -83,33 +90,2176 @@ class CatalogWorkflowsTest(unittest.TestCase):
         data_job = verifier._job_block(self.ci, "test-data")
         spring_boot_job = verifier._job_block(self.ci, "test-spring-boot")
 
-        self.assertIn("runs-on: ubuntu-22.04", data_job)
+        self.assertIn("runs-on: ubuntu-24.04", data_job)
         self.assertIn(
-            "runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}",
+            "runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}",
             spring_boot_job,
         )
+        for diagnostic in (
+            'echo "ImageOS=${ImageOS:-<unset>}"',
+            'echo "ImageVersion=${ImageVersion:-<unset>}"',
+            "cat /etc/os-release",
+            "uname -r",
+        ):
+            with self.subTest(diagnostic=diagnostic):
+                self.assertIn(diagnostic, data_job)
+                self.assertIn(diagnostic, spring_boot_job)
 
     def test_rejects_latest_runner_for_mongodb_container_tests(self) -> None:
         invalid = self.ci.replace(
-            "runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}",
+            "runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}",
             "runs-on: ubuntu-latest",
             1,
         )
 
         errors = verifier.validate_workflows(invalid, self.submission)
 
-        self.assertTrue(any("MongoDB container tests" in error for error in errors), errors)
+        self.assertTrue(
+            any("MongoDB container tests" in error for error in errors), errors
+        )
 
     def test_rejects_latest_runner_for_data_container_tests(self) -> None:
         data_job = verifier._job_block(self.ci, "test-data")
         invalid_data_job = data_job.replace(
-            "runs-on: ubuntu-22.04", "runs-on: ubuntu-latest", 1
+            "runs-on: ubuntu-24.04",
+            "runs-on: ubuntu-latest",
+            1,
         )
         invalid = self.ci.replace(data_job, invalid_data_job, 1)
 
         errors = verifier.validate_workflows(invalid, self.submission)
 
         self.assertTrue(any("Test/Data" in error for error in errors), errors)
+
+    def test_rejects_comment_decoy_for_data_runner(self) -> None:
+        data_job = verifier._job_block(self.ci, "test-data")
+        invalid_data_job = data_job.replace(
+            "    runs-on: ubuntu-24.04",
+            "    runs-on: ubuntu-latest\n    # expected: runs-on: ubuntu-24.04",
+            1,
+        )
+        invalid = self.ci.replace(data_job, invalid_data_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("Test/Data" in error for error in errors), errors)
+
+    def test_rejects_comment_decoy_for_spring_boot_runner(self) -> None:
+        spring_boot_job = verifier._job_block(self.ci, "test-spring-boot")
+        expected_runner = (
+            "    runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' "
+            "|| 'ubuntu-latest' }}"
+        )
+        invalid_spring_boot_job = spring_boot_job.replace(
+            expected_runner,
+            "    runs-on: ubuntu-latest\n    # expected: " + expected_runner.strip(),
+            1,
+        )
+        invalid = self.ci.replace(spring_boot_job, invalid_spring_boot_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("Spring Boot batch-nosql" in error for error in errors), errors
+        )
+
+    def test_rejects_mongodb_test_task_outside_batch_nosql(self) -> None:
+        spring_boot_job = verifier._job_block(self.ci, "test-spring-boot")
+        moved_mongodb_test = spring_boot_job.replace(
+            "              :bluetape4k-spring-boot-mongodb:test",
+            "              :bluetape4k-spring-boot-cassandra:test",
+            1,
+        ).replace(
+            "          - group: demos\n            test_tasks: >-\n"
+            "              :bluetape4k-examples-cassandra-demo:test",
+            "          - group: demos\n            test_tasks: >-\n"
+            "              :bluetape4k-spring-boot-mongodb:test",
+            1,
+        )
+        invalid = self.ci.replace(spring_boot_job, moved_mongodb_test, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("MongoDB test task" in error for error in errors), errors)
+
+    def test_mongodb_matrix_test_tasks_reject_gradle_skip_options(self) -> None:
+        cases = (
+            (
+                "CI Spring Boot",
+                self.ci,
+                "test-spring-boot",
+                "batch-nosql",
+                ":bluetape4k-spring-boot-mongodb:test",
+                lambda workflow: verifier.validate_workflows(workflow, self.submission),
+            ),
+            (
+                "Nightly Test/Data",
+                self.nightly,
+                "test-data",
+                "nosql",
+                ":bluetape4k-mongodb:test",
+                verifier.validate_nightly_mongodb_workflow,
+            ),
+            (
+                "Nightly Spring Boot",
+                self.nightly,
+                "test-spring-docker",
+                "batch-nosql",
+                ":bluetape4k-spring-boot-mongodb:test",
+                verifier.validate_nightly_mongodb_workflow,
+            ),
+        )
+        for label, workflow, job_name, group_name, mongodb_task, validate in cases:
+            job = verifier._job_block(workflow, job_name)
+            group = dict(verifier._matrix_group_blocks(job))[group_name]
+            for option in (
+                f"-x {mongodb_task}",
+                f"--exclude-task={mongodb_task}",
+                "--dry-run",
+            ):
+                with self.subTest(job=label, option=option):
+                    invalid_group = group.replace(
+                        f"              {mongodb_task}\n",
+                        f"              {mongodb_task}\n              {option}\n",
+                        1,
+                    )
+                    self.assertNotEqual(group, invalid_group)
+                    invalid_job = job.replace(group, invalid_group, 1)
+                    invalid_workflow = workflow.replace(job, invalid_job, 1)
+
+                    errors = validate(invalid_workflow)
+
+                    self.assertTrue(
+                        any(
+                            "test_tasks must contain only Gradle task paths" in error
+                            for error in errors
+                        ),
+                        errors,
+                    )
+
+    def test_rejects_spring_boot_test_command_that_bypasses_matrix_tasks(self) -> None:
+        spring_boot_job = verifier._job_block(self.ci, "test-spring-boot")
+        invalid_spring_boot_job = spring_boot_job.replace(
+            '            read -ra tasks <<< "$TEST_TASKS"\n'
+            '            ./gradlew "${tasks[@]}" --max-workers=2 --no-configuration-cache',
+            "            ./gradlew :bluetape4k-spring-boot-mongodb:test "
+            "--max-workers=2 --no-configuration-cache",
+            1,
+        )
+        invalid = self.ci.replace(spring_boot_job, invalid_spring_boot_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("Spring Boot MongoDB test step" in error for error in errors), errors
+        )
+
+    def test_rejects_spring_boot_test_tasks_mapped_to_kover_matrix(self) -> None:
+        invalid = self.ci.replace(
+            "          TEST_TASKS: ${{ matrix.test_tasks }}",
+            "          TEST_TASKS: ${{ matrix.kover_tasks }}",
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("Spring Boot MongoDB test step" in error for error in errors), errors
+        )
+
+    def test_requires_ci_data_test_step_to_execute_the_exact_task_list(self) -> None:
+        data_job = verifier._job_block(self.ci, "test-data")
+        step_name = "Test data modules"
+        step = verifier._named_step_block(data_job, step_name)
+        self.assertIsNotNone(step)
+        assert step is not None
+        invalid_steps = (
+            ("missing", ""),
+            ("renamed", step.replace(step_name, "Run database tests", 1)),
+            (
+                "MongoDB task replaced",
+                step.replace(":bluetape4k-mongodb:test", ":bluetape4k-jdbc:test", 1),
+            ),
+            (
+                "retry action replaced",
+                step.replace("nick-fields/retry@v4", "actions/upload-artifact@v7", 1),
+            ),
+        )
+
+        for description, invalid_step in invalid_steps:
+            with self.subTest(description=description):
+                invalid_job = data_job.replace(step, invalid_step, 1)
+                invalid = self.ci.replace(data_job, invalid_job, 1)
+
+                errors = verifier.validate_workflows(invalid, self.submission)
+
+                self.assertTrue(
+                    any("Test/Data MongoDB test step" in error for error in errors),
+                    errors,
+                )
+
+    def test_rejects_mongodb_test_invocation_in_demos_step(self) -> None:
+        spring_boot_job = verifier._job_block(self.ci, "test-spring-boot")
+        extra_step = (
+            "      - name: Run MongoDB test in demos group\n"
+            "        if: ${{ matrix.group == 'demos' }}\n"
+            "        run: ./gradlew :bluetape4k-spring-boot-mongodb:test"
+        )
+        invalid_spring_boot_job = spring_boot_job.replace(
+            "      - name: Generate Kover XML report",
+            extra_step + "\n\n      - name: Generate Kover XML report",
+            1,
+        )
+        invalid = self.ci.replace(spring_boot_job, invalid_spring_boot_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("MongoDB test invocation" in error for error in errors), errors
+        )
+
+    def test_rejects_mongodb_test_invocation_in_folded_demos_run_script(self) -> None:
+        spring_boot_job = verifier._job_block(self.ci, "test-spring-boot")
+        extra_step = (
+            "      - name: Run folded MongoDB test in demos group\n"
+            "        if: ${{ matrix.group == 'demos' }}\n"
+            "        run: >- # folded YAML script\n"
+            "          echo running MongoDB\n"
+            "          ./gradlew :bluetape4k-spring-boot-mongodb:test"
+        )
+        invalid_spring_boot_job = spring_boot_job.replace(
+            "      - name: Generate Kover XML report",
+            extra_step + "\n\n      - name: Generate Kover XML report",
+            1,
+        )
+        invalid = self.ci.replace(spring_boot_job, invalid_spring_boot_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("MongoDB test invocation" in error for error in errors), errors
+        )
+
+    def test_rejects_mongodb_test_invocation_in_folded_retry_command(self) -> None:
+        spring_boot_job = verifier._job_block(self.ci, "test-spring-boot")
+        extra_step = (
+            "      - name: Retry a MongoDB test in demos group\n"
+            "        if: ${{ matrix.group == 'demos' }}\n"
+            "        uses: nick-fields/retry@v4\n"
+            "        with:\n"
+            "          timeout_minutes: 10\n"
+            "          command: >- # folded retry script\n"
+            "            echo running MongoDB\n"
+            "            ./gradlew :bluetape4k-spring-boot-mongodb:test"
+        )
+        invalid_spring_boot_job = spring_boot_job.replace(
+            "      - name: Generate Kover XML report",
+            extra_step + "\n\n      - name: Generate Kover XML report",
+            1,
+        )
+        invalid = self.ci.replace(spring_boot_job, invalid_spring_boot_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("MongoDB test invocation" in error for error in errors), errors
+        )
+
+    def test_detects_folded_mongodb_commands_after_a_blank_line(self) -> None:
+        spring_boot_job = verifier._job_block(self.ci, "test-spring-boot")
+        for script_key, header in (
+            ("run", "      - name: Run folded MongoDB test in demos group\n"),
+            (
+                "command",
+                (
+                    "      - name: Retry folded MongoDB test in demos group\n"
+                    "        uses: nick-fields/retry@v4\n"
+                    "        with:\n"
+                    "          timeout_minutes: 10\n"
+                ),
+            ),
+        ):
+            with self.subTest(script_key=script_key):
+                extra_step = (
+                    header
+                    + "        if: ${{ matrix.group == 'demos' }}\n"
+                    + ("        " if script_key == "run" else "          ")
+                    + f"{script_key}: >-\n"
+                    + ("          " if script_key == "run" else "            ")
+                    + "# shell comment\n\n"
+                    + ("          " if script_key == "run" else "            ")
+                    + "./gradlew :bluetape4k-spring-boot-mongodb:test"
+                )
+                invalid_job = spring_boot_job.replace(
+                    "      - name: Generate Kover XML report",
+                    extra_step + "\n\n      - name: Generate Kover XML report",
+                    1,
+                )
+                invalid = self.ci.replace(spring_boot_job, invalid_job, 1)
+
+                errors = verifier.validate_workflows(invalid, self.submission)
+
+                self.assertTrue(
+                    any("MongoDB test invocation" in error for error in errors),
+                    errors,
+                )
+
+    def test_requires_nightly_mongodb_test_steps_to_execute_the_matrix_tasks(
+        self,
+    ) -> None:
+        cases = (
+            (
+                "Test/Data",
+                "test-data",
+                "Test data modules (${{ matrix.group }})",
+                ":bluetape4k-mongodb:test",
+            ),
+            (
+                "Spring Boot",
+                "test-spring-docker",
+                "Test spring-boot modules (${{ matrix.group }})",
+                ":bluetape4k-spring-boot-mongodb:test",
+            ),
+        )
+        for label, job_name, step_name, mongodb_task in cases:
+            job = verifier._job_block(self.nightly, job_name)
+            step = verifier._named_step_block(job, step_name)
+            self.assertIsNotNone(step)
+            assert step is not None
+            invalid_steps = (
+                ("missing", ""),
+                ("renamed", step.replace(step_name, "Run JDBC tests", 1)),
+                (
+                    "command bypasses matrix",
+                    step.replace(
+                        '            read -ra tasks <<< "$TEST_TASKS"\n'
+                        '            ./gradlew "${tasks[@]}" --max-workers=2 '
+                        "--no-configuration-cache",
+                        "            ./gradlew :bluetape4k-jdbc:test --max-workers=2 "
+                        "--no-configuration-cache",
+                        1,
+                    ),
+                ),
+                (
+                    "TEST_TASKS bypasses matrix",
+                    step.replace(
+                        "TEST_TASKS: ${{ matrix.test_tasks }}",
+                        "TEST_TASKS: ${{ matrix.kover_tasks }}",
+                        1,
+                    ),
+                ),
+            )
+            for description, invalid_step in invalid_steps:
+                with self.subTest(
+                    job=label, task=mongodb_task, description=description
+                ):
+                    invalid_job = job.replace(step, invalid_step, 1)
+                    invalid_nightly = self.nightly.replace(job, invalid_job, 1)
+
+                    errors = verifier.validate_nightly_mongodb_workflow(invalid_nightly)
+
+                    self.assertTrue(
+                        any(
+                            f"Nightly {label} MongoDB test step" in error
+                            for error in errors
+                        ),
+                        errors,
+                    )
+
+    def test_ci_mongodb_test_steps_cannot_be_skipped_or_mask_failures(self) -> None:
+        cases = (
+            (
+                "Test/Data",
+                "test-data",
+                "Test data modules",
+                lambda workflow: verifier.validate_workflows(workflow, self.submission),
+            ),
+            (
+                "Spring Boot",
+                "test-spring-boot",
+                "Test Spring Boot modules (${{ matrix.group }})",
+                lambda workflow: verifier.validate_workflows(workflow, self.submission),
+            ),
+        )
+        mutations = (
+            ("step if", "if: false"),
+            ("step continue-on-error", "continue-on-error: true"),
+        )
+        for label, job_name, step_name, validate in cases:
+            job = verifier._job_block(self.ci, job_name)
+            step = verifier._named_step_block(job, step_name)
+            self.assertTrue(step)
+            for description, guard in mutations:
+                with self.subTest(job=label, mutation=description):
+                    invalid_step = step.replace(
+                        f"      - name: {step_name}\n",
+                        f"      - name: {step_name}\n        {guard}\n",
+                        1,
+                    )
+                    invalid_job = job.replace(step, invalid_step, 1)
+                    invalid = self.ci.replace(job, invalid_job, 1)
+
+                    errors = validate(invalid)
+
+                    self.assertTrue(
+                        any(
+                            "skip" in error or "continue-on-error" in error
+                            for error in errors
+                        ),
+                        errors,
+                    )
+
+    def test_nightly_mongodb_test_steps_cannot_be_skipped_or_mask_failures(
+        self,
+    ) -> None:
+        cases = (
+            (
+                "Test/Data",
+                "test-data",
+                "Test data modules (${{ matrix.group }})",
+            ),
+            (
+                "Spring Boot",
+                "test-spring-docker",
+                "Test spring-boot modules (${{ matrix.group }})",
+            ),
+        )
+        mutations = (
+            ("step if", "if: false"),
+            ("step continue-on-error", "continue-on-error: true"),
+        )
+        for label, job_name, step_name in cases:
+            job = verifier._job_block(self.nightly, job_name)
+            step = verifier._named_step_block(job, step_name)
+            self.assertTrue(step)
+            for description, guard in mutations:
+                with self.subTest(job=label, mutation=description):
+                    invalid_step = step.replace(
+                        f"      - name: {step_name}\n",
+                        f"      - name: {step_name}\n        {guard}\n",
+                        1,
+                    )
+                    invalid_job = job.replace(step, invalid_step, 1)
+                    invalid = self.nightly.replace(job, invalid_job, 1)
+
+                    errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+                    self.assertTrue(
+                        any(
+                            "skip" in error or "continue-on-error" in error
+                            for error in errors
+                        ),
+                        errors,
+                    )
+
+    def test_mongodb_test_steps_reject_unsafe_execution_environment(self) -> None:
+        cases = (
+            (
+                "CI Test/Data",
+                self.ci,
+                "test-data",
+                "Test data modules",
+                lambda workflow: verifier.validate_workflows(workflow, self.submission),
+            ),
+            (
+                "CI Spring Boot",
+                self.ci,
+                "test-spring-boot",
+                "Test Spring Boot modules (${{ matrix.group }})",
+                lambda workflow: verifier.validate_workflows(workflow, self.submission),
+            ),
+            (
+                "Nightly Test/Data",
+                self.nightly,
+                "test-data",
+                "Test data modules (${{ matrix.group }})",
+                verifier.validate_nightly_mongodb_workflow,
+            ),
+            (
+                "Nightly Spring Boot",
+                self.nightly,
+                "test-spring-docker",
+                "Test spring-boot modules (${{ matrix.group }})",
+                verifier.validate_nightly_mongodb_workflow,
+            ),
+        )
+        for label, workflow, job_name, step_name, validate in cases:
+            job = verifier._job_block(workflow, job_name)
+            step = verifier._named_step_block(job, step_name)
+            for variable in ("BASH_ENV", "NODE_OPTIONS", "PATH"):
+                mutations = (
+                    (
+                        "workflow environment",
+                        workflow.replace(
+                            "  JAVA_VERSION: '25'\n",
+                            "  JAVA_VERSION: '25'\n"
+                            f"  {variable}: '/tmp/issue-1839-fail-open'\n",
+                            1,
+                        ),
+                    ),
+                    (
+                        "job environment",
+                        workflow.replace(
+                            job,
+                            job.replace(
+                                "    steps:\n",
+                                "    env:\n"
+                                f"      {variable}: '/tmp/issue-1839-fail-open'\n"
+                                "    steps:\n",
+                                1,
+                            ),
+                            1,
+                        ),
+                    ),
+                    (
+                        "test step environment",
+                        workflow.replace(
+                            job,
+                            job.replace(
+                                step,
+                                step.replace(
+                                    "        env:\n",
+                                    "        env:\n"
+                                    f"          {variable}: '/tmp/issue-1839-fail-open'\n",
+                                    1,
+                                ),
+                                1,
+                            ),
+                            1,
+                        ),
+                    ),
+                )
+                for scope, invalid in mutations:
+                    with self.subTest(job=label, variable=variable, scope=scope):
+                        self.assertNotEqual(invalid, workflow)
+
+                        errors = validate(invalid)
+
+                        self.assertTrue(
+                            any(
+                                "unsafe execution environment" in error
+                                for error in errors
+                            ),
+                            errors,
+                        )
+
+    def test_mongodb_test_step_environment_is_allowlisted(self) -> None:
+        cases = (
+            (
+                "CI Test/Data",
+                self.ci,
+                "test-data",
+                "Test data modules",
+                lambda workflow: verifier.validate_workflows(workflow, self.submission),
+            ),
+            (
+                "CI Spring Boot",
+                self.ci,
+                "test-spring-boot",
+                "Test Spring Boot modules (${{ matrix.group }})",
+                lambda workflow: verifier.validate_workflows(workflow, self.submission),
+            ),
+            (
+                "Nightly Test/Data",
+                self.nightly,
+                "test-data",
+                "Test data modules (${{ matrix.group }})",
+                verifier.validate_nightly_mongodb_workflow,
+            ),
+            (
+                "Nightly Spring Boot",
+                self.nightly,
+                "test-spring-docker",
+                "Test spring-boot modules (${{ matrix.group }})",
+                verifier.validate_nightly_mongodb_workflow,
+            ),
+        )
+        for label, workflow, job_name, step_name, validate in cases:
+            job = verifier._job_block(workflow, job_name)
+            step = verifier._named_step_block(job, step_name)
+            mutations = (
+                (
+                    "unexpected variable",
+                    step.replace(
+                        "        env:\n",
+                        "        env:\n          CUSTOM_FLAG: '1'\n",
+                        1,
+                    ),
+                ),
+                (
+                    "changed Gradle options",
+                    step.replace(
+                        'GRADLE_OPTS: "-Dorg.gradle.daemon=false"',
+                        'GRADLE_OPTS: "-Dorg.gradle.daemon=false -javaagent:/tmp/fail-open.jar"',
+                        1,
+                    ),
+                ),
+            )
+            for description, invalid_step in mutations:
+                with self.subTest(job=label, mutation=description):
+                    invalid = workflow.replace(
+                        job, job.replace(step, invalid_step, 1), 1
+                    )
+
+                    errors = validate(invalid)
+
+                    self.assertTrue(
+                        any("environment allowlist" in error for error in errors),
+                        errors,
+                    )
+
+    def test_mongodb_retry_steps_reject_failure_masking_action_inputs(self) -> None:
+        cases = (
+            (
+                "CI Data",
+                self.ci,
+                "test-data",
+                "Test data modules",
+                lambda workflow: verifier.validate_workflows(workflow, self.submission),
+            ),
+            (
+                "CI Spring Boot",
+                self.ci,
+                "test-spring-boot",
+                "Test Spring Boot modules (${{ matrix.group }})",
+                lambda workflow: verifier.validate_workflows(workflow, self.submission),
+            ),
+            (
+                "Nightly Data",
+                self.nightly,
+                "test-data",
+                "Test data modules (${{ matrix.group }})",
+                verifier.validate_nightly_mongodb_workflow,
+            ),
+            (
+                "Nightly Spring Boot",
+                self.nightly,
+                "test-spring-docker",
+                "Test spring-boot modules (${{ matrix.group }})",
+                verifier.validate_nightly_mongodb_workflow,
+            ),
+        )
+        masking_inputs = (
+            ("continue_on_error", "true"),
+            ("continue-on-error", "true"),
+            ("new_command_on_retry", "true"),
+        )
+
+        for label, workflow, job_name, step_name, validate in cases:
+            with self.subTest(job=label):
+                job = verifier._job_block(workflow, job_name)
+                step = verifier._named_step_block(job, step_name)
+                self.assertTrue(step)
+                for input_name, input_value in masking_inputs:
+                    with self.subTest(action_input=input_name):
+                        invalid_step = step.replace(
+                            "        with:\n",
+                            f"        with:\n          {input_name}: {input_value}\n",
+                            1,
+                        )
+                        self.assertNotEqual(invalid_step, step)
+                        invalid_job = job.replace(step, invalid_step, 1)
+                        invalid_workflow = workflow.replace(job, invalid_job, 1)
+
+                        errors = validate(invalid_workflow)
+
+                        self.assertTrue(
+                            any("retry action inputs" in error for error in errors),
+                            errors,
+                        )
+
+    def test_nightly_rejects_unicode_escaped_mapping_keys(self) -> None:
+        cases = (
+            (
+                "Test/Data step if",
+                "test-data",
+                "Test data modules (${{ matrix.group }})",
+                r'        "\u0069f": false',
+            ),
+            (
+                "Test/Data step continue-on-error",
+                "test-data",
+                "Test data modules (${{ matrix.group }})",
+                r'        "continue\u002don\u002derror": true',
+            ),
+            (
+                "Spring Boot step continue-on-error",
+                "test-spring-docker",
+                "Test spring-boot modules (${{ matrix.group }})",
+                r'        "continue\u002don\u002derror": true',
+            ),
+            (
+                "Test/Data runner diagnostics if",
+                "test-data",
+                "Report runner image and kernel",
+                r'        "\u0069f": false',
+            ),
+        )
+        for label, job_name, step_name, escaped_key in cases:
+            with self.subTest(mutation=label):
+                job = verifier._job_block(self.nightly, job_name)
+                step = verifier._named_step_block(job, step_name)
+                self.assertTrue(step)
+                step_header = f"      - name: {step_name}\n"
+                invalid_step = step.replace(
+                    step_header, step_header + escaped_key + "\n", 1
+                )
+                invalid_job = job.replace(step, invalid_step, 1)
+                invalid_nightly = self.nightly.replace(job, invalid_job, 1)
+
+                errors = verifier.validate_nightly_mongodb_workflow(invalid_nightly)
+
+                self.assertTrue(
+                    any("escaped YAML mapping keys" in error for error in errors),
+                    errors,
+                )
+
+    def test_nightly_rejects_unicode_escaped_job_failure_masking(self) -> None:
+        for job_name in ("test-data", "test-spring-docker"):
+            with self.subTest(job=job_name):
+                job = verifier._job_block(self.nightly, job_name)
+                invalid_job = job.replace(
+                    f"  {job_name}:\n",
+                    f'  {job_name}:\n    "continue\\u002don\\u002derror": true\n',
+                    1,
+                )
+                invalid_nightly = self.nightly.replace(job, invalid_job, 1)
+
+                errors = verifier.validate_nightly_mongodb_workflow(invalid_nightly)
+
+                self.assertTrue(
+                    any("escaped YAML mapping keys" in error for error in errors),
+                    errors,
+                )
+
+    def test_mongodb_jobs_keep_execution_guards_and_cannot_mask_failures(
+        self,
+    ) -> None:
+        cases = (
+            (
+                "CI Test/Data",
+                self.ci,
+                "test-data",
+                "    if: ${{ needs.changes.outputs.data == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}",
+                lambda workflow: verifier.validate_workflows(workflow, self.submission),
+            ),
+            (
+                "CI Spring Boot",
+                self.ci,
+                "test-spring-boot",
+                "    if: ${{ needs.changes.outputs['spring-boot'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}",
+                lambda workflow: verifier.validate_workflows(workflow, self.submission),
+            ),
+            (
+                "Nightly Test/Data",
+                self.nightly,
+                "test-data",
+                "    if: ${{ needs.plan.outputs.run_standard == 'true' }}",
+                verifier.validate_nightly_mongodb_workflow,
+            ),
+            (
+                "Nightly Spring Boot",
+                self.nightly,
+                "test-spring-docker",
+                "    if: ${{ needs.plan.outputs.run_standard == 'true' }}",
+                verifier.validate_nightly_mongodb_workflow,
+            ),
+        )
+        for label, workflow, job_name, expected_if, validate in cases:
+            job = verifier._job_block(workflow, job_name)
+            mutations = (
+                (
+                    "job if narrows execution",
+                    job.replace(expected_if, "    if: false", 1),
+                ),
+                (
+                    "job continue-on-error",
+                    job.replace(
+                        f"  {job_name}:\n",
+                        f"  {job_name}:\n    continue-on-error: true\n",
+                        1,
+                    ),
+                ),
+            )
+            for description, invalid_job in mutations:
+                with self.subTest(job=label, mutation=description):
+                    invalid = workflow.replace(job, invalid_job, 1)
+
+                    errors = validate(invalid)
+
+                    self.assertTrue(
+                        any(
+                            "skip" in error or "continue-on-error" in error
+                            for error in errors
+                        ),
+                        errors,
+                    )
+
+    def test_rejects_runner_diagnostics_outside_batch_nosql(self) -> None:
+        spring_boot_job = verifier._job_block(self.ci, "test-spring-boot")
+        invalid_spring_boot_job = spring_boot_job.replace(
+            "if: ${{ matrix.group == 'batch-nosql' }}",
+            "if: ${{ matrix.group == 'demos' }}",
+            1,
+        )
+        invalid = self.ci.replace(spring_boot_job, invalid_spring_boot_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("runner diagnostics" in error for error in errors), errors)
+
+    def test_nightly_data_diagnostics_names_the_nosql_group(self) -> None:
+        data_job = verifier._job_block(self.nightly, "test-data")
+        diagnostics = verifier._named_step_block(
+            data_job, "Report runner image and kernel"
+        )
+        invalid_diagnostics = diagnostics.replace(
+            "if: ${{ matrix.group == 'nosql' }}",
+            "if: ${{ matrix.group == 'database-core' }}",
+            1,
+        )
+        invalid = self.nightly.replace(
+            data_job, data_job.replace(diagnostics, invalid_diagnostics, 1), 1
+        )
+
+        errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+        self.assertTrue(
+            any("expected matrix group" in error for error in errors), errors
+        )
+        self.assertFalse(any("batch-nosql" in error for error in errors), errors)
+
+    def test_nightly_mongodb_jobs_use_supported_runners_and_report_image_kernel(
+        self,
+    ) -> None:
+        errors = verifier.validate_nightly_mongodb_workflow(self.nightly)
+
+        self.assertEqual(errors, [])
+
+    def test_nightly_testcontainers_mongodb_group_uses_supported_runner_and_reports_kernel(
+        self,
+    ) -> None:
+        errors = verifier.validate_nightly_mongodb_workflow(self.nightly)
+
+        self.assertEqual(errors, [])
+        job = verifier._job_block(self.nightly, "test-testcontainers")
+        diagnostics = verifier._named_step_block(job, "Report runner image and kernel")
+        self.assertEqual(
+            verifier._job_values(job, "runs-on"),
+            [
+                "${{ matrix.group == 'storage-cache' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+            ],
+        )
+        self.assertEqual(
+            verifier._step_values(diagnostics, "if"),
+            ["${{ matrix.group == 'storage-cache' }}"],
+        )
+
+    def test_rejects_unsupported_runner_for_nightly_testcontainers_mongodb_group(
+        self,
+    ) -> None:
+        job = verifier._job_block(self.nightly, "test-testcontainers")
+        invalid_job = job.replace(
+            "runs-on: ${{ matrix.group == 'storage-cache' && 'ubuntu-24.04' || 'ubuntu-latest' }}",
+            "runs-on: ubuntu-22.04",
+            1,
+        )
+        invalid = self.nightly.replace(job, invalid_job, 1)
+
+        errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+        self.assertTrue(any("test-testcontainers" in error for error in errors), errors)
+
+    def test_nightly_storage_cache_testcontainers_diagnostics_fail_closed_before_tests(
+        self,
+    ) -> None:
+        job = verifier._job_block(self.nightly, "test-testcontainers")
+        diagnostics = verifier._named_step_block(job, "Report runner image and kernel")
+        invalid_diagnostics = diagnostics.replace(
+            "        shell: bash\n",
+            "        continue-on-error: true\n        shell: bash\n",
+            1,
+        )
+        invalid_job = job.replace(diagnostics, invalid_diagnostics, 1)
+        invalid = self.nightly.replace(job, invalid_job, 1)
+
+        errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+        self.assertTrue(
+            any("test-testcontainers runner diagnostics" in error for error in errors),
+            errors,
+        )
+
+    def test_nightly_testcontainers_mongodb_test_cannot_mask_failures(self) -> None:
+        job = verifier._job_block(self.nightly, "test-testcontainers")
+        test_step = verifier._named_step_block(
+            job, "Test testcontainers (${{ matrix.group }})"
+        )
+        invalid_step = test_step.replace(
+            "      - name: Test testcontainers (${{ matrix.group }})\n",
+            "      - name: Test testcontainers (${{ matrix.group }})\n"
+            "        continue-on-error: true\n",
+            1,
+        )
+        step_mutation = self.nightly.replace(
+            job, job.replace(test_step, invalid_step, 1), 1
+        )
+        job_mutation = self.nightly.replace(
+            job,
+            job.replace(
+                "    needs: [build, plan]\n",
+                "    needs: [build, plan]\n    continue-on-error: true\n",
+                1,
+            ),
+            1,
+        )
+
+        for invalid in (step_mutation, job_mutation):
+            with self.subTest(mutation="failure masking"):
+                errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+                self.assertTrue(
+                    any("test-testcontainers" in error for error in errors), errors
+                )
+
+    def test_nightly_storage_cache_job_cannot_be_conditionally_skipped(self) -> None:
+        job = verifier._job_block(self.nightly, "test-testcontainers")
+        invalid_job = job.replace(
+            "    needs: [build, plan]\n",
+            "    needs: [build, plan]\n    if: ${{ false }}\n",
+            1,
+        )
+        invalid = self.nightly.replace(job, invalid_job, 1)
+
+        errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+        self.assertTrue(
+            any(
+                "test-testcontainers job must not be conditionally skipped" in error
+                for error in errors
+            ),
+            errors,
+        )
+
+    def test_nightly_mongodb_testcontainers_scopes_reject_unsafe_environment(self):
+        mutations = (
+            self.nightly.replace(
+                "env:\n  JAVA_VERSION:",
+                "env:\n  BASH_ENV: /tmp/disable-failure-checks\n  JAVA_VERSION:",
+                1,
+            ),
+            self.nightly.replace(
+                "  test-testcontainers:\n    name:",
+                "  test-testcontainers:\n    env:\n      PATH: /tmp/masked-bin\n    name:",
+                1,
+            ),
+            self.nightly.replace(
+                "  test-testcontainers-image-gate-shard:\n    name:",
+                "  test-testcontainers-image-gate-shard:\n"
+                "    env:\n      NODE_OPTIONS: --require=/tmp/mask.js\n"
+                "    name:",
+                1,
+            ),
+            self.nightly.replace(
+                "  test-testcontainers-image-gate:\n    name:",
+                "  test-testcontainers-image-gate:\n"
+                "    env:\n      BASH_ENV: /tmp/disable-failure-checks\n"
+                "    name:",
+                1,
+            ),
+            self.nightly.replace(
+                "  plan:\n    name:",
+                "  plan:\n"
+                "    env:\n      BASH_ENV: /tmp/disable-plan-checks\n"
+                "    name:",
+                1,
+            ),
+            self.nightly.replace(
+                "  plan:\n    name:",
+                "  plan:\n    env:\n      PATH: /tmp/masked-plan-bin\n    name:",
+                1,
+            ),
+            self.nightly.replace(
+                "  plan:\n    name:",
+                "  plan:\n    env:\n      PYTHONPATH: /tmp/attacker-modules\n    name:",
+                1,
+            ),
+            self.nightly.replace(
+                "  nightly-status:\n    name:",
+                "  nightly-status:\n"
+                "    env:\n      BASH_ENV: /tmp/disable-status-checks\n"
+                "    name:",
+                1,
+            ),
+            self.nightly.replace(
+                "  nightly-status:\n    name:",
+                "  nightly-status:\n"
+                "    env:\n      PATH: /tmp/masked-status-bin\n"
+                "    name:",
+                1,
+            ),
+            self.nightly.replace(
+                "  nightly-status:\n    name:",
+                "  nightly-status:\n"
+                "    env:\n      PYTHONPATH: /tmp/attacker-modules\n"
+                "    name:",
+                1,
+            ),
+        )
+
+        for invalid in mutations:
+            with self.subTest(mutation="unsafe execution environment"):
+                errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+                self.assertTrue(
+                    any("unsafe execution environment" in error for error in errors),
+                    errors,
+                )
+
+    def test_nightly_rejects_environment_mapping_aliases_and_merges(self) -> None:
+        anchored_nightly = self.nightly.replace(
+            "env:\n  JAVA_VERSION: '25'\n",
+            "env: &nightly_environment\n  JAVA_VERSION: '25'\n",
+            1,
+        )
+        plan = verifier._job_block(anchored_nightly, "plan")
+        status_step = verifier._named_step_block(
+            verifier._job_block(anchored_nightly, "nightly-status"), "Check all jobs"
+        )
+        self.assertTrue(plan)
+        self.assertTrue(status_step)
+
+        mutations = (
+            (
+                "plan job environment alias",
+                anchored_nightly.replace(
+                    plan,
+                    plan.replace(
+                        "    runs-on: ubuntu-latest\n",
+                        "    runs-on: ubuntu-latest\n    env: *nightly_environment\n",
+                        1,
+                    ),
+                    1,
+                ),
+            ),
+            (
+                "nightly status step environment merge",
+                anchored_nightly.replace(
+                    status_step,
+                    status_step.replace(
+                        "        env:\n",
+                        "        env:\n          <<: *nightly_environment\n",
+                        1,
+                    ),
+                    1,
+                ),
+            ),
+        )
+
+        for description, invalid in mutations:
+            with self.subTest(mutation=description):
+                errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+                self.assertTrue(
+                    any("environment mappings" in error for error in errors), errors
+                )
+
+    def test_nightly_plan_and_status_environments_are_explicitly_pinned(self) -> None:
+        plan = verifier._job_block(self.nightly, "plan")
+        plan_step = next(
+            step
+            for step in verifier._step_blocks(plan)
+            if verifier._step_values(step, "id") == ["plan"]
+        )
+        status_job = verifier._job_block(self.nightly, "nightly-status")
+        status_step = verifier._named_step_block(status_job, "Check all jobs")
+        mutations = (
+            (
+                "plan job environment added",
+                self.nightly.replace(
+                    plan,
+                    plan.replace(
+                        "    runs-on: ubuntu-latest\n",
+                        "    runs-on: ubuntu-latest\n"
+                        "    env:\n      UNPINNED_FLAG: true\n",
+                        1,
+                    ),
+                    1,
+                ),
+            ),
+            (
+                "plan step environment added",
+                self.nightly.replace(
+                    plan,
+                    plan.replace(
+                        plan_step,
+                        plan_step.replace(
+                            "      - id: plan\n",
+                            "      - id: plan\n"
+                            "        env:\n          UNPINNED_FLAG: true\n",
+                            1,
+                        ),
+                        1,
+                    ),
+                    1,
+                ),
+            ),
+            (
+                "nightly status job environment added",
+                self.nightly.replace(
+                    status_job,
+                    status_job.replace(
+                        "    runs-on: ubuntu-latest\n",
+                        "    runs-on: ubuntu-latest\n"
+                        "    env:\n      UNPINNED_FLAG: true\n",
+                        1,
+                    ),
+                    1,
+                ),
+            ),
+            (
+                "nightly status step environment expanded",
+                self.nightly.replace(
+                    status_step,
+                    status_step.replace(
+                        "          COVERAGE_REPORT_RESULT: ${{ needs.coverage-report.result }}\n",
+                        "          COVERAGE_REPORT_RESULT: ${{ needs.coverage-report.result }}\n"
+                        "          UNPINNED_FLAG: true\n",
+                        1,
+                    ),
+                    1,
+                ),
+            ),
+        )
+
+        for description, invalid in mutations:
+            with self.subTest(mutation=description):
+                errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+                self.assertTrue(
+                    any("environment" in error.lower() for error in errors), errors
+                )
+
+    def test_rejects_missing_testcontainers_scope_for_storage_cache(self) -> None:
+        invalid = self.nightly.replace(
+            '"testcontainers": [group["group"] for group in all_groups],',
+            '"testcontainers": [],',
+            1,
+        )
+
+        errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+        self.assertTrue(
+            any("selected by the testcontainers scope" in error for error in errors),
+            errors,
+        )
+
+    def test_rejects_mongodb_test_pattern_outside_nightly_storage_cache_group(
+        self,
+    ) -> None:
+        invalid = self.nightly.replace(
+            '"io.bluetape4k.testcontainers.storage.MongoDBServerTest",',
+            '"io.bluetape4k.testcontainers.storage.MariaDBServerTest",',
+            1,
+        )
+
+        errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+        self.assertTrue(any("storage-cache" in error for error in errors), errors)
+
+    def test_rejects_comments_that_decoy_storage_cache_plan_contract(self) -> None:
+        pattern = '"io.bluetape4k.testcontainers.storage.MongoDBServerTest",'
+        scope_mapping = '"full": [group["group"] for group in all_groups],'
+        mutations = (
+            self.nightly.replace(pattern, f"# {pattern}", 1),
+            self.nightly.replace(
+                scope_mapping,
+                '"full": [\n              # [group["group"] for group in all_groups],\n          ],',
+                1,
+            ),
+        )
+
+        for invalid in mutations:
+            with self.subTest(mutation="comment decoy"):
+                errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+                self.assertTrue(
+                    any("storage-cache" in error for error in errors), errors
+                )
+
+    def test_rejects_mutations_after_validated_testcontainers_plan_assignments(
+        self,
+    ) -> None:
+        selected_assignment = "          selected = set(groups_by_scope[scope])\n"
+        mutations = (
+            '          selected.discard("storage-cache")\n',
+            "          selected.clear()\n",
+            '          all_groups.pop(next(index for index, group in enumerate(all_groups) if group["group"] == "storage-cache"))\n',
+        )
+
+        for mutation in mutations:
+            with self.subTest(mutation=mutation.strip()):
+                invalid = self.nightly.replace(
+                    selected_assignment,
+                    selected_assignment + mutation,
+                    1,
+                )
+
+                errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+                self.assertTrue(
+                    any("storage-cache" in error for error in errors), errors
+                )
+
+    def test_testcontainers_plan_matrix_output_is_connected_to_the_job(self) -> None:
+        plan_job = verifier._job_block(self.nightly, "plan")
+        mutations = (
+            (
+                "hardcoded matrix output",
+                plan_job.replace(
+                    'echo "testcontainers_matrix=$matrix_json"',
+                    "echo 'testcontainers_matrix={\"include\":[]}'",
+                    1,
+                ),
+            ),
+            (
+                "matrix overwrite",
+                plan_job.replace(
+                    '          )"\n\n          {\n',
+                    '          )"\n\n          matrix_json=\'{"include":[]}\'\n\n          {\n',
+                    1,
+                ),
+            ),
+            (
+                "wrong output file",
+                plan_job.replace('} >> "$GITHUB_OUTPUT"', '} >> "$GITHUB_ENV"', 1),
+            ),
+            (
+                "wrong matrix job output",
+                plan_job.replace(
+                    "testcontainers_matrix: ${{ steps.plan.outputs.testcontainers_matrix }}",
+                    "testcontainers_matrix: ${{ steps.plan.outputs.scope }}",
+                    1,
+                ),
+            ),
+            (
+                "wrong scope job output",
+                plan_job.replace(
+                    "      scope: ${{ steps.plan.outputs.scope }}",
+                    "      scope: ${{ steps.plan.outputs.run_smoke }}",
+                    1,
+                ),
+            ),
+            (
+                "plan job skipped",
+                plan_job.replace("  plan:\n", "  plan:\n    if: false\n", 1),
+            ),
+            (
+                "plan job failure masked",
+                plan_job.replace(
+                    "  plan:\n", "  plan:\n    continue-on-error: true\n", 1
+                ),
+            ),
+            (
+                "plan step skipped",
+                plan_job.replace(
+                    "      - id: plan\n", "      - id: plan\n        if: false\n", 1
+                ),
+            ),
+            (
+                "plan step failure masked",
+                plan_job.replace(
+                    "      - id: plan\n",
+                    "      - id: plan\n        continue-on-error: true\n",
+                    1,
+                ),
+            ),
+            (
+                "plan error guard removed",
+                plan_job.replace("          set -euo pipefail\n", "", 1),
+            ),
+        )
+
+        for name, invalid_job in mutations:
+            with self.subTest(mutation=name):
+                self.assertNotEqual(invalid_job, plan_job, name)
+                invalid = self.nightly.replace(plan_job, invalid_job, 1)
+
+                errors = verifier.validate_nightly_mongodb_workflow(
+                    invalid, self.image_gate_manifest
+                )
+
+                self.assertTrue(
+                    any("Testcontainers plan" in error for error in errors), errors
+                )
+
+    def test_testcontainers_plan_rejects_python_function_shadowing(self) -> None:
+        plan_job = verifier._job_block(self.nightly, "plan")
+        assignment = '          matrix_json="$(SCOPE="$scope" python3 <<\'PY\'\n'
+        shadow = (
+            "          python3() {\n"
+            "            printf '%s\\n' '{\"include\":[]}'\n"
+            "          }\n\n"
+        )
+        invalid_job = plan_job.replace(assignment, shadow + assignment, 1)
+        self.assertNotEqual(invalid_job, plan_job)
+
+        invalid = self.nightly.replace(plan_job, invalid_job, 1)
+
+        errors = verifier.validate_nightly_mongodb_workflow(
+            invalid, self.image_gate_manifest
+        )
+
+        self.assertTrue(any("plan shell prelude" in error for error in errors), errors)
+
+    def test_nightly_plan_job_outputs_match_the_validated_script_values(self) -> None:
+        mappings = (
+            ("scope", "scope", "run_smoke"),
+            ("run_smoke", "run_smoke", "run_standard"),
+            ("run_standard", "run_standard", "run_smoke"),
+            (
+                "run_testcontainers_coverage",
+                "run_testcontainers_coverage",
+                "run_standard",
+            ),
+            (
+                "testcontainers_matrix",
+                "testcontainers_matrix",
+                "scope",
+            ),
+        )
+        for output_name, source_name, wrong_source in mappings:
+            with self.subTest(output=output_name):
+                valid_mapping = (
+                    f"      {output_name}: ${{{{ steps.plan.outputs.{source_name} }}}}"
+                )
+                invalid_mapping = (
+                    f"      {output_name}: ${{{{ steps.plan.outputs.{wrong_source} }}}}"
+                )
+                invalid = self.nightly.replace(valid_mapping, invalid_mapping, 1)
+                self.assertNotEqual(invalid, self.nightly)
+
+                errors = verifier.validate_nightly_mongodb_workflow(
+                    invalid, self.image_gate_manifest
+                )
+
+                self.assertTrue(any("plan output" in error for error in errors), errors)
+
+    def test_nightly_status_script_rejects_skipped_required_jobs_for_each_scope(
+        self,
+    ) -> None:
+        status_job = verifier._job_block(self.nightly, "nightly-status")
+        status_step = verifier._named_step_block(status_job, "Check all jobs")
+        script = verifier._step_run_script(status_step)
+        self.assertIsNotNone(script)
+
+        cases = (
+            (
+                "full standard job skipped",
+                {
+                    "EXPECTED_SCOPE": "full",
+                    "PLAN_RESULT": "success",
+                    "RESULTS": "success,skipped,success",
+                    "SCOPE": "full",
+                    "TEST_DATA_RESULT": "success",
+                    "TEST_SPRING_DOCKER_RESULT": "success",
+                    "TESTCONTAINERS_RESULT": "success",
+                    "TESTCONTAINERS_SPRING_RESULT": "success",
+                    "X64_GATE_RESULT": "success",
+                    "COVERAGE_REPORT_RESULT": "success",
+                },
+            ),
+            (
+                "testcontainers bridge skipped",
+                {
+                    "EXPECTED_SCOPE": "testcontainers",
+                    "PLAN_RESULT": "success",
+                    "RESULTS": "success,skipped,success",
+                    "SCOPE": "testcontainers",
+                    "TEST_DATA_RESULT": "success",
+                    "TEST_SPRING_DOCKER_RESULT": "success",
+                    "TESTCONTAINERS_RESULT": "success",
+                    "TESTCONTAINERS_SPRING_RESULT": "skipped",
+                    "X64_GATE_RESULT": "skipped",
+                    "COVERAGE_REPORT_RESULT": "success",
+                },
+            ),
+        )
+        for label, environment in cases:
+            with self.subTest(scope=label):
+                result = subprocess.run(
+                    ["bash", "-c", "\n".join(script or [])],
+                    check=False,
+                    capture_output=True,
+                    env=environment,
+                    text=True,
+                )
+                self.assertNotEqual(result.returncode, 0, result.stdout)
+
+    def test_nightly_status_requires_testcontainers_success_for_its_scope(self) -> None:
+        status_job = verifier._job_block(self.nightly, "nightly-status")
+        mutations = (
+            (
+                "Testcontainers dependency removed",
+                status_job.replace("      - test-testcontainers\n", "", 1),
+            ),
+            (
+                "plan dependency removed",
+                status_job.replace("      - plan\n", "", 1),
+            ),
+            (
+                "data dependency removed",
+                status_job.replace("      - test-data\n", "", 1),
+            ),
+            (
+                "Spring Docker dependency removed",
+                status_job.replace("      - test-spring-docker\n", "", 1),
+            ),
+            (
+                "Testcontainers Spring dependency removed",
+                status_job.replace("      - test-testcontainers-spring\n", "", 1),
+            ),
+            (
+                "coverage report dependency removed",
+                status_job.replace("      - coverage-report\n", "", 1),
+            ),
+            (
+                "Testcontainers result removed",
+                status_job.replace(
+                    "          TESTCONTAINERS_RESULT: ${{ needs.test-testcontainers.result }}\n",
+                    "",
+                    1,
+                ),
+            ),
+            (
+                "Testcontainers Spring result removed",
+                status_job.replace(
+                    "          TESTCONTAINERS_SPRING_RESULT: ${{ needs.test-testcontainers-spring.result }}\n",
+                    "",
+                    1,
+                ),
+            ),
+            (
+                "plan result removed",
+                status_job.replace(
+                    "          PLAN_RESULT: ${{ needs.plan.result }}\n", "", 1
+                ),
+            ),
+            (
+                "expected scope changed",
+                status_job.replace(
+                    "          EXPECTED_SCOPE: ${{ github.event_name == 'workflow_dispatch' && inputs.scope || github.event.schedule == '0 18 * * 0' && 'full' || 'smoke' }}\n",
+                    "          EXPECTED_SCOPE: ${{ inputs.scope }}\n",
+                    1,
+                ),
+            ),
+            (
+                "scope guard weakened",
+                status_job.replace(
+                    'if [ "$TESTCONTAINERS_RESULT" != success ]; then',
+                    'if [ "$SCOPE" = full ] && [ "$TESTCONTAINERS_RESULT" != success ]; then',
+                    1,
+                ),
+            ),
+            (
+                "Testcontainers skip allowed",
+                status_job.replace(
+                    'if [ "$TESTCONTAINERS_RESULT" != success ]; then',
+                    'if [ "$TESTCONTAINERS_RESULT" = failure ]; then',
+                    1,
+                ),
+            ),
+            (
+                "plan failure allowed",
+                status_job.replace(
+                    'if [ "$PLAN_RESULT" != success ]; then',
+                    'if [ "$PLAN_RESULT" = failure ]; then',
+                    1,
+                ),
+            ),
+            (
+                "full data failure allowed",
+                status_job.replace(
+                    'if [ "$SCOPE" = full ] && [ "$TEST_DATA_RESULT" != success ]; then',
+                    'if [ "$SCOPE" = never ] && [ "$TEST_DATA_RESULT" != success ]; then',
+                    1,
+                ),
+            ),
+            (
+                "full Spring Docker failure allowed",
+                status_job.replace(
+                    'if [ "$SCOPE" = full ] && [ "$TEST_SPRING_DOCKER_RESULT" != success ]; then',
+                    'if [ "$SCOPE" = never ] && [ "$TEST_SPRING_DOCKER_RESULT" != success ]; then',
+                    1,
+                ),
+            ),
+            (
+                "status job skip condition weakened",
+                status_job.replace("    if: always()\n", "    if: success()\n", 1),
+            ),
+            (
+                "status job failure masked",
+                status_job.replace(
+                    "  nightly-status:\n",
+                    "  nightly-status:\n    continue-on-error: true\n",
+                    1,
+                ),
+            ),
+            (
+                "status step skipped",
+                status_job.replace(
+                    "      - name: Check all jobs\n",
+                    "      - name: Check all jobs\n        if: false\n",
+                    1,
+                ),
+            ),
+            (
+                "status step failure masked",
+                status_job.replace(
+                    "      - name: Check all jobs\n",
+                    "      - name: Check all jobs\n        continue-on-error: true\n",
+                    1,
+                ),
+            ),
+            (
+                "status shell wraps and masks failure",
+                status_job.replace(
+                    "      - name: Check all jobs\n",
+                    "      - name: Check all jobs\n"
+                    "        shell: \"bash -c 'bash {0}; exit 0'\"\n",
+                    1,
+                ),
+            ),
+            (
+                "full skipped result allowed",
+                status_job.replace(
+                    'if [ "$result" != success ]; then',
+                    'if [ "$result" = failure ]; then',
+                    1,
+                ),
+            ),
+            (
+                "Testcontainers Spring skipped result allowed",
+                status_job.replace(
+                    'if { [ "$SCOPE" = full ] || [ "$SCOPE" = testcontainers ]; } && [ "$TESTCONTAINERS_SPRING_RESULT" != success ]; then',
+                    'if { [ "$SCOPE" = full ] || [ "$SCOPE" = testcontainers ]; } && [ "$TESTCONTAINERS_SPRING_RESULT" = failure ]; then',
+                    1,
+                ),
+            ),
+        )
+
+        for name, invalid_job in mutations:
+            with self.subTest(mutation=name):
+                self.assertNotEqual(invalid_job, status_job, name)
+                invalid = self.nightly.replace(status_job, invalid_job, 1)
+
+                errors = verifier.validate_nightly_mongodb_workflow(
+                    invalid, self.image_gate_manifest
+                )
+
+                self.assertTrue(
+                    any("Nightly status" in error for error in errors), errors
+                )
+
+    def test_nightly_required_scope_jobs_cannot_be_disabled(self) -> None:
+        cases = (
+            ("detekt", "smoke"),
+            ("test-core", "smoke"),
+            ("test-io", "standard"),
+            ("test-ktor", "standard"),
+            ("test-data", "standard"),
+            ("test-testcontainers-spring", "Testcontainers bridge"),
+            ("coverage-report", "Nightly coverage"),
+        )
+        for job_name, scope in cases:
+            with self.subTest(job=job_name):
+                job = verifier._job_block(self.nightly, job_name)
+                invalid_job = job.replace("    if:", "    if: false #", 1)
+                self.assertNotEqual(invalid_job, job)
+                invalid = self.nightly.replace(job, invalid_job, 1)
+
+                errors = verifier.validate_nightly_mongodb_workflow(
+                    invalid, self.image_gate_manifest
+                )
+
+                self.assertTrue(errors, errors)
+
+    def test_nightly_testcontainers_spring_bridge_test_step_is_fail_closed(
+        self,
+    ) -> None:
+        job = verifier._job_block(self.nightly, "test-testcontainers-spring")
+        step = verifier._named_step_block(job, "Test Testcontainers Spring bridge")
+        self.assertTrue(step)
+
+        step_mutations = (
+            (
+                "bridge test step skipped",
+                step.replace(
+                    "      - name: Test Testcontainers Spring bridge\n",
+                    "      - name: Test Testcontainers Spring bridge\n"
+                    "        if: false\n",
+                    1,
+                ),
+            ),
+            (
+                "bridge test step failure ignored",
+                step.replace(
+                    "      - name: Test Testcontainers Spring bridge\n",
+                    "      - name: Test Testcontainers Spring bridge\n"
+                    "        continue-on-error: true\n",
+                    1,
+                ),
+            ),
+            (
+                "bridge test step shell masks failure",
+                step.replace(
+                    "      - name: Test Testcontainers Spring bridge\n",
+                    "      - name: Test Testcontainers Spring bridge\n"
+                    "        shell: \"bash -c 'bash {0}; exit 0'\"\n",
+                    1,
+                ),
+            ),
+            (
+                "bridge test command masks failure",
+                step.replace(
+                    "run: ./gradlew :bluetape4k-testcontainers-spring:test --no-configuration-cache",
+                    "run: ./gradlew :bluetape4k-testcontainers-spring:test --no-configuration-cache || true",
+                    1,
+                ),
+            ),
+            (
+                "bridge test environment broadened",
+                step.replace(
+                    '          GRADLE_OPTS: "-Dorg.gradle.daemon=false"\n',
+                    '          GRADLE_OPTS: "-Dorg.gradle.daemon=false"\n'
+                    "          BASH_ENV: /tmp/ignored.sh\n",
+                    1,
+                ),
+            ),
+        )
+        mutations = [
+            (name, job.replace(step, invalid_step, 1))
+            for name, invalid_step in step_mutations
+        ]
+        mutations.append(
+            (
+                "bridge job failure ignored",
+                job.replace(
+                    "  test-testcontainers-spring:\n",
+                    "  test-testcontainers-spring:\n    continue-on-error: true\n",
+                    1,
+                ),
+            )
+        )
+
+        for name, invalid_job in mutations:
+            with self.subTest(mutation=name):
+                self.assertNotEqual(invalid_job, job, name)
+                invalid = self.nightly.replace(job, invalid_job, 1)
+
+                errors = verifier.validate_nightly_mongodb_workflow(
+                    invalid, self.image_gate_manifest
+                )
+
+                self.assertTrue(
+                    any("Testcontainers Spring bridge" in error for error in errors),
+                    errors,
+                )
+
+    def test_nightly_status_rejects_skipped_coverage_report(self) -> None:
+        status_job = verifier._job_block(self.nightly, "nightly-status")
+        status_step = verifier._named_step_block(status_job, "Check all jobs")
+        script = verifier._step_run_script(status_step)
+        self.assertIsNotNone(script)
+
+        result = subprocess.run(
+            ["bash", "-c", "\n".join(script or [])],
+            check=False,
+            capture_output=True,
+            env={
+                "EXPECTED_SCOPE": "smoke",
+                "PLAN_RESULT": "success",
+                "RESULTS": "success,success,success",
+                "SCOPE": "smoke",
+                "DETEKT_RESULT": "success",
+                "TEST_CORE_RESULT": "success",
+                "TEST_DATA_RESULT": "skipped",
+                "TEST_SPRING_DOCKER_RESULT": "skipped",
+                "TESTCONTAINERS_RESULT": "success",
+                "TESTCONTAINERS_SPRING_RESULT": "skipped",
+                "X64_GATE_RESULT": "skipped",
+                "COVERAGE_REPORT_RESULT": "skipped",
+            },
+            text=True,
+        )
+
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+
+    def test_nightly_image_gate_mongodb_job_pins_runner_and_reports_kernel(
+        self,
+    ) -> None:
+        errors = verifier.validate_nightly_mongodb_workflow(
+            self.nightly, self.image_gate_manifest
+        )
+
+        self.assertEqual(errors, [])
+        job = verifier._job_block(self.nightly, "test-testcontainers-image-gate-shard")
+        self.assertEqual(verifier._job_values(job, "runs-on"), ["ubuntu-24.04"])
+        diagnostics = verifier._named_step_block(job, "Report runner image and kernel")
+        self.assertTrue(diagnostics)
+
+    def test_nightly_image_gate_requires_all_four_shards(self) -> None:
+        job = verifier._job_block(self.nightly, "test-testcontainers-image-gate-shard")
+        invalid_job = job.replace(
+            "        shard: [0, 1, 2, 3]\n",
+            "        shard: [0, 1, 2]\n",
+            1,
+        )
+        invalid = self.nightly.replace(job, invalid_job, 1)
+
+        errors = verifier.validate_nightly_mongodb_workflow(
+            invalid, self.image_gate_manifest
+        )
+
+        self.assertTrue(
+            any(
+                "image-gate shard matrix must include exactly shards 0 through 3"
+                in error
+                for error in errors
+            ),
+            errors,
+        )
+
+    def test_image_gate_aggregate_cannot_mask_missing_or_failed_shards(self) -> None:
+        job = verifier._job_block(self.nightly, "test-testcontainers-image-gate")
+        step = verifier._named_step_block(
+            job, "Aggregate and verify image gate evidence"
+        )
+        mutations = (
+            step.replace(
+                '          test "$SHARD_RESULT" = success\n',
+                '          test "$SHARD_RESULT" = success || true\n',
+                1,
+            ),
+            step.replace(
+                '          test "$aggregate_exit" -eq 0\n',
+                '          test "$aggregate_exit" -eq 0 || true\n',
+                1,
+            ),
+            step.replace(
+                "      - name: Aggregate and verify image gate evidence\n",
+                "      - name: Aggregate and verify image gate evidence\n"
+                "        continue-on-error: true\n",
+                1,
+            ),
+            step.replace("        if: always()\n", "        if: false\n", 1),
+            step.replace(
+                "      - name: Aggregate and verify image gate evidence\n",
+                "      - name: Aggregate and verify image gate evidence\n"
+                "        shell: \"bash -c 'bash {0}; exit 0'\"\n",
+                1,
+            ),
+        )
+
+        for invalid_step in mutations:
+            with self.subTest(mutation="aggregate failure masking or skip"):
+                invalid_job = job.replace(step, invalid_step, 1)
+                invalid = self.nightly.replace(job, invalid_job, 1)
+
+                errors = verifier.validate_nightly_mongodb_workflow(
+                    invalid, self.image_gate_manifest
+                )
+
+                self.assertTrue(
+                    any("image-gate aggregate" in error for error in errors), errors
+                )
+
+        invalid_job = job.replace(
+            "    if: ${{ always() && needs.plan.outputs.scope == 'full' }}\n",
+            "    if: false\n",
+            1,
+        )
+        invalid = self.nightly.replace(job, invalid_job, 1)
+        errors = verifier.validate_nightly_mongodb_workflow(
+            invalid, self.image_gate_manifest
+        )
+        self.assertTrue(
+            any("image-gate aggregate" in error for error in errors), errors
+        )
+
+    def test_rejects_unsupported_runner_for_nightly_mongodb_image_gate(self) -> None:
+        job = verifier._job_block(self.nightly, "test-testcontainers-image-gate-shard")
+        invalid = self.nightly.replace(
+            job, job.replace("runs-on: ubuntu-24.04", "runs-on: ubuntu-22.04", 1), 1
+        )
+
+        errors = verifier.validate_nightly_mongodb_workflow(
+            invalid, self.image_gate_manifest
+        )
+
+        self.assertTrue(any("image-gate" in error for error in errors), errors)
+
+    def test_rejects_mongodb_image_gate_without_runner_kernel_diagnostics(
+        self,
+    ) -> None:
+        job = verifier._job_block(self.nightly, "test-testcontainers-image-gate-shard")
+        diagnostics = verifier._named_step_block(job, "Report runner image and kernel")
+        invalid = self.nightly.replace(job, job.replace(diagnostics, "", 1), 1)
+
+        errors = verifier.validate_nightly_mongodb_workflow(
+            invalid, self.image_gate_manifest
+        )
+
+        self.assertTrue(
+            any("image-gate runner diagnostics" in error for error in errors), errors
+        )
+
+    def test_mongodb_image_gate_execution_cannot_mask_failures(self) -> None:
+        job = verifier._job_block(self.nightly, "test-testcontainers-image-gate-shard")
+        run_step = verifier._named_step_block(
+            job, "Run image family gate shard sequentially"
+        )
+        invalid_step = run_step.replace(
+            "      - name: Run image family gate shard sequentially\n",
+            "      - name: Run image family gate shard sequentially\n"
+            "        continue-on-error: true\n",
+            1,
+        )
+        invalid = self.nightly.replace(job, job.replace(run_step, invalid_step, 1), 1)
+
+        errors = verifier.validate_nightly_mongodb_workflow(
+            invalid, self.image_gate_manifest
+        )
+
+        self.assertTrue(any("propagate failures" in error for error in errors), errors)
+
+        masked_command = run_step.replace(
+            "--job-budget-minutes 120",
+            "--job-budget-minutes 120 || true",
+            1,
+        )
+        invalid_command = self.nightly.replace(
+            job, job.replace(run_step, masked_command, 1), 1
+        )
+        command_errors = verifier.validate_nightly_mongodb_workflow(
+            invalid_command, self.image_gate_manifest
+        )
+        self.assertTrue(
+            any(
+                "image-gate execution must run full scope" in error
+                for error in command_errors
+            ),
+            command_errors,
+        )
+
+        invalid_shell_step = run_step.replace(
+            "      - name: Run image family gate shard sequentially\n",
+            "      - name: Run image family gate shard sequentially\n"
+            "        shell: \"bash -c 'bash {0}; exit 0'\"\n",
+            1,
+        )
+        invalid_shell = self.nightly.replace(
+            job, job.replace(run_step, invalid_shell_step, 1), 1
+        )
+        shell_errors = verifier.validate_nightly_mongodb_workflow(
+            invalid_shell, self.image_gate_manifest
+        )
+        self.assertTrue(
+            any(
+                "image-gate execution must run full scope" in error
+                for error in shell_errors
+            ),
+            shell_errors,
+        )
+
+        invalid_environment_step = run_step.replace(
+            "          DOCKER_AUTH_CONFIG: ${{ secrets.TESTCONTAINERS_DOCKER_AUTH_CONFIG }}\n",
+            "          DOCKER_AUTH_CONFIG: ${{ secrets.TESTCONTAINERS_DOCKER_AUTH_CONFIG }}\n"
+            "          UNPINNED_FLAG: true\n",
+            1,
+        )
+        invalid_environment = self.nightly.replace(
+            job, job.replace(run_step, invalid_environment_step, 1), 1
+        )
+        environment_errors = verifier.validate_nightly_mongodb_workflow(
+            invalid_environment, self.image_gate_manifest
+        )
+        self.assertTrue(
+            any(
+                "image-gate execution must run full scope" in error
+                for error in environment_errors
+            ),
+            environment_errors,
+        )
+
+    def test_image_gate_manifest_keeps_the_mongodb_workload(self) -> None:
+        errors = verifier.validate_mongodb_image_gate_manifest(self.image_gate_manifest)
+
+        self.assertEqual(errors, [])
+
+        invalid_manifest = self.image_gate_manifest.replace(
+            '"id": "mongo-d-b"', '"id": "mongo-db"', 1
+        )
+        errors = verifier.validate_mongodb_image_gate_manifest(invalid_manifest)
+
+        self.assertTrue(any("mongo-d-b" in error for error in errors), errors)
+
+    def test_rejects_latest_runner_for_nightly_mongodb_data_tests(self) -> None:
+        data_job = verifier._job_block(self.nightly, "test-data")
+        invalid_data_job = data_job.replace(
+            "runs-on: ${{ matrix.group == 'nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}",
+            "runs-on: ubuntu-latest",
+            1,
+        )
+        invalid = self.nightly.replace(data_job, invalid_data_job, 1)
+
+        errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+        self.assertTrue(any("compatible runner" in error for error in errors), errors)
+
+    def test_nightly_pins_only_the_nosql_data_group_to_supported_runner(self) -> None:
+        data_job = verifier._job_block(self.nightly, "test-data")
+        diagnostic = verifier._named_step_block(
+            data_job, "Report runner image and kernel"
+        )
+
+        self.assertEqual(
+            verifier._job_values(data_job, "runs-on"),
+            ["${{ matrix.group == 'nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}"],
+        )
+        self.assertEqual(
+            verifier._step_values(diagnostic, "if"),
+            ["${{ matrix.group == 'nosql' }}"],
+        )
+
+        invalid_job = data_job.replace(
+            "runs-on: ${{ matrix.group == 'nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}",
+            "runs-on: ubuntu-24.04",
+            1,
+        )
+        invalid = self.nightly.replace(data_job, invalid_job, 1)
+        errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+        self.assertTrue(any("nosql group" in error for error in errors), errors)
+
+    def test_rejects_latest_runner_for_nightly_spring_boot_mongodb_tests(self) -> None:
+        spring_job = verifier._job_block(self.nightly, "test-spring-docker")
+        invalid_spring_job = spring_job.replace(
+            "runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}",
+            "runs-on: ubuntu-latest",
+            1,
+        )
+        invalid = self.nightly.replace(spring_job, invalid_spring_job, 1)
+
+        errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+        self.assertTrue(
+            any("compatible runner" in error for error in errors),
+            errors,
+        )
+
+    def test_rejects_nightly_mongodb_test_task_outside_expected_matrix_group(
+        self,
+    ) -> None:
+        spring_job = verifier._job_block(self.nightly, "test-spring-docker")
+        invalid_spring_job = spring_job.replace(
+            "              :bluetape4k-spring-boot-mongodb:test",
+            "              :bluetape4k-spring-boot-cassandra:test",
+            1,
+        ).replace(
+            "          - group: demos\n            test_tasks: >-\n"
+            "              :bluetape4k-examples-cassandra-demo:test",
+            "          - group: demos\n            test_tasks: >-\n"
+            "              :bluetape4k-spring-boot-mongodb:test",
+            1,
+        )
+        invalid = self.nightly.replace(spring_job, invalid_spring_job, 1)
+
+        errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+        self.assertTrue(any("MongoDB test task" in error for error in errors), errors)
+
+    def test_rejects_nightly_runner_diagnostics_after_mongodb_tests(self) -> None:
+        data_job = verifier._job_block(self.nightly, "test-data")
+        diagnostic = verifier._named_step_block(
+            data_job, "Report runner image and kernel"
+        )
+        self.assertTrue(diagnostic)
+        invalid_data_job = data_job.replace(diagnostic, "", 1)
+        invalid_data_job = invalid_data_job.replace(
+            "      - name: Generate Kover XML report",
+            diagnostic + "\n\n      - name: Generate Kover XML report",
+            1,
+        )
+        invalid = self.nightly.replace(data_job, invalid_data_job, 1)
+
+        errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+        self.assertTrue(
+            any("diagnostics must precede" in error for error in errors), errors
+        )
+
+    def test_rejects_comment_decoy_for_runner_diagnostics(self) -> None:
+        spring_boot_job = verifier._job_block(self.ci, "test-spring-boot")
+        diagnostics_step = verifier._named_step_block(
+            spring_boot_job, "Report runner image and kernel"
+        )
+        invalid_step = diagnostics_step
+        for command in (
+            'echo "ImageOS=${ImageOS:-<unset>}"',
+            'echo "ImageVersion=${ImageVersion:-<unset>}"',
+            "cat /etc/os-release",
+            "uname -r",
+        ):
+            invalid_step = invalid_step.replace(
+                f"          {command}", f"          # {command}", 1
+            )
+        invalid_spring_boot_job = spring_boot_job.replace(
+            diagnostics_step, invalid_step, 1
+        )
+        invalid = self.ci.replace(spring_boot_job, invalid_spring_boot_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("runner diagnostics" in error for error in errors), errors)
+
+    def test_rejects_runner_diagnostics_shell_and_failure_masking(self) -> None:
+        cases = (
+            (
+                "CI Test/Data",
+                self.ci,
+                "test-data",
+                lambda workflow: verifier.validate_workflows(workflow, self.submission),
+            ),
+            (
+                "CI Spring Boot",
+                self.ci,
+                "test-spring-boot",
+                lambda workflow: verifier.validate_workflows(workflow, self.submission),
+            ),
+            (
+                "Nightly Test/Data",
+                self.nightly,
+                "test-data",
+                verifier.validate_nightly_mongodb_workflow,
+            ),
+            (
+                "Nightly Spring Boot",
+                self.nightly,
+                "test-spring-docker",
+                verifier.validate_nightly_mongodb_workflow,
+            ),
+            (
+                "Nightly Testcontainers storage-cache",
+                self.nightly,
+                "test-testcontainers",
+                verifier.validate_nightly_mongodb_workflow,
+            ),
+            (
+                "Nightly image-gate shard",
+                self.nightly,
+                "test-testcontainers-image-gate-shard",
+                verifier.validate_nightly_mongodb_workflow,
+            ),
+        )
+        mutations = (
+            (
+                "shell override",
+                "        shell: bash -c 'set +e' -- {0}\n",
+            ),
+            ("continue-on-error", "        continue-on-error: true\n"),
+            ("early successful exit", "          exit 0\n"),
+        )
+        for label, workflow, job_name, validate in cases:
+            with self.subTest(job=label):
+                job = verifier._job_block(workflow, job_name)
+                step = verifier._named_step_block(job, "Report runner image and kernel")
+                self.assertTrue(step)
+                for mutation, inserted in mutations:
+                    with self.subTest(mutation=mutation):
+                        if mutation == "early successful exit":
+                            invalid_step = step.replace(
+                                '          echo "ImageOS=',
+                                inserted + '          echo "ImageOS=',
+                                1,
+                            )
+                        else:
+                            invalid_step = step.replace(
+                                "        run: |\n", inserted + "        run: |\n", 1
+                            )
+                        self.assertNotEqual(invalid_step, step)
+                        invalid_job = job.replace(step, invalid_step, 1)
+                        invalid_workflow = workflow.replace(job, invalid_job, 1)
+
+                        errors = validate(invalid_workflow)
+
+                        self.assertTrue(
+                            any("runner diagnostics" in error for error in errors),
+                            errors,
+                        )
+
+    def test_nightly_rejects_workflow_and_job_shell_defaults(self) -> None:
+        job = verifier._job_block(self.nightly, "test-data")
+        mutations = (
+            (
+                "workflow defaults",
+                self.nightly.replace(
+                    "jobs:\n",
+                    "defaults:\n  run:\n    shell: bash -c 'exit 0' -- {0}\n\njobs:\n",
+                    1,
+                ),
+            ),
+            (
+                "job defaults",
+                self.nightly.replace(
+                    job,
+                    job.replace(
+                        "    steps:\n",
+                        "    defaults:\n"
+                        "      run:\n"
+                        "        shell: bash -c 'exit 0' -- {0}\n"
+                        "    steps:\n",
+                        1,
+                    ),
+                    1,
+                ),
+            ),
+        )
+        for description, invalid in mutations:
+            with self.subTest(scope=description):
+                errors = verifier.validate_nightly_mongodb_workflow(invalid)
+
+                self.assertTrue(
+                    any("custom run shell defaults" in error for error in errors),
+                    errors,
+                )
+
+    def test_rejects_runner_diagnostics_after_spring_boot_test_step(self) -> None:
+        spring_boot_job = verifier._job_block(self.ci, "test-spring-boot")
+        diagnostics = verifier._named_step_block(
+            spring_boot_job, "Report runner image and kernel"
+        )
+        test_step = verifier._named_step_block(
+            spring_boot_job, "Test Spring Boot modules (${{ matrix.group }})"
+        )
+        without_diagnostics = spring_boot_job.replace(diagnostics, "", 1)
+        test_step = verifier._named_step_block(
+            without_diagnostics, "Test Spring Boot modules (${{ matrix.group }})"
+        )
+        invalid_spring_boot_job = without_diagnostics.replace(
+            test_step, test_step + "\n\n" + diagnostics, 1
+        )
+        invalid = self.ci.replace(spring_boot_job, invalid_spring_boot_job, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any(
+                "Spring Boot runner diagnostics must precede the test step" in error
+                for error in errors
+            ),
+            errors,
+        )
 
     def test_rejects_catalog_tag_as_the_canonical_ref(self) -> None:
         invalid = self.ci.replace(

@@ -1389,7 +1389,7 @@ jobs:
   # ── 7-c. Data 모듈 테스트 (Testcontainers) ───────────────────────────────
   test-data:
     name: Test / Data
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 75
     needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs.data == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -1407,6 +1407,14 @@ jobs:
         with:
           gradle-version: wrapper
           cache-read-only: true
+
+      - name: Report runner image and kernel
+        shell: bash
+        run: |
+          echo "ImageOS=${ImageOS:-<unset>}"
+          echo "ImageVersion=${ImageVersion:-<unset>}"
+          cat /etc/os-release
+          uname -r
 
       - name: Test data modules
         uses: nick-fields/retry@v4
@@ -1465,7 +1473,7 @@ jobs:
   # spring-boot/** 변경이 PR CI에서 테스트 없이 통과하지 않도록 한다.
   test-spring-boot:
     name: Test / Spring Boot (${{ matrix.group }})
-    runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}
     timeout-minutes: 75
     needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['spring-boot'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -1510,6 +1518,15 @@ jobs:
         with:
           gradle-version: wrapper
           cache-read-only: true
+
+      - name: Report runner image and kernel
+        if: ${{ matrix.group == 'batch-nosql' }}
+        shell: bash
+        run: |
+          echo "ImageOS=${ImageOS:-<unset>}"
+          echo "ImageVersion=${ImageVersion:-<unset>}"
+          cat /etc/os-release
+          uname -r
 
       - name: Build mock-web-server Docker image
         run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache

@@ -2,7 +2,7 @@
 
 ## 맥락
 
-Projects의 중앙 버전 소유권 catalog는 Gradle 내부 alias의 버전 정보를 중앙 관리하지만 GitHub Dependabot이 읽는 표준 경로와 같지 않았다. Issue #1832는 Gradle 보안 업데이트가 제출된 dependency graph에서 catalog 관리 좌표를 찾지 못해 종료되는 현상을 다룬다. 현재 GitHub issue는 OPEN이다. 2026-10-20 조회에서 FreeMarker alert #235도 CRITICAL 상태로 OPEN이었다.
+Projects의 중앙 버전 소유권 catalog는 Gradle 내부 alias의 버전 정보를 중앙 관리하지만 GitHub Dependabot이 읽는 표준 경로와 같지 않았다. Issue #1832는 Gradle 보안 업데이트가 제출된 dependency graph에서 catalog 관리 좌표를 찾지 못해 종료되는 현상을 다룬다. 2026-10-20 조회 당시 GitHub issue는 OPEN이었고, FreeMarker alert #235도 CRITICAL 상태로 OPEN이었다.
 
 FreeMarker 보안 공지는 2.3.34 이하를 영향 범위, 2.3.35를 수정 버전으로 지정한다. Projects build 설정은 Dokka 구성에서 중앙 catalog 버전을 선택하고, 최소 2.3.35 아래로 내려가면 빌드를 실패시킨다. [GitHub advisory](https://github.com/advisories/GHSA-27j2-h3m2-8237)와 [Apache 2.3.35 릴리스 노트](https://freemarker.apache.org/docs/versions_2_3_35.html)를 참조한다.
 
@@ -19,7 +19,7 @@ Projects의 기존 catalog를 versionless 원본으로 분리하고, 중앙 mapp
 - 외부 1.9.2-SNAPSHOT artifact 검사 한 건은 HTTP 403으로 건너뛰었다. 제품 테스트 실패로 계산하지 않는다.
 - 98개 Dokka configuration에서 FreeMarker 2.3.35와 jsoup 1.23.2를 확인했다. 13개 게시 모듈의 POM과 Gradle Module Metadata는 26개 모두 baseline과 byte-identical했다.
 - 대상 모듈 classes와 mock-web-server/mock-webflux-server Jib 빌드가 앞선 검증에서 통과했다.
-- 이 결과는 parser PR CI나 hosted Dependabot 성공을 뜻하지 않는다. 현재 FreeMarker alert #235는 계속 OPEN이며 Issue #1832도 해결 처리하지 않는다.
+- 이 결과는 parser PR CI나 hosted Dependabot 성공을 뜻하지 않는다. 2026-10-20 당시 FreeMarker alert #235는 계속 OPEN이었으며, 그 시점의 결과만으로 Issue #1832를 해결 처리하지 않았다.
 
 ## 놓친 점과 재발 방지
 
@@ -59,19 +59,17 @@ run `39408775102`의 나머지 product jobs는 합성 merge tree를 대상으로
 
 ## MongoDB Testcontainers와 Actions runner 커널 호환성
 
-run `39408775102`의 `Test / Spring Boot (batch-nosql)`은 세 번 재시도한 뒤 `ReactiveMongoOperationsCoroutinesTest` 실패로 종료됐다. 테스트 결과 artifact에는 66개 테스트 중 1개 실패가 기록됐고, 원인은 `mongo:8.0.28`이 runner kernel에서 시작을 거부한 것이다. 컨테이너 로그는 Linux kernel `6.19` 이상에 알려진 비호환이 있다고 명시한다. 이는 catalog parser/generator 실패가 아니며, 실행된 MongoDB integration test의 환경 차단으로 분류한다.
-
-[MongoDB 8.0 공식 릴리스 노트](https://www.mongodb.com/docs/manual/release-notes/8.0/)는 kernel `6.19`부터 `7.0.13`까지를 비호환 범위로 안내하고 `7.0.14` 이상을 해결 범위로 든다. 당시 GitHub `ubuntu-latest` job은 Mongo가 거부한 kernel에서 실행됐다. 통합 테스트는 현재 kernel `6.8.0-1070-azure`인 [Ubuntu 22.04 runner 이미지](https://github.com/actions/runner-images/releases/tag/ubuntu22/20261018.327)에서 실행하도록 좁게 고정했다.
-
-Ubuntu 22.04 runner 계열은 2026-09-17부터 deprecation 단계에 들어갔고 2027-04-17 지원 종료가 예정되어 있다. 따라서 이번 고정은 임시 대응이다. 후속 추적 Issue [#1839](https://github.com/bluetape4k/bluetape4k-projects/issues/1839)는 지원되는 runner/kernel 조합으로 이전하고 pin을 제거하도록 2.1.0 milestone에 등록했다. 새 exact-head CI가 Test/Data 및 Spring Boot batch-nosql 결과를 확인하기 전에는 이 수정의 hosted 검증을 완료로 보지 않는다.
+Issue #1839는 MongoDB 8.0이 fatal log에서 kernel `6.19+` 비호환을 보고한 문제와 지원 runner로의 이전을 추적한다. 당시 artifact에는 정확한 runner kernel이 없어 실제 실행 kernel은 확인되지 않았다. 장애 근거, workflow 변경, verifier 회귀, hosted 검증 경계는 [Issue #1839 lesson](2026-10-24-issue-1839-mongodb-runner-kernel.md)에 기록한다.
 
 ## 전달 경계
 
-마지막으로 확인한 Projects 원격 PR head는 `18b67202fdc870ab5c2baab40fca756f115f6052`다. 이 문서와 workflow 보완은 해당 commit 위의 로컬 미커밋 변경이므로 이전 CI나 review가 새 코드를 증명하지 않는다. 변경을 push한 뒤 새 exact-head CI와 독립 리뷰를 확인한다. CI의 제품 job은 PR head를 테스트하고, 별도 merge-result job은 GitHub의 synthetic merge commit에서 workflow contract만 실행한다. 이 두 결과는 서로 다른 범위다. GitHub는 `pull_request` 이벤트의 `github.sha`를 merge branch의 merge commit으로 정의한다([공식 문서](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)). merge 후 exact-SHA Dependency Submission과 실제 hosted Dependabot 재실행으로 alert #235를 확인하기 전까지 Issue #1832를 열어 두고 보안 문제가 해결됐다고 보고하지 않는다.
+2026-10-20 당시 마지막으로 확인한 Projects 원격 PR head는 `18b67202fdc870ab5c2baab40fca756f115f6052`다. 이 문서와 workflow 보완은 해당 commit 위의 로컬 미커밋 변경이므로 이전 CI나 review가 새 코드를 증명하지 않는다. 변경을 push한 뒤 새 exact-head CI와 독립 리뷰를 확인한다. CI의 제품 job은 PR head를 테스트하고, 별도 merge-result job은 GitHub의 synthetic merge commit에서 workflow contract만 실행한다. 이 두 결과는 서로 다른 범위다. GitHub는 `pull_request` 이벤트의 `github.sha`를 merge branch의 merge commit으로 정의한다([공식 문서](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)). 2026-10-20 당시에는 merge 후 exact-SHA Dependency Submission과 실제 hosted Dependabot 재실행으로 alert #235를 확인하기 전까지 Issue #1832를 열어 두고 보안 문제가 해결됐다고 보고하지 않기로 했다.
+
+2026-10-24 live read-back에서 Issue #1832는 `CLOSED`이고 Dependabot alert #235는 `open`이며 `fixed_at=null`이다. Issue 종료 상태만으로 alert 해결을 증명할 수 없다([Issue #1832](https://github.com/bluetape4k/bluetape4k-projects/issues/1832), [alert #235](https://github.com/bluetape4k/bluetape4k-projects/security/dependabot/235)).
 
 ## Workflow validator가 놓친 checkout 경계
 
-원격 HEAD `18b67202fdc870ab5c2baab40fca756f115f6052`를 본 독립 리뷰는 verifier가 `repository:`가 있는 모든 checkout을 건너뛰어 명시적인 Projects 저장소 checkout이 `PROJECTS_EXPECTED_SHA` 검사를 우회할 수 있다고 지적했다(P2). architecture review는 checkout 탐지가 `actions/checkout@v7`만 인식해 다른 action major의 누락을 놓칠 수 있고, 허용된 외부 repository/ref 조합을 완전히 고정하지 않은 점도 지적했다. 같은 review에서 PR synthetic merge result 검증 job과 `dorny/paths-filter@v4`에 필요한 `pull-requests: read` 권한이 빠진 점, Test/Data runner 규칙에 독립 negative test가 없는 점도 확인했다.
+2026-10-20에 확인한 원격 HEAD `18b67202fdc870ab5c2baab40fca756f115f6052`를 대상으로 한 독립 리뷰는 verifier가 `repository:`가 있는 모든 checkout을 건너뛰어 명시적인 Projects 저장소 checkout이 `PROJECTS_EXPECTED_SHA` 검사를 우회할 수 있다고 지적했다(P2). architecture review는 checkout 탐지가 `actions/checkout@v7`만 인식해 다른 action major의 누락을 놓칠 수 있고, 허용된 외부 repository/ref 조합을 완전히 고정하지 않은 점도 지적했다. 같은 review에서 PR synthetic merge result 검증 job과 `dorny/paths-filter@v4`에 필요한 `pull-requests: read` 권한이 빠진 점, Test/Data runner 규칙에 독립 negative test가 없는 점도 확인했다.
 
 보완 후보는 모든 `actions/checkout@...`을 찾고, repository가 생략됐거나 `bluetape4k/bluetape4k-projects` 또는 `${{ github.repository }}`인 경우 first-party checkout으로 분류해 `PROJECTS_EXPECTED_SHA`를 요구한다. 나머지 external checkout은 job, repository, ref, path의 allowlist와 전체 inventory에 맞아야 한다. 이 계약을 지키지 않는 first-party/ref/외부 checkout 테스트를 추가했다. `changes` job에는 `contents: read`와 `pull-requests: read`를 주고, PR event에서 `github.sha`를 checkout해 head와 base가 포함됐는지 확인한 뒤 workflow contract만 실행하는 `test-merge-result` job을 추가했다. 이 권한은 [dorny/paths-filter 공식 README](https://github.com/dorny/paths-filter)가 PR 파일 조회에 요구한다. Test/Data의 `ubuntu-latest` 금지 규칙도 별도 negative test로 고정했다.
 
@@ -185,3 +183,7 @@ Workflow verifier는 중요 명령의 존재만 검사해서는 충분하지 않
 독립 reviewer lane은 startup ACK 제한 시간을 넘겨 종료됐으며 판정을 내지 않았다. PR 리뷰 기록에 남긴 inline fallback은 독립 attestation이 아니다. 최종 PR head의 CI는 별도로 확인하고, merge 이후 Dependency Submission과 hosted Dependabot 결과를 읽기 전까지 Issue #1832와 alert #235는 해결 처리하지 않는다.
 
 **3576d10 후속 lesson writer DoD (2026-10-21):** SPW-01–05 PASS—독자, PR base/code head, 취약 환경 변수, 정확한 verifier·테스트와 검증 결과를 원본에 대조하고 한국어 자연스러움 및 최종 Markdown read-back을 완료했다. KO-01–KO-07 PASS—기술 용어, 수치, 식별자, 불확실성과 독자 표면을 확인하고 terminology audit 결과를 기록했다.
+
+## 2026-10-24 GitHub 상태 재확인
+
+GitHub live read-back에서 Issue #1832는 `2026-10-21T10:59:47Z`에 닫혔지만, FreeMarker alert #235는 여전히 `open`이며 `fixed_at`은 `null`이다. 이 두 상태는 일치하지 않는다. 이슈 종료만으로 alert가 해결됐다고 판정하지 않으며, 이 문서의 10월 20일·21일 기록은 당시 시점의 관찰로 읽는다.
