@@ -32,8 +32,14 @@ EXPECTED_MERGE_RESULT_VERIFY_SCRIPT = (
     'test "$merge_result_sha" = "$GITHUB_SHA"',
     'git merge-base --is-ancestor "$PR_HEAD_SHA" "$merge_result_sha"',
     'git merge-base --is-ancestor "$PR_BASE_SHA" "$merge_result_sha"',
+    'test -n "$PR_BASE_REF"',
+    'git fetch --no-tags origin "refs/heads/$PR_BASE_REF:refs/remotes/origin/$PR_BASE_REF"',
+    'current_base_sha="$(git rev-parse "origin/$PR_BASE_REF")"',
+    'git merge-base --is-ancestor "$current_base_sha" "$PR_HEAD_SHA"',
     'echo "pr head=$PR_HEAD_SHA"',
     'echo "pr base=$PR_BASE_SHA"',
+    'echo "current base ref=$PR_BASE_REF"',
+    'echo "current base sha=$current_base_sha"',
     'echo "merge result=$merge_result_sha"',
 )
 EXPECTED_DEPENDABOT_PARSER_CONTRACT_SCRIPT = (
@@ -1898,6 +1904,23 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         errors.append(
             "dependency-submission workflow must not use YAML anchors and aliases in environment mappings"
         )
+    on_block = _top_level_block(ci_text, "on")
+    pull_request_match = re.search(r"(?m)^  pull_request:\s*$", on_block)
+    if pull_request_match is None:
+        errors.append("CI must define a pull_request trigger")
+    else:
+        following = re.search(
+            r"(?m)^  [A-Za-z_][A-Za-z0-9_-]*:\s*$",
+            on_block[pull_request_match.end() :],
+        )
+        pull_request_trigger = on_block[
+            pull_request_match.start() : pull_request_match.end()
+            + (following.start() if following else len(on_block))
+        ]
+        if re.search(r"(?m)^\s+paths(?:-ignore)?:\s*$", pull_request_trigger):
+            errors.append(
+                "CI pull_request trigger must not use path filters that can skip the required status check"
+            )
     expected_sha_values = _workflow_env_values(ci_text, "PROJECTS_EXPECTED_SHA")
     if len(expected_sha_values) != 1:
         errors.append("CI must define exactly one top-level PROJECTS_EXPECTED_SHA")
@@ -2376,6 +2399,7 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             "        env:",
             "          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}",
             "          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}",
+            "          PR_BASE_REF: ${{ github.base_ref }}",
         ]
         if _step_env_block(verify_merge_step) != expected_step_env:
             errors.append(
@@ -2384,21 +2408,24 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         verify_script_text = "\n".join(verify_script or [])
         if re.search(
             r"(?m)(?:^|[;&|]\s*)(?:export\s+|declare\s+(?:-x\s+)?|readonly\s+)?"
-            r"PR_(?:HEAD|BASE)_SHA(?:\s*\+?=|\s+)",
+            r"PR_(?:HEAD|BASE)_(?:SHA|REF)(?:\s*\+?=|\s+)",
             verify_script_text,
         ) or re.search(
-            r"(?m)^\s*unset\s+.*\bPR_(?:HEAD|BASE)_SHA\b", verify_script_text
-        ):
-            errors.append("PR_HEAD_SHA and PR_BASE_SHA must not be reassigned")
-        if "GITHUB_ENV" in merge_result and re.search(
-            r"\bPR_(?:HEAD|BASE)_SHA\b", merge_result
+            r"(?m)^\s*unset\s+.*\bPR_(?:HEAD|BASE)_(?:SHA|REF)\b", verify_script_text
         ):
             errors.append(
-                "PR merge-result job must not write PR SHA values to GITHUB_ENV"
+                "PR_HEAD_SHA and PR_BASE_SHA must not be reassigned; PR_BASE_REF must not be reassigned"
+            )
+        if "GITHUB_ENV" in merge_result and re.search(
+            r"\bPR_(?:HEAD|BASE)_(?:SHA|REF)\b", merge_result
+        ):
+            errors.append(
+                "PR merge-result job must not write PR SHA values to GITHUB_ENV; PR_BASE_REF must not be written there"
             )
         for name, expected in (
             ("PR_HEAD_SHA", "${{ github.event.pull_request.head.sha }}"),
             ("PR_BASE_SHA", "${{ github.event.pull_request.base.sha }}"),
+            ("PR_BASE_REF", "${{ github.base_ref }}"),
         ):
             if _step_env_value(verify_merge_step, name) != expected:
                 errors.append(
