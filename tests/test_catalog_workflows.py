@@ -3194,6 +3194,107 @@ class CatalogWorkflowsTest(unittest.TestCase):
         self.assertIn("dependabot_core_commit", governance)
         self.assertIn("parser-receipt.json", governance)
 
+    def test_projects_ci_verifies_and_uploads_all_catalog_provenance_evidence(self) -> None:
+        governance = verifier._job_block(self.ci, "catalog-governance")
+        verification = verifier._named_step_block(
+            governance, "Verify catalog provenance evidence"
+        )
+        upload = verifier._named_step_block(
+            governance, "Upload catalog provenance evidence"
+        )
+
+        self.assertEqual(
+            verifier._step_run_script(verification),
+            list(verifier.EXPECTED_CATALOG_EVIDENCE_VERIFICATION_SCRIPT),
+        )
+        self.assertEqual(verifier._step_values(verification, "if"), ["always()"])
+        self.assertEqual(verifier._step_values(verification, "shell"), ["bash"])
+        self.assertEqual(
+            verifier._step_values(upload, "uses"), ["actions/upload-artifact@v7"]
+        )
+        self.assertEqual(verifier._step_values(upload, "if"), ["always()"])
+        self.assertEqual(
+            verifier._step_with_input_keys(upload),
+            list(verifier.EXPECTED_CATALOG_EVIDENCE_ARTIFACT_INPUTS),
+        )
+        self.assertLess(
+            verifier._named_step_index(governance, "Verify catalog provenance evidence"),
+            verifier._named_step_index(governance, "Upload catalog provenance evidence"),
+        )
+        self.assertIn("path: .gradle/issue-1832-evidence/**", upload)
+        self.assertIn("if-no-files-found: warn", upload)
+
+    def test_rejects_missing_catalog_provenance_upload(self) -> None:
+        upload = verifier._named_step_block(
+            verifier._job_block(self.ci, "catalog-governance"),
+            "Upload catalog provenance evidence",
+        )
+        invalid = self.ci.replace(upload, "", 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("must upload catalog provenance evidence" in error for error in errors),
+            errors,
+        )
+
+    def test_rejects_narrow_catalog_provenance_artifact_path(self) -> None:
+        upload = verifier._named_step_block(
+            verifier._job_block(self.ci, "catalog-governance"),
+            "Upload catalog provenance evidence",
+        )
+        invalid_upload = upload.replace(
+            "path: .gradle/issue-1832-evidence/**",
+            "path: .gradle/issue-1832-evidence/parser-receipt.json",
+            1,
+        )
+        invalid = self.ci.replace(upload, invalid_upload, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("complete evidence directory" in error for error in errors),
+            errors,
+        )
+
+    def test_rejects_selective_catalog_provenance_validation(self) -> None:
+        verification = verifier._named_step_block(
+            verifier._job_block(self.ci, "catalog-governance"),
+            "Verify catalog provenance evidence",
+        )
+        invalid_verification = verification.replace(
+            "candidate-lock.json",
+            "parser-receipt.json",
+            1,
+        )
+        invalid = self.ci.replace(verification, invalid_verification, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("require all four regular files" in error for error in errors),
+            errors,
+        )
+
+    def test_rejects_optional_catalog_provenance_artifact_missing_policy(self) -> None:
+        upload = verifier._named_step_block(
+            verifier._job_block(self.ci, "catalog-governance"),
+            "Upload catalog provenance evidence",
+        )
+        invalid_upload = upload.replace(
+            "if-no-files-found: warn",
+            "if-no-files-found: ignore",
+            1,
+        )
+        invalid = self.ci.replace(upload, invalid_upload, 1)
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any("partial failure evidence" in error for error in errors),
+            errors,
+        )
+
     def test_gradle_catalog_tag_resolves_with_its_pinned_commit(self) -> None:
         settings = (ROOT / "settings.gradle.kts").read_text()
 
