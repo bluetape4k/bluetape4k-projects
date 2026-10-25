@@ -396,6 +396,33 @@ jobs:
             -p 'test_project_dependabot_catalog.py'
           python3.13 -m unittest tests.test_catalog_workflows
           python3.13 scripts/verify-catalog-workflows.py
+      - name: Verify catalog provenance evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          evidence_dir="$GITHUB_WORKSPACE/.gradle/issue-1832-evidence"
+          required_files=(
+            parser-receipt.json
+            repository-map.json
+            generator-receipt.json
+            candidate-lock.json
+          )
+          for file in "${required_files[@]}"; do
+            path="$evidence_dir/$file"
+            if [[ ! -f "$path" || -L "$path" ]]; then
+              echo "Catalog provenance evidence must be a regular file: $path" >&2
+              exit 1
+            fi
+          done
+      - name: Upload catalog provenance evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: catalog-provenance
+          path: .gradle/issue-1832-evidence/**
+          if-no-files-found: warn
+          retention-days: 30
       - name: Check central catalog adoption
         run: |
           python3.13 .gradle/catalog-source/bluetape4k-dependencies/scripts/sync-shared-versions.py \

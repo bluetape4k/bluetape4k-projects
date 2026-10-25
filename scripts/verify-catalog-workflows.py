@@ -94,6 +94,29 @@ EXPECTED_CATALOG_VERIFICATION_SCRIPT = (
     "python3.13 -m unittest tests.test_catalog_workflows",
     "python3.13 scripts/verify-catalog-workflows.py",
 )
+EXPECTED_CATALOG_EVIDENCE_VERIFICATION_SCRIPT = (
+    "set -euo pipefail",
+    'evidence_dir="$GITHUB_WORKSPACE/.gradle/issue-1832-evidence"',
+    "required_files=(",
+    "parser-receipt.json",
+    "repository-map.json",
+    "generator-receipt.json",
+    "candidate-lock.json",
+    ")",
+    'for file in "${required_files[@]}"; do',
+    'path="$evidence_dir/$file"',
+    'if [[ ! -f "$path" || -L "$path" ]]; then',
+    'echo "Catalog provenance evidence must be a regular file: $path" >&2',
+    "exit 1",
+    "fi",
+    "done",
+)
+EXPECTED_CATALOG_EVIDENCE_ARTIFACT_INPUTS = (
+    "name",
+    "path",
+    "if-no-files-found",
+    "retention-days",
+)
 EXPECTED_CI_STATUS_SCRIPT = (
     'echo "Job results: $RESULTS"',
     'if [[ "$CATALOG_GOVERNANCE_RESULT" != "success" ]]; then',
@@ -935,7 +958,7 @@ def _named_step_index(job: str, name: str) -> int | None:
     matches = [
         index
         for index, step in enumerate(_step_blocks(job))
-        if _step_value(step, "name") == name
+        if step.splitlines()[:1] == [f"      - name: {name}"]
     ]
     return matches[0] if len(matches) == 1 else None
 
@@ -2283,6 +2306,82 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         if _step_values(catalog_step, "shell"):
             errors.append(
                 "catalog verification step must not override the fail-closed shell"
+            )
+
+        evidence_verify_step = _named_step_block(
+            governance, "Verify catalog provenance evidence"
+        )
+        if not evidence_verify_step:
+            errors.append(
+                "catalog-governance must verify all catalog provenance evidence files"
+            )
+        else:
+            if _step_values(evidence_verify_step, "if") != ["always()"]:
+                errors.append(
+                    "catalog provenance evidence verification must run on success and failure"
+                )
+            if _step_values(evidence_verify_step, "shell") != ["bash"]:
+                errors.append(
+                    "catalog provenance evidence verification must use the bash shell"
+                )
+            if _step_run_script(evidence_verify_step) != list(
+                EXPECTED_CATALOG_EVIDENCE_VERIFICATION_SCRIPT
+            ):
+                errors.append(
+                    "catalog provenance evidence verification must require all four regular files"
+                )
+            if _indented_values(evidence_verify_step, "continue-on-error", 8):
+                errors.append(
+                    "catalog provenance evidence verification must fail closed"
+                )
+
+        evidence_upload_step = _named_step_block(
+            governance, "Upload catalog provenance evidence"
+        )
+        if not evidence_upload_step:
+            errors.append(
+                "catalog-governance must upload catalog provenance evidence"
+            )
+        else:
+            if _step_values(evidence_upload_step, "if") != ["always()"]:
+                errors.append(
+                    "catalog provenance evidence upload must run on success and failure"
+                )
+            if _step_values(evidence_upload_step, "uses") != [
+                "actions/upload-artifact@v7"
+            ]:
+                errors.append(
+                    "catalog provenance evidence must use actions/upload-artifact@v7"
+                )
+            if _step_with_input_keys(evidence_upload_step) != list(
+                EXPECTED_CATALOG_EVIDENCE_ARTIFACT_INPUTS
+            ):
+                errors.append(
+                    "catalog provenance evidence upload must use the complete artifact input set"
+                )
+            with_block = _step_with_block(evidence_upload_step) or []
+            with_text = "\n".join(with_block)
+            if "path: .gradle/issue-1832-evidence/**" not in with_text:
+                errors.append(
+                    "catalog provenance evidence artifact must upload the complete evidence directory"
+                )
+            if "if-no-files-found: warn" not in with_text:
+                errors.append(
+                    "catalog provenance evidence artifact must preserve partial failure evidence"
+                )
+        evidence_verify_index = _named_step_index(
+            governance, "Verify catalog provenance evidence"
+        )
+        evidence_upload_index = _named_step_index(
+            governance, "Upload catalog provenance evidence"
+        )
+        if (
+            evidence_verify_index is None
+            or evidence_upload_index is None
+            or evidence_verify_index >= evidence_upload_index
+        ):
+            errors.append(
+                "catalog provenance evidence must be verified before artifact upload"
             )
 
     unsafe_ci_environment = _unsafe_execution_environment_names(
