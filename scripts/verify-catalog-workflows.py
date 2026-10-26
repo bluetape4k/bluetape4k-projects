@@ -2192,7 +2192,7 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             "repository: dependabot/dependabot-core",
             "ref: ${{ steps.dependabot-pin.outputs.commit }}",
             "path: .gradle/dependabot-core",
-            "ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1",
+            "ruby/setup-ruby@26e5b7d197ebf60545ee9667bcbace0be11ccaec # v1",
             "DEPENDABOT_CORE_ROOT: ${{ github.workspace }}/.gradle/dependabot-core",
             "OUTPUT_PATH: ${{ github.workspace }}/.gradle/issue-1832-evidence/parser-receipt.json",
             "dependabot-parser-contract.rb",
