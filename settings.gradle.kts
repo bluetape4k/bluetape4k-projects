@@ -21,13 +21,25 @@ pluginManagement {
 
 val bluetape4kDependenciesCatalogRef = providers.gradleProperty("bluetape4kDependenciesCatalogRef")
     .orElse(providers.environmentVariable("BLUETAPE4K_DEPENDENCIES_CATALOG_REF"))
-        .orElse("e9946b18bdb0022f52cd5dc8994d859d470e7bab")
+        .orElse("9bd4fa16e6d64677641b1babf4629ae5b4ef6d80")
     .get()
-require(bluetape4kDependenciesCatalogRef.matches(Regex("[0-9a-f]{40}|[0-9a-f]{64}"))) {
-    "bluetape4k-dependencies catalog ref must be an immutable Git commit SHA: " +
-        bluetape4kDependenciesCatalogRef
+val bluetape4kDependenciesCatalogCommitPattern = Regex("[0-9a-f]{40}|[0-9a-f]{64}")
+val bluetape4kDependenciesCatalogTagPattern = Regex("catalog/[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{2}")
+val bluetape4kDependenciesCatalogSha = providers.gradleProperty("bluetape4kDependenciesCatalogSha")
+    .orElse(providers.environmentVariable("BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"))
+    .orElse(bluetape4kDependenciesCatalogRef.takeIf { it.matches(bluetape4kDependenciesCatalogCommitPattern) } ?: "")
+    .get()
+require(
+    bluetape4kDependenciesCatalogSha.matches(bluetape4kDependenciesCatalogCommitPattern) &&
+        (
+            bluetape4kDependenciesCatalogRef == bluetape4kDependenciesCatalogSha ||
+                bluetape4kDependenciesCatalogRef.matches(bluetape4kDependenciesCatalogTagPattern)
+            )
+) {
+    "bluetape4k-dependencies catalog ref must be a commit SHA or a catalog tag paired with an exact commit SHA: " +
+        "ref=$bluetape4kDependenciesCatalogRef sha=$bluetape4kDependenciesCatalogSha"
 }
-val bluetape4kDependenciesCatalogCacheKey = bluetape4kDependenciesCatalogRef.replace(Regex("[^A-Za-z0-9._-]"), "_")
+val bluetape4kDependenciesCatalogCacheSha = bluetape4kDependenciesCatalogSha
 
 fun catalogSha256(file: File): String {
     val digest = java.security.MessageDigest.getInstance("SHA-256")
@@ -111,14 +123,14 @@ fun resolveBluetape4kDependenciesCatalogFile(): File {
             return catalogFile
         }
 
-    val catalogFile = file(".gradle/bluetape4k-dependencies/$bluetape4kDependenciesCatalogCacheKey/libs.versions.toml")
-    val checksumFile = file(".gradle/bluetape4k-dependencies/$bluetape4kDependenciesCatalogCacheKey/libs.versions.toml.sha256")
+    val catalogFile = file(".gradle/bluetape4k-dependencies/$bluetape4kDependenciesCatalogCacheSha/libs.versions.toml")
+    val checksumFile = file(".gradle/bluetape4k-dependencies/$bluetape4kDependenciesCatalogCacheSha/libs.versions.toml.sha256")
     if (!catalogChecksumMatches(catalogFile, checksumFile)) {
         require(catalogFile.parentFile.mkdirs() || catalogFile.parentFile.isDirectory) {
             "Cannot create bluetape4k-dependencies catalog cache: ${catalogFile.parentFile}"
         }
         val catalogBaseUrl =
-            "https://raw.githubusercontent.com/bluetape4k/bluetape4k-dependencies/$bluetape4kDependenciesCatalogRef/gradle"
+            "https://raw.githubusercontent.com/bluetape4k/bluetape4k-dependencies/$bluetape4kDependenciesCatalogSha/gradle"
         val catalogTempFile = File.createTempFile("libs.versions-", ".toml.tmp", catalogFile.parentFile)
         val checksumTempFile = File.createTempFile("libs.versions-", ".sha256.tmp", catalogFile.parentFile)
         try {
@@ -132,7 +144,7 @@ fun resolveBluetape4kDependenciesCatalogFile(): File {
                 "Invalid bluetape4k-dependencies catalog checksum: $checksumTempFile"
             }
             require(catalogSha256(catalogTempFile) == expectedChecksum) {
-                "bluetape4k-dependencies catalog checksum mismatch for ref $bluetape4kDependenciesCatalogRef"
+                "bluetape4k-dependencies catalog checksum mismatch for commit $bluetape4kDependenciesCatalogSha"
             }
             validateCatalogStructure(catalogTempFile)
             java.nio.file.Files.move(

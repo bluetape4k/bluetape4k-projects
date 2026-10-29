@@ -63,7 +63,10 @@ repo-test-summary -- ./gradlew :module:test
   `assertions`, and `junit5` dependency closure explicitly retain Java/JVM 21.
 - Spring Boot 4.x only.
 - Gradle daemon tuned for ZGC, 4-8 GB heap, parallel build.
-- Versions live in `gradle/libs.versions.toml`.
+- `gradle/libs.versions.toml` is the generated, versioned Dependabot view; keep
+  the 303 library alias source and allowlist in
+  `gradle/libs.project.versions.toml` and
+  `gradle/libs.project.versions.allowlist.json`.
 - `gradle.properties` owns `projectGroup`, `baseVersion`, `snapshotVersion`,
   and external `exposedVersion`.
 

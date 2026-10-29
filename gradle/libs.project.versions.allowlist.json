@@ -1,0 +1,1219 @@
+{
+  "bundles": [],
+  "libraries": [
+    {
+      "alias": "agroal-api",
+      "module": "io.agroal:agroal-api"
+    },
+    {
+      "alias": "agroal-narayana",
+      "module": "io.agroal:agroal-narayana"
+    },
+    {
+      "alias": "agroal-spring-boot-starter",
+      "module": "io.agroal:agroal-spring-boot-starter"
+    },
+    {
+      "alias": "assertj-core",
+      "module": "org.assertj:assertj-core"
+    },
+    {
+      "alias": "avro-ipc",
+      "module": "org.apache.avro:avro-ipc"
+    },
+    {
+      "alias": "avro-ipc-netty",
+      "module": "org.apache.avro:avro-ipc-netty"
+    },
+    {
+      "alias": "avro-protobuf",
+      "module": "org.apache.avro:avro-protobuf"
+    },
+    {
+      "alias": "awaitility-kotlin",
+      "module": "org.awaitility:awaitility-kotlin"
+    },
+    {
+      "alias": "aws-kotlin-aws-config",
+      "module": "aws.sdk.kotlin:aws-config"
+    },
+    {
+      "alias": "aws-kotlin-aws-endpoint",
+      "module": "aws.sdk.kotlin:aws-endpoint"
+    },
+    {
+      "alias": "aws-kotlin-aws-http",
+      "module": "aws.sdk.kotlin:aws-http"
+    },
+    {
+      "alias": "aws-kotlin-batch",
+      "module": "aws.sdk.kotlin:batch"
+    },
+    {
+      "alias": "aws-kotlin-cloudwatch",
+      "module": "aws.sdk.kotlin:cloudwatch"
+    },
+    {
+      "alias": "aws-kotlin-cloudwatchlogs",
+      "module": "aws.sdk.kotlin:cloudwatchlogs"
+    },
+    {
+      "alias": "aws-kotlin-dynamodb",
+      "module": "aws.sdk.kotlin:dynamodb"
+    },
+    {
+      "alias": "aws-kotlin-dynamodbstreams",
+      "module": "aws.sdk.kotlin:dynamodbstreams"
+    },
+    {
+      "alias": "aws-kotlin-http-client-engine-crt",
+      "module": "aws.sdk.kotlin:http-client-engine-crt"
+    },
+    {
+      "alias": "aws-kotlin-kafka",
+      "module": "aws.sdk.kotlin:kafka"
+    },
+    {
+      "alias": "aws-kotlin-kinesis",
+      "module": "aws.sdk.kotlin:kinesis"
+    },
+    {
+      "alias": "aws-kotlin-kms",
+      "module": "aws.sdk.kotlin:kms"
+    },
+    {
+      "alias": "aws-kotlin-lambda",
+      "module": "aws.sdk.kotlin:lambda"
+    },
+    {
+      "alias": "aws-kotlin-rds",
+      "module": "aws.sdk.kotlin:rds"
+    },
+    {
+      "alias": "aws-kotlin-s3",
+      "module": "aws.sdk.kotlin:s3"
+    },
+    {
+      "alias": "aws-kotlin-ses",
+      "module": "aws.sdk.kotlin:ses"
+    },
+    {
+      "alias": "aws-kotlin-sesv2",
+      "module": "aws.sdk.kotlin:sesv2"
+    },
+    {
+      "alias": "aws-kotlin-sns",
+      "module": "aws.sdk.kotlin:sns"
+    },
+    {
+      "alias": "aws-kotlin-sqs",
+      "module": "aws.sdk.kotlin:sqs"
+    },
+    {
+      "alias": "aws-kotlin-sts",
+      "module": "aws.sdk.kotlin:sts"
+    },
+    {
+      "alias": "aws2-apache-client",
+      "module": "software.amazon.awssdk:apache-client"
+    },
+    {
+      "alias": "aws2-applicationautoscaling",
+      "module": "software.amazon.awssdk:applicationautoscaling"
+    },
+    {
+      "alias": "aws2-auth",
+      "module": "software.amazon.awssdk:auth"
+    },
+    {
+      "alias": "aws2-aws-core",
+      "module": "software.amazon.awssdk:aws-core"
+    },
+    {
+      "alias": "aws2-aws-crt-client",
+      "module": "software.amazon.awssdk:aws-crt-client"
+    },
+    {
+      "alias": "aws2-cloudwatch",
+      "module": "software.amazon.awssdk:cloudwatch"
+    },
+    {
+      "alias": "aws2-cloudwatchevents",
+      "module": "software.amazon.awssdk:cloudwatchevents"
+    },
+    {
+      "alias": "aws2-cloudwatchlogs",
+      "module": "software.amazon.awssdk:cloudwatchlogs"
+    },
+    {
+      "alias": "aws2-dynamodb-enhanced",
+      "module": "software.amazon.awssdk:dynamodb-enhanced"
+    },
+    {
+      "alias": "aws2-ec2",
+      "module": "software.amazon.awssdk:ec2"
+    },
+    {
+      "alias": "aws2-elasticache",
+      "module": "software.amazon.awssdk:elasticache"
+    },
+    {
+      "alias": "aws2-kafka",
+      "module": "software.amazon.awssdk:kafka"
+    },
+    {
+      "alias": "aws2-kinesis",
+      "module": "software.amazon.awssdk:kinesis"
+    },
+    {
+      "alias": "aws2-kms",
+      "module": "software.amazon.awssdk:kms"
+    },
+    {
+      "alias": "aws2-lambda",
+      "module": "software.amazon.awssdk:lambda"
+    },
+    {
+      "alias": "aws2-netty-nio-client",
+      "module": "software.amazon.awssdk:netty-nio-client"
+    },
+    {
+      "alias": "aws2-s3",
+      "module": "software.amazon.awssdk:s3"
+    },
+    {
+      "alias": "aws2-s3-transfer-manager",
+      "module": "software.amazon.awssdk:s3-transfer-manager"
+    },
+    {
+      "alias": "aws2-sdk-core",
+      "module": "software.amazon.awssdk:sdk-core"
+    },
+    {
+      "alias": "aws2-ses",
+      "module": "software.amazon.awssdk:ses"
+    },
+    {
+      "alias": "aws2-sesv2",
+      "module": "software.amazon.awssdk:sesv2"
+    },
+    {
+      "alias": "aws2-sns",
+      "module": "software.amazon.awssdk:sns"
+    },
+    {
+      "alias": "aws2-sqs",
+      "module": "software.amazon.awssdk:sqs"
+    },
+    {
+      "alias": "aws2-sts",
+      "module": "software.amazon.awssdk:sts"
+    },
+    {
+      "alias": "aws2-test-utils",
+      "module": "software.amazon.awssdk:test-utils"
+    },
+    {
+      "alias": "aws2-url-connection-client",
+      "module": "software.amazon.awssdk:url-connection-client"
+    },
+    {
+      "alias": "aws2-utils",
+      "module": "software.amazon.awssdk:utils"
+    },
+    {
+      "alias": "exposed-bom",
+      "module": "org.jetbrains.exposed:exposed-bom"
+    },
+    {
+      "alias": "exposed-crypt",
+      "module": "org.jetbrains.exposed:exposed-crypt"
+    },
+    {
+      "alias": "exposed-dao",
+      "module": "org.jetbrains.exposed:exposed-dao"
+    },
+    {
+      "alias": "exposed-json",
+      "module": "org.jetbrains.exposed:exposed-json"
+    },
+    {
+      "alias": "exposed-kotlin-datetime",
+      "module": "org.jetbrains.exposed:exposed-kotlin-datetime"
+    },
+    {
+      "alias": "exposed-migration-core",
+      "module": "org.jetbrains.exposed:exposed-migration-core"
+    },
+    {
+      "alias": "exposed-migration-r2dbc",
+      "module": "org.jetbrains.exposed:exposed-migration-r2dbc"
+    },
+    {
+      "alias": "exposed-money",
+      "module": "org.jetbrains.exposed:exposed-money"
+    },
+    {
+      "alias": "exposed-spring-transaction",
+      "module": "org.jetbrains.exposed:spring-transaction"
+    },
+    {
+      "alias": "hazelcast-spring",
+      "module": "com.hazelcast:hazelcast-spring"
+    },
+    {
+      "alias": "hibernate-envers",
+      "module": "org.hibernate.orm:hibernate-envers"
+    },
+    {
+      "alias": "hibernate-hikaricp",
+      "module": "org.hibernate.orm:hibernate-hikaricp"
+    },
+    {
+      "alias": "hibernate-jpamodelgen",
+      "module": "org.hibernate.orm:hibernate-jpamodelgen"
+    },
+    {
+      "alias": "hibernate-micrometer",
+      "module": "org.hibernate.orm:hibernate-micrometer"
+    },
+    {
+      "alias": "hibernate-spatial",
+      "module": "org.hibernate.orm:hibernate-spatial"
+    },
+    {
+      "alias": "hibernate-testing",
+      "module": "org.hibernate.orm:hibernate-testing"
+    },
+    {
+      "alias": "httpclient5-cache",
+      "module": "org.apache.httpcomponents.client5:httpclient5-cache"
+    },
+    {
+      "alias": "httpclient5-fluent",
+      "module": "org.apache.httpcomponents.client5:httpclient5-fluent"
+    },
+    {
+      "alias": "httpclient5-testing",
+      "module": "org.apache.httpcomponents.client5:httpclient5-testing"
+    },
+    {
+      "alias": "httpcore5-testing",
+      "module": "org.apache.httpcomponents.core5:httpcore5-testing"
+    },
+    {
+      "alias": "jackson-annotations",
+      "module": "com.fasterxml.jackson.core:jackson-annotations"
+    },
+    {
+      "alias": "jackson-bom",
+      "module": "com.fasterxml.jackson:jackson-bom"
+    },
+    {
+      "alias": "jackson-core",
+      "module": "com.fasterxml.jackson.core:jackson-core"
+    },
+    {
+      "alias": "jackson-databind",
+      "module": "com.fasterxml.jackson.core:jackson-databind"
+    },
+    {
+      "alias": "jackson-dataformat-avro",
+      "module": "com.fasterxml.jackson.dataformat:jackson-dataformat-avro"
+    },
+    {
+      "alias": "jackson-dataformat-cbor",
+      "module": "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor"
+    },
+    {
+      "alias": "jackson-dataformat-csv",
+      "module": "com.fasterxml.jackson.dataformat:jackson-dataformat-csv"
+    },
+    {
+      "alias": "jackson-dataformat-ion",
+      "module": "com.fasterxml.jackson.dataformat:jackson-dataformat-ion"
+    },
+    {
+      "alias": "jackson-dataformat-properties",
+      "module": "com.fasterxml.jackson.dataformat:jackson-dataformat-properties"
+    },
+    {
+      "alias": "jackson-dataformat-protobuf",
+      "module": "com.fasterxml.jackson.dataformat:jackson-dataformat-protobuf"
+    },
+    {
+      "alias": "jackson-dataformat-smile",
+      "module": "com.fasterxml.jackson.dataformat:jackson-dataformat-smile"
+    },
+    {
+      "alias": "jackson-dataformat-toml",
+      "module": "com.fasterxml.jackson.dataformat:jackson-dataformat-toml"
+    },
+    {
+      "alias": "jackson-dataformat-yaml",
+      "module": "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml"
+    },
+    {
+      "alias": "jackson-datatype-guava",
+      "module": "com.fasterxml.jackson.datatype:jackson-datatype-guava"
+    },
+    {
+      "alias": "jackson-datatype-jdk8",
+      "module": "com.fasterxml.jackson.datatype:jackson-datatype-jdk8"
+    },
+    {
+      "alias": "jackson-datatype-joda",
+      "module": "com.fasterxml.jackson.datatype:jackson-datatype-joda"
+    },
+    {
+      "alias": "jackson-datatype-jsr310",
+      "module": "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+    },
+    {
+      "alias": "jackson-datatype-jsr353",
+      "module": "com.fasterxml.jackson.datatype:jackson-datatype-jsr353"
+    },
+    {
+      "alias": "jackson-module-blackbird",
+      "module": "com.fasterxml.jackson.module:jackson-module-blackbird"
+    },
+    {
+      "alias": "jackson-module-json-schema",
+      "module": "com.fasterxml.jackson.module:jackson-module-jsonSchema"
+    },
+    {
+      "alias": "jackson-module-kotlin",
+      "module": "com.fasterxml.jackson.module:jackson-module-kotlin"
+    },
+    {
+      "alias": "jackson-module-parameter-names",
+      "module": "com.fasterxml.jackson.module:jackson-module-parameter-names"
+    },
+    {
+      "alias": "jackson-module-paranamer",
+      "module": "com.fasterxml.jackson.module:jackson-module-parameter"
+    },
+    {
+      "alias": "jackson3-bom",
+      "module": "tools.jackson:jackson-bom"
+    },
+    {
+      "alias": "jackson3-core",
+      "module": "tools.jackson.core:jackson-core"
+    },
+    {
+      "alias": "jackson3-databind",
+      "module": "tools.jackson.core:jackson-databind"
+    },
+    {
+      "alias": "jackson3-dataformat-avro",
+      "module": "tools.jackson.dataformat:jackson-dataformat-avro"
+    },
+    {
+      "alias": "jackson3-dataformat-cbor",
+      "module": "tools.jackson.dataformat:jackson-dataformat-cbor"
+    },
+    {
+      "alias": "jackson3-dataformat-csv",
+      "module": "tools.jackson.dataformat:jackson-dataformat-csv"
+    },
+    {
+      "alias": "jackson3-dataformat-ion",
+      "module": "tools.jackson.dataformat:jackson-dataformat-ion"
+    },
+    {
+      "alias": "jackson3-dataformat-properties",
+      "module": "tools.jackson.dataformat:jackson-dataformat-properties"
+    },
+    {
+      "alias": "jackson3-dataformat-protobuf",
+      "module": "tools.jackson.dataformat:jackson-dataformat-protobuf"
+    },
+    {
+      "alias": "jackson3-dataformat-smile",
+      "module": "tools.jackson.dataformat:jackson-dataformat-smile"
+    },
+    {
+      "alias": "jackson3-dataformat-toml",
+      "module": "tools.jackson.dataformat:jackson-dataformat-toml"
+    },
+    {
+      "alias": "jackson3-dataformat-yaml",
+      "module": "tools.jackson.dataformat:jackson-dataformat-yaml"
+    },
+    {
+      "alias": "jackson3-datatype-eclipse-collections",
+      "module": "tools.jackson.datatype:jackson-datatype-eclipse-collections"
+    },
+    {
+      "alias": "jackson3-datatype-guava",
+      "module": "tools.jackson.datatype:jackson-datatype-guava"
+    },
+    {
+      "alias": "jackson3-datatype-javax-money",
+      "module": "tools.jackson.datatype:jackson-datatype-javax-money"
+    },
+    {
+      "alias": "jackson3-datatype-json-org",
+      "module": "tools.jackson.datatype:jackson-datatype-json-org"
+    },
+    {
+      "alias": "jackson3-datatype-jsr353",
+      "module": "tools.jackson.datatype:jackson-datatype-jsr353"
+    },
+    {
+      "alias": "jackson3-datatype-moneta",
+      "module": "tools.jackson.datatype:jackson-datatype-moneta"
+    },
+    {
+      "alias": "jackson3-module-blackbird",
+      "module": "tools.jackson.module:jackson-module-blackbird"
+    },
+    {
+      "alias": "jackson3-module-kotlin",
+      "module": "tools.jackson.module:jackson-module-kotlin"
+    },
+    {
+      "alias": "jackson3-module-no-ctor-deser",
+      "module": "tools.jackson.module:jackson-module-no-ctor-deser"
+    },
+    {
+      "alias": "jcl-over-slf4j",
+      "module": "org.slf4j:jcl-over-slf4j"
+    },
+    {
+      "alias": "jul-to-slf4j",
+      "module": "org.slf4j:jul-to-slf4j"
+    },
+    {
+      "alias": "kafka-server",
+      "module": "org.apache.kafka:kafka-server"
+    },
+    {
+      "alias": "kotlin-bom",
+      "module": "org.jetbrains.kotlin:kotlin-bom"
+    },
+    {
+      "alias": "kotlin-compiler",
+      "module": "org.jetbrains.kotlin:kotlin-compiler"
+    },
+    {
+      "alias": "kotlin-compiler-embeddable",
+      "module": "org.jetbrains.kotlin:kotlin-compiler-embeddable"
+    },
+    {
+      "alias": "kotlin-daemon-client",
+      "module": "org.jetbrains.kotlin:kotlin-daemon-client"
+    },
+    {
+      "alias": "kotlin-reflect",
+      "module": "org.jetbrains.kotlin:kotlin-reflect"
+    },
+    {
+      "alias": "kotlin-script-runtime",
+      "module": "org.jetbrains.kotlin:kotlin-script-runtime"
+    },
+    {
+      "alias": "kotlin-scripting-common",
+      "module": "org.jetbrains.kotlin:kotlin-scripting-common"
+    },
+    {
+      "alias": "kotlin-scripting-compiler-embeddable",
+      "module": "org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable"
+    },
+    {
+      "alias": "kotlin-scripting-compiler-impl-embeddable",
+      "module": "org.jetbrains.kotlin:kotlin-scripting-compiler-impl-embeddable"
+    },
+    {
+      "alias": "kotlin-scripting-dependencies",
+      "module": "org.jetbrains.kotlin:kotlin-scripting-dependencies"
+    },
+    {
+      "alias": "kotlin-scripting-jsr223",
+      "module": "org.jetbrains.kotlin:kotlin-scripting-jsr223"
+    },
+    {
+      "alias": "kotlin-scripting-jvm",
+      "module": "org.jetbrains.kotlin:kotlin-scripting-jvm"
+    },
+    {
+      "alias": "kotlin-scripting-jvm-host",
+      "module": "org.jetbrains.kotlin:kotlin-scripting-jvm-host"
+    },
+    {
+      "alias": "kotlin-stdlib",
+      "module": "org.jetbrains.kotlin:kotlin-stdlib"
+    },
+    {
+      "alias": "kotlin-stdlib-common",
+      "module": "org.jetbrains.kotlin:kotlin-stdlib-common"
+    },
+    {
+      "alias": "kotlin-test",
+      "module": "org.jetbrains.kotlin:kotlin-test"
+    },
+    {
+      "alias": "kotlin-test-common",
+      "module": "org.jetbrains.kotlin:kotlin-test-common"
+    },
+    {
+      "alias": "kotlin-test-junit5",
+      "module": "org.jetbrains.kotlin:kotlin-test-junit5"
+    },
+    {
+      "alias": "kotlinx-coroutines-bom",
+      "module": "org.jetbrains.kotlinx:kotlinx-coroutines-bom"
+    },
+    {
+      "alias": "kotlinx-coroutines-core",
+      "module": "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+    },
+    {
+      "alias": "kotlinx-coroutines-core-jvm",
+      "module": "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm"
+    },
+    {
+      "alias": "kotlinx-coroutines-debug",
+      "module": "org.jetbrains.kotlinx:kotlinx-coroutines-debug"
+    },
+    {
+      "alias": "kotlinx-coroutines-reactive",
+      "module": "org.jetbrains.kotlinx:kotlinx-coroutines-reactive"
+    },
+    {
+      "alias": "kotlinx-coroutines-reactor",
+      "module": "org.jetbrains.kotlinx:kotlinx-coroutines-reactor"
+    },
+    {
+      "alias": "kotlinx-coroutines-rx2",
+      "module": "org.jetbrains.kotlinx:kotlinx-coroutines-rx2"
+    },
+    {
+      "alias": "kotlinx-coroutines-rx3",
+      "module": "org.jetbrains.kotlinx:kotlinx-coroutines-rx3"
+    },
+    {
+      "alias": "kotlinx-coroutines-slf4j",
+      "module": "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j"
+    },
+    {
+      "alias": "kotlinx-coroutines-test",
+      "module": "org.jetbrains.kotlinx:kotlinx-coroutines-test"
+    },
+    {
+      "alias": "kotlinx-coroutines-test-jvm",
+      "module": "org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm"
+    },
+    {
+      "alias": "kotlinx-serialization-json-jvm",
+      "module": "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm"
+    },
+    {
+      "alias": "kotlinx-serialization-properties",
+      "module": "org.jetbrains.kotlinx:kotlinx-serialization-properties"
+    },
+    {
+      "alias": "kotlinx-serialization-protobuf",
+      "module": "org.jetbrains.kotlinx:kotlinx-serialization-protobuf"
+    },
+    {
+      "alias": "ktor-client-cio",
+      "module": "io.ktor:ktor-client-cio"
+    },
+    {
+      "alias": "ktor-client-content-negotiation",
+      "module": "io.ktor:ktor-client-content-negotiation"
+    },
+    {
+      "alias": "ktor-client-core",
+      "module": "io.ktor:ktor-client-core"
+    },
+    {
+      "alias": "ktor-client-mock",
+      "module": "io.ktor:ktor-client-mock"
+    },
+    {
+      "alias": "ktor-serialization-kotlinx-json",
+      "module": "io.ktor:ktor-serialization-kotlinx-json"
+    },
+    {
+      "alias": "ktor-server-call-id",
+      "module": "io.ktor:ktor-server-call-id"
+    },
+    {
+      "alias": "ktor-server-call-logging",
+      "module": "io.ktor:ktor-server-call-logging"
+    },
+    {
+      "alias": "ktor-server-cio",
+      "module": "io.ktor:ktor-server-cio"
+    },
+    {
+      "alias": "ktor-server-content-negotiation",
+      "module": "io.ktor:ktor-server-content-negotiation"
+    },
+    {
+      "alias": "ktor-server-core",
+      "module": "io.ktor:ktor-server-core"
+    },
+    {
+      "alias": "ktor-server-metrics-micrometer",
+      "module": "io.ktor:ktor-server-metrics-micrometer"
+    },
+    {
+      "alias": "ktor-server-openapi",
+      "module": "io.ktor:ktor-server-openapi"
+    },
+    {
+      "alias": "ktor-server-routing-openapi",
+      "module": "io.ktor:ktor-server-routing-openapi"
+    },
+    {
+      "alias": "ktor-server-status-pages",
+      "module": "io.ktor:ktor-server-status-pages"
+    },
+    {
+      "alias": "ktor-server-swagger",
+      "module": "io.ktor:ktor-server-swagger"
+    },
+    {
+      "alias": "ktor-server-test-host",
+      "module": "io.ktor:ktor-server-test-host"
+    },
+    {
+      "alias": "lettuce-core",
+      "module": "io.lettuce:lettuce-core"
+    },
+    {
+      "alias": "log4j-api",
+      "module": "org.apache.logging.log4j:log4j-api"
+    },
+    {
+      "alias": "log4j-jcl",
+      "module": "org.apache.logging.log4j:log4j-jcl"
+    },
+    {
+      "alias": "log4j-jul",
+      "module": "org.apache.logging.log4j:log4j-jul"
+    },
+    {
+      "alias": "log4j-over-slf4j",
+      "module": "org.slf4j:log4j-over-slf4j"
+    },
+    {
+      "alias": "log4j-slf4j-impl",
+      "module": "org.apache.logging.log4j:log4j-slf4j-impl"
+    },
+    {
+      "alias": "log4j-web",
+      "module": "org.apache.logging.log4j:log4j-web"
+    },
+    {
+      "alias": "micrometer-commons",
+      "module": "io.micrometer:micrometer-commons"
+    },
+    {
+      "alias": "micrometer-core",
+      "module": "io.micrometer:micrometer-core"
+    },
+    {
+      "alias": "micrometer-observation",
+      "module": "io.micrometer:micrometer-observation"
+    },
+    {
+      "alias": "micrometer-observation-test",
+      "module": "io.micrometer:micrometer-observation-test"
+    },
+    {
+      "alias": "micrometer-registry-cloudwatch",
+      "module": "io.micrometer:micrometer-registry-cloudwatch"
+    },
+    {
+      "alias": "micrometer-registry-datadog",
+      "module": "io.micrometer:micrometer-registry-datadog"
+    },
+    {
+      "alias": "micrometer-registry-elastic",
+      "module": "io.micrometer:micrometer-registry-elastic"
+    },
+    {
+      "alias": "micrometer-registry-graphite",
+      "module": "io.micrometer:micrometer-registry-graphite"
+    },
+    {
+      "alias": "micrometer-registry-jmx",
+      "module": "io.micrometer:micrometer-registry-jmx"
+    },
+    {
+      "alias": "micrometer-registry-new-relic",
+      "module": "io.micrometer:micrometer-registry-new-relic"
+    },
+    {
+      "alias": "micrometer-registry-prometheus",
+      "module": "io.micrometer:micrometer-registry-prometheus"
+    },
+    {
+      "alias": "micrometer-test",
+      "module": "io.micrometer:micrometer-test"
+    },
+    {
+      "alias": "netty-all",
+      "module": "io.netty:netty-all"
+    },
+    {
+      "alias": "netty-buffer",
+      "module": "io.netty:netty-buffer"
+    },
+    {
+      "alias": "netty-codec",
+      "module": "io.netty:netty-codec"
+    },
+    {
+      "alias": "netty-codec-dns",
+      "module": "io.netty:netty-codec-dns"
+    },
+    {
+      "alias": "netty-codec-protobuf",
+      "module": "io.netty:netty-codec-protobuf"
+    },
+    {
+      "alias": "netty-common",
+      "module": "io.netty:netty-common"
+    },
+    {
+      "alias": "netty-handler",
+      "module": "io.netty:netty-handler"
+    },
+    {
+      "alias": "netty-handler-proxy",
+      "module": "io.netty:netty-handler-proxy"
+    },
+    {
+      "alias": "netty-resolver",
+      "module": "io.netty:netty-resolver"
+    },
+    {
+      "alias": "netty-resolver-dns",
+      "module": "io.netty:netty-resolver-dns"
+    },
+    {
+      "alias": "netty-resolver-dns-classes-macos",
+      "module": "io.netty:netty-resolver-dns-classes-macos"
+    },
+    {
+      "alias": "netty-resolver-dns-native-macos",
+      "module": "io.netty:netty-resolver-dns-native-macos"
+    },
+    {
+      "alias": "netty-transport",
+      "module": "io.netty:netty-transport"
+    },
+    {
+      "alias": "netty-transport-classes-epoll",
+      "module": "io.netty:netty-transport-classes-epoll"
+    },
+    {
+      "alias": "netty-transport-classes-kqueue",
+      "module": "io.netty:netty-transport-classes-kqueue"
+    },
+    {
+      "alias": "netty-transport-native-epoll",
+      "module": "io.netty:netty-transport-native-epoll"
+    },
+    {
+      "alias": "netty-transport-native-kqueue",
+      "module": "io.netty:netty-transport-native-kqueue"
+    },
+    {
+      "alias": "opentelemetry-api-incubator",
+      "module": "io.opentelemetry:opentelemetry-api-incubator"
+    },
+    {
+      "alias": "opentelemetry-exporter-logging",
+      "module": "io.opentelemetry:opentelemetry-exporter-logging"
+    },
+    {
+      "alias": "opentelemetry-exporter-otlp",
+      "module": "io.opentelemetry:opentelemetry-exporter-otlp"
+    },
+    {
+      "alias": "opentelemetry-exporter-prometheus",
+      "module": "io.opentelemetry:opentelemetry-exporter-prometheus"
+    },
+    {
+      "alias": "opentelemetry-exporter-zipkin",
+      "module": "io.opentelemetry:opentelemetry-exporter-zipkin"
+    },
+    {
+      "alias": "opentelemetry-extension-annotations",
+      "module": "io.opentelemetry:opentelemetry-extension-annotations"
+    },
+    {
+      "alias": "opentelemetry-extension-aws",
+      "module": "io.opentelemetry:opentelemetry-extension-aws"
+    },
+    {
+      "alias": "opentelemetry-extension-kotlin",
+      "module": "io.opentelemetry:opentelemetry-extension-kotlin"
+    },
+    {
+      "alias": "opentelemetry-ktor",
+      "module": "io.opentelemetry.instrumentation:opentelemetry-ktor-3.0"
+    },
+    {
+      "alias": "opentelemetry-logback-appender",
+      "module": "io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0"
+    },
+    {
+      "alias": "opentelemetry-logback-mdc",
+      "module": "io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0"
+    },
+    {
+      "alias": "opentelemetry-sdk",
+      "module": "io.opentelemetry:opentelemetry-sdk"
+    },
+    {
+      "alias": "opentelemetry-sdk-extensions-autoconfigure",
+      "module": "io.opentelemetry:opentelemetry-sdk-extension-autoconfigure"
+    },
+    {
+      "alias": "opentelemetry-sdk-logs",
+      "module": "io.opentelemetry:opentelemetry-sdk-logs"
+    },
+    {
+      "alias": "opentelemetry-sdk-metrics",
+      "module": "io.opentelemetry:opentelemetry-sdk-metrics"
+    },
+    {
+      "alias": "opentelemetry-sdk-testing",
+      "module": "io.opentelemetry:opentelemetry-sdk-testing"
+    },
+    {
+      "alias": "opentelemetry-sdk-trace",
+      "module": "io.opentelemetry:opentelemetry-sdk-trace"
+    },
+    {
+      "alias": "opentelemetry-spring-boot-starter",
+      "module": "io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter"
+    },
+    {
+      "alias": "opentelemetry-spring-webflux",
+      "module": "io.opentelemetry.instrumentation:opentelemetry-spring-webflux-5.3"
+    },
+    {
+      "alias": "opentest4j",
+      "module": "org.opentest4j:opentest4j"
+    },
+    {
+      "alias": "ow2-asm-commons",
+      "module": "org.ow2.asm:asm-commons"
+    },
+    {
+      "alias": "ow2-asm-tree",
+      "module": "org.ow2.asm:asm-tree"
+    },
+    {
+      "alias": "ow2-asm-util",
+      "module": "org.ow2.asm:asm-util"
+    },
+    {
+      "alias": "protobuf-java-util",
+      "module": "com.google.protobuf:protobuf-java-util"
+    },
+    {
+      "alias": "protobuf-kotlin",
+      "module": "com.google.protobuf:protobuf-kotlin"
+    },
+    {
+      "alias": "protobuf-protoc",
+      "module": "com.google.protobuf:protoc"
+    },
+    {
+      "alias": "querydsl-kotlin",
+      "module": "io.github.openfeign.querydsl:querydsl-kotlin"
+    },
+    {
+      "alias": "querydsl-kotlin-codegen",
+      "module": "io.github.openfeign.querydsl:querydsl-kotlin-codegen"
+    },
+    {
+      "alias": "random-beans",
+      "module": "io.github.benas:random-beans"
+    },
+    {
+      "alias": "reactor-addons-adapter",
+      "module": "io.projectreactor.addons:reactor-adapter"
+    },
+    {
+      "alias": "reactor-addons-extra",
+      "module": "io.projectreactor.addons:reactor-extra"
+    },
+    {
+      "alias": "reactor-addons-pool",
+      "module": "io.projectreactor.addons:reactor-pool"
+    },
+    {
+      "alias": "reactor-core",
+      "module": "io.projectreactor:reactor-core"
+    },
+    {
+      "alias": "reactor-core-micrometer",
+      "module": "io.projectreactor:reactor-core-micrometer"
+    },
+    {
+      "alias": "reactor-kotlin-extensions",
+      "module": "io.projectreactor.kotlin:reactor-kotlin-extensions"
+    },
+    {
+      "alias": "reactor-netty",
+      "module": "io.projectreactor.netty:reactor-netty"
+    },
+    {
+      "alias": "reactor-test",
+      "module": "io.projectreactor:reactor-test"
+    },
+    {
+      "alias": "reactor-tools",
+      "module": "io.projectreactor:reactor-tools"
+    },
+    {
+      "alias": "redisson-spring-boot-starter",
+      "module": "org.redisson:redisson-spring-boot-starter"
+    },
+    {
+      "alias": "redisson-spring-data-34",
+      "module": "org.redisson:redisson-spring-data-34"
+    },
+    {
+      "alias": "redisson-spring-data-35",
+      "module": "org.redisson:redisson-spring-data-35"
+    },
+    {
+      "alias": "redisson-spring-data-40",
+      "module": "org.redisson:redisson-spring-data-40"
+    },
+    {
+      "alias": "reflectasm",
+      "module": "com.esotericsoftware:reflectasm"
+    },
+    {
+      "alias": "scrimage-filters",
+      "module": "com.sksamuel.scrimage:scrimage-filters"
+    },
+    {
+      "alias": "scrimage-webp",
+      "module": "com.sksamuel.scrimage:scrimage-webp"
+    },
+    {
+      "alias": "slf4j-simple",
+      "module": "org.slf4j:slf4j-simple"
+    },
+    {
+      "alias": "spring-batch-test",
+      "module": "org.springframework.batch:spring-batch-test"
+    },
+    {
+      "alias": "spring-boot-dependencies",
+      "module": "org.springframework.boot:spring-boot-dependencies"
+    },
+    {
+      "alias": "springdoc-openapi-webflux-ui",
+      "module": "org.springdoc:springdoc-openapi-starter-webflux-ui"
+    },
+    {
+      "alias": "springdoc-openapi-webmvc-api",
+      "module": "org.springdoc:springdoc-openapi-starter-webmvc-api"
+    },
+    {
+      "alias": "testcontainers",
+      "module": "org.testcontainers:testcontainers"
+    },
+    {
+      "alias": "testcontainers-bom",
+      "module": "org.testcontainers:testcontainers-bom"
+    },
+    {
+      "alias": "testcontainers-cassandra",
+      "module": "org.testcontainers:testcontainers-cassandra"
+    },
+    {
+      "alias": "testcontainers-chromadb",
+      "module": "org.testcontainers:testcontainers-chromadb"
+    },
+    {
+      "alias": "testcontainers-clickhouse",
+      "module": "org.testcontainers:testcontainers-clickhouse"
+    },
+    {
+      "alias": "testcontainers-cockroachdb",
+      "module": "org.testcontainers:testcontainers-cockroachdb"
+    },
+    {
+      "alias": "testcontainers-elasticsearch",
+      "module": "org.testcontainers:testcontainers-elasticsearch"
+    },
+    {
+      "alias": "testcontainers-gcloud",
+      "module": "org.testcontainers:testcontainers-gcloud"
+    },
+    {
+      "alias": "testcontainers-influxdb",
+      "module": "org.testcontainers:testcontainers-influxdb"
+    },
+    {
+      "alias": "testcontainers-junit-jupiter",
+      "module": "org.testcontainers:testcontainers-junit-jupiter"
+    },
+    {
+      "alias": "testcontainers-k3s",
+      "module": "org.testcontainers:testcontainers-k3s"
+    },
+    {
+      "alias": "testcontainers-kafka",
+      "module": "org.testcontainers:testcontainers-kafka"
+    },
+    {
+      "alias": "testcontainers-localstack",
+      "module": "org.testcontainers:testcontainers-localstack"
+    },
+    {
+      "alias": "testcontainers-mariadb",
+      "module": "org.testcontainers:testcontainers-mariadb"
+    },
+    {
+      "alias": "testcontainers-minio",
+      "module": "org.testcontainers:testcontainers-minio"
+    },
+    {
+      "alias": "testcontainers-mockserver",
+      "module": "org.testcontainers:testcontainers-mockserver"
+    },
+    {
+      "alias": "testcontainers-mongodb",
+      "module": "org.testcontainers:testcontainers-mongodb"
+    },
+    {
+      "alias": "testcontainers-mysql",
+      "module": "org.testcontainers:testcontainers-mysql"
+    },
+    {
+      "alias": "testcontainers-neo4j",
+      "module": "org.testcontainers:testcontainers-neo4j"
+    },
+    {
+      "alias": "testcontainers-nginx",
+      "module": "org.testcontainers:testcontainers-nginx"
+    },
+    {
+      "alias": "testcontainers-ollama",
+      "module": "org.testcontainers:testcontainers-ollama"
+    },
+    {
+      "alias": "testcontainers-openfga",
+      "module": "org.testcontainers:testcontainers-openfga"
+    },
+    {
+      "alias": "testcontainers-oracle-xe",
+      "module": "org.testcontainers:testcontainers-oracle-xe"
+    },
+    {
+      "alias": "testcontainers-postgresql",
+      "module": "org.testcontainers:testcontainers-postgresql"
+    },
+    {
+      "alias": "testcontainers-pulsar",
+      "module": "org.testcontainers:testcontainers-pulsar"
+    },
+    {
+      "alias": "testcontainers-qdrant",
+      "module": "org.testcontainers:testcontainers-qdrant"
+    },
+    {
+      "alias": "testcontainers-r2dbc",
+      "module": "org.testcontainers:testcontainers-r2dbc"
+    },
+    {
+      "alias": "testcontainers-rabbitmq",
+      "module": "org.testcontainers:testcontainers-rabbitmq"
+    },
+    {
+      "alias": "testcontainers-redpanda",
+      "module": "org.testcontainers:testcontainers-redpanda"
+    },
+    {
+      "alias": "testcontainers-toxiproxy",
+      "module": "org.testcontainers:testcontainers-toxiproxy"
+    },
+    {
+      "alias": "testcontainers-trino",
+      "module": "org.testcontainers:testcontainers-trino"
+    },
+    {
+      "alias": "testcontainers-vault",
+      "module": "org.testcontainers:testcontainers-vault"
+    },
+    {
+      "alias": "testcontainers-weaviate",
+      "module": "org.testcontainers:testcontainers-weaviate"
+    },
+    {
+      "alias": "timefold-solver-benchmark",
+      "module": "ai.timefold.solver:timefold-solver-benchmark"
+    },
+    {
+      "alias": "timefold-solver-core",
+      "module": "ai.timefold.solver:timefold-solver-core"
+    },
+    {
+      "alias": "timefold-solver-jackson",
+      "module": "ai.timefold.solver:timefold-solver-jackson"
+    },
+    {
+      "alias": "timefold-solver-spring-boot-starter",
+      "module": "ai.timefold.solver:timefold-solver-spring-boot-starter"
+    },
+    {
+      "alias": "vertx-jdbc-client",
+      "module": "io.vertx:vertx-jdbc-client"
+    },
+    {
+      "alias": "vertx-junit5",
+      "module": "io.vertx:vertx-junit5"
+    },
+    {
+      "alias": "vertx-lang-kotlin",
+      "module": "io.vertx:vertx-lang-kotlin"
+    },
+    {
+      "alias": "vertx-lang-kotlin-coroutines",
+      "module": "io.vertx:vertx-lang-kotlin-coroutines"
+    },
+    {
+      "alias": "vertx-mysql-client",
+      "module": "io.vertx:vertx-mysql-client"
+    },
+    {
+      "alias": "vertx-pg-client",
+      "module": "io.vertx:vertx-pg-client"
+    },
+    {
+      "alias": "vertx-sql-client",
+      "module": "io.vertx:vertx-sql-client"
+    },
+    {
+      "alias": "vertx-sql-client-templates",
+      "module": "io.vertx:vertx-sql-client-templates"
+    },
+    {
+      "alias": "vertx-web",
+      "module": "io.vertx:vertx-web"
+    },
+    {
+      "alias": "vertx-web-client",
+      "module": "io.vertx:vertx-web-client"
+    }
+  ],
+  "plugins": [],
+  "schema_version": 1
+}

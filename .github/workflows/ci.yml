@@ -21,15 +21,6 @@ on:
       - '.claude/**'
   pull_request:
     branches: [develop, main]
-    paths-ignore:
-      - 'docs/**'
-      - '.gitignore'
-      - '.editorconfig'
-      - '.gitleaks.toml'
-      - 'CHANGELOG.md'
-      - 'LICENSE'
-      - '.omc/**'
-      - '.claude/**'
   workflow_dispatch:
 
 concurrency:
@@ -41,7 +32,11 @@ env:
   JAVA_DISTRIBUTION: 'temurin'
   ORG_GRADLE_PROJECT_excludeBenchmarks: 'true'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-  BLUETAPE4K_DEPENDENCIES_CATALOG_REF: 'e9946b18bdb0022f52cd5dc8994d859d470e7bab'
+  PROJECTS_EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+  BLUETAPE4K_DEPENDENCIES_CATALOG_REF: '9bd4fa16e6d64677641b1babf4629ae5b4ef6d80'
+  BLUETAPE4K_DEPENDENCIES_CATALOG_TAG: 'catalog/2026-10-22-01'
+  BLUETAPE4K_DEPENDENCIES_CATALOG_TAG_OBJECT_SHA: 'eb4f1aca48229ca74bd9968e310ca0f8bfe0d43b'
+  BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: '9bd4fa16e6d64677641b1babf4629ae5b4ef6d80'
   BLUETAPE4K_MANUAL_REF: '4e3c00262adb12cd61e4e8a30b6488aa6a287acc'
   GITLEAKS_VERSION: 'v8.30.1'
 
@@ -52,7 +47,9 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.12'
       - name: Verify Maven-only release policy
@@ -66,12 +63,14 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
       - uses: actions/checkout@v7
         with:
           repository: bluetape4k/bluetape4k.github.io
           ref: ${{ env.BLUETAPE4K_MANUAL_REF }}
           path: .manual-site
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.12'
       - name: Verify immutable central manual checkout
@@ -93,10 +92,12 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.12'
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -122,7 +123,9 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.12'
       - name: Verify CodeQL catalog and build policy
@@ -136,6 +139,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
           fetch-depth: 0
       - name: Install gitleaks
         run: |
@@ -154,6 +158,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
       - uses: gradle/actions/wrapper-validation@v6.4.0
 
   # ── 1-b. 변경된 모듈 감지 ─────────────────────────────────────────────────
@@ -161,6 +167,9 @@ jobs:
     name: Detect changed modules
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
     needs: validate-wrapper
     outputs:
       shared: ${{ steps.filter.outputs.shared }}
@@ -180,6 +189,8 @@ jobs:
       spring-boot: ${{ steps.filter.outputs.spring-boot }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
       - name: Validate CSV CI coverage
         run: ruby scripts/validate-ci-csv-coverage.rb
 
@@ -277,18 +288,30 @@ jobs:
   catalog-governance:
     name: Central Catalog Governance
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
+          fetch-depth: 0
+      - name: Verify exact Projects head checkout
+        run: |
+          set -euo pipefail
+          projects_head_sha="$(git rev-parse HEAD)"
+          test "$projects_head_sha" = "$PROJECTS_EXPECTED_SHA"
+          echo "projects head=$projects_head_sha"
       - uses: actions/checkout@v7
         with:
           repository: bluetape4k/bluetape4k-dependencies
-          ref: ${{ env.BLUETAPE4K_DEPENDENCIES_CATALOG_REF }}
-          path: .catalog/bluetape4k-dependencies
-      - uses: actions/setup-python@v7
+          ref: ${{ env.BLUETAPE4K_DEPENDENCIES_CATALOG_TAG }}
+          path: .gradle/catalog-source/bluetape4k-dependencies
+          fetch-depth: 0
+      - uses: actions/setup-python@v7.1.0
         with:
-          python-version: '3.12'
-      - uses: actions/setup-java@v6.0.1
+          python-version: '3.13'
+      - name: Record catalog governance Python
+        run: python3 --version
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -297,17 +320,120 @@ jobs:
           gradle-version: wrapper
           cache-read-only: ${{ github.event_name == 'pull_request' }}
       - name: Verify immutable catalog checkout
-        run: test "$(git -C .catalog/bluetape4k-dependencies rev-parse HEAD)" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_REF"
+        run: |
+          set -euo pipefail
+          tag_object_sha="$(git -C .gradle/catalog-source/bluetape4k-dependencies rev-parse "${BLUETAPE4K_DEPENDENCIES_CATALOG_TAG}^{tag}")"
+          head_sha="$(git -C .gradle/catalog-source/bluetape4k-dependencies rev-parse HEAD)"
+          peeled_sha="$(git -C .gradle/catalog-source/bluetape4k-dependencies rev-parse "${BLUETAPE4K_DEPENDENCIES_CATALOG_TAG}^{commit}")"
+          test "$tag_object_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_TAG_OBJECT_SHA"
+          test "$head_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"
+          test "$peeled_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"
+          echo "catalog ref=$BLUETAPE4K_DEPENDENCIES_CATALOG_REF"
+          echo "catalog tag=$BLUETAPE4K_DEPENDENCIES_CATALOG_TAG"
+          echo "catalog tag object=$tag_object_sha"
+          echo "catalog head=$head_sha"
+          echo "catalog peeled=$peeled_sha"
+      - name: Read pinned Dependabot Core commit
+        id: dependabot-pin
+        shell: bash
+        run: |
+          python3.13 - <<'PY' >> "$GITHUB_OUTPUT"
+          import tomllib
+          from pathlib import Path
+
+          mapping_path = Path(
+              ".gradle/catalog-source/bluetape4k-dependencies/config/projects-dependabot-catalog.toml"
+          )
+          mapping = tomllib.loads(mapping_path.read_text(encoding="utf-8"))
+          commit = mapping.get("dependabot_core_commit")
+          if not isinstance(commit, str) or len(commit) != 40 or any(c not in "0123456789abcdef" for c in commit):
+              raise SystemExit("Dependabot Core pin must be a full lowercase commit SHA")
+          print(f"commit={commit}")
+          PY
+      - uses: actions/checkout@v7
+        with:
+          repository: dependabot/dependabot-core
+          ref: ${{ steps.dependabot-pin.outputs.commit }}
+          path: .gradle/dependabot-core
+          fetch-depth: 1
+      - uses: ruby/setup-ruby@26e5b7d197ebf60545ee9667bcbace0be11ccaec # v1
+        with:
+          working-directory: .gradle/dependabot-core
+          bundler-cache: true
+      - name: Run pinned Dependabot Gradle parser contract
+        env:
+          BUNDLE_GEMFILE: ${{ github.workspace }}/.gradle/dependabot-core/Gemfile
+          DEPENDABOT_CORE_ROOT: ${{ github.workspace }}/.gradle/dependabot-core
+          MAPPING_PATH: ${{ github.workspace }}/.gradle/catalog-source/bluetape4k-dependencies/config/projects-dependabot-catalog.toml
+          GENERATED_CATALOG_PATH: ${{ github.workspace }}/gradle/libs.versions.toml
+          OUTPUT_PATH: ${{ github.workspace }}/.gradle/issue-1832-evidence/parser-receipt.json
+        run: |
+          set -euo pipefail
+          mkdir -p "$(dirname "$OUTPUT_PATH")"
+          test "$(git -C "$DEPENDABOT_CORE_ROOT" rev-parse HEAD)" = "${{ steps.dependabot-pin.outputs.commit }}"
+          bundle exec ruby .gradle/catalog-source/bluetape4k-dependencies/tests/fixtures/project-dependabot-catalog/dependabot-parser-contract.rb
+      - name: Verify generated catalog and parser contract
+        run: |
+          set -euo pipefail
+          git switch -c ci-project-catalog "$PROJECTS_EXPECTED_SHA"
+          git -C .gradle/catalog-source/bluetape4k-dependencies switch -c ci-central-catalog "$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"
+          git remote set-url origin git@github.com:bluetape4k/bluetape4k-projects.git
+          git -C .gradle/catalog-source/bluetape4k-dependencies remote set-url origin git@github.com:bluetape4k/bluetape4k-dependencies.git
+          evidence_dir="$GITHUB_WORKSPACE/.gradle/issue-1832-evidence"
+          mkdir -p "$evidence_dir"
+          python3.13 .gradle/catalog-source/bluetape4k-dependencies/scripts/catalog_candidate.py build-project-map \
+            --projects-root "$GITHUB_WORKSPACE" \
+            --central-root "$GITHUB_WORKSPACE/.gradle/catalog-source/bluetape4k-dependencies" \
+            --output "$evidence_dir/repository-map.json"
+          python3.13 .gradle/catalog-source/bluetape4k-dependencies/scripts/project-dependabot-catalog.py \
+            --projects-root "$GITHUB_WORKSPACE" \
+            --central-root "$GITHUB_WORKSPACE/.gradle/catalog-source/bluetape4k-dependencies" \
+            --repository-map "$evidence_dir/repository-map.json" \
+            --evidence-dir "$evidence_dir" \
+            --check
+          python3.13 -m unittest discover \
+            -s .gradle/catalog-source/bluetape4k-dependencies/tests \
+            -p 'test_project_dependabot_catalog.py'
+          python3.13 -m unittest tests.test_catalog_workflows
+          python3.13 scripts/verify-catalog-workflows.py
+      - name: Verify catalog provenance evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          evidence_dir="$GITHUB_WORKSPACE/.gradle/issue-1832-evidence"
+          required_files=(
+            parser-receipt.json
+            repository-map.json
+            generator-receipt.json
+            candidate-lock.json
+          )
+          for file in "${required_files[@]}"; do
+            path="$evidence_dir/$file"
+            if [[ ! -f "$path" || -L "$path" ]]; then
+              echo "Catalog provenance evidence must be a regular file: $path" >&2
+              exit 1
+            fi
+          done
+      - name: Upload catalog provenance evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: catalog-provenance
+          path: .gradle/issue-1832-evidence/**
+          if-no-files-found: warn
+          retention-days: 30
       - name: Check central catalog adoption
         run: |
-          python3 .catalog/bluetape4k-dependencies/scripts/sync-shared-versions.py \
+          python3.13 .gradle/catalog-source/bluetape4k-dependencies/scripts/sync-shared-versions.py \
             --workspace "$(dirname "$GITHUB_WORKSPACE")" \
             --repo "${GITHUB_REPOSITORY#*/}" \
+            --catalog-filename libs.project.versions.toml \
             --check \
             --summary
       - name: Resolve Gradle catalog from checked-out source
         env:
-          BLUETAPE4K_DEPENDENCIES_CATALOG_PATH: ${{ github.workspace }}/.catalog/bluetape4k-dependencies/gradle/libs.versions.toml
+          BLUETAPE4K_DEPENDENCIES_CATALOG_PATH: ${{ github.workspace }}/.gradle/catalog-source/bluetape4k-dependencies/gradle/libs.versions.toml
         run: |
           set -euo pipefail
           gradle10_removal_pattern='(scheduled (to be removed|for removal)|will (be )?removed|will become (an )?error|will fail with an error)[^[:cntrl:]]*Gradle 10([.][0-9]+){0,2}'
@@ -340,6 +466,46 @@ jobs:
             exit 1
           fi
 
+  # Product jobs test the exact PR head; this lane also tests the synthetic
+  # merge result that GitHub presents for pull_request events.
+  test-merge-result:
+    name: Test / PR merge-result contract
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Verify synthetic merge result contains the current PR commits
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          merge_result_sha="$(git rev-parse HEAD)"
+          test "$merge_result_sha" = "$GITHUB_SHA"
+          git merge-base --is-ancestor "$PR_HEAD_SHA" "$merge_result_sha"
+          git merge-base --is-ancestor "$PR_BASE_SHA" "$merge_result_sha"
+          test -n "$PR_BASE_REF"
+          git fetch --no-tags origin "refs/heads/$PR_BASE_REF:refs/remotes/origin/$PR_BASE_REF"
+          current_base_sha="$(git rev-parse "origin/$PR_BASE_REF")"
+          git merge-base --is-ancestor "$current_base_sha" "$PR_HEAD_SHA"
+          echo "pr head=$PR_HEAD_SHA"
+          echo "pr base=$PR_BASE_SHA"
+          echo "current base ref=$PR_BASE_REF"
+          echo "current base sha=$current_base_sha"
+          echo "merge result=$merge_result_sha"
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Run workflow contract checks on the synthetic merge result
+        run: |
+          python3 -m unittest tests.test_catalog_workflows -v
+          python3 scripts/verify-catalog-workflows.py
+
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -347,8 +513,10 @@ jobs:
     needs: [validate-wrapper, catalog-governance]
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -398,8 +566,10 @@ jobs:
     if: ${{ needs.changes.outputs.core == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -480,8 +650,10 @@ jobs:
     if: ${{ needs.changes.outputs.io == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -554,8 +726,10 @@ jobs:
     if: ${{ needs.changes.outputs['io-http'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -633,8 +807,10 @@ jobs:
     if: ${{ needs.changes.outputs['testcontainers-spring'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -679,8 +855,10 @@ jobs:
     if: ${{ needs.changes.outputs.ktor == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -749,6 +927,8 @@ jobs:
       BLUETAPE4K_MANUAL_ROOT: ${{ github.workspace }}/.manual-site/docs/manual/bluetape4k-projects
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - uses: actions/checkout@v7
         with:
@@ -761,7 +941,7 @@ jobs:
           test "$(git -C .manual-site rev-parse HEAD)" = "$BLUETAPE4K_MANUAL_REF"
           echo "central manual commit=$BLUETAPE4K_MANUAL_REF"
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -841,8 +1021,10 @@ jobs:
     if: ${{ needs.changes.outputs.measured == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -897,8 +1079,10 @@ jobs:
     if: ${{ needs.changes.outputs.science == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -958,8 +1142,10 @@ jobs:
     if: ${{ needs.changes.outputs.infra == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -1042,8 +1228,10 @@ jobs:
     if: ${{ needs.changes.outputs['search-messaging'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -1104,8 +1292,10 @@ jobs:
     if: ${{ needs.changes.outputs['kafka-infra'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -1166,8 +1356,10 @@ jobs:
     if: ${{ needs.changes.outputs['telemetry-infra'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -1222,14 +1414,16 @@ jobs:
   # ── 7-c. Data 모듈 테스트 (Testcontainers) ───────────────────────────────
   test-data:
     name: Test / Data
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 75
     needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs.data == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -1238,6 +1432,14 @@ jobs:
         with:
           gradle-version: wrapper
           cache-read-only: true
+
+      - name: Report runner image and kernel
+        shell: bash
+        run: |
+          echo "ImageOS=${ImageOS:-<unset>}"
+          echo "ImageVersion=${ImageVersion:-<unset>}"
+          cat /etc/os-release
+          uname -r
 
       - name: Test data modules
         uses: nick-fields/retry@v4
@@ -1296,7 +1498,7 @@ jobs:
   # spring-boot/** 변경이 PR CI에서 테스트 없이 통과하지 않도록 한다.
   test-spring-boot:
     name: Test / Spring Boot (${{ matrix.group }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}
     timeout-minutes: 75
     needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['spring-boot'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -1329,8 +1531,10 @@ jobs:
             kover_tasks: ""
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -1339,6 +1543,15 @@ jobs:
         with:
           gradle-version: wrapper
           cache-read-only: true
+
+      - name: Report runner image and kernel
+        if: ${{ matrix.group == 'batch-nosql' }}
+        shell: bash
+        run: |
+          echo "ImageOS=${ImageOS:-<unset>}"
+          echo "ImageVersion=${ImageVersion:-<unset>}"
+          cat /etc/os-release
+          uname -r
 
       - name: Build mock-web-server Docker image
         run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
@@ -1408,6 +1621,8 @@ jobs:
     if: always()
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
       - name: Prepare expected coverage manifest
         id: expected-coverage
@@ -1510,12 +1725,15 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [release-policy, manual-contract, jvm-release-contract, codeql-policy, catalog-governance, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, test-ktor, test-key-utils, test-measured, test-science, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot, coverage-report]
+    needs: [release-policy, manual-contract, jvm-release-contract, codeql-policy, catalog-governance, test-merge-result, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, test-ktor, test-key-utils, test-measured, test-science, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot, coverage-report]
     if: always()
     steps:
       - name: Check all jobs
         env:
           RESULTS: ${{ join(needs.*.result, ',') }}
+          CATALOG_GOVERNANCE_RESULT: ${{ needs.catalog-governance.result }}
+          MERGE_RESULT_RESULT: ${{ needs.test-merge-result.result }}
+          EVENT_NAME: ${{ github.event_name }}
           SPRING_BOOT_CHANGED: ${{ needs.changes.outputs['spring-boot'] }}
           SPRING_BOOT_RESULT: ${{ needs.test-spring-boot.result }}
           SCIENCE_CHANGED: ${{ needs.changes.outputs.science }}
@@ -1524,6 +1742,14 @@ jobs:
           MEASURED_RESULT: ${{ needs.test-measured.result }}
         run: |
           echo "Job results: $RESULTS"
+          if [[ "$CATALOG_GOVERNANCE_RESULT" != "success" ]]; then
+            echo "Catalog governance must succeed; got $CATALOG_GOVERNANCE_RESULT"
+            exit 1
+          fi
+          if [[ "$EVENT_NAME" == "pull_request" && "$MERGE_RESULT_RESULT" != "success" ]]; then
+            echo "PR merge-result contract must succeed; got $MERGE_RESULT_RESULT"
+            exit 1
+          fi
           if echo "$RESULTS" | grep -qE "failure|cancelled"; then
             echo "CI failed"
             exit 1
@@ -1540,4 +1766,4 @@ jobs:
             echo "Measured changes were detected but the Measured test job was skipped"
             exit 1
           fi
-          echo "CI passed (skipped jobs treated as success)"
+          echo "CI passed; conditional jobs may be skipped when their change scope is empty"

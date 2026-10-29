@@ -66,6 +66,14 @@ kuromoji = "0.9.0"  # https://mvnrepository.com/artifact/com.atilika.kuromoji/ku
 
 # Plugin versions
 
+dependabot-jackson2 = "2.22.3"
+dependabot-amqp-client = "5.37.0"
+dependabot-netty = "4.2.19.Final"
+dependabot-bouncycastle-bcprov = "1.85.2"
+dependabot-bouncycastle-bcprov-lts8on = "2.73.13"
+dependabot-freemarker = "2.3.35"
+dependabot-jsoup = "1.23.2"
+dependabot-jackson3 = "3.2.3"
 [plugins]
 
 
@@ -192,7 +200,7 @@ netty-buffer = { module = "io.netty:netty-buffer" }
 netty-codec = { module = "io.netty:netty-codec" }
 netty-codec-dns = { module = "io.netty:netty-codec-dns" }
 netty-codec-protobuf = { module = "io.netty:netty-codec-protobuf" }
-netty-handler = { module = "io.netty:netty-handler" }
+netty-handler = { module = "io.netty:netty-handler", version.ref = "dependabot-netty" }
 netty-handler-proxy = { module = "io.netty:netty-handler-proxy" }
 netty-resolver = { module = "io.netty:netty-resolver" }
 netty-resolver-dns = { module = "io.netty:netty-resolver-dns" }
@@ -289,8 +297,8 @@ httpcore5-testing = { module = "org.apache.httpcomponents.core5:httpcore5-testin
 # Jackson 2
 jackson-bom = { module = "com.fasterxml.jackson:jackson-bom" }
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations" }  # version from bt4k catalog
-jackson-core = { module = "com.fasterxml.jackson.core:jackson-core" }
-jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "dependabot-jackson2" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "dependabot-jackson2" }
 jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" }
 jackson-datatype-jsr353 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr353" }
 jackson-datatype-jdk8 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jdk8" }
@@ -313,8 +321,8 @@ jackson-module-json-schema = { module = "com.fasterxml.jackson.module:jackson-mo
 
 # Jackson 3
 jackson3-bom = { module = "tools.jackson:jackson-bom" }
-jackson3-core = { module = "tools.jackson.core:jackson-core" }
-jackson3-databind = { module = "tools.jackson.core:jackson-databind" }
+jackson3-core = { module = "tools.jackson.core:jackson-core", version.ref = "dependabot-jackson3" }
+jackson3-databind = { module = "tools.jackson.core:jackson-databind", version.ref = "dependabot-jackson3" }
 jackson3-datatype-eclipse-collections = { module = "tools.jackson.datatype:jackson-datatype-eclipse-collections" }
 jackson3-datatype-guava = { module = "tools.jackson.datatype:jackson-datatype-guava" }
 jackson3-datatype-json-org = { module = "tools.jackson.datatype:jackson-datatype-json-org" }
@@ -601,3 +609,8 @@ scrimage-webp = { module = "com.sksamuel.scrimage:scrimage-webp" }
 # Spring Batch
 spring-batch-test = { module = "org.springframework.batch:spring-batch-test" }
 # @formatter:on
+amqp-client = { module = "com.rabbitmq:amqp-client", version.ref = "dependabot-amqp-client" }
+bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "dependabot-bouncycastle-bcprov" }
+bouncycastle-bcprov-lts8on = { module = "org.bouncycastle:bcprov-lts8on", version.ref = "dependabot-bouncycastle-bcprov-lts8on" }
+freemarker = { module = "org.freemarker:freemarker", version.ref = "dependabot-freemarker" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "dependabot-jsoup" }
