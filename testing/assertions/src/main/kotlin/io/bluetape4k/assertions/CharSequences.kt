@@ -465,6 +465,18 @@ fun <T: CharSequence> T?.shouldContainAny(vararg substrings: CharSequence): T {
     return value
 }
 
+
+/**
+ * CharSequence가 [substrings] 중 하나 이상을 포함하는지 검증한다.
+ *
+ * @receiver 검증할 CharSequence (nullable 허용)
+ * @param substrings 하나 이상 포함되어야 하는 부분 문자열 목록
+ * @return non-null receiver (체이닝 지원)
+ */
+infix fun <T: CharSequence> T?.shouldContainAny(substrings: Iterable<CharSequence>): T {
+    return shouldContainAny(*substrings.toList().toTypedArray())
+}
+
 /**
  * CharSequence가 [substrings] 중 어느 것도 포함하지 않는지 검증한다.
  *
@@ -490,6 +502,10 @@ fun <T: CharSequence> T?.shouldContainNone(vararg substrings: CharSequence): T? 
         }
     }
     return this
+}
+
+infix fun <T: CharSequence> T?.shouldContainNone(substrings: Iterable<CharSequence>): T? {
+    return shouldContainNone(*substrings.toList().toTypedArray())
 }
 
 // ── shouldBeEqualToIgnoringCase ───────────────────────────────────────────────

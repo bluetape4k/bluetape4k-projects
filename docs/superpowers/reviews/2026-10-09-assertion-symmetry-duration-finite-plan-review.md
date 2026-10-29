@@ -106,7 +106,7 @@
 - **검토 대상 계획 SHA-256:** `9b76bfe48335f01d83ed5e29138d9786d300469f8bb380e6a9048f1f7a21ed18`.
 - **검토 방식:** 주 세션 inline fallback review. 현재 SHA에 대한 독립 reviewer attestation은 없다. 앞서 받은 독립 결과는 더 오래된 SHA를 대상으로 하므로 최신 verdict로 재사용하지 않는다.
 - **검토 범위:** 승인 설계와 계획의 요구 추적, 여섯 관점(성능·안정성·보안·운영·개발자/API·사용자/호출자), 계획 통합, 두 P1 수정, 실행 순서 및 무PR 경계.
-- **수정 확인:** 보안 P1은 계획의 신뢰 경계에 반영됐다. runner는 신뢰된 기준 HEAD와 task branch만 실행하며, 현재 사용자 권한·환경 변수·읽을 수 있는 파일·네트워크 접근을 그대로 상속하고 sandbox가 아님을 명시한다. ABI P1은 baseline의 기존 owner 목록과 final의 `DurationAssertionsKt`를 분리하고, 제거 비교를 공통 owner에 한정하며 final-only descriptor를 API matrix와 대조하도록 수정됐다.
+- **수정 확인:** 보안 P1은 계획의 신뢰 경계에 반영됐다. runner는 신뢰된 기준 HEAD와 task branch만 실행하며, 현재 사용자 권한·환경 변수·읽을 수 있는 파일·네트워크 접근을 그대로 상속하고 sandbox가 아님을 명시한다. ABI P1은 baseline의 기존 owner 목록과 final의 `JavaDurationsKt`를 분리하고, 제거 비교를 공통 owner에 한정하며 final-only descriptor를 API matrix와 대조하도록 수정됐다.
 - **최종 집계:** `P0=0, P1=0, P2=6, P3=0`. P2 여섯 항목은 실행 바이너리 identity 고정, raw 로그/XML의 권한·보존 기간, 동일 사용자에 의한 출력 경로 TOCTOU, run ID 재사용·receipt binding, CLI의 비정상 인자 거부 테스트, JUnit/Detekt 입력의 no-follow·regular-file·크기 제한이다. 신뢰 범위를 maintainer checkout으로 제한하고 산출물을 receipt/commit에서 제외하는 현재 계획을 기준으로 이들은 후속 hardening 항목으로 남긴다. 이번 계획 gate의 P0/P1 통과를 막지 않으며, 실제 실행 시 raw 산출물에 민감 정보가 들어갈 수 있다는 한계는 유지한다.
 
 | 관점 | 판정 | 최신 계획에서 확인한 내용 |
@@ -117,7 +117,7 @@
 | 운영 | PASS · P0=0/P1=0 | receipt helper 경계, NUL-safe 사용자 상태 보존, task-owned path, 로컬 commit과 no-PR scope, merge 후에만 가능한 CG-17A/B/18을 보존한다. |
 | 개발자/API | PASS · P0=0/P1=0 | Assertions 전체 overload audit과 Core 선택 family, 양쪽 require/check 대칭, 신규 Duration facade, source/runtime/compile/ABI matrix가 서로 추적된다. |
 | 사용자/호출자 | PASS · P0=0/P1=0 | predicate/callback 예외와 호출 횟수, null 반환, 배열 overload, NaN/무한대/signed-zero, tolerance, Java/Kotlin Duration 및 timeout 유한성 계약을 구분한다. |
-| 통합 | PASS · P0=0/P1=0 | baseline에는 새 `DurationAssertionsKt`를 요구하지 않고 final에서만 검증한다. 공통 owner 제거 비교와 신규 owner의 descriptor 대조가 계획 순서에 맞으며 전체 `test`가 fixture compile을 포함한다. |
+| 통합 | PASS · P0=0/P1=0 | baseline에는 새 `JavaDurationsKt`를 요구하지 않고 final에서만 검증한다. 공통 owner 제거 비교와 신규 owner의 descriptor 대조가 계획 순서에 맞으며 전체 `test`가 fixture compile을 포함한다. |
 
 **판정:** 현재 계획 SHA의 6관점 내용 검토는 P0/P1 차단 finding 없이 통과했다. 앞서 독립 검토자가 찾은 두 P1의 조치와 현재 inline verdict를 구분해 기록했다. workflow receipt의 최신 계획 SHA·writer evidence 연결과 문서 선행 commit 전에는 구현을 시작하지 않는다. source/test 변경, build, test, ABI 실행은 아직 없다.
 
@@ -135,8 +135,8 @@
 - **검토자/방식:** 독립 `code-reviewer` lane `plan_current_6lens_1011`; 여섯 관점과 통합 검토. 이전 주 세션 검토와 별도 결과다.
 - **대상:** `docs/superpowers/plans/2026-10-09-assertion-symmetry-duration-finite-plan.md`, SHA-256 `9b76bfe48335f01d83ed5e29138d9786d300469f8bb380e6a9048f1f7a21ed18`.
 - **판정:** `P0=0, P1=1, P2=7, P3=0`; 이 SHA는 계획 승인에 사용할 수 없다.
-- **P1 — ABI baseline owner 설명 불일치:** §기준선은 baseline과 final의 JDK·`javap` 인자·owner 목록이 같다고 읽힌다. 그러나 §0은 baseline에서 구현 전 존재하는 owner만 사용하고 final에 새 `DurationAssertionsKt`를 추가한다고 정한다. 구현자가 기준선 실행에 아직 존재하지 않는 facade를 요구할 수 있다.
-- **수정:** 계획 §기준선은 공통 owner descriptor만 비교하고 `DurationAssertionsKt`는 final에서만 API matrix와 대조한다고 명시했다. 기준선 명령 목록에도 `baseline-environment`를 추가하고 §0의 고정 argv를 참조하도록 맞췄다.
+- **P1 — ABI baseline owner 설명 불일치:** §기준선은 baseline과 final의 JDK·`javap` 인자·owner 목록이 같다고 읽힌다. 그러나 §0은 baseline에서 구현 전 존재하는 owner만 사용하고 final에 새 `JavaDurationsKt`를 추가한다고 정한다. 구현자가 기준선 실행에 아직 존재하지 않는 facade를 요구할 수 있다.
+- **수정:** 계획 §기준선은 공통 owner descriptor만 비교하고 `JavaDurationsKt`는 final에서만 API matrix와 대조한다고 명시했다. 기준선 명령 목록에도 `baseline-environment`를 추가하고 §0의 고정 argv를 참조하도록 맞췄다.
 - **P2 일곱 번째 — 환경 기준선 명령 불일치:** 설명의 Gradle 환경 명령이 별칭 표의 고정 argv와 다르고 baseline 실행 목록에서 호출되지 않았다. 위 수정으로 설명·별칭·실행 목록을 맞췄다.
 - **남은 P2 여섯 건:** 실행 바이너리 identity 고정, raw log/XML 권한·보존·삭제 정책, 동일 사용자 출력 경로의 TOCTOU, run ID 재사용과 receipt-session binding, 비정상 CLI 인자 테스트 범위, 보고서 입력의 no-follow/regular-file/크기 제한. 현재 계획은 신뢰된 maintainer checkout을 전제로 하며 이 hardening 항목은 남은 위험으로 유지한다.
 - **새 계획 SHA:** `e2f880ca2269dc5c67793c9e0c643dbbdb6b633551769a4b41ef2c607fa01bef`. 이 SHA에 대한 fresh 독립 재검토가 진행 중이다. 이전 inline `P0=0/P1=0`은 위 독립 finding으로 대체됐으며 새 재검토 전까지 통과 근거로 쓰지 않는다.
@@ -155,7 +155,7 @@
 - **검토자/방식:** 새 독립 `code-reviewer` lane `plan_recheck_6lens_1011`; 여섯 관점과 통합 검토를 수행했다. 테스트·빌드·파일 수정은 없었다.
 - **검토 대상:** `docs/superpowers/plans/2026-10-09-assertion-symmetry-duration-finite-plan.md`, SHA-256 `e2f880ca2269dc5c67793c9e0c643dbbdb6b633551769a4b41ef2c607fa01bef`.
 - **판정:** `P0=0, P1=0, P2=6, P3=0`. 최신 계획의 P0/P1 gate를 통과한다. 이전 SHA의 결과를 재사용하지 않았다.
-- **이전 finding 재확인:** §기준선은 공통 owner의 descriptor만 비교하고 `DurationAssertionsKt`는 final에서만 API matrix와 대조한다. `baseline-environment`는 baseline 명령 목록에 포함됐고, §0의 고정 argv와 일치한다.
+- **이전 finding 재확인:** §기준선은 공통 owner의 descriptor만 비교하고 `JavaDurationsKt`는 final에서만 API matrix와 대조한다. `baseline-environment`는 baseline 명령 목록에 포함됐고, §0의 고정 argv와 일치한다.
 - **남은 P2 hardening:**
 
 | 항목 | 위치 | 검토자 조치 제안 |

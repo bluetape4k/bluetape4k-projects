@@ -19,6 +19,19 @@ suspend fun <T> Flow<T>.assertEmpty() {
 }
 
 /**
+ * Flow가 값을 방출하지 않는지 검증한다.
+ *
+ * @receiver 검증할 Flow
+ * @throws org.opentest4j.AssertionFailedError Flow가 값을 방출한 경우
+ */
+suspend fun <T> Flow<T>.shouldBeEmpty() {
+    val items = toList()
+    if (items.isNotEmpty()) {
+        Failures.fail("Expected Flow to be empty, but had ${items.size} items: $items")
+    }
+}
+
+/**
  * 이 Flow가 [expected] Flow와 같은 값을 같은 순서로 방출하는지 검증한다.
  *
  * @receiver 검증할 Flow
@@ -36,6 +49,7 @@ suspend fun <T> Flow<T>.assertResult(expected: Flow<T>) {
         )
     }
 }
+
 
 /**
  * 이 Flow가 [values]를 정확히 같은 순서로 방출하는지 검증한다.
