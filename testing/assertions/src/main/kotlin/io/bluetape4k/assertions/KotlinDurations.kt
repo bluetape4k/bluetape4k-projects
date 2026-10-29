@@ -1,8 +1,26 @@
+@file:JvmName("DurationAssertionsKt")
+
 package io.bluetape4k.assertions
 
 import io.bluetape4k.assertions.internal.Failures
 import io.bluetape4k.assertions.internal.Messages
+import java.time.Duration as JavaDuration
+import kotlin.jvm.JvmName
 import kotlin.time.Duration as KotlinDuration
+
+
+// Legacy Java facade compatibility for the former combined DurationAssertions.kt owner.
+@JvmName("shouldBePositive")
+fun JavaDuration.shouldBePositiveLegacy(): JavaDuration = shouldBePositive()
+
+@JvmName("shouldBeZeroOrPositive")
+fun JavaDuration.shouldBeZeroOrPositiveLegacy(): JavaDuration = shouldBeZeroOrPositive()
+
+@JvmName("shouldBeNegative")
+fun JavaDuration.shouldBeNegativeLegacy(): JavaDuration = shouldBeNegative()
+
+@JvmName("shouldNotBePositive")
+fun JavaDuration.shouldNotBePositiveLegacy(): JavaDuration = shouldNotBePositive()
 
 
 // ── kotlin.time.Duration ────────────────────────────────────────────────────

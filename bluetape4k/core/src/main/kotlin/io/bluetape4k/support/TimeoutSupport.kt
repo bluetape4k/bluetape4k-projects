@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import kotlin.jvm.JvmName
 
 const val MIN_TIMEOUT_MILLIS = 10L
 
@@ -121,6 +122,14 @@ inline fun <T: Any> withTimeoutOrNull(
         if (cause is TimeoutException) null else throw e
     }
 }
+
+/**
+ * 기존 Java 소비자가 사용하던 `asyncRunWithTimeout(long, Function0)` JVM 서명을 유지하는 호환 브리지입니다.
+ * 새 Kotlin 호출은 executor 소유권을 명시할 수 있는 본문 함수를 사용합니다.
+ */
+@JvmName("asyncRunWithTimeout")
+fun <T> asyncRunWithTimeoutJvm(timeoutMillis: Long, action: () -> T): CompletableFuture<T> =
+    asyncRunWithTimeout(timeoutMillis, action = action)
 
 /**
  * Timeout 내에서 [action]을 실행합니다. [action]이 [timeout] 시간 내에 종료되지 않으면 null 을 반환합니다.
