@@ -39,6 +39,50 @@ worktree의 변경 전 기준과 변경 후 정적 계약 결과를 구분하며
 5. `scripts/ci/**`를 shared path filter에 포함해 manifest나 validator 자체의
    변경도 전체 계약 검증을 실행하게 한다.
 
+## CI runner/kernel 보정
+
+PR #1866의 exact head `3f7fedb0d388154e1d0b741bde26618518c8c322`에서 실행한
+[run 40838475210](https://github.com/bluetape4k/bluetape4k-projects/actions/runs/40838475210)의
+`Test / Data`와 `Test / Spring Boot (batch-nosql)`은 각각 hosted image
+`20261026.354.1`, Ubuntu `24.04.5 LTS`, kernel `7.0.0-1017-azure`를 기록한 뒤
+`mongo:8.0.28`의 `waiting for connections` startup timeout으로 실패했다. Data는
+재시도 중 timeout으로 취소되었고, Spring Boot는 MongoDB 테스트에서 실패했다. 이는
+Issue #1861의 모듈 매핑 문제가 아니라 MongoDB와 hosted kernel의 호환성 문제다.
+
+[MongoDB 8.0 릴리스 노트](https://www.mongodb.com/docs/v8.0/release-notes/8.0/)는
+kernel `6.19`부터 `7.0.13`까지를 Docker를 포함한 모든 MongoDB 패키지의 비호환
+범위로 규정하고 `7.0.14` 이상을 요구한다. 현재 hosted `ubuntu-24.04` kernel은
+그 경계보다 낮으므로 MongoDB가 실행되는 다음 여섯 경로를 `ubuntu-22.04`로
+되돌렸다.
+
+- PR CI: `test-data`, Spring Boot `batch-nosql`
+- Nightly: Data `nosql`, Spring Boot `batch-nosql`, Testcontainers `storage-cache`
+- Nightly image-gate: MongoDB shard
+
+MongoDB를 실행하지 않고 shard 결과만 집계하는 Nightly image-gate aggregate는
+`ubuntu-24.04`를 유지한다. 각 MongoDB 경로의 `ImageOS`, `ImageVersion`,
+`/etc/os-release`, `uname -r` 진단과 실패 전파 계약은 유지한다.
+
+이 보정은 현재 hosted kernel에서의 단기 복구다. GitHub는
+[`ubuntu-22.04` image의 deprecation을 2026-09-17에 시작하고 2027-04-17에 완전
+지원 종료한다고 공지했다](https://github.com/actions/runner-images/issues/14254).
+따라서 `ubuntu-22.04`를 장기 해법으로 간주하지 않고, `7.0.14` 이상 kernel을
+제공하는 지원 runner 또는 MongoDB 실행 경계를 별도 후속 작업으로 전환해야 한다.
+
+## runner 보정 검증
+
+회귀 테스트는 먼저 새 `ubuntu-22.04` 계약에서 기존 workflow가 거부되는 RED를
+확인한 뒤, workflow와 verifier를 수정해 GREEN으로 전환했다. 현재 로컬 계약은
+다음 결과를 낸다.
+
+```text
+python3 -m unittest tests.test_catalog_workflows -v
+Ran 135 tests — OK
+```
+
+Hosted exact-head 재실행에서 실제 Ubuntu 22 image/kernel과 MongoDB 테스트 성공이
+확인되기 전까지 PR 완료나 Issue 종료로 표시하지 않는다.
+
 ## 결과
 
 - `io/avro`의 test와 `koverXmlReport`가 `test-io`에서 실행된다.
@@ -105,6 +149,12 @@ workflow 계약 테스트로 재검증했다. 영향받은 네 모듈의 Gradle 
 호스팅 CI의 수정 후 exact head 결과는 아직 실행하지 않았다. PR 생성 후 exact head 기준 hosted CI에서
 `io/avro`, `utils/{geo,javatimes,money}` lane과 synthetic merge-result 계약을
 다시 확인해야 한다.
+
+후속 hosted run에서는 도메인 매핑 계약은 통과했지만, 위 runner/kernel 원인으로
+`Test / Data`, Spring Boot `batch-nosql`, coverage와 `CI Status`가 연쇄 실패했다.
+따라서 새 runner 보정 커밋을 push한 뒤 exact head에서 MongoDB startup, 실제 kernel,
+coverage, `CI Status`를 다시 읽어야 하며, merge와 Issue 종료는 별도 fresh approval
+전까지 보류한다.
 
 ## Writer DoD
 

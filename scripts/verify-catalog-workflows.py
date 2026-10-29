@@ -1533,11 +1533,11 @@ def _mongodb_test_invocation_errors(
     workflow_text: str,
     data_job_name: str,
     spring_boot_job_name: str,
-    data_expected_runner: str = "ubuntu-24.04",
+    data_expected_runner: str = "ubuntu-22.04",
 ) -> list[str]:
     errors = []
     expected_spring_runner = (
-        "${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+        "${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}"
     )
     batch_nosql_condition = "${{ matrix.group == 'batch-nosql' }}"
     for job_name, job in _job_blocks(workflow_text):
@@ -1587,7 +1587,7 @@ def validate_nightly_mongodb_workflow(
         for error in _mongodb_test_job_guard_errors(data_job, nightly_execution_if)
     )
     expected_data_runner = (
-        "${{ matrix.group == 'nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+        "${{ matrix.group == 'nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}"
     )
     if _job_values(data_job, "runs-on") != [expected_data_runner]:
         errors.append(
@@ -1602,7 +1602,7 @@ def validate_nightly_mongodb_workflow(
         )
     )
     expected_spring_boot_runner = (
-        "${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+        "${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}"
     )
     if _job_values(spring_boot_job, "runs-on") != [expected_spring_boot_runner]:
         errors.append(
@@ -1701,7 +1701,7 @@ def validate_nightly_mongodb_workflow(
 
     testcontainers_job = _job_block(nightly_text, "test-testcontainers")
     expected_testcontainers_runner = (
-        "${{ matrix.group == 'storage-cache' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+        "${{ matrix.group == 'storage-cache' && 'ubuntu-22.04' || 'ubuntu-latest' }}"
     )
     if _job_values(testcontainers_job, "runs-on") != [expected_testcontainers_runner]:
         errors.append(
@@ -1824,9 +1824,9 @@ def validate_nightly_mongodb_workflow(
     image_gate_job_name = "test-testcontainers-image-gate-shard"
     image_gate_aggregate_job_name = "test-testcontainers-image-gate"
     image_gate_job = _job_block(nightly_text, image_gate_job_name)
-    if _job_values(image_gate_job, "runs-on") != ["ubuntu-24.04"]:
+    if _job_values(image_gate_job, "runs-on") != ["ubuntu-22.04"]:
         errors.append(
-            "Nightly MongoDB image-gate shard must use the compatible ubuntu-24.04 runner"
+            "Nightly MongoDB image-gate shard must use the compatible ubuntu-22.04 runner"
         )
     if _job_values(image_gate_job, "if") != [
         "${{ needs.plan.outputs.scope == 'full' }}"
@@ -2108,7 +2108,7 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         f"Test/Data MongoDB job {error}"
         for error in _mongodb_test_job_guard_errors(data_job, ci_data_execution_if)
     )
-    if _job_values(data_job, "runs-on") != ["ubuntu-24.04"]:
+    if _job_values(data_job, "runs-on") != ["ubuntu-22.04"]:
         errors.append(
             "MongoDB container tests in Test/Data must use a compatible runner"
         )
@@ -2138,7 +2138,7 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         )
     )
     expected_spring_boot_runner = (
-        "${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+        "${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}"
     )
     if _job_values(spring_boot_job, "runs-on") != [expected_spring_boot_runner]:
         errors.append(

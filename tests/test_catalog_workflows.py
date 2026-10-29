@@ -101,9 +101,9 @@ class CatalogWorkflowsTest(unittest.TestCase):
         data_job = verifier._job_block(self.ci, "test-data")
         spring_boot_job = verifier._job_block(self.ci, "test-spring-boot")
 
-        self.assertIn("runs-on: ubuntu-24.04", data_job)
+        self.assertIn("runs-on: ubuntu-22.04", data_job)
         self.assertIn(
-            "runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}",
+            "runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}",
             spring_boot_job,
         )
         for diagnostic in (
@@ -118,7 +118,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
     def test_rejects_latest_runner_for_mongodb_container_tests(self) -> None:
         invalid = self.ci.replace(
-            "runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}",
+            "runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}",
             "runs-on: ubuntu-latest",
             1,
         )
@@ -132,7 +132,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
     def test_rejects_latest_runner_for_data_container_tests(self) -> None:
         data_job = verifier._job_block(self.ci, "test-data")
         invalid_data_job = data_job.replace(
-            "runs-on: ubuntu-24.04",
+            "runs-on: ubuntu-22.04",
             "runs-on: ubuntu-latest",
             1,
         )
@@ -145,8 +145,8 @@ class CatalogWorkflowsTest(unittest.TestCase):
     def test_rejects_comment_decoy_for_data_runner(self) -> None:
         data_job = verifier._job_block(self.ci, "test-data")
         invalid_data_job = data_job.replace(
-            "    runs-on: ubuntu-24.04",
-            "    runs-on: ubuntu-latest\n    # expected: runs-on: ubuntu-24.04",
+            "    runs-on: ubuntu-22.04",
+            "    runs-on: ubuntu-latest\n    # expected: runs-on: ubuntu-22.04",
             1,
         )
         invalid = self.ci.replace(data_job, invalid_data_job, 1)
@@ -158,7 +158,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
     def test_rejects_comment_decoy_for_spring_boot_runner(self) -> None:
         spring_boot_job = verifier._job_block(self.ci, "test-spring-boot")
         expected_runner = (
-            "    runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' "
+            "    runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' "
             "|| 'ubuntu-latest' }}"
         )
         invalid_spring_boot_job = spring_boot_job.replace(
@@ -958,7 +958,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
         self.assertEqual(
             verifier._job_values(job, "runs-on"),
             [
-                "${{ matrix.group == 'storage-cache' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+                "${{ matrix.group == 'storage-cache' && 'ubuntu-22.04' || 'ubuntu-latest' }}"
             ],
         )
         self.assertEqual(
@@ -971,8 +971,8 @@ class CatalogWorkflowsTest(unittest.TestCase):
     ) -> None:
         job = verifier._job_block(self.nightly, "test-testcontainers")
         invalid_job = job.replace(
-            "runs-on: ${{ matrix.group == 'storage-cache' && 'ubuntu-24.04' || 'ubuntu-latest' }}",
-            "runs-on: ubuntu-22.04",
+            "runs-on: ${{ matrix.group == 'storage-cache' && 'ubuntu-22.04' || 'ubuntu-latest' }}",
+            "runs-on: ubuntu-latest",
             1,
         )
         invalid = self.nightly.replace(job, invalid_job, 1)
@@ -1815,7 +1815,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
         self.assertEqual(errors, [])
         job = verifier._job_block(self.nightly, "test-testcontainers-image-gate-shard")
-        self.assertEqual(verifier._job_values(job, "runs-on"), ["ubuntu-24.04"])
+        self.assertEqual(verifier._job_values(job, "runs-on"), ["ubuntu-22.04"])
         diagnostics = verifier._named_step_block(job, "Report runner image and kernel")
         self.assertTrue(diagnostics)
 
@@ -1901,7 +1901,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
     def test_rejects_unsupported_runner_for_nightly_mongodb_image_gate(self) -> None:
         job = verifier._job_block(self.nightly, "test-testcontainers-image-gate-shard")
         invalid = self.nightly.replace(
-            job, job.replace("runs-on: ubuntu-24.04", "runs-on: ubuntu-22.04", 1), 1
+            job, job.replace("runs-on: ubuntu-22.04", "runs-on: ubuntu-24.04", 1), 1
         )
 
         errors = verifier.validate_nightly_mongodb_workflow(
@@ -2018,7 +2018,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
     def test_rejects_latest_runner_for_nightly_mongodb_data_tests(self) -> None:
         data_job = verifier._job_block(self.nightly, "test-data")
         invalid_data_job = data_job.replace(
-            "runs-on: ${{ matrix.group == 'nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}",
+            "runs-on: ${{ matrix.group == 'nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}",
             "runs-on: ubuntu-latest",
             1,
         )
@@ -2036,7 +2036,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
         self.assertEqual(
             verifier._job_values(data_job, "runs-on"),
-            ["${{ matrix.group == 'nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}"],
+            ["${{ matrix.group == 'nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}"],
         )
         self.assertEqual(
             verifier._step_values(diagnostic, "if"),
@@ -2044,8 +2044,8 @@ class CatalogWorkflowsTest(unittest.TestCase):
         )
 
         invalid_job = data_job.replace(
-            "runs-on: ${{ matrix.group == 'nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}",
-            "runs-on: ubuntu-24.04",
+            "runs-on: ${{ matrix.group == 'nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}",
+            "runs-on: ubuntu-latest",
             1,
         )
         invalid = self.nightly.replace(data_job, invalid_job, 1)
@@ -2056,7 +2056,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
     def test_rejects_latest_runner_for_nightly_spring_boot_mongodb_tests(self) -> None:
         spring_job = verifier._job_block(self.nightly, "test-spring-docker")
         invalid_spring_job = spring_job.replace(
-            "runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}",
+            "runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}",
             "runs-on: ubuntu-latest",
             1,
         )

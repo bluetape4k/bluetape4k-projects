@@ -1494,7 +1494,7 @@ jobs:
   # ── 7-c. Data 모듈 테스트 (Testcontainers) ───────────────────────────────
   test-data:
     name: Test / Data
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 75
     needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs.data == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -1578,7 +1578,7 @@ jobs:
   # spring-boot/** 변경이 PR CI에서 테스트 없이 통과하지 않도록 한다.
   test-spring-boot:
     name: Test / Spring Boot (${{ matrix.group }})
-    runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}
     timeout-minutes: 75
     needs: [changes, catalog-governance]
     if: ${{ needs.changes.outputs['spring-boot'] == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}

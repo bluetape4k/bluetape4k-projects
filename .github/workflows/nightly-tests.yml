@@ -993,7 +993,7 @@ jobs:
   # 2 groups run in parallel on separate runners
   test-data:
     name: Test / Data (${{ matrix.group }})
-    runs-on: ${{ matrix.group == 'nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.group == 'nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}
     needs: [build, plan]
     if: ${{ needs.plan.outputs.run_standard == 'true' }}
     strategy:
@@ -1084,7 +1084,7 @@ jobs:
   # PR CI의 spring-boot/** 변경도 같은 세 group을 별도 test-spring-boot job으로 실행한다.
   test-spring-docker:
     name: Test / Spring Boot (${{ matrix.group }})
-    runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}
     needs: [build, plan]
     if: ${{ needs.plan.outputs.run_standard == 'true' }}
     strategy:
@@ -1188,7 +1188,7 @@ jobs:
   # does not hold the full nightly critical path.
   test-testcontainers:
     name: Test / Testcontainers (${{ matrix.group }})
-    runs-on: ${{ matrix.group == 'storage-cache' && 'ubuntu-24.04' || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.group == 'storage-cache' && 'ubuntu-22.04' || 'ubuntu-latest' }}
     needs: [build, plan]
     strategy:
       fail-fast: false
@@ -1282,7 +1282,7 @@ jobs:
   # ── Testcontainers image startup/workload gate — full Nightly 전용 ────────
   test-testcontainers-image-gate-shard:
     name: Test / Testcontainers image startup-workload gate shard ${{ matrix.shard }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 180
     needs: [build, plan]
     if: ${{ needs.plan.outputs.scope == 'full' }}
