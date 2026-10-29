@@ -68,6 +68,12 @@ Ran 21 tests in 0.228s — OK
 python3 .github/scripts/test-aggregate-kover-coverage.py -v
 Ran 28 tests in 0.894s — OK
 
+python3 scripts/verify-catalog-workflows.py
+catalog workflow contract passed
+
+python3 -m unittest tests.test_catalog_workflows -v
+Ran 135 tests — OK
+
 actionlint .github/workflows/ci.yml .github/workflows/nightly-tests.yml
 통과
 
@@ -91,8 +97,12 @@ filter의 충돌 검사를 추가했다. 앞으로 새 모듈을 추가할 때�
 publication 판정만 확인하지 말고, CI와 Nightly의 실제 `:project:test` task와
 path filter의 최종 소유 lane까지 같은 변경에서 확인한다.
 
-이번 변경은 workflow 계약, 정적 validator, 영향받은 네 모듈의 Gradle 제품 테스트를
-검증했지만 호스팅 CI는 아직 실행하지 않았다. PR 생성 후 exact head 기준 hosted CI에서
+첫 PR hosted run에서는 `Central Catalog Governance`와 `Test / PR merge-result contract`가
+새 `test-utils` checkout 및 확장된 `ci-status` 환경을 이전 중앙 verifier 상수와
+비교해 실패했다. 현재 저장소의 `scripts/verify-catalog-workflows.py` 계약을 25개
+first-party checkout과 전체 정규 lane status guard에 맞게 갱신하고 로컬 135개
+workflow 계약 테스트로 재검증했다. 영향받은 네 모듈의 Gradle 제품 테스트도 통과했지만
+호스팅 CI의 수정 후 exact head 결과는 아직 실행하지 않았다. PR 생성 후 exact head 기준 hosted CI에서
 `io/avro`, `utils/{geo,javatimes,money}` lane과 synthetic merge-result 계약을
 다시 확인해야 한다.
 
