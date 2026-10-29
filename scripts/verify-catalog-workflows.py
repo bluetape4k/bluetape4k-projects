@@ -13,7 +13,7 @@ from pathlib import Path
 FULL_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 CATALOG_TAG_RE = re.compile(r"^catalog/\d{4}-\d{2}-\d{2}-\d{2}$")
 PROJECTS_REPOSITORY = "bluetape4k/bluetape4k-projects"
-PROJECTS_CHECKOUT_COUNT = 24
+PROJECTS_CHECKOUT_COUNT = 25
 MERGE_RESULT_JOB = "test-merge-result"
 MERGE_RESULT_UNSAFE_ENV = (
     "BASH_ENV",
@@ -127,8 +127,36 @@ EXPECTED_CI_STATUS_SCRIPT = (
     'echo "PR merge-result contract must succeed; got $MERGE_RESULT_RESULT"',
     "exit 1",
     "fi",
+    'if [[ "$CHANGES_RESULT" != "success" ]]; then',
+    'echo "CI changes detection must succeed; got $CHANGES_RESULT"',
+    "exit 1",
+    "fi",
     'if echo "$RESULTS" | grep -qE "failure|cancelled"; then',
     'echo "CI failed"',
+    "exit 1",
+    "fi",
+    'if [[ "$CORE_CHANGED" == "true" && "$CORE_RESULT" == "skipped" ]]; then',
+    'echo "Core changes were detected but the Core test job was skipped"',
+    "exit 1",
+    "fi",
+    'if [[ "$IO_CHANGED" == "true" && "$IO_RESULT" == "skipped" ]]; then',
+    'echo "IO changes were detected but the IO test job was skipped"',
+    "exit 1",
+    "fi",
+    'if [[ "$IO_HTTP_CHANGED" == "true" && "$IO_HTTP_RESULT" == "skipped" ]]; then',
+    'echo "IO HTTP changes were detected but the IO HTTP test job was skipped"',
+    "exit 1",
+    "fi",
+    'if [[ "$TESTCONTAINERS_SPRING_CHANGED" == "true" && "$TESTCONTAINERS_SPRING_RESULT" == "skipped" ]]; then',
+    'echo "Testcontainers Spring changes were detected but the bridge test job was skipped"',
+    "exit 1",
+    "fi",
+    'if [[ "$KTOR_CHANGED" == "true" && "$KTOR_RESULT" == "skipped" ]]; then',
+    'echo "Ktor changes were detected but the Ktor test job was skipped"',
+    "exit 1",
+    "fi",
+    'if [[ "$KEY_UTILS_CHANGED" == "true" && "$KEY_UTILS_RESULT" == "skipped" ]]; then',
+    'echo "Key Utils changes were detected but the Key Utils test job was skipped"',
     "exit 1",
     "fi",
     'if [[ "$SPRING_BOOT_CHANGED" == "true" && "$SPRING_BOOT_RESULT" == "skipped" ]]; then',
@@ -143,20 +171,69 @@ EXPECTED_CI_STATUS_SCRIPT = (
     'echo "Measured changes were detected but the Measured test job was skipped"',
     "exit 1",
     "fi",
+    'if [[ "$UTILS_CHANGED" == "true" && "$UTILS_RESULT" == "skipped" ]]; then',
+    'echo "Utils changes were detected but the Utils test job was skipped"',
+    "exit 1",
+    "fi",
+    'if [[ "$INFRA_CHANGED" == "true" && "$INFRA_RESULT" == "skipped" ]]; then',
+    'echo "Infra changes were detected but the Infra test job was skipped"',
+    "exit 1",
+    "fi",
+    'if [[ "$SEARCH_MESSAGING_CHANGED" == "true" && "$SEARCH_MESSAGING_RESULT" == "skipped" ]]; then',
+    'echo "Search/messaging changes were detected but the Search/messaging test job was skipped"',
+    "exit 1",
+    "fi",
+    'if [[ "$KAFKA_INFRA_CHANGED" == "true" && "$KAFKA_INFRA_RESULT" == "skipped" ]]; then',
+    'echo "Kafka infra changes were detected but the Kafka infra test job was skipped"',
+    "exit 1",
+    "fi",
+    'if [[ "$TELEMETRY_INFRA_CHANGED" == "true" && "$TELEMETRY_INFRA_RESULT" == "skipped" ]]; then',
+    'echo "Telemetry infra changes were detected but the Telemetry infra test job was skipped"',
+    "exit 1",
+    "fi",
+    'if [[ "$DATA_CHANGED" == "true" && "$DATA_RESULT" == "skipped" ]]; then',
+    'echo "Data changes were detected but the Data test job was skipped"',
+    "exit 1",
+    "fi",
     'echo "CI passed; conditional jobs may be skipped when their change scope is empty"',
 )
 EXPECTED_CI_STATUS_ENV = (
     "        env:",
     "          RESULTS: ${{ join(needs.*.result, ',') }}",
+    "          CHANGES_RESULT: ${{ needs.changes.result }}",
     "          CATALOG_GOVERNANCE_RESULT: ${{ needs.catalog-governance.result }}",
     "          MERGE_RESULT_RESULT: ${{ needs.test-merge-result.result }}",
     "          EVENT_NAME: ${{ github.event_name }}",
+    "          CORE_CHANGED: ${{ needs.changes.outputs.core }}",
+    "          CORE_RESULT: ${{ needs.test-core.result }}",
+    "          IO_CHANGED: ${{ needs.changes.outputs.io }}",
+    "          IO_RESULT: ${{ needs.test-io.result }}",
+    "          IO_HTTP_CHANGED: ${{ needs.changes.outputs['io-http'] }}",
+    "          IO_HTTP_RESULT: ${{ needs.test-io-http.result }}",
+    "          TESTCONTAINERS_SPRING_CHANGED: ${{ needs.changes.outputs['testcontainers-spring'] }}",
+    "          TESTCONTAINERS_SPRING_RESULT: ${{ needs.test-testcontainers-spring.result }}",
+    "          KTOR_CHANGED: ${{ needs.changes.outputs.ktor }}",
+    "          KTOR_RESULT: ${{ needs.test-ktor.result }}",
+    "          KEY_UTILS_CHANGED: ${{ needs.changes.outputs['key-utils'] }}",
+    "          KEY_UTILS_RESULT: ${{ needs.test-key-utils.result }}",
     "          SPRING_BOOT_CHANGED: ${{ needs.changes.outputs['spring-boot'] }}",
     "          SPRING_BOOT_RESULT: ${{ needs.test-spring-boot.result }}",
     "          SCIENCE_CHANGED: ${{ needs.changes.outputs.science }}",
     "          SCIENCE_RESULT: ${{ needs.test-science.result }}",
     "          MEASURED_CHANGED: ${{ needs.changes.outputs.measured }}",
     "          MEASURED_RESULT: ${{ needs.test-measured.result }}",
+    "          UTILS_CHANGED: ${{ needs.changes.outputs.utils }}",
+    "          UTILS_RESULT: ${{ needs.test-utils.result }}",
+    "          INFRA_CHANGED: ${{ needs.changes.outputs.infra }}",
+    "          INFRA_RESULT: ${{ needs.test-infra.result }}",
+    "          SEARCH_MESSAGING_CHANGED: ${{ needs.changes.outputs['search-messaging'] }}",
+    "          SEARCH_MESSAGING_RESULT: ${{ needs.test-search-messaging.result }}",
+    "          KAFKA_INFRA_CHANGED: ${{ needs.changes.outputs['kafka-infra'] }}",
+    "          KAFKA_INFRA_RESULT: ${{ needs.test-kafka-infra.result }}",
+    "          TELEMETRY_INFRA_CHANGED: ${{ needs.changes.outputs['telemetry-infra'] }}",
+    "          TELEMETRY_INFRA_RESULT: ${{ needs.test-telemetry-infra.result }}",
+    "          DATA_CHANGED: ${{ needs.changes.outputs.data }}",
+    "          DATA_RESULT: ${{ needs.test-data.result }}",
 )
 EXPECTED_NIGHTLY_TESTCONTAINERS_PLAN_SHELL_PREFIX = (
     "set -euo pipefail",
@@ -1456,11 +1533,11 @@ def _mongodb_test_invocation_errors(
     workflow_text: str,
     data_job_name: str,
     spring_boot_job_name: str,
-    data_expected_runner: str = "ubuntu-24.04",
+    data_expected_runner: str = "ubuntu-22.04",
 ) -> list[str]:
     errors = []
     expected_spring_runner = (
-        "${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+        "${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}"
     )
     batch_nosql_condition = "${{ matrix.group == 'batch-nosql' }}"
     for job_name, job in _job_blocks(workflow_text):
@@ -1510,7 +1587,7 @@ def validate_nightly_mongodb_workflow(
         for error in _mongodb_test_job_guard_errors(data_job, nightly_execution_if)
     )
     expected_data_runner = (
-        "${{ matrix.group == 'nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+        "${{ matrix.group == 'nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}"
     )
     if _job_values(data_job, "runs-on") != [expected_data_runner]:
         errors.append(
@@ -1525,7 +1602,7 @@ def validate_nightly_mongodb_workflow(
         )
     )
     expected_spring_boot_runner = (
-        "${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+        "${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}"
     )
     if _job_values(spring_boot_job, "runs-on") != [expected_spring_boot_runner]:
         errors.append(
@@ -1624,7 +1701,7 @@ def validate_nightly_mongodb_workflow(
 
     testcontainers_job = _job_block(nightly_text, "test-testcontainers")
     expected_testcontainers_runner = (
-        "${{ matrix.group == 'storage-cache' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+        "${{ matrix.group == 'storage-cache' && 'ubuntu-22.04' || 'ubuntu-latest' }}"
     )
     if _job_values(testcontainers_job, "runs-on") != [expected_testcontainers_runner]:
         errors.append(
@@ -1747,9 +1824,9 @@ def validate_nightly_mongodb_workflow(
     image_gate_job_name = "test-testcontainers-image-gate-shard"
     image_gate_aggregate_job_name = "test-testcontainers-image-gate"
     image_gate_job = _job_block(nightly_text, image_gate_job_name)
-    if _job_values(image_gate_job, "runs-on") != ["ubuntu-24.04"]:
+    if _job_values(image_gate_job, "runs-on") != ["ubuntu-22.04"]:
         errors.append(
-            "Nightly MongoDB image-gate shard must use the compatible ubuntu-24.04 runner"
+            "Nightly MongoDB image-gate shard must use the compatible ubuntu-22.04 runner"
         )
     if _job_values(image_gate_job, "if") != [
         "${{ needs.plan.outputs.scope == 'full' }}"
@@ -2031,7 +2108,7 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         f"Test/Data MongoDB job {error}"
         for error in _mongodb_test_job_guard_errors(data_job, ci_data_execution_if)
     )
-    if _job_values(data_job, "runs-on") != ["ubuntu-24.04"]:
+    if _job_values(data_job, "runs-on") != ["ubuntu-22.04"]:
         errors.append(
             "MongoDB container tests in Test/Data must use a compatible runner"
         )
@@ -2061,7 +2138,7 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         )
     )
     expected_spring_boot_runner = (
-        "${{ matrix.group == 'batch-nosql' && 'ubuntu-24.04' || 'ubuntu-latest' }}"
+        "${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}"
     )
     if _job_values(spring_boot_job, "runs-on") != [expected_spring_boot_runner]:
         errors.append(

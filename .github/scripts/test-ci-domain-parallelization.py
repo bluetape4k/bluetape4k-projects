@@ -38,6 +38,7 @@ SHARED_FILTER_PATHS = (
     "'.github/workflows/**'",
     "'.github/scripts/**'",
     "'.github/actions/**'",
+    "'scripts/ci/**'",
     "'scripts/validate-ci-*.rb'",
 )
 
@@ -50,6 +51,7 @@ DOMAIN_JOBS = (
     "test-key-utils",
     "test-measured",
     "test-science",
+    "test-utils",
     "test-infra",
     "test-search-messaging",
     "test-kafka-infra",
@@ -152,6 +154,8 @@ class CiDomainParallelizationTest(unittest.TestCase):
 
     def test_changes_job_runs_this_contract(self):
         changes = job_block(self.workflow, "changes")
+        self.assertIn("python3 scripts/ci/validate_ci_module_coverage.py", changes)
+        self.assertIn("python3 -m unittest scripts/ci/test_validate_ci_module_coverage.py -v", changes)
         self.assertIn("Validate CI domain dependency graph", changes)
         self.assertIn("python3 .github/scripts/test-ci-domain-parallelization.py -v", changes)
 
@@ -338,6 +342,38 @@ class CiDomainParallelizationTest(unittest.TestCase):
         for mutation_name, mutated_workflow in mutations.items():
             with self.subTest(mutation=mutation_name), self.assertRaises(AssertionError):
                 self.assert_science_route(mutated_workflow)
+
+    def test_utils_fixture_routes_to_regular_ci_and_coverage(self):
+        changes = job_block(self.workflow, "changes")
+        self.assertIn("utils: ${{ steps.filter.outputs.utils }}", changes)
+        utils_filter = path_filter_block(self.workflow, "utils")
+        filter_patterns = re.findall(r"^              - '([^']+)'$", utils_filter, re.MULTILINE)
+        for fixture in (
+            "utils/geo/src/test/kotlin/io/bluetape4k/geo/GeoTest.kt",
+            "utils/javatimes/src/test/kotlin/io/bluetape4k/javatimes/JavaTimesTest.kt",
+            "utils/money/src/test/kotlin/io/bluetape4k/money/MoneyTest.kt",
+        ):
+            with self.subTest(fixture=fixture):
+                self.assertTrue(any(fnmatch.fnmatchcase(fixture, pattern) for pattern in filter_patterns))
+
+        utils_job = job_block(self.workflow, "test-utils")
+        self.assertIn("needs.changes.outputs.utils == 'true'", utils_job)
+        for task in ("geo", "javatimes", "money"):
+            self.assertIn(f":bluetape4k-{task}:test", utils_job)
+            self.assertIn(f":bluetape4k-{task}:koverXmlReport", utils_job)
+
+        coverage = job_block(self.workflow, "coverage-report")
+        self.assertIn("test-utils=${{ needs.test-utils.result }}", coverage)
+        for module in ("utils/geo", "utils/javatimes", "utils/money"):
+            self.assertIn(f"'{module}'", coverage)
+
+        status = job_block(self.workflow, "ci-status")
+        self.assertIn("UTILS_CHANGED: ${{ needs.changes.outputs.utils }}", status)
+        self.assertIn("UTILS_RESULT: ${{ needs.test-utils.result }}", status)
+        self.assertIn(
+            '[[ "$UTILS_CHANGED" == "true" && "$UTILS_RESULT" == "skipped" ]]',
+            status,
+        )
 
     def test_spring_boot_skip_is_not_accepted_when_changes_are_detected(self):
         status = job_block(self.workflow, "ci-status")

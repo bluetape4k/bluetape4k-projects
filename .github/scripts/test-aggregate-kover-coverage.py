@@ -204,6 +204,20 @@ class AggregateKoverCoverageTest(unittest.TestCase):
         ):
             self.assertIn(f"'{module}'", workflow)
 
+    def test_ci_routes_utils_contract_modules_to_test_and_coverage_manifest(self):
+        workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+        self.assertIn("utils: ${{ steps.filter.outputs.utils }}", workflow)
+        self.assertIn("'utils/geo/**'", workflow)
+        self.assertIn("'utils/javatimes/**'", workflow)
+        self.assertIn("'utils/money/**'", workflow)
+        self.assertIn("test-utils:", workflow)
+        self.assertIn("test-utils=${{ needs.test-utils.result }}", workflow)
+        for task in ("geo", "javatimes", "money"):
+            self.assertIn(f":bluetape4k-{task}:test", workflow)
+            self.assertIn(f":bluetape4k-{task}:koverXmlReport", workflow)
+        for module in ("utils/geo", "utils/javatimes", "utils/money"):
+            self.assertIn(f"'{module}'", workflow)
+
     def test_ci_keeps_coveralls_out_of_path_filtered_coverage(self):
         workflow = CI_WORKFLOW.read_text(encoding="utf-8")
         self.assertIn("id: aggregate-coverage", workflow)
