@@ -80,8 +80,21 @@ python3 -m unittest tests.test_catalog_workflows -v
 Ran 135 tests — OK
 ```
 
-Hosted exact-head 재실행에서 실제 Ubuntu 22 image/kernel과 MongoDB 테스트 성공이
-확인되기 전까지 PR 완료나 Issue 종료로 표시하지 않는다.
+## Hosted exact-head 결과
+
+runner 보정 커밋 `e2f2eca497ae188db0e4eae5e12fa2d861419e1a`의
+[run 40863230112](https://github.com/bluetape4k/bluetape4k-projects/actions/runs/40863230112)에서
+실행 증거를 확인했다.
+
+| Job | Image/kernel | 결과 |
+|---|---|---|
+| `Test / Data` (`123412146446`) | `ImageOS=ubuntu22`, `ImageVersion=20261026.341.1`, Ubuntu `22.04.5 LTS`, `6.8.0-1070-azure` | Gradle `BUILD SUCCESSFUL` |
+| `Test / Spring Boot (batch-nosql)` (`123412146489`) | `ImageOS=ubuntu22`, `ImageVersion=20261026.341.1`, Ubuntu `22.04.5 LTS`, `6.8.0-1070-azure` | Gradle `BUILD SUCCESSFUL` |
+
+같은 run의 `Coverage Report`, `CI Status`, 모든 정규 domain lane과
+[Examples run 40863230017](https://github.com/bluetape4k/bluetape4k-projects/actions/runs/40863230017)도
+성공했다. 따라서 이전 `mongo:8.0.28` startup timeout은 runner pin으로 해소되었지만,
+`ubuntu-22.04` retirement 전에 장기 runner/kernel 전환을 별도로 완료해야 한다.
 
 ## 결과
 
@@ -152,9 +165,9 @@ workflow 계약 테스트로 재검증했다. 영향받은 네 모듈의 Gradle 
 
 후속 hosted run에서는 도메인 매핑 계약은 통과했지만, 위 runner/kernel 원인으로
 `Test / Data`, Spring Boot `batch-nosql`, coverage와 `CI Status`가 연쇄 실패했다.
-따라서 새 runner 보정 커밋을 push한 뒤 exact head에서 MongoDB startup, 실제 kernel,
-coverage, `CI Status`를 다시 읽어야 하며, merge와 Issue 종료는 별도 fresh approval
-전까지 보류한다.
+runner 보정 후 exact head에서 실제 kernel, MongoDB 테스트, coverage, `CI Status`가
+모두 성공했으므로 CI 실패 원인은 해소되었다. merge와 Issue 종료는 별도 fresh
+approval 전까지 보류한다.
 
 ## Writer DoD
 
