@@ -40,6 +40,7 @@ kapt {
 
 // Hibernate ORM 7.x / Reactive 4.x requires Jakarta Persistence 3.2.0
 // Spring Boot BOM manages older Netty lines but Vert.x 5 requires Netty 4.2.x.
+val managedNettyVersion = bt4k.versions.netty.get()
 configurations.all {
     resolutionStrategy.eachDependency {
         if (requested.group == "jakarta.persistence") {
@@ -47,8 +48,11 @@ configurations.all {
             because("Hibernate ORM 7.x requires Jakarta Persistence 3.2.0")
         }
         if (requested.group == "io.netty" && !requested.name.startsWith("netty-tcnative")) {
-            useVersion("4.2.15.Final")
-            because("Vert.x 5 requires Netty 4.2.x; netty-tcnative remains on its own 2.0.x line")
+            useVersion(managedNettyVersion)
+            because(
+                "Vert.x 5 requires the central Netty 4.2.x patch line; " +
+                        "netty-tcnative remains on its own 2.0.x line"
+            )
         }
     }
 }
