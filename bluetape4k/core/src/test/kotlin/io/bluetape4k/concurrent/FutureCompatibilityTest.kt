@@ -32,6 +32,9 @@ class FutureCompatibilityTest {
     fun `timeout의 Java 오버로드 JVM 서명을 유지한다`() {
         val support = Class.forName("io.bluetape4k.support.TimeoutSupportKt")
         support.getMethod(
+            "asyncRunWithTimeout", Long::class.javaPrimitiveType, Function0::class.java,
+        ).shouldNotBeNull()
+        support.getMethod(
             "asyncRunWithTimeout", Long::class.javaPrimitiveType,
             ExecutorService::class.java, Function0::class.java,
         ).shouldNotBeNull()

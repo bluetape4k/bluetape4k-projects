@@ -166,12 +166,12 @@ core의 각 선택 가족은 `require` 및 `check` 변형을 모두 제공한다
 |---|---|---|
 | Java Duration core validators | `io.bluetape4k.javatimes` / `DurationSupport.kt` | Java `Duration`의 require/check quartet |
 | Kotlin Duration core validators | `io.bluetape4k.support` / `KotlinDurationSupport.kt` | Kotlin `Duration`의 require/check quartet |
-| Duration assertions | `io.bluetape4k.assertions` / 새 `DurationAssertions.kt` | Java 및 Kotlin `Duration` extension |
+| Duration assertions | `io.bluetape4k.assertions` / `JavaDurations.kt`, `KotlinDurations.kt` | Java 및 Kotlin `Duration` extension; `DurationAssertionsKt`는 기존 Java facade compatibility owner |
 | Float/Double finite assertions | `io.bluetape4k.assertions` / `Numerical.kt` | Float/Double 각각 `shouldBeFinite` ↔ `shouldNotBeFinite` |
 | Float/Double finite-sign assertions | `io.bluetape4k.assertions` / `Numerical.kt` | `shouldBeFinitePositive` ↔ `shouldBeFiniteZeroOrNegative`; `shouldBeFiniteZeroOrPositive` ↔ `shouldBeFiniteNegative` |
 | Float/Double finite-sign core validators | `io.bluetape4k.support` / `RequireSupport.kt`, `CheckSupport.kt` | `requireFinitePositiveNumber` ↔ `requireFiniteZeroOrNegativeNumber`; `requireFiniteZeroOrPositiveNumber` ↔ `requireFiniteNegativeNumber`, 그리고 각 이름의 `check` 대응형. 각 family는 Float/Double primitive overload를 제공 |
 
-Java Duration와 Kotlin Duration core extension은 같은 이름을 사용하지만 package가 다르다. 둘을 한 소스 파일에서 함께 쓰는 예제는 Kotlin import alias를 적용한다. Kotlin `Duration` helper는 Kotlin extension API로 제공하며 Java facade는 추가하지 않는다.
+Java Duration와 Kotlin Duration core extension은 같은 이름을 사용하지만 package가 다르다. 둘을 한 소스 파일에서 함께 쓰는 예제는 Kotlin import alias를 적용한다. Kotlin `Duration` helper는 Kotlin extension API로 제공하되, 기존 Java 소비자 호환성을 위해 `KotlinDurations.kt`가 `DurationAssertionsKt` facade owner와 Java Duration bridge를 유지한다. 새 Java Duration declaration의 canonical owner는 `JavaDurationsKt`다.
 
 ### ABI 검증 절차
 
@@ -211,7 +211,7 @@ javap -classpath testing/assertions/build/classes/kotlin/main -p -s \
 | Float/Double finite-sign assertions | `io.bluetape4k.assertions.NumericalKt` | 두 쌍의 네 함수는 각각 receiver-only이며 `F`→`F`, `D`→`D` |
 | Float/Double near assertions | `io.bluetape4k.assertions.NumericalKt` | positive `(receiver, expected, tolerance)`와 `$default`; negative `(receiver, expected, delta)` 및 별도 `(receiver, expected)` 선언/JVM descriptor 보존 |
 | BigDecimal near assertions | `io.bluetape4k.assertions.NumericalKt` | positive/negative 모두 `(receiver, expected, tolerance)`와 각 `$default` synthetic method |
-| 기존 assertion condition overload 전체 | `BasicKt`, `ArraysKt`, `CharSequencesKt`, `CollectionsKt`, `JavaDateTimesInstantZonedKt`, `JavaDateTimesLegacyKt`, `JavaDateTimesLocalKt`, `MapsKt`, `NumericalKt`, `JavaDurationsKt` | overload matrix의 모든 신규 함수명·receiver/인자·반환 타입이 해당 facade owner에 나타남; primitive array descriptor와 Java time descriptor 확인 |
+| 기존 assertion condition overload 전체 | `BasicKt`, `ArraysKt`, `CharSequencesKt`, `CollectionsKt`, `DateTimesInstantZonedKt`, `DateTimesLegacyKt`, `DateTimesLocalKt`, `MapsKt`, `NumericalKt`, `JavaDurationsKt`, `DurationAssertionsKt` | source 파일이 `JavaDateTimes*.kt`로 이름이 바뀌어도 `@file:JvmName` 호환 facade owner를 유지하고, Java/Kotlin Duration의 기존 owner와 신규 owner에서 overload matrix의 모든 함수명·receiver/인자·반환 타입을 확인한다. |
 
 Assertions compile fixture는 testing/assertions/src/test/kotlin/io/bluetape4k/assertions/api/AssertionsApiCompileFixture.kt에 둔다. Assertions module API만 import/call하고, core validation 호출은 포함하지 않는다. Core compile fixture는 bluetape4k/core/src/test/kotlin/io/bluetape4k/api/CoreValidationApiCompileFixture.kt에 두고 core API만 호출한다. 각각 :bluetape4k-assertions:compileTestKotlin과 :bluetape4k-core:compileTestKotlin으로 따로 확인한다. Assertions fixture에는 finite와 near API, 문자열·배열·collection·Map·시간 비교 pair, nullable/non-null 배열 expected overload 선택, nullable 반환형을 포함한다. Core fixture에는 선택된 require/check helper의 positive/negative overload, alias-import한 Java/Kotlin Duration quartet, Float/Double finite-sign overload와 parameter-name/lazy-message 호출 형태를 포함한다. 두 fixture는 compile 전용이며 함수 본문은 실행하지 않는다. 모든 변경 source declaration은 API matrix 및 javap facade 목록으로 대조하고, ReflectionKt도 포함한다. Negative near named argument delta와 README의 대표 호출 형태가 각각 compile되는지 확인한다.
 

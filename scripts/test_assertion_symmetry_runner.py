@@ -90,17 +90,20 @@ class RunnerContractTests(unittest.TestCase):
                 "ArraysTest",
                 "CharSequencesTest",
                 "CollectionsTest",
-                "DateTimesTest$InstantAssertions",
-                "DateTimesTest$ZonedDateTimeAssertions",
-                "DateTimesTest$OffsetDateTimeAssertions",
-                "DateTimesTest$LocalDateTimeAssertions",
-                "DateTimesTest$LocalDateAssertions",
-                "DateTimesTest$LocalTimeAssertions",
-                "DateTimesTest$JavaUtilDateAssertions",
+                "JavaDateTimesTest$InstantAssertions",
+                "JavaDateTimesTest$ZonedDateTimeAssertions",
+                "JavaDateTimesTest$OffsetDateTimeAssertions",
+                "JavaDateTimesTest$LocalDateTimeAssertions",
+                "JavaDateTimesTest$LocalDateAssertions",
+                "JavaDateTimesTest$LocalTimeAssertions",
+                "JavaDateTimesTest$JavaUtilDateAssertions",
                 "MapsTest",
                 "NumericalTest",
-                "DurationAssertionsTest",
+                "JavaDurationsTest",
+                "KotlinDurataionsTest",
                 "AssertionSymmetryTest",
+                "AssertionFacadeCompatibilityTest",
+                "AssertionJavaCompatibilityTest",
             ),
             "core": (
                 "RequireSupportTest",
@@ -123,8 +126,25 @@ class RunnerContractTests(unittest.TestCase):
                 steps = runner.build_steps(alias, "baseline", REPOSITORY_ROOT)
                 self.assertEqual(steps[0].required_classes, required_classes)
 
-        self.assertNotIn("DurationAssertionsTest", runner.BASELINE_TEST_CLASSES["assertions"])
-        self.assertNotIn("AssertionSymmetryTest", runner.BASELINE_TEST_CLASSES["assertions"])
+        self.assertNotIn("AssertionFacadeCompatibilityTest", runner.BASELINE_TEST_CLASSES["assertions"])
+        self.assertNotIn("AssertionJavaCompatibilityTest", runner.BASELINE_TEST_CLASSES["assertions"])
+
+    def test_renamed_assertion_sources_keep_legacy_facade_owner_mapping(self):
+        expected = {
+            "JavaDateTimesInstantZoned.kt": "DateTimesInstantZonedKt",
+            "JavaDateTimesLegacy.kt": "DateTimesLegacyKt",
+            "JavaDateTimesLocal.kt": "DateTimesLocalKt",
+            "JavaDurations.kt": "JavaDurationsKt",
+            "KotlinDurations.kt": "DurationAssertionsKt",
+        }
+
+        self.assertEqual(runner.ASSERTIONS_SOURCE_FACADE_OWNERS, expected)
+        self.assertIn("JavaDateTimesInstantZonedKt", runner.assertions_owners("baseline"))
+        self.assertIn("KotlinDurationsKt", runner.assertions_owners("baseline"))
+        self.assertNotIn("DateTimesInstantZonedKt", runner.assertions_owners("baseline"))
+        self.assertIn("JavaDurationsKt", runner.assertions_owners("final"))
+        self.assertIn("DurationAssertionsKt", runner.assertions_owners("final"))
+        self.assertNotIn("KotlinDurationsKt", runner.assertions_owners("final"))
 
     def test_attempt_directory_is_created_below_repository_root(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
