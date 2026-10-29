@@ -176,6 +176,7 @@ jobs:
       core: ${{ steps.filter.outputs.core }}
       io: ${{ steps.filter.outputs.io }}
       io-http: ${{ steps.filter.outputs.io-http }}
+      utils: ${{ steps.filter.outputs.utils }}
       testcontainers-spring: ${{ steps.filter.outputs.testcontainers-spring }}
       ktor: ${{ steps.filter.outputs.ktor }}
       key-utils: ${{ steps.filter.outputs.key-utils }}
@@ -198,6 +199,10 @@ jobs:
         run: ruby scripts/validate-ci-csv-coverage_test.rb
       - name: Validate Kafka4 CI coverage
         run: ruby scripts/validate-ci-kafka4-coverage.rb
+      - name: Validate publishable module CI coverage
+        run: python3 scripts/ci/validate_ci_module_coverage.py
+      - name: Test publishable module CI coverage validator
+        run: python3 -m unittest scripts/ci/test_validate_ci_module_coverage.py -v
       - name: Validate Kover coverage aggregation
         run: python3 .github/scripts/test-aggregate-kover-coverage.py -v
       - name: Validate CI domain dependency graph
@@ -215,6 +220,7 @@ jobs:
               - '.github/workflows/**'
               - '.github/scripts/**'
               - '.github/actions/**'
+              - 'scripts/ci/**'
               - 'scripts/validate-ci-*.rb'
               - 'scripts/run_testcontainers_image_gate.py'
               - 'scripts/test_run_testcontainers_image_gate.py'
@@ -242,6 +248,7 @@ jobs:
               - 'io/protobuf/**'
               - 'io/grpc/**'
               - 'io/tink/**'
+              - 'io/avro/**'
             io-http:
               - 'io/feign/**'
               - 'io/http/**'
@@ -250,7 +257,6 @@ jobs:
               - 'testing/mock-web-server/**'
               - 'testing/mock-webflux-server/**'
             testcontainers-spring:
-              - 'testing/testcontainers/**'
               - 'testing/testcontainers-spring/**'
             ktor:
               - 'ktor/**'
@@ -261,6 +267,10 @@ jobs:
               - 'utils/measured/**'
             science:
               - 'utils/science/**'
+            utils:
+              - 'utils/geo/**'
+              - 'utils/javatimes/**'
+              - 'utils/money/**'
             infra:
               - 'infra/redisson/**'
               - 'infra/lettuce/**'
@@ -680,6 +690,7 @@ jobs:
               :bluetape4k-protobuf:test \
               :bluetape4k-grpc:test \
               :bluetape4k-tink:test \
+              :bluetape4k-avro:test \
               --parallel
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -697,6 +708,7 @@ jobs:
             :bluetape4k-protobuf:koverXmlReport \
             :bluetape4k-grpc:koverXmlReport \
             :bluetape4k-tink:koverXmlReport \
+            :bluetape4k-avro:koverXmlReport \
             -x test \
             --parallel
 
@@ -1129,6 +1141,74 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: coverage-science
+          path: '**/build/reports/kover/'
+          if-no-files-found: error
+          retention-days: 30
+
+  # ── 6-d. Utils 모듈 테스트 (정규 회귀) ───────────────────────────────────
+  test-utils:
+    name: Test / Utils
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [changes, catalog-governance]
+    if: ${{ needs.changes.outputs.utils == 'true' || needs.changes.outputs.shared == 'true' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.PROJECTS_EXPECTED_SHA }}
+
+      - uses: actions/setup-java@v6.1.0
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+
+      - uses: gradle/actions/setup-gradle@v6.4.0
+        with:
+          gradle-version: wrapper
+          cache-read-only: true
+
+      - name: Test Utils modules
+        uses: nick-fields/retry@v4
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          shell: bash
+          command: |
+            ./gradlew \
+              :bluetape4k-geo:test \
+              :bluetape4k-javatimes:test \
+              :bluetape4k-money:test \
+              --no-configuration-cache \
+              --parallel
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon=false -Duser.language=en -Duser.country=US"
+          LANG: en_US.UTF-8
+          LC_ALL: en_US.UTF-8
+
+      - name: Generate Kover XML report
+        if: always()
+        run: |
+          ./gradlew \
+            :bluetape4k-geo:koverXmlReport \
+            :bluetape4k-javatimes:koverXmlReport \
+            :bluetape4k-money:koverXmlReport \
+            -x test \
+            --no-configuration-cache \
+            --parallel
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results-utils
+          path: '**/build/test-results/test/*.xml'
+          retention-days: 30
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-utils
           path: '**/build/reports/kover/'
           if-no-files-found: error
           retention-days: 30
@@ -1607,8 +1687,9 @@ jobs:
           retention-days: 30
 
   # ── 나머지 모듈 → Nightly에서 실행 ─────────────────────────────────
-  # science와 measured 정규 회귀는 위 PR job에서 실행하고, slow-netcdf를 포함한
-  # 나머지 utils 전체, misc, testcontainers는 nightly-tests.yml (매일 03:00 KST)에서 실행한다.
+  # science, measured, 그리고 변경 빈도가 높은 geo/javatimes/money 정규 회귀는
+  # 위 PR job에서 실행하고, 나머지 utils 전체, misc, testcontainers는
+  # nightly-tests.yml (매일 03:00 KST)에서 실행한다.
   # Spring Boot는 위 PR matrix와 nightly-tests.yml full scope에서 실행한다.
   # exposed 모듈은 bluetape4k-exposed 독립 레포로 분리됨 (#334)
 
@@ -1617,7 +1698,7 @@ jobs:
     name: Coverage Report
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [test-core, test-io, test-io-http, test-testcontainers-spring, test-ktor, test-key-utils, test-measured, test-science, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot]
+    needs: [test-core, test-io, test-io-http, test-testcontainers-spring, test-ktor, test-key-utils, test-measured, test-science, test-utils, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot]
     if: always()
     steps:
       - uses: actions/checkout@v7
@@ -1636,6 +1717,7 @@ jobs:
             test-key-utils=${{ needs.test-key-utils.result }}
             test-measured=${{ needs.test-measured.result }}
             test-science=${{ needs.test-science.result }}
+            test-utils=${{ needs.test-utils.result }}
             test-infra=${{ needs.test-infra.result }}
             test-search-messaging=${{ needs.test-search-messaging.result }}
             test-kafka-infra=${{ needs.test-kafka-infra.result }}
@@ -1657,6 +1739,13 @@ jobs:
           if grep -q '^test-measured=success$' coverage-artifacts/expected-jobs.manifest; then
             printf '%s\n' \
               'utils/measured' \
+              >> coverage-artifacts/expected-modules.manifest
+          fi
+          if grep -q '^test-utils=success$' coverage-artifacts/expected-jobs.manifest; then
+            printf '%s\n' \
+              'utils/geo' \
+              'utils/javatimes' \
+              'utils/money' \
               >> coverage-artifacts/expected-modules.manifest
           fi
           if grep -q '^test-search-messaging=success$' coverage-artifacts/expected-jobs.manifest; then
@@ -1725,21 +1814,46 @@ jobs:
     name: CI Status
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [release-policy, manual-contract, jvm-release-contract, codeql-policy, catalog-governance, test-merge-result, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-testcontainers-spring, test-ktor, test-key-utils, test-measured, test-science, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot, coverage-report]
+    needs: [release-policy, manual-contract, jvm-release-contract, codeql-policy, catalog-governance, test-merge-result, gitleaks, validate-wrapper, changes, build, test-core, test-io, test-io-http, test-testcontainers-spring, test-ktor, test-key-utils, test-measured, test-science, test-utils, test-infra, test-search-messaging, test-kafka-infra, test-telemetry-infra, test-data, test-spring-boot, coverage-report]
     if: always()
     steps:
       - name: Check all jobs
         env:
           RESULTS: ${{ join(needs.*.result, ',') }}
+          CHANGES_RESULT: ${{ needs.changes.result }}
           CATALOG_GOVERNANCE_RESULT: ${{ needs.catalog-governance.result }}
           MERGE_RESULT_RESULT: ${{ needs.test-merge-result.result }}
           EVENT_NAME: ${{ github.event_name }}
+          CORE_CHANGED: ${{ needs.changes.outputs.core }}
+          CORE_RESULT: ${{ needs.test-core.result }}
+          IO_CHANGED: ${{ needs.changes.outputs.io }}
+          IO_RESULT: ${{ needs.test-io.result }}
+          IO_HTTP_CHANGED: ${{ needs.changes.outputs['io-http'] }}
+          IO_HTTP_RESULT: ${{ needs.test-io-http.result }}
+          TESTCONTAINERS_SPRING_CHANGED: ${{ needs.changes.outputs['testcontainers-spring'] }}
+          TESTCONTAINERS_SPRING_RESULT: ${{ needs.test-testcontainers-spring.result }}
+          KTOR_CHANGED: ${{ needs.changes.outputs.ktor }}
+          KTOR_RESULT: ${{ needs.test-ktor.result }}
+          KEY_UTILS_CHANGED: ${{ needs.changes.outputs['key-utils'] }}
+          KEY_UTILS_RESULT: ${{ needs.test-key-utils.result }}
           SPRING_BOOT_CHANGED: ${{ needs.changes.outputs['spring-boot'] }}
           SPRING_BOOT_RESULT: ${{ needs.test-spring-boot.result }}
           SCIENCE_CHANGED: ${{ needs.changes.outputs.science }}
           SCIENCE_RESULT: ${{ needs.test-science.result }}
           MEASURED_CHANGED: ${{ needs.changes.outputs.measured }}
           MEASURED_RESULT: ${{ needs.test-measured.result }}
+          UTILS_CHANGED: ${{ needs.changes.outputs.utils }}
+          UTILS_RESULT: ${{ needs.test-utils.result }}
+          INFRA_CHANGED: ${{ needs.changes.outputs.infra }}
+          INFRA_RESULT: ${{ needs.test-infra.result }}
+          SEARCH_MESSAGING_CHANGED: ${{ needs.changes.outputs['search-messaging'] }}
+          SEARCH_MESSAGING_RESULT: ${{ needs.test-search-messaging.result }}
+          KAFKA_INFRA_CHANGED: ${{ needs.changes.outputs['kafka-infra'] }}
+          KAFKA_INFRA_RESULT: ${{ needs.test-kafka-infra.result }}
+          TELEMETRY_INFRA_CHANGED: ${{ needs.changes.outputs['telemetry-infra'] }}
+          TELEMETRY_INFRA_RESULT: ${{ needs.test-telemetry-infra.result }}
+          DATA_CHANGED: ${{ needs.changes.outputs.data }}
+          DATA_RESULT: ${{ needs.test-data.result }}
         run: |
           echo "Job results: $RESULTS"
           if [[ "$CATALOG_GOVERNANCE_RESULT" != "success" ]]; then
@@ -1750,8 +1864,36 @@ jobs:
             echo "PR merge-result contract must succeed; got $MERGE_RESULT_RESULT"
             exit 1
           fi
+          if [[ "$CHANGES_RESULT" != "success" ]]; then
+            echo "CI changes detection must succeed; got $CHANGES_RESULT"
+            exit 1
+          fi
           if echo "$RESULTS" | grep -qE "failure|cancelled"; then
             echo "CI failed"
+            exit 1
+          fi
+          if [[ "$CORE_CHANGED" == "true" && "$CORE_RESULT" == "skipped" ]]; then
+            echo "Core changes were detected but the Core test job was skipped"
+            exit 1
+          fi
+          if [[ "$IO_CHANGED" == "true" && "$IO_RESULT" == "skipped" ]]; then
+            echo "IO changes were detected but the IO test job was skipped"
+            exit 1
+          fi
+          if [[ "$IO_HTTP_CHANGED" == "true" && "$IO_HTTP_RESULT" == "skipped" ]]; then
+            echo "IO HTTP changes were detected but the IO HTTP test job was skipped"
+            exit 1
+          fi
+          if [[ "$TESTCONTAINERS_SPRING_CHANGED" == "true" && "$TESTCONTAINERS_SPRING_RESULT" == "skipped" ]]; then
+            echo "Testcontainers Spring changes were detected but the bridge test job was skipped"
+            exit 1
+          fi
+          if [[ "$KTOR_CHANGED" == "true" && "$KTOR_RESULT" == "skipped" ]]; then
+            echo "Ktor changes were detected but the Ktor test job was skipped"
+            exit 1
+          fi
+          if [[ "$KEY_UTILS_CHANGED" == "true" && "$KEY_UTILS_RESULT" == "skipped" ]]; then
+            echo "Key Utils changes were detected but the Key Utils test job was skipped"
             exit 1
           fi
           if [[ "$SPRING_BOOT_CHANGED" == "true" && "$SPRING_BOOT_RESULT" == "skipped" ]]; then
@@ -1764,6 +1906,30 @@ jobs:
           fi
           if [[ "$MEASURED_CHANGED" == "true" && "$MEASURED_RESULT" == "skipped" ]]; then
             echo "Measured changes were detected but the Measured test job was skipped"
+            exit 1
+          fi
+          if [[ "$UTILS_CHANGED" == "true" && "$UTILS_RESULT" == "skipped" ]]; then
+            echo "Utils changes were detected but the Utils test job was skipped"
+            exit 1
+          fi
+          if [[ "$INFRA_CHANGED" == "true" && "$INFRA_RESULT" == "skipped" ]]; then
+            echo "Infra changes were detected but the Infra test job was skipped"
+            exit 1
+          fi
+          if [[ "$SEARCH_MESSAGING_CHANGED" == "true" && "$SEARCH_MESSAGING_RESULT" == "skipped" ]]; then
+            echo "Search/messaging changes were detected but the Search/messaging test job was skipped"
+            exit 1
+          fi
+          if [[ "$KAFKA_INFRA_CHANGED" == "true" && "$KAFKA_INFRA_RESULT" == "skipped" ]]; then
+            echo "Kafka infra changes were detected but the Kafka infra test job was skipped"
+            exit 1
+          fi
+          if [[ "$TELEMETRY_INFRA_CHANGED" == "true" && "$TELEMETRY_INFRA_RESULT" == "skipped" ]]; then
+            echo "Telemetry infra changes were detected but the Telemetry infra test job was skipped"
+            exit 1
+          fi
+          if [[ "$DATA_CHANGED" == "true" && "$DATA_RESULT" == "skipped" ]]; then
+            echo "Data changes were detected but the Data test job was skipped"
             exit 1
           fi
           echo "CI passed; conditional jobs may be skipped when their change scope is empty"
