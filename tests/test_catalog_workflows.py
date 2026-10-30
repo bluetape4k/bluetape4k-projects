@@ -33,7 +33,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
     def test_projects_ci_pins_catalog_tag_to_peeled_commit(self) -> None:
         self.assertIn(
-            "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: '569ad87bad2e3e9d9446721e9fae1cd6f1ed0521'",
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: '72ddab5baf9cec2e285df335dd7b27a72c1944d6'",
             self.ci,
         )
         self.assertIn(
@@ -41,7 +41,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
             self.ci,
         )
         self.assertIn(
-            "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: '569ad87bad2e3e9d9446721e9fae1cd6f1ed0521'",
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: '72ddab5baf9cec2e285df335dd7b27a72c1944d6'",
             self.ci,
         )
         governance = verifier._job_block(self.ci, "catalog-governance")
@@ -56,7 +56,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
         self.assertNotIn("export BLUETAPE4K_DEPENDENCIES_CATALOG_REF=", governance)
         settings = (ROOT / "settings.gradle.kts").read_text()
         self.assertIn(
-            '.orElse("569ad87bad2e3e9d9446721e9fae1cd6f1ed0521")',
+            '.orElse("72ddab5baf9cec2e285df335dd7b27a72c1944d6")',
             settings,
         )
 
@@ -2340,7 +2340,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
     def test_rejects_catalog_tag_as_the_canonical_ref(self) -> None:
         invalid = self.ci.replace(
-            "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: '569ad87bad2e3e9d9446721e9fae1cd6f1ed0521'",
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: '72ddab5baf9cec2e285df335dd7b27a72c1944d6'",
             "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: 'catalog/2026-10-22-01'",
         )
 
@@ -3407,7 +3407,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
     def test_rejects_catalog_ref_without_exact_commit_pin(self) -> None:
         invalid = self.ci.replace(
-            "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: '569ad87bad2e3e9d9446721e9fae1cd6f1ed0521'",
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: '72ddab5baf9cec2e285df335dd7b27a72c1944d6'",
             "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: 'develop'",
         )
 
