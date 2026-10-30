@@ -45,12 +45,13 @@ EXPECTED_MERGE_RESULT_VERIFY_SCRIPT = (
 EXPECTED_DEPENDABOT_PARSER_CONTRACT_SCRIPT = (
     "set -euo pipefail",
     'mkdir -p "$(dirname "$OUTPUT_PATH")"',
-    'test "$(git -C "$DEPENDABOT_CORE_ROOT" rev-parse HEAD)" = "${{ steps.dependabot-pin.outputs.commit }}"',
+    'test "$(git -C "$DEPENDABOT_CORE_ROOT" rev-parse HEAD)" = "$BLUETAPE4K_DEPENDABOT_CORE_SHA"',
     "bundle exec ruby .gradle/catalog-source/bluetape4k-dependencies/tests/fixtures/project-dependabot-catalog/dependabot-parser-contract.rb",
 )
 EXPECTED_DEPENDABOT_PARSER_CONTRACT_ENV = (
     "        env:",
     "          BUNDLE_GEMFILE: ${{ github.workspace }}/.gradle/dependabot-core/Gemfile",
+    "          BUNDLE_PATH: ${{ runner.temp }}/dependabot-bundle",
     "          DEPENDABOT_CORE_ROOT: ${{ github.workspace }}/.gradle/dependabot-core",
     "          MAPPING_PATH: ${{ github.workspace }}/.gradle/catalog-source/bluetape4k-dependencies/config/projects-dependabot-catalog.toml",
     "          GENERATED_CATALOG_PATH: ${{ github.workspace }}/gradle/libs.versions.toml",
@@ -58,6 +59,7 @@ EXPECTED_DEPENDABOT_PARSER_CONTRACT_ENV = (
 )
 EXPECTED_DEPENDABOT_CORE_PIN_SCRIPT = (
     "python3.13 - <<'PY' >> \"$GITHUB_OUTPUT\"",
+    "import os",
     "import tomllib",
     "from pathlib import Path",
     "mapping_path = Path(",
@@ -67,8 +69,23 @@ EXPECTED_DEPENDABOT_CORE_PIN_SCRIPT = (
     'commit = mapping.get("dependabot_core_commit")',
     'if not isinstance(commit, str) or len(commit) != 40 or any(c not in "0123456789abcdef" for c in commit):',
     'raise SystemExit("Dependabot Core pin must be a full lowercase commit SHA")',
+    'expected = os.environ["BLUETAPE4K_DEPENDABOT_CORE_SHA"]',
+    'if commit != expected:',
+    'raise SystemExit(',
+    '"Dependabot Core mapping drift: "',
+    'f"expected {expected}, got {commit}"',
+    ")",
     'print(f"commit={commit}")',
     "PY",
+)
+EXPECTED_DEPENDABOT_BUNDLE_INSTALL_SCRIPT = (
+    "set -euo pipefail",
+    "bundle install --jobs 4 --retry 3",
+)
+EXPECTED_DEPENDABOT_BUNDLE_INSTALL_ENV = (
+    "        env:",
+    "          BUNDLE_GEMFILE: ${{ github.workspace }}/.gradle/dependabot-core/Gemfile",
+    "          BUNDLE_PATH: ${{ runner.temp }}/dependabot-bundle",
 )
 EXPECTED_CATALOG_VERIFICATION_SCRIPT = (
     "set -euo pipefail",
@@ -368,7 +385,7 @@ EXPECTED_EXTERNAL_CHECKOUTS = (
     (
         "catalog-governance",
         "dependabot/dependabot-core",
-        "${{ steps.dependabot-pin.outputs.commit }}",
+        "${{ env.BLUETAPE4K_DEPENDABOT_CORE_SHA }}",
         ".gradle/dependabot-core",
     ),
 )
@@ -2208,6 +2225,7 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         ci_text, "BLUETAPE4K_DEPENDENCIES_CATALOG_TAG_OBJECT_SHA"
     )
     expected_sha = _workflow_env(ci_text, "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA")
+    dependabot_core_sha = _workflow_env(ci_text, "BLUETAPE4K_DEPENDABOT_CORE_SHA")
     manual_ref = _workflow_env(ci_text, "BLUETAPE4K_MANUAL_REF")
     if manual_ref is None or FULL_SHA_RE.fullmatch(manual_ref) is None:
         errors.append("manual REF must be a full commit SHA")
@@ -2221,6 +2239,8 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         errors.append("catalog SHA must be a full 40-character commit hash")
     elif ref is not None and ref != expected_sha:
         errors.append("catalog REF must equal the expected catalog SHA")
+    if dependabot_core_sha is None or FULL_SHA_RE.fullmatch(dependabot_core_sha) is None:
+        errors.append("Dependabot Core SHA must be a full 40-character commit hash")
 
     governance = _job_block(ci_text, "catalog-governance")
     if not governance:
@@ -2228,6 +2248,13 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     else:
         if _indented_values(governance, "continue-on-error", 4):
             errors.append("catalog-governance must not use job-level continue-on-error")
+        if not re.search(
+            r"(?m)^    permissions:\n      contents: read$",
+            governance,
+        ):
+            errors.append(
+                "catalog-governance must run the external parser with contents: read only"
+            )
         if not re.search(
             r"(?m)^      - uses: actions/checkout@v7\n"
             r"        with:\n"
@@ -2266,8 +2293,9 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             'test "$head_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"',
             'test "$peeled_sha" = "$BLUETAPE4K_DEPENDENCIES_CATALOG_SHA"',
             "dependabot_core_commit",
+            "BLUETAPE4K_DEPENDABOT_CORE_SHA",
             "repository: dependabot/dependabot-core",
-            "ref: ${{ steps.dependabot-pin.outputs.commit }}",
+            "ref: ${{ env.BLUETAPE4K_DEPENDABOT_CORE_SHA }}",
             "path: .gradle/dependabot-core",
             "ruby/setup-ruby@26e5b7d197ebf60545ee9667bcbace0be11ccaec # v1",
             "DEPENDABOT_CORE_ROOT: ${{ github.workspace }}/.gradle/dependabot-core",
@@ -2325,6 +2353,61 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             errors.append(
                 "catalog-governance pinned Dependabot Core commit step must not override its execution environment"
             )
+        checkout_steps = [
+            step
+            for step in _step_blocks(governance)
+            if _step_value(step, "uses") == "actions/checkout@v7"
+            and _step_value(step, "repository") == "dependabot/dependabot-core"
+        ]
+        if len(checkout_steps) != 1 or _step_value(checkout_steps[0], "ref") != "${{ env.BLUETAPE4K_DEPENDABOT_CORE_SHA }}":
+            errors.append(
+                "catalog-governance must check out Dependabot Core at the approved immutable SHA"
+            )
+        if "ref: ${{ steps.dependabot-pin.outputs.commit }}" in governance:
+            errors.append(
+                "catalog-governance must not use the mapping output as a dynamic Dependabot Core checkout ref"
+            )
+        gradle_setup_steps = [
+            step
+            for step in _step_blocks(governance)
+            if _step_value(step, "uses") == "gradle/actions/setup-gradle@v6.4.0"
+        ]
+        if len(gradle_setup_steps) != 1 or _step_value(gradle_setup_steps[0], "cache-read-only") != "true":
+            errors.append(
+                "catalog-governance Gradle cache must be read-only"
+            )
+        ruby_setup_steps = [
+            step
+            for step in _step_blocks(governance)
+            if _step_value(step, "uses") == "ruby/setup-ruby@26e5b7d197ebf60545ee9667bcbace0be11ccaec"
+        ]
+        if len(ruby_setup_steps) != 1 or _step_value(ruby_setup_steps[0], "bundler-cache") != "false":
+            errors.append(
+                "catalog-governance Dependabot Ruby setup must not write a shared Bundler cache"
+            )
+        bundle_install_step = _named_step_block(
+            governance, "Install pinned Dependabot parser dependencies"
+        )
+        if _step_value(bundle_install_step, "working-directory") != ".gradle/dependabot-core":
+            errors.append(
+                "catalog-governance Dependabot dependency install must run in the pinned checkout"
+            )
+        if _step_run_script(bundle_install_step) != list(
+            EXPECTED_DEPENDABOT_BUNDLE_INSTALL_SCRIPT
+        ):
+            errors.append(
+                "catalog-governance Dependabot dependency install must use the exact fail-closed command"
+            )
+        if _step_env_block(bundle_install_step) != list(
+            EXPECTED_DEPENDABOT_BUNDLE_INSTALL_ENV
+        ):
+            errors.append(
+                "catalog-governance Dependabot dependency install must use an isolated runner-temp Bundler path"
+            )
+        if "bundler-cache: true" in governance:
+            errors.append(
+                "catalog-governance must not enable ruby/setup-ruby shared Bundler caching"
+            )
         parser_step = _named_step_block(
             governance, "Run pinned Dependabot Gradle parser contract"
         )
@@ -2357,9 +2440,9 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             errors.append(
                 "catalog-governance parser contract step environment must pin the expected paths and values"
             )
-        if _environment_mapping_key_count(ci_text, "BUNDLE_GEMFILE") != 1:
+        if _environment_mapping_key_count(ci_text, "BUNDLE_GEMFILE") != 2:
             errors.append(
-                "CI must define BUNDLE_GEMFILE only in the pinned parser contract step environment"
+                "CI must define BUNDLE_GEMFILE only in the pinned parser install and contract step environments"
             )
         if _step_values(parser_step, "shell"):
             errors.append(
@@ -2464,6 +2547,21 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
     unsafe_ci_environment = _unsafe_execution_environment_names(
         ci_text, ("catalog-governance", "ci-status")
     )
+    bundle_install_step = _named_step_block(
+        governance, "Install pinned Dependabot parser dependencies"
+    )
+    parser_contract_step = _named_step_block(
+        governance, "Run pinned Dependabot Gradle parser contract"
+    )
+    if (
+        _step_env_block(bundle_install_step) == list(EXPECTED_DEPENDABOT_BUNDLE_INSTALL_ENV)
+        and _step_env_block(parser_contract_step)
+        == list(EXPECTED_DEPENDABOT_PARSER_CONTRACT_ENV)
+        and _environment_mapping_key_count(ci_text, "BUNDLE_PATH") == 2
+    ):
+        unsafe_ci_environment = [
+            name for name in unsafe_ci_environment if name.upper() != "BUNDLE_PATH"
+        ]
     if unsafe_ci_environment:
         errors.append(
             "CI protected execution scopes must not define unsafe execution environment variable(s): "
