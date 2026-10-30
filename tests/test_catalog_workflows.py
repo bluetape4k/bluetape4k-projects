@@ -76,6 +76,71 @@ class CatalogWorkflowsTest(unittest.TestCase):
             governance,
         )
 
+    def test_dependabot_parser_requires_the_approved_core_sha(self) -> None:
+        governance = verifier._job_block(self.ci, "catalog-governance")
+
+        self.assertIn(
+            "BLUETAPE4K_DEPENDABOT_CORE_SHA: 'de71a59f11cc8373d39bbf5b7af5e8b73f45ca0a'",
+            self.ci,
+        )
+        self.assertIn('import os', governance)
+        self.assertIn(
+            'expected = os.environ["BLUETAPE4K_DEPENDABOT_CORE_SHA"]',
+            governance,
+        )
+        self.assertIn("if commit != expected:", governance)
+        self.assertIn(
+            "ref: ${{ env.BLUETAPE4K_DEPENDABOT_CORE_SHA }}",
+            governance,
+        )
+        self.assertNotIn(
+            "ref: ${{ steps.dependabot-pin.outputs.commit }}",
+            governance,
+        )
+
+    def test_dependabot_parser_does_not_write_shared_gradle_or_bundler_cache(self) -> None:
+        governance = verifier._job_block(self.ci, "catalog-governance")
+
+        self.assertIn("cache-read-only: true", governance)
+        self.assertIn("bundler-cache: false", governance)
+        self.assertIn("BUNDLE_PATH: ${{ runner.temp }}/dependabot-bundle", governance)
+        self.assertNotIn("bundler-cache: true", governance)
+
+    def test_rejects_dynamic_dependabot_checkout_ref(self) -> None:
+        invalid = self.ci.replace(
+            "ref: ${{ env.BLUETAPE4K_DEPENDABOT_CORE_SHA }}",
+            "ref: ${{ steps.dependabot-pin.outputs.commit }}",
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(
+            any(
+                "Dependabot Core" in error or "external checkout" in error
+                for error in errors
+            ),
+            errors,
+        )
+
+    def test_rejects_writable_dependabot_parser_caches(self) -> None:
+        invalid = self.ci.replace(
+            "cache-read-only: true",
+            "cache-read-only: false",
+            1,
+        ).replace(
+            "bundler-cache: false",
+            "bundler-cache: true",
+            1,
+        )
+
+        errors = verifier.validate_workflows(invalid, self.submission)
+
+        self.assertTrue(any("Gradle cache must be read-only" in error for error in errors), errors)
+        self.assertTrue(
+            any("shared Bundler cache" in error for error in errors), errors
+        )
+
     def test_pull_request_trigger_cannot_skip_required_status_checks(self) -> None:
         invalid = self.ci.replace(
             "  pull_request:\n    branches: [develop, main]\n",
@@ -3905,7 +3970,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
                 self.assertTrue(
                     any(
                         (
-                            "BUNDLE_GEMFILE only in the pinned parser contract"
+                            "BUNDLE_GEMFILE only in the pinned parser install and contract"
                             if description == "CI workflow BUNDLE_GEMFILE"
                             else "unsafe execution environment variable"
                         )
@@ -3951,11 +4016,16 @@ class CatalogWorkflowsTest(unittest.TestCase):
         self.assertTrue(any("environment mapping" in error for error in errors), errors)
 
     def test_pins_bundle_gemfile_to_dependabot_parser_checkout(self) -> None:
-        invalid_ci = self.ci.replace(
+        parser_step = verifier._named_step_block(
+            verifier._job_block(self.ci, "catalog-governance"),
+            "Run pinned Dependabot Gradle parser contract",
+        )
+        invalid_parser_step = parser_step.replace(
             "          BUNDLE_GEMFILE: ${{ github.workspace }}/.gradle/dependabot-core/Gemfile\n",
             "          BUNDLE_GEMFILE: ${{ github.workspace }}/Gemfile\n",
             1,
         )
+        invalid_ci = self.ci.replace(parser_step, invalid_parser_step, 1)
 
         errors = verifier.validate_workflows(invalid_ci, self.submission)
 
