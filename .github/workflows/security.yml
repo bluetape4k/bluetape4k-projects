@@ -66,7 +66,17 @@ jobs:
         run: ./gradlew dependencyCheckAnalyze --no-daemon
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-        continue-on-error: true
+
+      - name: Verify Dependency Check reports
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t reports < <(find . -type f -path '*/build/reports/dependency-check-report.*' -print)
+          if (( ${#reports[@]} == 0 )); then
+            echo "OWASP Dependency Check produced no report" >&2
+            exit 1
+          fi
 
       - name: Upload Dependency Check report
         if: always()
@@ -74,6 +84,7 @@ jobs:
         with:
           name: dependency-check-report
           path: '**/build/reports/dependency-check-report.*'
+          if-no-files-found: error
           retention-days: 30
 
       - name: Upload SARIF to GitHub Security tab
@@ -81,4 +92,30 @@ jobs:
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: '**/build/reports/dependency-check-report.sarif'
-        continue-on-error: true
+
+  # ── 전체 보안 게이트 ─────────────────────────────────────────────────────
+  security-status:
+    name: Security status
+    needs:
+      - gitleaks
+      - dependency-check
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check all security jobs
+        shell: bash
+        env:
+          RESULTS: ${{ join(needs.*.result, ',') }}
+          GITLEAKS_RESULT: ${{ needs.gitleaks.result }}
+          DEPENDENCY_CHECK_RESULT: ${{ needs.dependency-check.result }}
+        run: |
+          set -euo pipefail
+          echo "Security job results: $RESULTS"
+          if [[ "$GITLEAKS_RESULT" != "success" ]]; then
+            echo "Secret scan must succeed; got $GITLEAKS_RESULT" >&2
+            exit 1
+          fi
+          if [[ "$DEPENDENCY_CHECK_RESULT" != "success" ]]; then
+            echo "OWASP Dependency Check must succeed, including report uploads; got $DEPENDENCY_CHECK_RESULT" >&2
+            exit 1
+          fi
