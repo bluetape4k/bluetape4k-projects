@@ -33,15 +33,15 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
     def test_projects_ci_pins_catalog_tag_to_peeled_commit(self) -> None:
         self.assertIn(
-            "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: '72ddab5baf9cec2e285df335dd7b27a72c1944d6'",
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: '015281fdbb9298d8813b398ebfc010678379887e'",
             self.ci,
         )
         self.assertIn(
-            "BLUETAPE4K_DEPENDENCIES_CATALOG_TAG: 'catalog/2026-10-22-01'",
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_TAG: 'catalog/2026-10-31-01'",
             self.ci,
         )
         self.assertIn(
-            "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: '72ddab5baf9cec2e285df335dd7b27a72c1944d6'",
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: '015281fdbb9298d8813b398ebfc010678379887e'",
             self.ci,
         )
         governance = verifier._job_block(self.ci, "catalog-governance")
@@ -56,13 +56,13 @@ class CatalogWorkflowsTest(unittest.TestCase):
         self.assertNotIn("export BLUETAPE4K_DEPENDENCIES_CATALOG_REF=", governance)
         settings = (ROOT / "settings.gradle.kts").read_text()
         self.assertIn(
-            '.orElse("72ddab5baf9cec2e285df335dd7b27a72c1944d6")',
+            '.orElse("015281fdbb9298d8813b398ebfc010678379887e")',
             settings,
         )
 
     def test_projects_ci_pins_exact_catalog_tag_object(self) -> None:
         self.assertIn(
-            "BLUETAPE4K_DEPENDENCIES_CATALOG_TAG_OBJECT_SHA: 'eb4f1aca48229ca74bd9968e310ca0f8bfe0d43b'",
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_TAG_OBJECT_SHA: '984529e605675e884b1f7ea35f66b4b6a2d8f4fe'",
             self.ci,
         )
         governance = verifier._job_block(self.ci, "catalog-governance")
@@ -2340,8 +2340,8 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
     def test_rejects_catalog_tag_as_the_canonical_ref(self) -> None:
         invalid = self.ci.replace(
-            "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: '72ddab5baf9cec2e285df335dd7b27a72c1944d6'",
-            "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: 'catalog/2026-10-22-01'",
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: '015281fdbb9298d8813b398ebfc010678379887e'",
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_REF: 'catalog/2026-10-31-01'",
         )
 
         errors = verifier.validate_workflows(invalid, self.submission)
@@ -3407,7 +3407,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
     def test_rejects_catalog_ref_without_exact_commit_pin(self) -> None:
         invalid = self.ci.replace(
-            "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: '72ddab5baf9cec2e285df335dd7b27a72c1944d6'",
+            "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: '015281fdbb9298d8813b398ebfc010678379887e'",
             "BLUETAPE4K_DEPENDENCIES_CATALOG_SHA: 'develop'",
         )
 
