@@ -23,6 +23,7 @@ import io.netty.handler.codec.http2.DefaultHttp2FrameWriter
 import io.netty.handler.codec.http2.DefaultHttp2Headers
 import io.netty.handler.codec.http2.Http2CodecUtil
 import io.netty.handler.codec.http2.Http2Settings
+import io.netty.util.AsciiString
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -119,7 +120,7 @@ class NettyServerStreamLimitTest {
         private val inbound = mutableListOf<ByteBuf>()
         val handler: NettyServerHandler = NettyServerHandler.newHandler(
             transportListener, server.newPromise(), emptyList(), TransportTracer(),
-            1, false, 65535, 8192, 8192, 1024,
+            1, false, 65535, emptySet<AsciiString>(), 8192, 8192, 1024,
             Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE,
             false, Long.MAX_VALUE, 0, Long.MAX_VALUE, Attributes.EMPTY, metricRecorder
         )
