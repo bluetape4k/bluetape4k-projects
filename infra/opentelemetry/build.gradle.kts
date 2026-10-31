@@ -33,14 +33,16 @@ configurations {
 
 dependencyManagement {
     imports {
-        mavenBom(bt4k.opentelemetry.bom.get().toString())
         mavenBom(bt4k.opentelemetry.alpha.bom.get().toString())
         mavenBom(bt4k.opentelemetry.instrumentation.bom.alpha.get().toString())
+        mavenBom(bt4k.opentelemetry.bom.get().toString())
     }
 }
 
 dependencies {
     implementation(platform(bt4k.spring.boot4.dependencies))
+    implementation(enforcedPlatform(bt4k.opentelemetry.bom))
+    implementation(enforcedPlatform(bt4k.opentelemetry.alpha.bom))
     api(project(":bluetape4k-io"))
     implementation(project(":bluetape4k-netty"))
     testImplementation(project(":bluetape4k-junit5"))

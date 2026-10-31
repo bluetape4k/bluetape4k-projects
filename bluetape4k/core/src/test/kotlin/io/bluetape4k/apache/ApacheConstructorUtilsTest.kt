@@ -4,7 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
 
-private class SampleCtor(val name: String, val age: Int = 0)
+class SampleCtor(val name: String, val age: Int = 0)
 
 class ApacheConstructorUtilsTest {
 
