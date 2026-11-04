@@ -2297,7 +2297,7 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             "repository: dependabot/dependabot-core",
             "ref: ${{ env.BLUETAPE4K_DEPENDABOT_CORE_SHA }}",
             "path: .gradle/dependabot-core",
-            "ruby/setup-ruby@26e5b7d197ebf60545ee9667bcbace0be11ccaec # v1",
+            "ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1",
             "DEPENDABOT_CORE_ROOT: ${{ github.workspace }}/.gradle/dependabot-core",
             "OUTPUT_PATH: ${{ github.workspace }}/.gradle/issue-1832-evidence/parser-receipt.json",
             "dependabot-parser-contract.rb",
@@ -2370,7 +2370,7 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         gradle_setup_steps = [
             step
             for step in _step_blocks(governance)
-            if _step_value(step, "uses") == "gradle/actions/setup-gradle@v6.4.0"
+            if _step_value(step, "uses") == "gradle/actions/setup-gradle@v6.4.1"
         ]
         if len(gradle_setup_steps) != 1 or _step_value(gradle_setup_steps[0], "cache-read-only") != "true":
             errors.append(
@@ -2379,7 +2379,7 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         ruby_setup_steps = [
             step
             for step in _step_blocks(governance)
-            if _step_value(step, "uses") == "ruby/setup-ruby@26e5b7d197ebf60545ee9667bcbace0be11ccaec"
+            if _step_value(step, "uses") == "ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f"
         ]
         if len(ruby_setup_steps) != 1 or _step_value(ruby_setup_steps[0], "bundler-cache") != "false":
             errors.append(
@@ -2818,7 +2818,7 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
                 "dependency-submission verification step must run and fail closed"
             )
         if _step_value(graph_step, "uses") != (
-            "gradle/actions/dependency-submission@3f5f9adaf7d9fecd50b5935e54106014257a94e6"
+            "gradle/actions/dependency-submission@8da46b539cd8fe6ab27ca75128919a18d757604c"
         ):
             errors.append("dependency-submission must use the pinned graph action")
         if _indented_values(graph_step, "if", 8) or _indented_values(
