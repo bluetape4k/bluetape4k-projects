@@ -13,8 +13,8 @@ dependencyManagement {
 dependencies {
     implementation(platform(bt4k.micrometer.bom))
     implementation(platform(bt4k.opentelemetry.instrumentation.bom.alpha))
-    implementation(enforcedPlatform(bt4k.opentelemetry.bom))
-    implementation(enforcedPlatform(bt4k.opentelemetry.alpha.bom))
+    implementation(platform(bt4k.opentelemetry.bom))
+    implementation(platform(bt4k.opentelemetry.alpha.bom))
 
     api(project(":bluetape4k-ktor-core"))
     api(libs.ktor.server.core)

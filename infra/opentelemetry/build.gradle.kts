@@ -41,8 +41,8 @@ dependencyManagement {
 
 dependencies {
     implementation(platform(bt4k.spring.boot4.dependencies))
-    implementation(enforcedPlatform(bt4k.opentelemetry.bom))
-    implementation(enforcedPlatform(bt4k.opentelemetry.alpha.bom))
+    implementation(platform(bt4k.opentelemetry.bom))
+    implementation(platform(bt4k.opentelemetry.alpha.bom))
     api(project(":bluetape4k-io"))
     implementation(project(":bluetape4k-netty"))
     testImplementation(project(":bluetape4k-junit5"))
