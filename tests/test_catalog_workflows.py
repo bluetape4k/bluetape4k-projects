@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import importlib.util
 import subprocess
-import tomllib
 import unittest
 from pathlib import Path
 
@@ -24,7 +23,6 @@ class CatalogWorkflowsTest(unittest.TestCase):
         self.submission = (
             ROOT / ".github" / "workflows" / "dependency-submission.yml"
         ).read_text()
-        self.security = (ROOT / ".github" / "workflows" / "security.yml").read_text()
         self.image_gate_manifest = (
             ROOT / "scripts" / "testcontainers_image_gate_manifest.json"
         ).read_text()
@@ -4035,88 +4033,17 @@ class CatalogWorkflowsTest(unittest.TestCase):
             errors,
         )
 
-    def test_security_dependency_scan_failure_is_not_masked(self) -> None:
-        dependency_check = verifier._job_block(self.security, "dependency-check")
-        step = verifier._named_step_block(
-            dependency_check, "Run OWASP Dependency Check"
+    def test_repository_uses_github_security_controls_instead_of_local_security_workflow(
+        self,
+    ) -> None:
+        self.assertFalse(
+            (ROOT / ".github" / "workflows" / "security.yml").exists()
         )
-
-        self.assertTrue(step)
-        self.assertNotIn("continue-on-error: true", step)
-
-    def test_security_report_and_sarif_upload_failures_are_not_masked(self) -> None:
-        dependency_check = verifier._job_block(self.security, "dependency-check")
-        artifact_step = verifier._named_step_block(
-            dependency_check, "Upload Dependency Check report"
+        self.assertTrue((ROOT / ".github" / "workflows" / "codeql.yml").exists())
+        self.assertTrue(
+            (ROOT / ".github" / "workflows" / "dependency-submission.yml").exists()
         )
-        sarif_step = verifier._named_step_block(
-            dependency_check, "Upload SARIF to GitHub Security tab"
-        )
-
-        self.assertEqual(verifier._step_values(artifact_step, "if"), ["always()"])
-        self.assertIn("if-no-files-found: error", artifact_step)
-        self.assertEqual(verifier._step_values(sarif_step, "if"), ["always()"])
-        self.assertNotIn("continue-on-error: true", artifact_step)
-        self.assertNotIn("continue-on-error: true", sarif_step)
-
-    def test_security_no_report_path_is_an_explicit_failure(self) -> None:
-        dependency_check = verifier._job_block(self.security, "dependency-check")
-        step = verifier._named_step_block(
-            dependency_check, "Verify Dependency Check reports"
-        )
-        script = verifier._step_script_source(step, "run") or ""
-
-        self.assertEqual(verifier._step_values(step, "if"), ["always()"])
-        self.assertIn("dependency-check-report.", script)
-        self.assertIn("exit 1", script)
-
-    def test_security_status_aggregates_scan_and_upload_results(self) -> None:
-        status_job = verifier._job_block(self.security, "security-status")
-        status_step = verifier._named_step_block(status_job, "Check all security jobs")
-        script = verifier._step_script_source(status_step, "run") or ""
-
-        self.assertTrue(status_job)
-        self.assertIn("needs:", status_job)
-        self.assertIn("- gitleaks", status_job)
-        self.assertIn("- dependency-check", status_job)
-        self.assertEqual(verifier._job_values(status_job, "if"), ["always()"])
-        self.assertFalse(verifier._job_values(status_job, "continue-on-error"))
-        self.assertIn("needs.gitleaks.result", status_job)
-        self.assertIn("needs.dependency-check.result", status_job)
-        self.assertIn("exit 1", script)
-
-    def test_gitleaks_catalog_false_positives_are_narrowly_allowlisted(self) -> None:
-        config = tomllib.loads((ROOT / ".gitleaks.toml").read_text())
-        allowlists = [
-            allowlist
-            for rule in config["rules"]
-            if rule["id"] == "generic-api-key"
-            for allowlist in rule.get("allowlists", [])
-        ]
-        expected = {
-            (
-                ("5af23664429b9d8dfe6c9b8e39842a3886eb8570",),
-                (r"^settings\.gradle\.kts$",),
-            ),
-            (
-                ("5af23664429b9d8dfe6c9b8e39842a3886eb8570",),
-                (r"^tests/test_catalog_workflows\.py$",),
-            ),
-        }
-        actual = {
-            (
-                tuple(allowlist.get("commits", [])),
-                tuple(allowlist.get("paths", [])),
-            )
-            for allowlist in allowlists
-        }
-
-        catalog_actual = {
-            entry
-            for entry in actual
-            if entry[0] == ("5af23664429b9d8dfe6c9b8e39842a3886eb8570",)
-        }
-        self.assertEqual(expected, catalog_actual)
+        self.assertTrue((ROOT / ".github" / "dependabot.yml").exists())
 
 
 if __name__ == "__main__":

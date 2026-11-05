@@ -51,15 +51,3 @@ id = "generic-api-key"
     condition = "AND"
     commits = ["df56930b8dde59c02d38dc15d75d491c18604d70"]
     paths = ['''^infra/lettuce/src/test/kotlin/io/bluetape4k/redis/lettuce/lease/LettuceMultiKeyLeasePerformanceTest\.kt$''']
-
-    [[rules.allowlists]]
-    description = "Allow a historical catalog SHA identifier false positive in settings.gradle.kts"
-    condition = "AND"
-    commits = ["5af23664429b9d8dfe6c9b8e39842a3886eb8570"]
-    paths = ['''^settings\.gradle\.kts$''']
-
-    [[rules.allowlists]]
-    description = "Allow a historical catalog SHA assertion false positive in workflow tests"
-    condition = "AND"
-    commits = ["5af23664429b9d8dfe6c9b8e39842a3886eb8570"]
-    paths = ['''^tests/test_catalog_workflows\.py$''']

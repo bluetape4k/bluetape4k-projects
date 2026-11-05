@@ -56,8 +56,6 @@ plugins {
     alias(bt4k.plugins.nmcp.aggregation)
     alias(bt4k.plugins.nmcp) apply false
 
-    alias(bt4k.plugins.dependency.check)
-
     // 테스트 커버리지 (Kotlin inline/suspend 정확 지원)
     alias(bt4k.plugins.kover)
 }
@@ -1249,22 +1247,6 @@ tasks.register("exportManualModuleInventory") {
         inventoryFile.parentFile.mkdirs()
         inventoryFile.writeText(inventoryJson)
     }
-}
-
-// ── OWASP Dependency Check ────────────────────────────────────────────────
-dependencyCheck {
-    // NVD API 키 (환경변수 NVD_API_KEY 또는 Gradle 프로퍼티로 전달)
-    nvd.apiKey = providers.environmentVariable("NVD_API_KEY")
-        .orElse(providers.gradleProperty("nvdApiKey"))
-        .orElse("")
-        .get()
-    // 취약점 점수 7.0 이상이면 빌드 실패 (CVSS High/Critical)
-    failBuildOnCVSS = 7.0f
-    // 분석 제외: 테스트, 컴파일 전용 의존성
-    skipConfigurations = listOf("testRuntimeClasspath", "testCompileClasspath")
-    formats = listOf("HTML", "SARIF")
-    outputDirectory = layout.buildDirectory.dir("reports").get().asFile
-    suppressionFile = "config/owasp-suppressions.xml"
 }
 
 // ─── Kover 집계 설정 ────────────────────────────────────────────────────
