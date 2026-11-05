@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import subprocess
+import tomllib
 import unittest
 from pathlib import Path
 
@@ -4083,6 +4084,39 @@ class CatalogWorkflowsTest(unittest.TestCase):
         self.assertIn("needs.gitleaks.result", status_job)
         self.assertIn("needs.dependency-check.result", status_job)
         self.assertIn("exit 1", script)
+
+    def test_gitleaks_catalog_false_positives_are_narrowly_allowlisted(self) -> None:
+        config = tomllib.loads((ROOT / ".gitleaks.toml").read_text())
+        allowlists = [
+            allowlist
+            for rule in config["rules"]
+            if rule["id"] == "generic-api-key"
+            for allowlist in rule.get("allowlists", [])
+        ]
+        expected = {
+            (
+                ("5af23664429b9d8dfe6c9b8e39842a3886eb8570",),
+                (r"^settings\.gradle\.kts$",),
+            ),
+            (
+                ("5af23664429b9d8dfe6c9b8e39842a3886eb8570",),
+                (r"^tests/test_catalog_workflows\.py$",),
+            ),
+        }
+        actual = {
+            (
+                tuple(allowlist.get("commits", [])),
+                tuple(allowlist.get("paths", [])),
+            )
+            for allowlist in allowlists
+        }
+
+        catalog_actual = {
+            entry
+            for entry in actual
+            if entry[0] == ("5af23664429b9d8dfe6c9b8e39842a3886eb8570",)
+        }
+        self.assertEqual(expected, catalog_actual)
 
 
 if __name__ == "__main__":
