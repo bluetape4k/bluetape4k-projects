@@ -17,21 +17,121 @@ import org.awaitility.kotlin.await
 import org.awaitility.kotlin.until
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
+import java.util.concurrent.AbstractExecutorService
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.microseconds
+import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 
 class TimeoutSupportTest: AbstractCoreTest() {
 
     companion object: KLogging() {
         private const val REPEAT_SIZE = 5
+    }
+
+    private class TrackingExecutor(
+        private val rejectSubmissions: Boolean = false,
+    ): AbstractExecutorService() {
+        private val delegate = Executors.newVirtualThreadPerTaskExecutor()
+        private val shutdownSignal = CountDownLatch(1)
+
+        override fun execute(command: Runnable) {
+            if (rejectSubmissions) {
+                throw RejectedExecutionException("synthetic submission rejection")
+            }
+            delegate.execute(command)
+        }
+
+        override fun shutdown() {
+            delegate.shutdown()
+            shutdownSignal.countDown()
+        }
+
+        override fun shutdownNow(): MutableList<Runnable> = delegate.shutdownNow()
+
+        override fun isShutdown(): Boolean = delegate.isShutdown
+
+        override fun isTerminated(): Boolean = delegate.isTerminated
+
+        override fun awaitTermination(timeout: Long, unit: TimeUnit): Boolean =
+            delegate.awaitTermination(timeout, unit)
+
+        fun awaitShutdown(timeout: Long = 1, unit: TimeUnit = TimeUnit.SECONDS): Boolean =
+            shutdownSignal.await(timeout, unit)
+    }
+
+    @Test
+    fun `Duration 경계값은 millisecond timeout 정책으로 정규화된다`() {
+        (-1).milliseconds.toTimeoutMillis() shouldBeEqualTo MIN_TIMEOUT_MILLIS
+        Duration.ZERO.toTimeoutMillis() shouldBeEqualTo MIN_TIMEOUT_MILLIS
+        500.microseconds.toTimeoutMillis() shouldBeEqualTo MIN_TIMEOUT_MILLIS
+        Long.MAX_VALUE.nanoseconds.toTimeoutMillis() shouldBeEqualTo 9_223_372_036_854L
+        Duration.INFINITE.toTimeoutMillis() shouldBeEqualTo Long.MAX_VALUE
+    }
+
+    @Test
+    fun `Duration INFINITE은 즉시 완료되는 작업을 timeout시키지 않는다`() {
+        asyncRunWithTimeout(Duration.INFINITE) { "ok" }.get(1, TimeUnit.SECONDS) shouldBeEqualTo "ok"
+    }
+
+    @Test
+    fun `동기 제출 거부에서도 소유 executor를 종료한다`() {
+        val executor = TrackingExecutor(rejectSubmissions = true)
+
+        assertFailsWith<RejectedExecutionException> {
+            asyncRunWithTimeout(timeoutMillis = 100, executor = executor) { "never" }
+        }
+
+        executor.isShutdown.shouldBeTrue()
+    }
+
+    @Test
+    fun `성공 timeout 취소 완료 시 소유 executor를 종료한다`() {
+        val successExecutor = TrackingExecutor()
+        asyncRunWithTimeout(timeoutMillis = 1000, executor = successExecutor) { "ok" }.get()
+        successExecutor.awaitShutdown().shouldBeTrue()
+
+        val timeoutExecutor = TrackingExecutor()
+        val timeoutRelease = CountDownLatch(1)
+        try {
+            assertFailsWith<ExecutionException> {
+                asyncRunWithTimeout(timeoutMillis = 100, executor = timeoutExecutor) {
+                    timeoutRelease.await()
+                    "late"
+                }.get()
+            }.cause.shouldBeInstanceOf<TimeoutException>()
+            timeoutExecutor.awaitShutdown().shouldBeTrue()
+        } finally {
+            timeoutRelease.countDown()
+            timeoutExecutor.shutdownNow()
+        }
+
+        val cancelExecutor = TrackingExecutor()
+        val started = CountDownLatch(1)
+        val cancelRelease = CountDownLatch(1)
+        try {
+            val future = asyncRunWithTimeout(timeoutMillis = 1000, executor = cancelExecutor) {
+                started.countDown()
+                cancelRelease.await()
+                "late"
+            }
+            started.await(1, TimeUnit.SECONDS).shouldBeTrue()
+            future.cancel(false).shouldBeTrue()
+            cancelExecutor.awaitShutdown().shouldBeTrue()
+        } finally {
+            cancelRelease.countDown()
+            cancelExecutor.shutdownNow()
+        }
     }
 
     @RepeatedTest(REPEAT_SIZE)

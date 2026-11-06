@@ -5,11 +5,24 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import kotlin.jvm.JvmName
 
 const val MIN_TIMEOUT_MILLIS = 10L
+
+/**
+ * Duration 기반 timeout을 JDK millisecond 계약으로 변환합니다.
+ *
+ * Kotlin의 [kotlin.time.Duration.inWholeMilliseconds]는 sub-millisecond 값을 0으로
+ * 내리고, 무한값·표현 범위를 벗어난 값을 포화된 `Long.MAX_VALUE`로 변환합니다.
+ * 이 API는 기존 millisecond overload와 동일하게 10ms 미만을 [MIN_TIMEOUT_MILLIS]로
+ * 보정합니다.
+ */
+@PublishedApi
+internal fun kotlin.time.Duration.toTimeoutMillis(): Long =
+    inWholeMilliseconds.coerceAtLeast(MIN_TIMEOUT_MILLIS)
 
 /**
  * 제한시간을 두고 [action]을 비동기로 실행합니다. 제한시간이 지나면 Exception을 가지는 [CompletableFuture]를 반환합니다.
@@ -34,7 +47,9 @@ const val MIN_TIMEOUT_MILLIS = 10L
  * ```
  *
  * 시간 초과가 발생하면 반환된 future를 예외 완료하고 내부 실행기를 종료합니다.
- * 이미 제출한 [action]은 취소하거나 interrupt하지 않으므로 제한 시간을 넘긴 뒤에도 실행될 수 있습니다.
+ * 반환된 future를 취소하거나 시간 초과가 발생해도 내부 실행기를 종료하지만, 이미 제출한 [action]은
+ * 취소하거나 interrupt하지 않으므로 제한 시간을 넘긴 뒤에도 실행될 수 있습니다.
+ * 제출이 동기적으로 거부되면 [RejectedExecutionException]을 전파하고 executor를 종료합니다.
  *
  * @param timeoutMillis 제한 시간
  * @param executor 완료 후 종료할 실행기입니다. 호출 시 소유권을 이 함수에 넘깁니다.
@@ -46,11 +61,17 @@ inline fun <T> asyncRunWithTimeout(
     executor: ExecutorService = Executors.newVirtualThreadPerTaskExecutor(),
     crossinline action: () -> T,
 ): CompletableFuture<T> {
-    return futureOf(executor, action)
-        .orTimeout(timeoutMillis.coerceAtLeast(MIN_TIMEOUT_MILLIS), TimeUnit.MILLISECONDS)
-        .whenComplete { _, _ ->
-            executor.shutdown()
-        }
+    return try {
+        val future = futureOf(executor, action)
+            .orTimeout(timeoutMillis.coerceAtLeast(MIN_TIMEOUT_MILLIS), TimeUnit.MILLISECONDS)
+        future.whenComplete { _, _ -> executor.shutdown() }
+        future
+    } catch (error: RejectedExecutionException) {
+        // supplyAsync가 동기적으로 거부되면 완료 콜백을 등록할 기회가 없으므로
+        // 이 함수가 소유한 executor를 여기서도 종료해야 합니다.
+        executor.shutdown()
+        throw error
+    }
 }
 
 /**
@@ -76,6 +97,8 @@ inline fun <T> asyncRunWithTimeout(
  * ```
  *
  * @param timeout 제한 시간
+ * 10ms 미만의 유한 Duration은 [MIN_TIMEOUT_MILLIS]로 올림하고, [kotlin.time.Duration.INFINITE]와
+ * 표현 범위를 넘는 Duration은 Kotlin의 포화 변환 결과인 `Long.MAX_VALUE` millisecond를 사용합니다.
  * @param action 비동기로 실행할 코드 블럭
  * @return [action]의 실행 결과를 담은 [CompletableFuture], 제한시간이 초과되면
  * [java.util.concurrent.TimeoutException]을 담은 [CompletableFuture]를 반환합니다.
@@ -84,7 +107,7 @@ inline fun <T> asyncRunWithTimeout(
     timeout: kotlin.time.Duration,
     crossinline action: () -> T,
 ): CompletableFuture<T> =
-    asyncRunWithTimeout(timeout.inWholeMilliseconds, action = action)
+    asyncRunWithTimeout(timeout.toTimeoutMillis(), action = action)
 
 /**
  * Timeout 내에서 [action]을 실행합니다. [action]이 [timeoutMillis] 시간 내에 종료되지 않으면 null 을 반환합니다.
@@ -153,6 +176,8 @@ fun <T> asyncRunWithTimeoutJvm(timeoutMillis: Long, action: () -> T): Completabl
  * ```
  *
  * @param timeout 제한 시간
+ * 10ms 미만의 유한 Duration은 [MIN_TIMEOUT_MILLIS]로 올림하고, [kotlin.time.Duration.INFINITE]와
+ * 표현 범위를 넘는 Duration은 Kotlin의 포화 변환 결과인 `Long.MAX_VALUE` millisecond를 사용합니다.
  * @param action 실행할 block
  * @return [action]의 실행 결과, [timeout] 시간 내에 종료되지 않으면 null
  */
@@ -160,7 +185,7 @@ inline fun <T: Any> withTimeoutOrNull(
     timeout: kotlin.time.Duration,
     crossinline action: () -> T,
 ): T? =
-    withTimeoutOrNull(timeout.inWholeMilliseconds, action)
+    withTimeoutOrNull(timeout.toTimeoutMillis(), action)
 
 /**
  * 각 [timeout] 제한으로 [action]을 최대 [maxRetries]번 시도하고 첫 제한 시간 내 결과를 반환합니다.
@@ -198,5 +223,5 @@ inline fun <T: Any> retryWithTimeoutOrNull(
     timeout: kotlin.time.Duration,
     crossinline action: () -> T,
 ): T? {
-    return retryWithTimeoutOrNull(maxRetries, timeout.inWholeMilliseconds, action)
+    return retryWithTimeoutOrNull(maxRetries, timeout.toTimeoutMillis(), action)
 }
