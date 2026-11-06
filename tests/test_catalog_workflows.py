@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import subprocess
+import tomllib
 import unittest
 from pathlib import Path
 
@@ -23,6 +24,14 @@ class CatalogWorkflowsTest(unittest.TestCase):
         self.submission = (
             ROOT / ".github" / "workflows" / "dependency-submission.yml"
         ).read_text()
+        self.security_history_path = (
+            ROOT / ".github" / "workflows" / "security-history.yml"
+        )
+        self.security_history = (
+            self.security_history_path.read_text()
+            if self.security_history_path.exists()
+            else ""
+        )
         self.image_gate_manifest = (
             ROOT / "scripts" / "testcontainers_image_gate_manifest.json"
         ).read_text()
@@ -4033,17 +4042,93 @@ class CatalogWorkflowsTest(unittest.TestCase):
             errors,
         )
 
-    def test_repository_uses_github_security_controls_instead_of_local_security_workflow(
+    def test_repository_uses_current_tree_and_historical_security_controls(
         self,
     ) -> None:
         self.assertFalse(
             (ROOT / ".github" / "workflows" / "security.yml").exists()
         )
+        self.assertTrue(self.security_history_path.exists())
         self.assertTrue((ROOT / ".github" / "workflows" / "codeql.yml").exists())
         self.assertTrue(
             (ROOT / ".github" / "workflows" / "dependency-submission.yml").exists()
         )
         self.assertTrue((ROOT / ".github" / "dependabot.yml").exists())
+        self.assertIn(
+            "gitleaks detect --source . --redact --no-git --config .gitleaks.toml",
+            self.ci,
+        )
+
+    def test_historical_gitleaks_workflow_is_separate_and_fail_closed(self) -> None:
+        workflow = self.security_history
+        self.assertIn("pull_request:", workflow)
+        self.assertIn("schedule:", workflow)
+        self.assertIn("workflow_dispatch:", workflow)
+        self.assertIn("전체 Git 이력", workflow)
+        self.assertIn("GitHub Actions 저장소/조직 retention 정책", workflow)
+        self.assertIn("fetch-depth: 0", workflow)
+        self.assertIn(
+            "gitleaks detect --source . --redact --config .gitleaks.toml",
+            workflow,
+        )
+        self.assertNotIn("gitleaks detect --source . --redact --no-git", workflow)
+        self.assertNotIn("continue-on-error: true", workflow)
+
+        historical_job = verifier._job_block(workflow, "historical-gitleaks")
+        status_job = verifier._job_block(workflow, "security-history-status")
+        status_step = verifier._named_step_block(
+            status_job, "Check historical scan result"
+        )
+
+        self.assertIn("fetch-depth: 0", historical_job)
+        synthetic_step = verifier._named_step_block(
+            historical_job, "Verify historical gitleaks catches synthetic leak"
+        )
+        self.assertIn('git -C "$synthetic_dir" init --quiet', synthetic_step)
+        self.assertIn("git -C \"$synthetic_dir\" commit", synthetic_step)
+        self.assertIn("--exit-code 7", synthetic_step)
+        self.assertIn("SYNTHETIC_HISTORICAL_TOKEN_NOT_A_SECRET", synthetic_step)
+        self.assertIn("if: always()", status_job)
+        self.assertIn("needs: [historical-gitleaks]", status_job)
+        self.assertIn(
+            "HISTORICAL_RESULT: ${{ needs.historical-gitleaks.result }}",
+            status_step,
+        )
+        self.assertIn('!= "success"', status_step)
+        self.assertIn("exit 1", status_step)
+
+    def test_historical_gitleaks_false_positives_are_narrowly_allowlisted(self) -> None:
+        config = tomllib.loads((ROOT / ".gitleaks.toml").read_text())
+        allowlists = [
+            allowlist
+            for rule in config["rules"]
+            if rule["id"] == "generic-api-key"
+            for allowlist in rule.get("allowlists", [])
+        ]
+        expected = {
+            (
+                ("5af23664429b9d8dfe6c9b8e39842a3886eb8570",),
+                (r"^settings\.gradle\.kts$",),
+            ),
+            (
+                ("5af23664429b9d8dfe6c9b8e39842a3886eb8570",),
+                (r"^tests/test_catalog_workflows\.py$",),
+            ),
+        }
+        actual = {
+            (
+                tuple(allowlist.get("commits", [])),
+                tuple(allowlist.get("paths", [])),
+            )
+            for allowlist in allowlists
+        }
+
+        catalog_actual = {
+            entry
+            for entry in actual
+            if entry[0] == ("5af23664429b9d8dfe6c9b8e39842a3886eb8570",)
+        }
+        self.assertEqual(expected, catalog_actual)
 
 
 if __name__ == "__main__":

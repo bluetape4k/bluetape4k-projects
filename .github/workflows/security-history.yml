@@ -1,0 +1,98 @@
+name: Security History
+
+# 범위: PR head와 기본 브랜치의 전체 Git 이력(non-provider secret)
+# 보존: 별도 artifact를 만들지 않으며 GitHub Actions 저장소/조직 retention 정책을 따른다.
+on:
+  pull_request:
+    branches: [develop, main]
+  schedule:
+    # 매주 월요일 오전 4시 (KST = UTC+9 → 일요일 UTC 19:00)
+    - cron: '0 19 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GITLEAKS_VERSION: 'v8.30.1'
+
+jobs:
+  historical-gitleaks:
+    name: Historical Secret Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Install gitleaks
+        run: |
+          set -euo pipefail
+          gitleaks_version="${GITLEAKS_VERSION#v}"
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/${GITLEAKS_VERSION}/gitleaks_${gitleaks_version}_linux_x64.tar.gz" \
+            | tar -xz gitleaks
+          sudo mv gitleaks /usr/local/bin/
+      - name: Run gitleaks (full history)
+        run: gitleaks detect --source . --redact --config .gitleaks.toml
+
+      - name: Verify historical gitleaks catches synthetic leak
+        shell: bash
+        run: |
+          set -euo pipefail
+          synthetic_dir="$(mktemp -d)"
+          trap 'rm -rf -- "$synthetic_dir"' EXIT
+
+          git -C "$synthetic_dir" init --quiet
+          git -C "$synthetic_dir" config user.name "gitleaks regression"
+          git -C "$synthetic_dir" config user.email "gitleaks-regression@example.invalid"
+          printf '%s\n' 'SYNTHETIC_HISTORICAL_TOKEN_NOT_A_SECRET_1234567890' > "$synthetic_dir/sample.txt"
+          git -C "$synthetic_dir" add sample.txt
+          git -C "$synthetic_dir" commit --quiet --no-gpg-sign -m "synthetic historical leak regression"
+
+          cat > "$synthetic_dir/gitleaks.toml" <<'EOF'
+          title = "synthetic historical regression"
+
+          [[rules]]
+          id = "synthetic-historical-token"
+          description = "Synthetic regression token"
+          regex = '''SYNTHETIC_HISTORICAL_TOKEN_NOT_A_SECRET_[0-9]{10}'''
+          secretGroup = 0
+          keywords = ["SYNTHETIC_HISTORICAL_TOKEN_NOT_A_SECRET"]
+          EOF
+
+          set +e
+          gitleaks detect \
+            --source "$synthetic_dir" \
+            --redact \
+            --config "$synthetic_dir/gitleaks.toml" \
+            --exit-code 7
+          scan_result=$?
+          set -e
+
+          if [[ "$scan_result" -ne 7 ]]; then
+            echo "Synthetic historical scan must detect the committed regression token; got $scan_result" >&2
+            exit 1
+          fi
+
+  security-history-status:
+    name: Security History Status
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [historical-gitleaks]
+    if: always()
+    steps:
+      - name: Check historical scan result
+        env:
+          HISTORICAL_RESULT: ${{ needs.historical-gitleaks.result }}
+        run: |
+          set -euo pipefail
+          echo "Historical gitleaks result: $HISTORICAL_RESULT"
+          if [[ "$HISTORICAL_RESULT" != "success" ]]; then
+            echo "Historical secret scan must succeed; got $HISTORICAL_RESULT" >&2
+            exit 1
+          fi
