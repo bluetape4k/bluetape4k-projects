@@ -182,13 +182,22 @@ class VertxCallFactory private constructor(
             if (!promiseRef.compareAndSet(null, promise)) {
                 throwAlreadyExecuted()
             }
+            val completion = CompletableFuture<okhttp3.Response>()
             eventListeners.forEach { it.callStart(this) }
-            promise.whenComplete { _, error ->
+            promise.whenComplete { response, error ->
                 if (error == null) {
-                    eventListeners.forEach { it.callEnd(this) }
+                    try {
+                        eventListeners.forEach { it.callEnd(this) }
+                    } finally {
+                        completion.complete(response)
+                    }
                 } else {
                     val failure = error.toIOException()
-                    eventListeners.forEach { it.callFailed(this, failure) }
+                    try {
+                        eventListeners.forEach { it.callFailed(this, failure) }
+                    } finally {
+                        completion.completeExceptionally(failure)
+                    }
                 }
             }
 
@@ -224,7 +233,7 @@ class VertxCallFactory private constructor(
                     promise.completeExceptionally(error.toIOException())
                 }
 
-            return promise
+            return completion
         }
 
         override fun isExecuted(): Boolean {
