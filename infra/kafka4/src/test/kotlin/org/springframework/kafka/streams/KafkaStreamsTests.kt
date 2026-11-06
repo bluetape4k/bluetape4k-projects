@@ -52,7 +52,6 @@ import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
 import org.springframework.kafka.streams.KafkaStreamsTests.Companion.FOOS
 import org.springframework.kafka.streams.KafkaStreamsTests.Companion.STREAMING_TOPIC1
@@ -93,6 +92,9 @@ class KafkaStreamsTests {
     private val kafkaTemplate: KafkaTemplate<Int, String> = uninitialized()
 
     @Autowired
+    private val producerFactory: DefaultKafkaProducerFactory<Int, String> = uninitialized()
+
+    @Autowired
     private val resultFuture: CompletableFuture<ConsumerRecord<*, String>?> = uninitialized()
 
     @Autowired
@@ -115,6 +117,7 @@ class KafkaStreamsTests {
         this.kafkaListenerEndpointRegistry.stop()
         this.streamsBuilderFactoryBean.stop()
         this.kafkaTemplate.destroy()
+        this.producerFactory.destroy()
     }
 
     @Test
@@ -183,7 +186,7 @@ class KafkaStreamsTests {
         private val streamingTopic2: String? = null
 
         @Bean
-        fun producerFactory(): ProducerFactory<Int, String> {
+        fun producerFactory(): DefaultKafkaProducerFactory<Int, String> {
             return DefaultKafkaProducerFactory(producerConfigs())
         }
 

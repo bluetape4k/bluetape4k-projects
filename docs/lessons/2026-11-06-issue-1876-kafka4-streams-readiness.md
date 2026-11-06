@@ -21,7 +21,7 @@ Kafka4 Streams 테스트가 broker와 pipeline 준비 완료 이후에만 produc
 - `./gradlew :bluetape4k-kafka4:test --no-daemon --no-configuration-cache --console=plain`에서 342 tests 통과.
 - 결과 대기 timeout을 600초에서 60초로 줄여 readiness 이후 downstream 정지 시에도 bounded failure를 남긴다.
 - Kafka Infra CI에서 `nick-fields/retry`를 제거하고 readiness contract test를 명시적으로 실행해 최종 green으로 실패를 숨기지 않는다.
-- `@AfterEach`에서 listener registry, Streams, `KafkaTemplate`을 이 순서로 종료하고 `@DirtiesContext(AFTER_CLASS)`로 broker context 재사용을 막아 KRaft shutdown warning을 제거한다.
+- `@AfterEach`에서 listener registry, Streams, `KafkaTemplate`, `DefaultKafkaProducerFactory`를 이 순서로 종료하고 `@DirtiesContext(AFTER_CLASS)`로 broker context 재사용을 막아 `KafkaStreamsTests`의 KRaft shutdown warning을 제거한다.
 
 ## 놓친 점과 다음 방지책
 

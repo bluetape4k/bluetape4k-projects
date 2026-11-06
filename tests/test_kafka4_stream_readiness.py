@@ -33,9 +33,12 @@ class Kafka4StreamsReadinessContractTest(unittest.TestCase):
         self.assertNotIn("resultFuture.get(600.seconds)", source)
         self.assertIn("@DirtiesContext", source)
         self.assertIn("stopKafkaClientsBeforeBrokerShutdown", source)
-        self.assertIn("kafkaListenerEndpointRegistry.stop()", source)
-        self.assertIn("streamsBuilderFactoryBean.stop()", source)
-        self.assertIn("kafkaTemplate.destroy()", source)
+        teardown = source[source.index("fun stopKafkaClientsBeforeBrokerShutdown"):source.index("    @Test", source.index("fun stopKafkaClientsBeforeBrokerShutdown"))]
+        listener_index = teardown.index("kafkaListenerEndpointRegistry.stop()")
+        streams_index = teardown.index("streamsBuilderFactoryBean.stop()")
+        producer_index = teardown.index("producerFactory.destroy()")
+        self.assertLess(listener_index, streams_index)
+        self.assertLess(streams_index, producer_index)
 
     def test_kafka_ci_runs_contract_without_retry_masking(self) -> None:
         workflow = CI_WORKFLOW.read_text()
