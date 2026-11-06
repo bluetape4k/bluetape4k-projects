@@ -112,13 +112,23 @@ class KafkaStreamsTests {
 //        }
         this.streamsBuilderFactoryBean.stop()
 
+        // Streams 가 RUNNING 상태에 도달할 때만 countdown.
+        // stop() 후 start() 시 KRaft 리더 선출과 changelog 복구가 끝나기 전에 전송하면
+        // NotLeaderOrFollowerException 또는 snapshot NoSuchFileException이 발생할 수 있다.
+        val runningLatch = CountDownLatch(1)
         val stateLatch = CountDownLatch(1)
 
-        this.streamsBuilderFactoryBean.setStateListener { _, _ -> stateLatch.countDown() }
+        this.streamsBuilderFactoryBean.setStateListener { newState, _ ->
+            stateLatch.countDown()
+            if (newState == KafkaStreams.State.RUNNING) runningLatch.countDown()
+        }
         val exceptionHandler = mockk<StreamsUncaughtExceptionHandler>(relaxUnitFun = true)
         this.streamsBuilderFactoryBean.setStreamsUncaughtExceptionHandler(exceptionHandler)
 
         this.streamsBuilderFactoryBean.start()
+
+        // 메시지 전송 전에 Streams 파이프라인과 embedded broker가 준비됐는지 확인한다.
+        runningLatch.await(60.seconds).shouldBeTrue()
 
         val payload1 = "foo" + Base58.randomString(32) // UUID.randomUUID().toString()
         val payload2 = "foo" + Base58.randomString(32) // UUID.randomUUID().toString()
