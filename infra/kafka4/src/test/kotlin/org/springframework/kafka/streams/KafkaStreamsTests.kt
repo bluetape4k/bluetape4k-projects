@@ -28,6 +28,7 @@ import org.apache.kafka.streams.kstream.ValueMapper
 import org.apache.kafka.streams.kstream.Windowed
 import org.apache.kafka.streams.processor.WallclockTimestampExtractor
 import org.apache.kafka.streams.processor.internals.StreamThread
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -42,6 +43,7 @@ import org.springframework.kafka.annotation.EnableKafkaStreams
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.annotation.KafkaStreamsDefaultConfiguration
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry
 import org.springframework.kafka.config.KafkaListenerContainerFactory
 import org.springframework.kafka.config.KafkaStreamsConfiguration
 import org.springframework.kafka.config.StreamsBuilderFactoryBean
@@ -58,6 +60,7 @@ import org.springframework.kafka.support.serializer.JacksonJsonSerde
 import org.springframework.kafka.test.EmbeddedKafkaBroker
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.kafka.test.utils.KafkaTestUtils
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
@@ -67,6 +70,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @TestPropertySource(properties = ["streaming.topic.two=streamingTopic2"])
 @EmbeddedKafka(
     partitions = 1,
@@ -97,11 +101,21 @@ class KafkaStreamsTests {
     @Autowired
     private val embeddedKafka: EmbeddedKafkaBroker = uninitialized()
 
+    @Autowired
+    private val kafkaListenerEndpointRegistry: KafkaListenerEndpointRegistry = uninitialized()
+
     @Value($$"${streaming.topic.two}")
     private var streamingTopic2: String = ""
 
     @Autowired
     private val stateChangeCalled: AtomicBoolean = uninitialized()
+
+    @AfterEach
+    fun stopKafkaClientsBeforeBrokerShutdown() {
+        this.kafkaListenerEndpointRegistry.stop()
+        this.streamsBuilderFactoryBean.stop()
+        this.kafkaTemplate.destroy()
+    }
 
     @Test
     fun `test KStreams`() {

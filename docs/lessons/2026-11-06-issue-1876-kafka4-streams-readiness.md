@@ -2,7 +2,7 @@
 
 ## 맥락
 
-`infra/kafka4/src/test/kotlin/org/springframework/kafka/streams/KafkaStreamsTests.kt`는 `StreamsBuilderFactoryBean.stop()` 후 즉시 `start()`하고 두 레코드를 전송했다. KRaft 리더 선출과 changelog 복구가 끝나기 전에는 `NotLeaderOrFollowerException` 또는 메타데이터 복구 파일의 `NoSuchFileException`이 발생할 수 있으며, 기존 CI에서는 bounded retry가 이 lifecycle race를 가렸다.
+`infra/kafka4/src/test/kotlin/org/springframework/kafka/streams/KafkaStreamsTests.kt`는 `StreamsBuilderFactoryBean.stop()` 후 즉시 `start()`하고 두 레코드를 전송했다. KRaft 리더 선출과 changelog 복구가 끝나기 전에는 `NotLeaderOrFollowerException` 또는 메타데이터 복구 파일의 `NoSuchFileException`이 발생할 수 있으며, 기존 CI에서는 bounded retry가 이 lifecycle race를 가렸다. 테스트 종료 시 listener container·Streams·producer가 살아 있으면 broker destroy 단계에서도 같은 KRaft 저장소 경고가 발생했다.
 
 ## 결정
 
@@ -21,7 +21,8 @@ Kafka4 Streams 테스트가 broker와 pipeline 준비 완료 이후에만 produc
 - `./gradlew :bluetape4k-kafka4:test --no-daemon --no-configuration-cache --console=plain`에서 342 tests 통과.
 - 결과 대기 timeout을 600초에서 60초로 줄여 readiness 이후 downstream 정지 시에도 bounded failure를 남긴다.
 - Kafka Infra CI에서 `nick-fields/retry`를 제거하고 readiness contract test를 명시적으로 실행해 최종 green으로 실패를 숨기지 않는다.
+- `@AfterEach`에서 listener registry, Streams, `KafkaTemplate`을 이 순서로 종료하고 `@DirtiesContext(AFTER_CLASS)`로 broker context 재사용을 막아 KRaft shutdown warning을 제거한다.
 
 ## 놓친 점과 다음 방지책
 
-`stateLatch`가 한 번의 상태 전이만 관찰하고 있다는 사실을 Streams가 실제로 `RUNNING`인지 확인하는 readiness 증거로 잘못 사용했다. 이후 `stop()`/`start()`를 포함하는 Kafka Streams 테스트는 producer/consumer 작업 전에 명시적인 terminal readiness state와 bounded await를 함께 고정한다. CI는 재시도로 lifecycle 실패를 감추지 않고 contract test와 단일 Gradle 실행의 결과를 보존한다. 전체 모듈 실행에서 보이는 일부 Kafka test-kit 종료 경고가 이 테스트 외부에서 발생하면 별도 lifecycle 이슈로 분리한다.
+`stateLatch`가 한 번의 상태 전이만 관찰하고 있다는 사실을 Streams가 실제로 `RUNNING`인지 확인하는 readiness 증거로 잘못 사용했다. 이후 `stop()`/`start()`를 포함하는 Kafka Streams 테스트는 producer/consumer 작업 전에 명시적인 terminal readiness state와 bounded await를 함께 고정한다. CI는 재시도로 lifecycle 실패를 감추지 않고 contract test와 단일 Gradle 실행의 결과를 보존한다. 테스트 종료 순서를 바꾸는 경우에는 broker destroy 전에 listener, Streams, producer가 모두 종료됐는지 uncached 실행 로그에서 Kafka 저장소 예외가 없는지 확인한다.

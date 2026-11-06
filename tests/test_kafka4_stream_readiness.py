@@ -31,6 +31,11 @@ class Kafka4StreamsReadinessContractTest(unittest.TestCase):
         self.assertIn("runningLatch.await(60.seconds).shouldBeTrue()", start_to_produce)
         self.assertIn("resultFuture.get(60.seconds)", source)
         self.assertNotIn("resultFuture.get(600.seconds)", source)
+        self.assertIn("@DirtiesContext", source)
+        self.assertIn("stopKafkaClientsBeforeBrokerShutdown", source)
+        self.assertIn("kafkaListenerEndpointRegistry.stop()", source)
+        self.assertIn("streamsBuilderFactoryBean.stop()", source)
+        self.assertIn("kafkaTemplate.destroy()", source)
 
     def test_kafka_ci_runs_contract_without_retry_masking(self) -> None:
         workflow = CI_WORKFLOW.read_text()
