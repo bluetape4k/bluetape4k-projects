@@ -28,6 +28,7 @@ import org.apache.kafka.streams.kstream.ValueMapper
 import org.apache.kafka.streams.kstream.Windowed
 import org.apache.kafka.streams.processor.WallclockTimestampExtractor
 import org.apache.kafka.streams.processor.internals.StreamThread
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -42,6 +43,7 @@ import org.springframework.kafka.annotation.EnableKafkaStreams
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.annotation.KafkaStreamsDefaultConfiguration
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry
 import org.springframework.kafka.config.KafkaListenerContainerFactory
 import org.springframework.kafka.config.KafkaStreamsConfiguration
 import org.springframework.kafka.config.StreamsBuilderFactoryBean
@@ -50,7 +52,6 @@ import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
 import org.springframework.kafka.streams.KafkaStreamsTests.Companion.FOOS
 import org.springframework.kafka.streams.KafkaStreamsTests.Companion.STREAMING_TOPIC1
@@ -58,6 +59,7 @@ import org.springframework.kafka.support.serializer.JacksonJsonSerde
 import org.springframework.kafka.test.EmbeddedKafkaBroker
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.kafka.test.utils.KafkaTestUtils
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.TestPropertySource
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
@@ -67,6 +69,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @TestPropertySource(properties = ["streaming.topic.two=streamingTopic2"])
 @EmbeddedKafka(
     partitions = 1,
@@ -89,6 +92,9 @@ class KafkaStreamsTests {
     private val kafkaTemplate: KafkaTemplate<Int, String> = uninitialized()
 
     @Autowired
+    private val producerFactory: DefaultKafkaProducerFactory<Int, String> = uninitialized()
+
+    @Autowired
     private val resultFuture: CompletableFuture<ConsumerRecord<*, String>?> = uninitialized()
 
     @Autowired
@@ -97,11 +103,22 @@ class KafkaStreamsTests {
     @Autowired
     private val embeddedKafka: EmbeddedKafkaBroker = uninitialized()
 
+    @Autowired
+    private val kafkaListenerEndpointRegistry: KafkaListenerEndpointRegistry = uninitialized()
+
     @Value($$"${streaming.topic.two}")
     private var streamingTopic2: String = ""
 
     @Autowired
     private val stateChangeCalled: AtomicBoolean = uninitialized()
+
+    @AfterEach
+    fun stopKafkaClientsBeforeBrokerShutdown() {
+        this.kafkaListenerEndpointRegistry.stop()
+        this.streamsBuilderFactoryBean.stop()
+        this.kafkaTemplate.destroy()
+        this.producerFactory.destroy()
+    }
 
     @Test
     fun `test KStreams`() {
@@ -112,13 +129,23 @@ class KafkaStreamsTests {
 //        }
         this.streamsBuilderFactoryBean.stop()
 
+        // Streams 가 RUNNING 상태에 도달할 때만 countdown.
+        // stop() 후 start() 시 KRaft 리더 선출과 changelog 복구가 끝나기 전에 전송하면
+        // NotLeaderOrFollowerException 또는 snapshot NoSuchFileException이 발생할 수 있다.
+        val runningLatch = CountDownLatch(1)
         val stateLatch = CountDownLatch(1)
 
-        this.streamsBuilderFactoryBean.setStateListener { _, _ -> stateLatch.countDown() }
+        this.streamsBuilderFactoryBean.setStateListener { newState, _ ->
+            stateLatch.countDown()
+            if (newState == KafkaStreams.State.RUNNING) runningLatch.countDown()
+        }
         val exceptionHandler = mockk<StreamsUncaughtExceptionHandler>(relaxUnitFun = true)
         this.streamsBuilderFactoryBean.setStreamsUncaughtExceptionHandler(exceptionHandler)
 
         this.streamsBuilderFactoryBean.start()
+
+        // 메시지 전송 전에 Streams 파이프라인과 embedded broker가 준비됐는지 확인한다.
+        runningLatch.await(60.seconds).shouldBeTrue()
 
         val payload1 = "foo" + Base58.randomString(32) // UUID.randomUUID().toString()
         val payload2 = "foo" + Base58.randomString(32) // UUID.randomUUID().toString()
@@ -127,7 +154,7 @@ class KafkaStreamsTests {
         this.kafkaTemplate.sendDefault(0, payload2)
         this.kafkaTemplate.flush()
 
-        val result = resultFuture.get(600.seconds)
+        val result = resultFuture.get(60.seconds)
 
         result.shouldNotBeNull()
 
@@ -159,7 +186,7 @@ class KafkaStreamsTests {
         private val streamingTopic2: String? = null
 
         @Bean
-        fun producerFactory(): ProducerFactory<Int, String> {
+        fun producerFactory(): DefaultKafkaProducerFactory<Int, String> {
             return DefaultKafkaProducerFactory(producerConfigs())
         }
 
