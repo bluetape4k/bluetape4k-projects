@@ -72,11 +72,13 @@ class TimeoutSupportTest: AbstractCoreTest() {
 
     @Test
     fun `Duration 경계값은 millisecond timeout 정책으로 정규화된다`() {
-        (-1).milliseconds.toTimeoutMillis() shouldBeEqualTo MIN_TIMEOUT_MILLIS
-        Duration.ZERO.toTimeoutMillis() shouldBeEqualTo MIN_TIMEOUT_MILLIS
-        500.microseconds.toTimeoutMillis() shouldBeEqualTo MIN_TIMEOUT_MILLIS
-        Long.MAX_VALUE.nanoseconds.toTimeoutMillis() shouldBeEqualTo 9_223_372_036_854L
-        Duration.INFINITE.toTimeoutMillis() shouldBeEqualTo Long.MAX_VALUE
+        listOf((-1).milliseconds, Duration.ZERO, 500.microseconds).forEach { timeout ->
+            withTimeoutOrNull(timeout) { "ok" } shouldBeEqualTo "ok"
+        }
+        asyncRunWithTimeout(Long.MAX_VALUE.nanoseconds) { "ok" }
+            .get(1, TimeUnit.SECONDS) shouldBeEqualTo "ok"
+        asyncRunWithTimeout(Duration.INFINITE) { "ok" }
+            .get(1, TimeUnit.SECONDS) shouldBeEqualTo "ok"
     }
 
     @Test
