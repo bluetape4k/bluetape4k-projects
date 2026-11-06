@@ -184,13 +184,33 @@ class SnappyCompressor private constructor(
      * 압축 해제 전에 원본 크기를 확인하여 과도한 메모리 할당을 방지합니다 (decompression bomb 방어).
      */
     override fun doDecompress(compressed: ByteArray): ByteArray {
-        val uncompressedSize = Snappy.uncompressedLength(compressed)
+        // Snappy 1.1.10.12 rejects oversized declarations as SnappyIOException
+        // before the caller-side limit check. Parse the raw header first so the
+        // public defensive-size contract remains IllegalArgumentException.
+        val uncompressedSize = readDeclaredUncompressedSize(compressed)
         validateUncompressedSize(uncompressedSize)
         return Snappy.uncompress(compressed)
     }
 
     private fun supportsOptimizedStoragePair(source: ByteBuffer, target: ByteBuffer): Boolean =
         source.isDirect && target.isDirect
+
+    private fun readDeclaredUncompressedSize(compressed: ByteArray): Int {
+        var value = 0L
+        var shift = 0
+        for (byte in compressed.take(5)) {
+            val encoded = byte.toInt() and 0xFF
+            value = value or ((encoded and 0x7F).toLong() shl shift)
+            if ((encoded and 0x80) == 0) {
+                require(value <= Int.MAX_VALUE) {
+                    "Snappy uncompressed size가 Int 범위를 초과합니다. uncompressedSize=$value"
+                }
+                return value.toInt()
+            }
+            shift += 7
+        }
+        throw IllegalArgumentException("유효하지 않은 Snappy uncompressed size 헤더입니다.")
+    }
 
     private fun validateUncompressedSize(uncompressedSize: Int) {
         require(uncompressedSize >= 0) {
