@@ -90,8 +90,8 @@ with_workflow_variant(nil, ->(out, err, result) {
   assert_failure(out, err, result, "Kafka4 test condition", "must not be conditional")
 }) do |content|
   content.sub(
-    "      - name: Test Kafka infra modules\n        uses: nick-fields/retry@v4",
-    "      - name: Test Kafka infra modules\n        if: ${{ false }}\n        uses: nick-fields/retry@v4",
+    "      - name: Test Kafka infra modules\n        run: |",
+    "      - name: Test Kafka infra modules\n        if: ${{ false }}\n        run: |",
   )
 end
 

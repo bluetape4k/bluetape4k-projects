@@ -1404,18 +1404,16 @@ jobs:
           gradle-version: wrapper
           cache-read-only: true
 
+      - name: Verify Kafka4 readiness contract
+        run: python3 -m unittest tests.test_kafka4_stream_readiness -v
+
       - name: Test Kafka infra modules
-        uses: nick-fields/retry@v4
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          shell: bash
-          command: |
-            ./gradlew \
-              :bluetape4k-kafka:test \
-              :bluetape4k-kafka4:test \
-              --max-workers=2 \
-              --no-configuration-cache
+        run: |
+          ./gradlew \
+            :bluetape4k-kafka:test \
+            :bluetape4k-kafka4:test \
+            --max-workers=2 \
+            --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
