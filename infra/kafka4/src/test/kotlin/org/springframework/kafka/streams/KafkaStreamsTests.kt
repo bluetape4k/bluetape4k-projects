@@ -137,7 +137,7 @@ class KafkaStreamsTests {
         this.kafkaTemplate.sendDefault(0, payload2)
         this.kafkaTemplate.flush()
 
-        val result = resultFuture.get(600.seconds)
+        val result = resultFuture.get(60.seconds)
 
         result.shouldNotBeNull()
 

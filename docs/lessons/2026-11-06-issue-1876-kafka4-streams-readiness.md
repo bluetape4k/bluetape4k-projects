@@ -19,7 +19,9 @@ Kafka4 Streams 테스트가 broker와 pipeline 준비 완료 이후에만 produc
 - `./gradlew :bluetape4k-kafka4:test --tests 'org.springframework.kafka.streams.KafkaStreamsTests' --no-daemon --no-configuration-cache --console=plain` 통과.
 - 동일 targeted 테스트 3회 반복 모두 `BUILD SUCCESSFUL`.
 - `./gradlew :bluetape4k-kafka4:test --no-daemon --no-configuration-cache --console=plain`에서 342 tests 통과.
+- 결과 대기 timeout을 600초에서 60초로 줄여 readiness 이후 downstream 정지 시에도 bounded failure를 남긴다.
+- Kafka Infra CI에서 `nick-fields/retry`를 제거하고 readiness contract test를 명시적으로 실행해 최종 green으로 실패를 숨기지 않는다.
 
 ## 놓친 점과 다음 방지책
 
-`stateLatch`가 한 번의 상태 전이만 관찰하고 있다는 사실을 Streams가 실제로 `RUNNING`인지 확인하는 readiness 증거로 잘못 사용했다. 이후 `stop()`/`start()`를 포함하는 Kafka Streams 테스트는 producer/consumer 작업 전에 명시적인 terminal readiness state와 bounded await를 함께 고정한다. 전체 모듈 실행에서 보이는 일부 Kafka test-kit 종료 경고는 이 변경의 직접 대상이 아니므로 별도 lifecycle 이슈로 분리한다.
+`stateLatch`가 한 번의 상태 전이만 관찰하고 있다는 사실을 Streams가 실제로 `RUNNING`인지 확인하는 readiness 증거로 잘못 사용했다. 이후 `stop()`/`start()`를 포함하는 Kafka Streams 테스트는 producer/consumer 작업 전에 명시적인 terminal readiness state와 bounded await를 함께 고정한다. CI는 재시도로 lifecycle 실패를 감추지 않고 contract test와 단일 Gradle 실행의 결과를 보존한다. 전체 모듈 실행에서 보이는 일부 Kafka test-kit 종료 경고가 이 테스트 외부에서 발생하면 별도 lifecycle 이슈로 분리한다.

@@ -3,7 +3,6 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 KAFKA4_STREAMS_TEST = (
     ROOT
@@ -18,6 +17,7 @@ KAFKA4_STREAMS_TEST = (
     / "streams"
     / "KafkaStreamsTests.kt"
 )
+CI_WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
 
 
 class Kafka4StreamsReadinessContractTest(unittest.TestCase):
@@ -29,6 +29,17 @@ class Kafka4StreamsReadinessContractTest(unittest.TestCase):
 
         self.assertIn("if (newState == KafkaStreams.State.RUNNING)", source)
         self.assertIn("runningLatch.await(60.seconds).shouldBeTrue()", start_to_produce)
+        self.assertIn("resultFuture.get(60.seconds)", source)
+        self.assertNotIn("resultFuture.get(600.seconds)", source)
+
+    def test_kafka_ci_runs_contract_without_retry_masking(self) -> None:
+        workflow = CI_WORKFLOW.read_text()
+        kafka_job = workflow.split("test-kafka-infra:", maxsplit=1)[1].split(
+            "test-telemetry-infra:", maxsplit=1
+        )[0]
+
+        self.assertIn("python3 -m unittest tests.test_kafka4_stream_readiness -v", kafka_job)
+        self.assertNotIn("nick-fields/retry@v4", kafka_job)
 
 
 if __name__ == "__main__":
