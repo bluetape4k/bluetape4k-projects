@@ -17,6 +17,8 @@ configuration에만 적용되고, 'plugins { }'를 로드하는 각 project의
 'buildscript' 'classpath' configuration에는 적용되지 않았다. 따라서
 catalog가 최신이어도 Dependency Submission이 plugin classpath의 오래된
 전이 좌표를 별도로 수집했다.
+MinIO testcontainers compile graph의 Bouncy Castle 요청 버전도 project
+metadata 경로에 별도로 남을 수 있어 같은 수렴 범위로 확인했다.
 
 ## 결정
 
@@ -35,9 +37,17 @@ catalog가 최신이어도 Dependency Submission이 plugin classpath의 오래�
   catalog 버전을 다시 추가한다.
 - Jackson BOM/annotation과 Bouncy Castle BOM도 함께 수렴시켜 동일 graph에서
   구버전 BOM이 남지 않도록 한다.
+- root와 subproject buildscript classpath뿐 아니라 allprojects의 project
+  dependency handler에도 metadata rule을 등록한다. Dokka base의 FreeMarker와
+  Jackson constraint, MinIO의 bcprov-jdk18on 1.84 요청 edge를 제거하고
+  중앙 catalog 버전을 다시 추가한다.
 - workflow contract test는 constraint가 'plugins { }'보다 먼저 선언되고,
   'beforeProject' callback이 동일 목록을 재사용하며, global force가 없음을
   검증한다.
+- workflow contract test는 project metadata rule과 MinIO 보정 범위도
+  확인하며, global force를 허용하지 않는다.
+- 'issue1883DependencyGraphCheck' Gradle task는 대표 plugin classpath의
+  forbidden requested coordinates를 실제 ResolutionResult에서 검사한다.
 
 ## 검증
 
@@ -48,6 +58,15 @@ catalog가 최신이어도 Dependency Submission이 plugin classpath의 오래�
   '2.15.3', '2.14.2', '2.22.2', '32.1.2', '1.11.3', '1.84')은 모두
   관찰되지 않았고, Gatling Jackson은 2.22.4, Kover FreeMarker는 2.3.35로
   선택됐다.
+- 'issue1883DependencyGraphCheck' 통과.
+- 'bluetape4k-testcontainers:compileClasspath' dependencyInsight에서
+  MinIO의 'bcprov-jdk18on:1.84' 요청 edge가 사라지고 1.86이 선택됨을
+  확인했다.
+- 'bluetape4k-core:dokkaHtmlGeneratorRuntimeResolver~internal' 출력에서
+  FreeMarker 2.3.35, jsoup 1.23.2, Jackson 2.22.4만 남고 기존
+  Jackson 2.15.3 constraint가 사라짐을 확인했다.
+- Avro plugin의 'jackson-core/databind:2.20.0'와 MinIO의 Guava
+  '33.6.0-jre' 요청 edge도 동일한 metadata 검사에서 제거됐다.
 - Avro 및 두 mock-server module의 compile/classes 작업 통과.
 - 'TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock'를 확인된
   Colima 환경에만 적용해 ':bluetape4k-testcontainers:k8sTest' 9개가
@@ -74,7 +93,8 @@ runtime 영향은 hosted graph에서 다시 확인하며, 로컬 'buildEnvironme
 ## 향후 지침
 
 새 Gradle plugin이 추가되거나 plugin 버전이 바뀌면 root catalog 버전만
-확인하지 말고 해당 project의 'buildEnvironment'와 Dependency Submission
-graph를 함께 확인한다. 취약 plugin을 즉시 교체할 수 없을 때는 plugin의
-'buildscript' 'classpath'에만 최소 constraint를 추가하고, published/runtime
-configuration에는 별도의 근거 없이 force rule을 확장하지 않는다.
+확인하지 말고 해당 project의 'buildEnvironment', project configuration의
+requested edge, Dependency Submission graph를 함께 확인한다. 취약 plugin을
+즉시 교체할 수 없을 때는 plugin metadata rule과 hosted SBOM 검증을 함께
+추가하고, published/runtime configuration에는 별도의 근거 없이 force rule을
+확장하지 않는다.

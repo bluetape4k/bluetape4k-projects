@@ -4181,12 +4181,35 @@ class CatalogWorkflowsTest(unittest.TestCase):
         before_project_block = build[before_project_start:]
         self.assertIn("issue1883PluginClasspathConstraints.forEach", before_project_block)
 
+        project_rules_start = build.find("val issue1883ProjectMetadataRules")
+        self.assertGreater(project_rules_start, plugins_start)
+        project_rules_block = build[project_rules_start:]
         for module in (
             "org.jetbrains.dokka:dokka-core",
             "org.jetbrains.dokka:dokka-base",
             "org.jetbrains.dokka:analysis-markdown",
             "org.jetbrains.dokka:templating-plugin",
             "com.github.davidmc24.gradle.plugin:gradle-avro-plugin",
+            "org.apache.avro:avro",
+            "com.google.cloud.tools:jib-gradle-plugin",
+            "io.gatling:gatling-enterprise-plugin-commons",
+            "org.jetbrains.intellij.deps:coverage-report",
+            "io.minio:minio",
+        ):
+            with self.subTest(project_module=module):
+                self.assertIn(f'withModule("{module}")', project_rules_block)
+        self.assertIn("issue1883ProjectMetadataRules()", build[build.find("allprojects {"):])
+        self.assertIn("issue1883DependencyGraphCheck", build)
+        self.assertIn("issue1883ForbiddenRequestedCoordinates", build)
+        self.assertIn("withDependencyConstraints", project_rules_block)
+
+        for module in (
+            "org.jetbrains.dokka:dokka-core",
+            "org.jetbrains.dokka:dokka-base",
+            "org.jetbrains.dokka:analysis-markdown",
+            "org.jetbrains.dokka:templating-plugin",
+            "com.github.davidmc24.gradle.plugin:gradle-avro-plugin",
+            "org.apache.avro:avro",
             "com.google.cloud.tools:jib-gradle-plugin",
             "io.gatling:gatling-enterprise-plugin-commons",
             "org.jetbrains.intellij.deps:coverage-report",

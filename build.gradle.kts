@@ -17,6 +17,7 @@ import nmcp.NmcpExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.artifacts.component.ModuleComponentSelector
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.compile.JavaCompile
@@ -92,9 +93,22 @@ buildscript {
                 allVariants {
                     withDependencies {
                         removeAll { dependency ->
+                            dependency.group == "org.freemarker" ||
+                                dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                        removeAll { dependency ->
                             dependency.group == "org.jsoup" && dependency.name == "jsoup"
                         }
+                        add("org.freemarker:freemarker:" + issue1883FreemarkerVersion)
+                        add("com.fasterxml.jackson.module:jackson-module-kotlin:" + issue1883JacksonVersion)
+                        add("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:" + issue1883JacksonVersion)
                         add("org.jsoup:jsoup:" + issue1883JsoupVersion)
+                    }
+                    withDependencyConstraints {
+                        removeAll { dependency ->
+                            dependency.group == "org.freemarker" ||
+                                dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
                     }
                 }
             }
@@ -125,6 +139,40 @@ buildscript {
                             dependency.group == "org.apache.avro" && dependency.name == "avro-compiler"
                         }
                         add("org.apache.avro:avro-compiler:" + issue1883AvroVersion)
+                    }
+                    withDependencyConstraints {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                    }
+                }
+            }
+            withModule("org.apache.avro:avro") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                        add("com.fasterxml.jackson.core:jackson-annotations:" + issue1883JacksonAnnotationsVersion)
+                        add("com.fasterxml.jackson.core:jackson-core:" + issue1883JacksonVersion)
+                        add("com.fasterxml.jackson.core:jackson-databind:" + issue1883JacksonVersion)
+                    }
+                    withDependencyConstraints {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                    }
+                }
+            }
+            withModule("org.apache.avro:avro-compiler") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                        add("com.fasterxml.jackson.core:jackson-annotations:" + issue1883JacksonAnnotationsVersion)
+                        add("com.fasterxml.jackson.core:jackson-core:" + issue1883JacksonVersion)
+                        add("com.fasterxml.jackson.core:jackson-databind:" + issue1883JacksonVersion)
                     }
                     withDependencyConstraints {
                         removeAll { dependency ->
@@ -258,6 +306,176 @@ fun bt4kVersion(alias: String): String {
         .ifBlank { version.strictVersion }
 }
 
+// Dependency Submission also walks published project configurations. Keep the
+// same metadata rewrites on those configurations so a selected patched version
+// does not hide an old requested edge in the hosted graph.
+val issue1883ProjectMetadataRules: DependencyHandler.() -> Unit = {
+    val issue1883ProjectFreemarkerVersion = bt4kVersion("freemarker")
+    val issue1883ProjectJsoupVersion = bt4kVersion("jsoup")
+    val issue1883ProjectJacksonVersion = bt4kVersion("jackson2")
+    val issue1883ProjectAvroVersion = bt4kVersion("avro")
+    val issue1883ProjectGuavaVersion = bt4kVersion("guava")
+    val issue1883ProjectBcprovVersion = bt4kVersion("bouncycastle-bcprov")
+
+    components {
+        withModule("org.jetbrains.dokka:dokka-core") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                    add("com.fasterxml.jackson.module:jackson-module-kotlin:" + issue1883ProjectJacksonVersion)
+                    add("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:" + issue1883ProjectJacksonVersion)
+                }
+                withDependencyConstraints {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                }
+            }
+        }
+        withModule("org.jetbrains.dokka:dokka-base") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "org.freemarker" ||
+                            dependency.group == "org.jsoup" && dependency.name == "jsoup" ||
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                    add("org.freemarker:freemarker:" + issue1883ProjectFreemarkerVersion)
+                    add("org.jsoup:jsoup:" + issue1883ProjectJsoupVersion)
+                    add("com.fasterxml.jackson.module:jackson-module-kotlin:" + issue1883ProjectJacksonVersion)
+                    add("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:" + issue1883ProjectJacksonVersion)
+                }
+                withDependencyConstraints {
+                    removeAll { dependency ->
+                        dependency.group == "org.freemarker" ||
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                }
+            }
+        }
+        withModule("org.jetbrains.dokka:analysis-markdown") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "org.jsoup" && dependency.name == "jsoup"
+                    }
+                    add("org.jsoup:jsoup:" + issue1883ProjectJsoupVersion)
+                }
+            }
+        }
+        withModule("org.jetbrains.dokka:templating-plugin") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "org.jsoup" && dependency.name == "jsoup"
+                    }
+                    add("org.jsoup:jsoup:" + issue1883ProjectJsoupVersion)
+                }
+            }
+        }
+        withModule("com.github.davidmc24.gradle.plugin:gradle-avro-plugin") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "org.apache.avro" && dependency.name == "avro-compiler"
+                    }
+                    add("org.apache.avro:avro-compiler:" + issue1883ProjectAvroVersion)
+                }
+                withDependencyConstraints {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                }
+            }
+        }
+        withModule("org.apache.avro:avro") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                    add("com.fasterxml.jackson.core:jackson-annotations:" + bt4kVersion("jackson-annotations"))
+                    add("com.fasterxml.jackson.core:jackson-core:" + issue1883ProjectJacksonVersion)
+                    add("com.fasterxml.jackson.core:jackson-databind:" + issue1883ProjectJacksonVersion)
+                }
+                withDependencyConstraints {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                }
+            }
+        }
+        withModule("org.apache.avro:avro-compiler") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                    add("com.fasterxml.jackson.core:jackson-annotations:" + bt4kVersion("jackson-annotations"))
+                    add("com.fasterxml.jackson.core:jackson-core:" + issue1883ProjectJacksonVersion)
+                    add("com.fasterxml.jackson.core:jackson-databind:" + issue1883ProjectJacksonVersion)
+                }
+                withDependencyConstraints {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                }
+            }
+        }
+        withModule("com.google.cloud.tools:jib-gradle-plugin") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        (dependency.group == "com.google.guava" && dependency.name == "guava") ||
+                            (dependency.group == "com.fasterxml.jackson" && dependency.name == "jackson-bom")
+                    }
+                    add("com.google.guava:guava:" + issue1883ProjectGuavaVersion)
+                    add("com.fasterxml.jackson:jackson-bom:" + issue1883ProjectJacksonVersion)
+                }
+                withDependencyConstraints {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                }
+            }
+        }
+        withModule("io.gatling:gatling-enterprise-plugin-commons") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "com.fasterxml.jackson.core" && dependency.name == "jackson-databind"
+                    }
+                    add("com.fasterxml.jackson.core:jackson-databind:" + issue1883ProjectJacksonVersion)
+                }
+            }
+        }
+        withModule("org.jetbrains.intellij.deps:coverage-report") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "org.freemarker" && dependency.name == "freemarker"
+                    }
+                    add("org.freemarker:freemarker:" + issue1883ProjectFreemarkerVersion)
+                }
+            }
+        }
+        withModule("io.minio:minio") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        (dependency.group == "org.bouncycastle" && dependency.name == "bcprov-jdk18on") ||
+                            (dependency.group == "com.google.guava" && dependency.name == "guava")
+                    }
+                    add("org.bouncycastle:bcprov-jdk18on:" + issue1883ProjectBcprovVersion)
+                    add("com.google.guava:guava:" + issue1883ProjectGuavaVersion)
+                }
+            }
+        }
+    }
+}
+
 fun dottedReleaseComponents(version: String): List<Int> {
     val components = version.split('.')
     require(components.isNotEmpty() && components.all(String::isNotEmpty)) {
@@ -307,6 +525,10 @@ allprojects {
     group = projectGroup
     version = baseVersion + snapshotVersion
 
+    dependencies {
+        issue1883ProjectMetadataRules()
+    }
+
     repositories {
         mavenCentral()
         google()
@@ -328,6 +550,73 @@ allprojects {
                     because("Dokka tooling must use the centrally managed FreeMarker version")
                 }
             }
+        }
+    }
+}
+
+private val issue1883ForbiddenRequestedCoordinates = setOf(
+    "org.jsoup:jsoup:1.16.1",
+    "org.freemarker:freemarker:2.3.32",
+    "com.fasterxml.jackson.core:jackson-annotations:2.15.3",
+    "com.fasterxml.jackson.core:jackson-core:2.15.3",
+    "com.fasterxml.jackson.core:jackson-core:2.20.0",
+    "com.fasterxml.jackson.core:jackson-databind:2.14.2",
+    "com.fasterxml.jackson.core:jackson-databind:2.15.3",
+    "com.fasterxml.jackson.core:jackson-databind:2.20.0",
+    "com.fasterxml.jackson.core:jackson-annotations:2.22.2",
+    "com.fasterxml.jackson.core:jackson-core:2.22.2",
+    "com.fasterxml.jackson.core:jackson-databind:2.22.2",
+    "com.fasterxml.jackson:jackson-bom:2.22.2",
+    "com.google.guava:guava:29.0-jre",
+    "com.google.guava:guava:30.1.1-jre",
+    "com.google.guava:guava:31.0.1-jre",
+    "com.google.guava:guava:32.1.2-jre",
+    "com.google.guava:guava:33.5.0-jre",
+    "com.google.guava:guava:33.6.0-jre",
+    "org.apache.avro:avro-compiler:1.11.3",
+    "org.bouncycastle:bcpg-jdk18on:1.84",
+    "org.bouncycastle:bcpkix-jdk18on:1.84",
+    "org.bouncycastle:bcprov-jdk18on:1.84",
+    "org.bouncycastle:bcutil-jdk18on:1.84",
+)
+
+tasks.register("issue1883DependencyGraphCheck") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Rejects Issue #1883 vulnerable requested coordinates in representative graphs."
+
+    doLast {
+        val representativeConfigurations = buildList {
+            add(rootProject to rootProject.buildscript.configurations.getByName("classpath"))
+            for (projectPath in listOf(
+                ":bluetape4k-core",
+                ":bluetape4k-avro",
+                ":bluetape4k-mock-web-server",
+                ":bluetape4k-mock-webflux-server",
+                ":bluetape4k-testcontainers",
+            )) {
+                val candidate = project(projectPath)
+                candidate.buildscript.configurations.findByName("classpath")?.let {
+                    add(candidate to it)
+                }
+            }
+        }
+
+        val violations = representativeConfigurations.flatMap { (owner, configuration) ->
+            if (!configuration.isCanBeResolved) {
+                emptyList()
+            } else {
+                configuration.incoming.resolutionResult.allDependencies.mapNotNull { dependency ->
+                    val requested = dependency.requested as? ModuleComponentSelector ?: return@mapNotNull null
+                    val coordinate = requested.group + ":" + requested.module + ":" + requested.version
+                    coordinate.takeIf { it in issue1883ForbiddenRequestedCoordinates }?.let {
+                        owner.path + ":" + configuration.name + " -> " + it
+                    }
+                }
+            }
+        }.distinct()
+
+        check(violations.isEmpty()) {
+            "Issue #1883 forbidden requested coordinates remain:\n" + violations.joinToString("\n")
         }
     }
 }
