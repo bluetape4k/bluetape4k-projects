@@ -20,6 +20,20 @@ catalog가 최신이어도 Dependency Submission이 plugin classpath의 오래�
 MinIO testcontainers compile graph의 Bouncy Castle 요청 버전도 project
 metadata 경로에 별도로 남을 수 있어 같은 수렴 범위로 확인했다.
 
+후속 hosted SBOM read-back에서는 merge commit
+`db7d0b9cedc088712e91981507e16066f9e62921`의 Dependency Submission 성공
+실행([run 42493199690](https://github.com/bluetape4k/bluetape4k-projects/actions/runs/42493199690))에도
+`org.bouncycastle:bcpg-jdk18on:1.84`,
+`org.bouncycastle:bcpkix-jdk18on:1.84`,
+`org.bouncycastle:bcprov-jdk18on:1.84`,
+`org.bouncycastle:bcutil-jdk18on:1.84`가 남아 있었다. 로컬
+`issue1883DependencyGraphCheck`는 compile/runtime/test/published 범위와
+buildscript classpath만 검사했기 때문에 Kotlin plugin이 내부적으로 만드는
+`kotlinBouncyCastleConfiguration`을 확인하지 못했다. 이 configuration은
+library publishing validation task가 사용하는 build-only graph이며, hosted
+action은 `canBeResolved` configuration을 모두 순회하므로 별도 수렴 규칙이
+필요했다.
+
 ## 결정
 
 - Gradle 'buildscript.dependencies.constraints'에 Issue #1883의 보안 좌표를
@@ -53,6 +67,12 @@ metadata 경로에 별도로 남을 수 있어 같은 수렴 범위로 확인했
   일반 project의 runtime/test configuration을 project별 task에서 각각
   해석하고, build-only/runtime/test-only/published 범위를 로그에 남긴 뒤
   forbidden requested coordinates를 실제 ResolutionResult에서 검사한다.
+- Kotlin plugin의 `kotlinBouncyCastleConfiguration`도 build-only 범위로
+  등록한다. 이 configuration의 Bouncy Castle BOM과 모듈은
+  `withDependencies`에서 중앙 catalog 좌표로 다시 요청하고,
+  `resolutionStrategy.eachDependency`로 전이 요청도 같은 보안 트레인에
+  맞춘다. 선택된 버전만 바꾸면 hosted SBOM의 원본 1.84 requested edge가
+  남을 수 있으므로, 두 단계가 모두 필요하다.
 
 ## 검증
 
@@ -64,6 +84,14 @@ metadata 경로에 별도로 남을 수 있어 같은 수렴 범위로 확인했
   관찰되지 않았고, Gatling Jackson은 2.22.4, Kover FreeMarker는 2.3.35로
   선택됐다.
 - 'issue1883DependencyGraphCheck' 통과.
+- 후속 RED 회귀 테스트는 Kotlin 내부 configuration 범위, Bouncy Castle
+  alias map, requested-edge 재작성 계약이 없을 때 실패했다. GREEN 이후
+  `tests.test_catalog_workflows` 전체 144개 테스트가 통과했고,
+  `issue1883DependencyGraphCheck` 출력에 대표 project의
+  `kotlinBouncyCastleConfiguration:resolved`가 추가됐고,
+  `:bluetape4k-nats:dependencyInsight --dependency org.bouncycastle --configuration kotlinBouncyCastleConfiguration`에는 `bcpg-jdk18on`,
+  `bcpkix-jdk18on`, `bcprov-jdk18on`, `bcutil-jdk18on`이 모두 1.86으로
+  선택됐다.
 - project graph를 확장한 첫 실행에서 WireMock의 Guava '33.5.0-jre'와
   Elasticsearch Java client의 Jackson '2.22.2' 요청 edge가 발견됐다. 두
   모듈의 metadata rule을 추가한 뒤 7개 대표 project의
