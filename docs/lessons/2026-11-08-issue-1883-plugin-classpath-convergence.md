@@ -41,12 +41,17 @@ metadata 경로에 별도로 남을 수 있어 같은 수렴 범위로 확인했
   dependency handler에도 metadata rule을 등록한다. Dokka base의 FreeMarker와
   Jackson constraint, MinIO의 bcprov-jdk18on 1.84 요청 edge를 제거하고
   중앙 catalog 버전을 다시 추가한다.
+- WireMock의 Guava 33.5.0-jre와 Elasticsearch Java client의 Jackson 2.22.2
+  요청 edge도 일반 project configuration에서 발견될 수 있으므로 같은
+  metadata rule로 중앙 catalog 버전을 다시 추가한다.
 - workflow contract test는 constraint가 'plugins { }'보다 먼저 선언되고,
   'beforeProject' callback이 동일 목록을 재사용하며, global force가 없음을
   검증한다.
 - workflow contract test는 project metadata rule과 MinIO 보정 범위도
   확인하며, global force를 허용하지 않는다.
-- 'issue1883DependencyGraphCheck' Gradle task는 대표 plugin classpath의
+- 'issue1883DependencyGraphCheck' Gradle task는 대표 plugin classpath와
+  일반 project의 runtime/test configuration을 project별 task에서 각각
+  해석하고, build-only/runtime/test-only/published 범위를 로그에 남긴 뒤
   forbidden requested coordinates를 실제 ResolutionResult에서 검사한다.
 
 ## 검증
@@ -59,6 +64,13 @@ metadata 경로에 별도로 남을 수 있어 같은 수렴 범위로 확인했
   관찰되지 않았고, Gatling Jackson은 2.22.4, Kover FreeMarker는 2.3.35로
   선택됐다.
 - 'issue1883DependencyGraphCheck' 통과.
+- project graph를 확장한 첫 실행에서 WireMock의 Guava '33.5.0-jre'와
+  Elasticsearch Java client의 Jackson '2.22.2' 요청 edge가 발견됐다. 두
+  모듈의 metadata rule을 추가한 뒤 7개 대표 project의
+  'compileClasspath', 'runtimeClasspath', 'testCompileClasspath',
+  'testRuntimeClasspath' 검사가 모두 통과했다. 'apiElements'와
+  'runtimeElements'는 published 범위로 분류했지만 Gradle에서
+  non-resolvable이므로 hosted SBOM read-back 대상으로 남겼다.
 - 'bluetape4k-testcontainers:compileClasspath' dependencyInsight에서
   MinIO의 'bcprov-jdk18on:1.84' 요청 edge가 사라지고 1.86이 선택됨을
   확인했다.
@@ -89,6 +101,26 @@ Dependency Submission 재실행 뒤 exact-head live SBOM과 Dependabot alerts
 '#235', '#231' read-back이 필요하다. plugin-only 좌표의 alert scope와
 runtime 영향은 hosted graph에서 다시 확인하며, 로컬 'buildEnvironment'
 성공만으로 live SBOM 수렴을 주장하지 않는다.
+
+## Live alert 좌표와 잔여 위험
+
+아래 표는 2026-11-08에 default branch에서 읽은 17개 open alert를 요청
+좌표별로 묶은 것이다. `local candidate`는 현재 branch의 대표 graph에서
+확인한 후보 범위이고, `hosted pending`은 exact-head Dependency Submission
+후에만 확정할 수 있는 project/configuration 경계다.
+
+| Alert | 요청 좌표 | local candidate | 잔여 위험 |
+|---|---|---|---|
+| #231, #233 | `org.bouncycastle:bcprov-jdk18on:1.84` | runtime/test-only 후보(MinIO/testcontainers)와 direct catalog | hosted graph가 direct alert를 계속 보존할 수 있음(hosted pending) |
+| #235 | `org.freemarker:freemarker:2.3.32` | build-only plugin(Dokka/coverage) | plugin-only라도 SBOM alert가 남을 수 있음(hosted pending) |
+| #236, #238, #241, #244, #246, #252, #259, #268 | Jackson `2.14.2` | build-only plugin 및 project transitive 후보 | 각 hosted project/configuration 경계와 runtime 영향은 SBOM 재검증 필요 |
+| #247, #253, #254, #256 | Jackson `2.22.2` | build-only Jib 및 test-only Elasticsearch client 후보 | local rule로 2.22.4를 선택하지만 requested edge의 hosted 제거는 미확정 |
+| #262 | `org.jsoup:jsoup:1.16.1` | build-only plugin(Dokka) | plugin-only 범위와 SBOM 잔존 여부는 hosted pending |
+| #269 | `com.google.guava:guava:33.6.0-jre` | build-only Jib 및 test-only WireMock 후보 | WireMock 33.5.0 edge는 제거했지만 direct catalog alert read-back 필요 |
+
+현재 branch에서 확인된 모든 candidate에는 패치 버전이 존재한다. 따라서
+`no-patch` 예외는 기록하지 않았고, plugin-only 좌표의 비실행 위험을
+보안 수렴의 증거로 오인하지 않는 것이 핵심 운영 guard다.
 
 ## 향후 지침
 

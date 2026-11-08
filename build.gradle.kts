@@ -461,6 +461,28 @@ val issue1883ProjectMetadataRules: DependencyHandler.() -> Unit = {
                 }
             }
         }
+        withModule("org.wiremock:wiremock") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "com.google.guava" && dependency.name == "guava"
+                    }
+                    add("com.google.guava:guava:" + issue1883ProjectGuavaVersion)
+                }
+            }
+        }
+        withModule("co.elastic.clients:elasticsearch-java") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "com.fasterxml.jackson.core" &&
+                            (dependency.name == "jackson-core" || dependency.name == "jackson-databind")
+                    }
+                    add("com.fasterxml.jackson.core:jackson-core:" + issue1883ProjectJacksonVersion)
+                    add("com.fasterxml.jackson.core:jackson-databind:" + issue1883ProjectJacksonVersion)
+                }
+            }
+        }
         withModule("io.minio:minio") {
             allVariants {
                 withDependencies {
@@ -580,40 +602,140 @@ private val issue1883ForbiddenRequestedCoordinates = setOf(
     "org.bouncycastle:bcutil-jdk18on:1.84",
 )
 
-tasks.register("issue1883DependencyGraphCheck") {
-    group = LifecycleBasePlugin.VERIFICATION_GROUP
-    description = "Rejects Issue #1883 vulnerable requested coordinates in representative graphs."
+private val issue1883ProjectConfigurationScopes = listOf(
+    "compileClasspath" to "runtime",
+    "runtimeClasspath" to "runtime",
+    "testCompileClasspath" to "test-only",
+    "testRuntimeClasspath" to "test-only",
+    "apiElements" to "published",
+    "runtimeElements" to "published",
+)
 
-    doLast {
-        val representativeConfigurations = buildList {
-            add(rootProject to rootProject.buildscript.configurations.getByName("classpath"))
-            for (projectPath in listOf(
-                ":bluetape4k-core",
-                ":bluetape4k-avro",
-                ":bluetape4k-mock-web-server",
-                ":bluetape4k-mock-webflux-server",
-                ":bluetape4k-testcontainers",
-            )) {
-                val candidate = project(projectPath)
-                candidate.buildscript.configurations.findByName("classpath")?.let {
-                    add(candidate to it)
+private data class Issue1883ConfigurationScope(
+    val owner: Project,
+    val configuration: org.gradle.api.artifacts.Configuration,
+    val scope: String,
+)
+
+private val issue1883RepresentativeProjects = listOf(
+    ":bluetape4k-core",
+    ":bluetape4k-avro",
+    ":bluetape4k-mock-web-server",
+    ":bluetape4k-mock-webflux-server",
+    ":bluetape4k-testcontainers",
+    ":bluetape4k-jwt",
+    ":bluetape4k-nats",
+)
+
+private fun issue1883ForbiddenViolations(
+    owner: Project,
+    configurationScope: String,
+    configuration: org.gradle.api.artifacts.Configuration,
+): List<String> {
+    if (!configuration.isCanBeResolved) {
+        return emptyList()
+    }
+
+    return configuration.incoming.resolutionResult.allDependencies.mapNotNull { dependency ->
+        val requested = dependency.requested as? ModuleComponentSelector ?: return@mapNotNull null
+        val coordinate = requested.group + ":" + requested.module + ":" + requested.version
+        coordinate.takeIf { it in issue1883ForbiddenRequestedCoordinates }?.let {
+            owner.path + ":" + configurationScope + ":" + configuration.name + " -> " + it
+        }
+    }.distinct()
+}
+
+val issue1883ProjectGraphCheckTasks = issue1883RepresentativeProjects.mapNotNull { projectPath ->
+    findProject(projectPath)?.tasks?.register("issue1883ProjectDependencyGraphCheck") {
+        group = LifecycleBasePlugin.VERIFICATION_GROUP
+        description = "Checks Issue #1883 requested coordinates for this project's dependency scopes."
+
+        doLast {
+            val candidate = project(projectPath)
+            val scopeLines = mutableListOf<String>()
+            val violations = mutableListOf<String>()
+            val buildscriptConfiguration = candidate.buildscript.configurations.findByName("classpath")
+            when {
+                buildscriptConfiguration == null -> scopeLines +=
+                    "${candidate.path}:build-only:classpath:absent"
+
+                !buildscriptConfiguration.isCanBeResolved -> scopeLines +=
+                    "${candidate.path}:build-only:classpath:non-resolvable"
+
+                else -> {
+                    scopeLines += "${candidate.path}:build-only:classpath:resolved"
+                    violations += issue1883ForbiddenViolations(
+                        candidate,
+                        "build-only",
+                        buildscriptConfiguration,
+                    )
                 }
             }
-        }
+            for ((configurationName, configurationScope) in issue1883ProjectConfigurationScopes) {
+                val configuration = candidate.configurations.findByName(configurationName)
+                when {
+                    configuration == null -> scopeLines +=
+                        "${candidate.path}:$configurationScope:$configurationName:absent"
 
-        val violations = representativeConfigurations.flatMap { (owner, configuration) ->
-            if (!configuration.isCanBeResolved) {
-                emptyList()
-            } else {
-                configuration.incoming.resolutionResult.allDependencies.mapNotNull { dependency ->
-                    val requested = dependency.requested as? ModuleComponentSelector ?: return@mapNotNull null
-                    val coordinate = requested.group + ":" + requested.module + ":" + requested.version
-                    coordinate.takeIf { it in issue1883ForbiddenRequestedCoordinates }?.let {
-                        owner.path + ":" + configuration.name + " -> " + it
+                    !configuration.isCanBeResolved -> scopeLines +=
+                        "${candidate.path}:$configurationScope:$configurationName:non-resolvable"
+
+                    else -> {
+                        scopeLines += "${candidate.path}:$configurationScope:$configurationName:resolved"
+                        violations += issue1883ForbiddenViolations(candidate, configurationScope, configuration)
                     }
                 }
             }
-        }.distinct()
+
+            val reportFile = candidate.layout.buildDirectory
+                .file("reports/issue1883/${candidate.name}-dependency-graph.txt")
+                .get()
+                .asFile
+            reportFile.parentFile.mkdirs()
+            reportFile.writeText(
+                (scopeLines + violations.map { "VIOLATION $it" }).joinToString("\n") + "\n",
+            )
+        }
+    }
+}
+
+tasks.register("issue1883DependencyGraphCheck") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Rejects Issue #1883 vulnerable requested coordinates in representative plugin and project graphs."
+    dependsOn(issue1883ProjectGraphCheckTasks)
+
+    doLast {
+        val rootBuildscript = Issue1883ConfigurationScope(
+            owner = rootProject,
+            configuration = rootProject.buildscript.configurations.getByName("classpath"),
+            scope = "build-only",
+        )
+        val rootViolations = issue1883ForbiddenViolations(
+            rootBuildscript.owner,
+            rootBuildscript.scope,
+            rootBuildscript.configuration,
+        )
+        val rootScopeLine = "${rootProject.path}:build-only:classpath:resolved"
+        val projectReports = issue1883RepresentativeProjects.mapNotNull { projectPath ->
+            findProject(projectPath)?.layout?.buildDirectory
+                ?.file("reports/issue1883/${projectPath.substringAfterLast(':')}-dependency-graph.txt")
+                ?.get()
+                ?.asFile
+        }
+        val scopeLines = projectReports.flatMap { reportFile ->
+            if (reportFile.isFile) reportFile.readLines() else emptyList()
+        }
+
+        logger.lifecycle(
+            "Issue #1883 inspected graph scopes:\n" +
+                (listOf(rootScopeLine) + scopeLines.filterNot { it.startsWith("VIOLATION ") })
+                    .joinToString("\n"),
+        )
+
+        val violations = (rootViolations + scopeLines
+            .filter { it.startsWith("VIOLATION ") }
+            .map { it.removePrefix("VIOLATION ") })
+            .distinct()
 
         check(violations.isEmpty()) {
             "Issue #1883 forbidden requested coordinates remain:\n" + violations.joinToString("\n")

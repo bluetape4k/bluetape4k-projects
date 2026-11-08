@@ -4194,6 +4194,8 @@ class CatalogWorkflowsTest(unittest.TestCase):
             "com.google.cloud.tools:jib-gradle-plugin",
             "io.gatling:gatling-enterprise-plugin-commons",
             "org.jetbrains.intellij.deps:coverage-report",
+            "org.wiremock:wiremock",
+            "co.elastic.clients:elasticsearch-java",
             "io.minio:minio",
         ):
             with self.subTest(project_module=module):
@@ -4202,6 +4204,19 @@ class CatalogWorkflowsTest(unittest.TestCase):
         self.assertIn("issue1883DependencyGraphCheck", build)
         self.assertIn("issue1883ForbiddenRequestedCoordinates", build)
         self.assertIn("withDependencyConstraints", project_rules_block)
+
+        for scope in (
+            '"compileClasspath" to "runtime"',
+            '"runtimeClasspath" to "runtime"',
+            '"testCompileClasspath" to "test-only"',
+            '"testRuntimeClasspath" to "test-only"',
+            '"apiElements" to "published"',
+            '"runtimeElements" to "published"',
+        ):
+            with self.subTest(scope=scope):
+                self.assertIn(scope, build)
+        self.assertIn('scope = "build-only"', build)
+        self.assertIn("configurationScope", build)
 
         for module in (
             "org.jetbrains.dokka:dokka-core",
