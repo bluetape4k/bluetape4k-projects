@@ -16,6 +16,8 @@ import nmcp.NmcpAggregationExtension
 import nmcp.NmcpExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
@@ -25,6 +27,178 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import java.io.File
+
+buildscript {
+    val issue1883Catalog = project.extensions
+        .getByType<VersionCatalogsExtension>()
+        .named("bt4k")
+    val issue1883FreemarkerVersion = issue1883Catalog.findVersion("freemarker").get().requiredVersion
+    val issue1883JsoupVersion = issue1883Catalog.findVersion("jsoup").get().requiredVersion
+    val issue1883JacksonVersion = issue1883Catalog.findVersion("jackson2").get().requiredVersion
+    val issue1883JacksonAnnotationsVersion =
+        issue1883Catalog.findVersion("jackson-annotations").get().requiredVersion
+    val issue1883AvroVersion = issue1883Catalog.findVersion("avro").get().requiredVersion
+    val issue1883GuavaVersion = issue1883Catalog.findVersion("guava").get().requiredVersion
+    val issue1883BcpgVersion = issue1883Catalog.findVersion("bouncycastle-bcpg").get().requiredVersion
+    val issue1883BcpkixVersion = issue1883Catalog.findVersion("bouncycastle-bcpkix").get().requiredVersion
+    val issue1883BcprovVersion = issue1883Catalog.findVersion("bouncycastle-bcprov").get().requiredVersion
+
+    val issue1883PluginClasspathConstraints = mapOf(
+        "org.freemarker:freemarker:" + issue1883FreemarkerVersion to
+            "Issue #1883: Dokka build-only FreeMarker를 패치 릴리스로 고정",
+        "org.jsoup:jsoup:" + issue1883JsoupVersion to
+            "Issue #1883: Dokka build-only jsoup을 패치 릴리스로 고정",
+        "com.fasterxml.jackson.core:jackson-annotations:" + issue1883JacksonAnnotationsVersion to
+            "Issue #1883: 플러그인 classpath Jackson annotations를 중앙 카탈로그에 정렬",
+        "com.fasterxml.jackson.core:jackson-core:" + issue1883JacksonVersion to
+            "Issue #1883: 플러그인 classpath Jackson core를 중앙 카탈로그에 정렬",
+        "com.fasterxml.jackson.core:jackson-databind:" + issue1883JacksonVersion to
+            "Issue #1883: 플러그인 classpath Jackson databind를 중앙 카탈로그에 정렬",
+        "com.fasterxml.jackson:jackson-bom:" + issue1883JacksonVersion to
+            "Issue #1883: 플러그인 classpath Jackson BOM을 중앙 카탈로그에 정렬",
+        "com.google.guava:guava:" + issue1883GuavaVersion to
+            "Issue #1883: 플러그인 classpath Guava를 중앙 카탈로그에 정렬",
+        "org.bouncycastle:bcpg-jdk18on:" + issue1883BcpgVersion to
+            "Issue #1883: 플러그인 classpath Bouncy Castle 구성요소를 패치 릴리스로 정렬",
+        "org.bouncycastle:bcpkix-jdk18on:" + issue1883BcpkixVersion to
+            "Issue #1883: 플러그인 classpath Bouncy Castle 구성요소를 패치 릴리스로 정렬",
+        "org.bouncycastle:bc-jdk18on-bom:" + issue1883BcprovVersion to
+            "Issue #1883: 플러그인 classpath Bouncy Castle BOM을 패치 릴리스로 고정",
+        "org.bouncycastle:bcprov-jdk18on:" + issue1883BcprovVersion to
+            "Issue #1883: 플러그인 classpath Bouncy Castle을 패치 릴리스로 고정",
+        "org.bouncycastle:bcutil-jdk18on:" + issue1883BcprovVersion to
+            "Issue #1883: 플러그인 classpath Bouncy Castle 구성요소를 패치 릴리스로 정렬",
+    )
+
+    val issue1883PluginClasspathMetadataRules: DependencyHandler.() -> Unit = {
+        components {
+            withModule("org.jetbrains.dokka:dokka-core") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                        add("com.fasterxml.jackson.module:jackson-module-kotlin:" + issue1883JacksonVersion)
+                        add("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:" + issue1883JacksonVersion)
+                    }
+                    withDependencyConstraints {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                    }
+                }
+            }
+            withModule("org.jetbrains.dokka:dokka-base") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group == "org.jsoup" && dependency.name == "jsoup"
+                        }
+                        add("org.jsoup:jsoup:" + issue1883JsoupVersion)
+                    }
+                }
+            }
+            withModule("org.jetbrains.dokka:analysis-markdown") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group == "org.jsoup" && dependency.name == "jsoup"
+                        }
+                        add("org.jsoup:jsoup:" + issue1883JsoupVersion)
+                    }
+                }
+            }
+            withModule("org.jetbrains.dokka:templating-plugin") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group == "org.jsoup" && dependency.name == "jsoup"
+                        }
+                        add("org.jsoup:jsoup:" + issue1883JsoupVersion)
+                    }
+                }
+            }
+            withModule("com.github.davidmc24.gradle.plugin:gradle-avro-plugin") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group == "org.apache.avro" && dependency.name == "avro-compiler"
+                        }
+                        add("org.apache.avro:avro-compiler:" + issue1883AvroVersion)
+                    }
+                    withDependencyConstraints {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                    }
+                }
+            }
+            withModule("com.google.cloud.tools:jib-gradle-plugin") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            (dependency.group == "com.google.guava" && dependency.name == "guava") ||
+                                (dependency.group == "com.fasterxml.jackson" && dependency.name == "jackson-bom")
+                        }
+                        add("com.google.guava:guava:" + issue1883GuavaVersion)
+                        add("com.fasterxml.jackson:jackson-bom:" + issue1883JacksonVersion)
+                    }
+                    withDependencyConstraints {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                    }
+                }
+            }
+            withModule("io.gatling:gatling-enterprise-plugin-commons") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group == "com.fasterxml.jackson.core" && dependency.name == "jackson-databind"
+                        }
+                        add("com.fasterxml.jackson.core:jackson-databind:" + issue1883JacksonVersion)
+                    }
+                }
+            }
+            withModule("org.jetbrains.intellij.deps:coverage-report") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group == "org.freemarker" && dependency.name == "freemarker"
+                        }
+                        add("org.freemarker:freemarker:" + issue1883FreemarkerVersion)
+                    }
+                }
+            }
+        }
+    }
+
+    dependencies {
+        issue1883PluginClasspathMetadataRules()
+        constraints {
+            issue1883PluginClasspathConstraints.forEach { (coordinate, reason) ->
+                classpath(coordinate) {
+                    because(reason)
+                }
+            }
+        }
+    }
+
+    project.gradle.beforeProject {
+        buildscript {
+            dependencies {
+                issue1883PluginClasspathMetadataRules()
+                constraints {
+                    issue1883PluginClasspathConstraints.forEach { (coordinate, reason) ->
+                        classpath(coordinate) {
+                            because(reason)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 plugins {
     base
