@@ -4130,6 +4130,117 @@ class CatalogWorkflowsTest(unittest.TestCase):
         }
         self.assertEqual(expected, catalog_actual)
 
+    def test_plugin_classpath_security_constraints_are_scoped_before_plugins(self) -> None:
+        build = (ROOT / "build.gradle.kts").read_text()
+        buildscript_start = build.find("buildscript {")
+        plugins_start = build.find("plugins {")
+
+        self.assertGreaterEqual(buildscript_start, 0)
+        self.assertGreater(plugins_start, buildscript_start)
+        buildscript_block = build[buildscript_start:plugins_start]
+
+        for module in (
+            "org.freemarker:freemarker:",
+            "org.jsoup:jsoup:",
+            "com.fasterxml.jackson.core:jackson-databind:",
+            "com.fasterxml.jackson.core:jackson-core:",
+            "com.fasterxml.jackson.core:jackson-annotations:",
+            "com.fasterxml.jackson:jackson-bom:",
+            "com.google.guava:guava:",
+            "org.bouncycastle:bcpg-jdk18on:",
+            "org.bouncycastle:bcpkix-jdk18on:",
+            "org.bouncycastle:bc-jdk18on-bom:",
+            "org.bouncycastle:bcprov-jdk18on:",
+            "org.bouncycastle:bcutil-jdk18on:",
+        ):
+            with self.subTest(module=module):
+                self.assertIn(module, buildscript_block)
+
+        for alias in (
+            "freemarker",
+            "jsoup",
+            "jackson2",
+            "jackson-annotations",
+            "avro",
+            "guava",
+            "bouncycastle-bcpg",
+            "bouncycastle-bcpkix",
+            "bouncycastle-bcprov",
+        ):
+            with self.subTest(alias=alias):
+                self.assertIn(f'findVersion("{alias}")', buildscript_block)
+
+        self.assertIn("constraints {", buildscript_block)
+        self.assertIn("classpath(coordinate)", buildscript_block)
+        self.assertIn("Issue #1883", buildscript_block)
+        self.assertNotIn("resolutionStrategy.force", buildscript_block)
+
+        before_project_start = build.find("project.gradle.beforeProject {")
+        self.assertGreaterEqual(before_project_start, buildscript_start)
+        self.assertLess(before_project_start, plugins_start)
+        before_project_block = build[before_project_start:]
+        self.assertIn("issue1883PluginClasspathConstraints.forEach", before_project_block)
+
+        project_rules_start = build.find("val issue1883ProjectMetadataRules")
+        self.assertGreater(project_rules_start, plugins_start)
+        project_rules_block = build[project_rules_start:]
+        for module in (
+            "org.jetbrains.dokka:dokka-core",
+            "org.jetbrains.dokka:dokka-base",
+            "org.jetbrains.dokka:analysis-markdown",
+            "org.jetbrains.dokka:templating-plugin",
+            "com.github.davidmc24.gradle.plugin:gradle-avro-plugin",
+            "org.apache.avro:avro",
+            "com.google.cloud.tools:jib-gradle-plugin",
+            "io.gatling:gatling-enterprise-plugin-commons",
+            "org.jetbrains.intellij.deps:coverage-report",
+            "org.wiremock:wiremock",
+            "co.elastic.clients:elasticsearch-java",
+            "io.minio:minio",
+        ):
+            with self.subTest(project_module=module):
+                self.assertIn(f'withModule("{module}")', project_rules_block)
+        self.assertIn("issue1883ProjectMetadataRules()", build[build.find("allprojects {"):])
+        self.assertIn("issue1883DependencyGraphCheck", build)
+        self.assertIn("issue1883ForbiddenRequestedCoordinates", build)
+        self.assertIn("withDependencyConstraints", project_rules_block)
+
+        for scope in (
+            '"compileClasspath" to "runtime"',
+            '"runtimeClasspath" to "runtime"',
+            '"testCompileClasspath" to "test-only"',
+            '"testRuntimeClasspath" to "test-only"',
+            '"apiElements" to "published"',
+            '"runtimeElements" to "published"',
+        ):
+            with self.subTest(scope=scope):
+                self.assertIn(scope, build)
+        self.assertIn('scope = "build-only"', build)
+        self.assertIn("configurationScope", build)
+
+        for module in (
+            "org.jetbrains.dokka:dokka-core",
+            "org.jetbrains.dokka:dokka-base",
+            "org.jetbrains.dokka:analysis-markdown",
+            "org.jetbrains.dokka:templating-plugin",
+            "com.github.davidmc24.gradle.plugin:gradle-avro-plugin",
+            "org.apache.avro:avro",
+            "com.google.cloud.tools:jib-gradle-plugin",
+            "io.gatling:gatling-enterprise-plugin-commons",
+            "org.jetbrains.intellij.deps:coverage-report",
+        ):
+            with self.subTest(module=module):
+                self.assertIn(f'withModule("{module}")', buildscript_block)
+
+        self.assertIn("components {", buildscript_block)
+        self.assertIn("withDependencies", buildscript_block)
+        self.assertIn("withDependencyConstraints", buildscript_block)
+        self.assertIn("avro-compiler", buildscript_block)
+        self.assertIn("jib-gradle-plugin", buildscript_block)
+        self.assertIn("jackson-bom", buildscript_block)
+        self.assertIn("gatling-enterprise-plugin-commons", buildscript_block)
+        self.assertIn("coverage-report", buildscript_block)
+
 
 if __name__ == "__main__":
     unittest.main()
