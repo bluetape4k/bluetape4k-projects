@@ -4274,6 +4274,21 @@ class CatalogWorkflowsTest(unittest.TestCase):
             build,
         )
 
+    def test_issue_1887_guava_graph_check_inspects_published_declarations_and_reports(self) -> None:
+        build = (ROOT / "build.gradle.kts").read_text()
+
+        self.assertIn(
+            'require(isAtLeastDottedRelease(bt4kVersion("guava").removeSuffix("-jre"), "33.7.2"))',
+            build,
+        )
+        self.assertIn("configuration.allDependencies", build)
+        self.assertIn("configuration.allDependencyConstraints", build)
+        self.assertIn("non-resolvable-declarations", build)
+        self.assertIn("missing project graph reports", build)
+        self.assertIn("issue1883PublishedRequestedCoordinates", build)
+        self.assertIn("issue1883IsForbiddenRequestedCoordinate", build)
+        self.assertIn("issue1883GuavaRequestedVersionIsVulnerable", build)
+
 
 if __name__ == "__main__":
     unittest.main()
