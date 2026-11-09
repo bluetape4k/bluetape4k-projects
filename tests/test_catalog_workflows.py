@@ -3462,6 +3462,12 @@ class CatalogWorkflowsTest(unittest.TestCase):
 
         self.assertTrue(any("checkout HEAD" in error for error in errors), errors)
 
+    def test_dependency_submission_excludes_internal_detached_configurations(self) -> None:
+        self.assertIn(
+            "dependency-graph-exclude-configurations: 'detachedConfiguration.*'",
+            self.submission,
+        )
+
     def test_rejects_escaped_checkout_action_value_with_compensating_checkout(
         self,
     ) -> None:
