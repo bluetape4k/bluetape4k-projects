@@ -4241,6 +4241,33 @@ class CatalogWorkflowsTest(unittest.TestCase):
         self.assertIn("gatling-enterprise-plugin-commons", buildscript_block)
         self.assertIn("coverage-report", buildscript_block)
 
+    def test_kotlin_internal_bouncycastle_configuration_is_checked_and_converged(self) -> None:
+        build = (ROOT / "build.gradle.kts").read_text()
+
+        self.assertIn(
+            '"kotlinBouncyCastleConfiguration" to "build-only"',
+            build,
+        )
+        self.assertIn(
+            'configurations.matching { it.name == "kotlinBouncyCastleConfiguration" }.configureEach',
+            build,
+        )
+        self.assertIn('"bc-jdk18on-bom" to "bouncycastle-bcprov"', build)
+        self.assertIn('requested.group == "org.bouncycastle"', build)
+        self.assertIn("withDependencies", build)
+        self.assertIn("removeAll", build)
+        self.assertIn("project.dependencies.create", build)
+        self.assertIn('"org.bouncycastle:bc-jdk18on-bom:1.84"', build)
+        self.assertIn("useVersion(", build)
+        self.assertIn(
+            "issue1883KotlinBouncyCastleVersionAliases.getValue(requested.name)",
+            build,
+        )
+        self.assertIn(
+            "Issue #1883: Kotlin build-only Bouncy Castle validation configuration",
+            build,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

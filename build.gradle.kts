@@ -306,6 +306,14 @@ fun bt4kVersion(alias: String): String {
         .ifBlank { version.strictVersion }
 }
 
+private val issue1883KotlinBouncyCastleVersionAliases = mapOf(
+    "bc-jdk18on-bom" to "bouncycastle-bcprov",
+    "bcpg-jdk18on" to "bouncycastle-bcpg",
+    "bcpkix-jdk18on" to "bouncycastle-bcpkix",
+    "bcprov-jdk18on" to "bouncycastle-bcprov",
+    "bcutil-jdk18on" to "bouncycastle-bcprov",
+)
+
 // Dependency Submission also walks published project configurations. Keep the
 // same metadata rewrites on those configurations so a selected patched version
 // does not hide an old requested edge in the hosted graph.
@@ -574,6 +582,43 @@ allprojects {
             }
         }
     }
+
+    configurations.matching { it.name == "kotlinBouncyCastleConfiguration" }.configureEach {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "org.bouncycastle" &&
+                requested.name in issue1883KotlinBouncyCastleVersionAliases
+            ) {
+                useVersion(
+                    bt4kVersion(issue1883KotlinBouncyCastleVersionAliases.getValue(requested.name)),
+                )
+                because("Issue #1883: Kotlin build-only Bouncy Castle validation configuration must use the central security train")
+            }
+        }
+
+        withDependencies {
+            val requestedBouncyCastleModules = asSequence()
+                .filter { dependency ->
+                    dependency.group == "org.bouncycastle" &&
+                        dependency.name in issue1883KotlinBouncyCastleVersionAliases
+                }
+                .map { dependency -> dependency.name }
+                .toSet()
+
+            removeAll { dependency ->
+                dependency.group == "org.bouncycastle" &&
+                    dependency.name in requestedBouncyCastleModules
+            }
+
+            requestedBouncyCastleModules.forEach { module ->
+                add(
+                    project.dependencies.create(
+                        "org.bouncycastle:$module:" +
+                            bt4kVersion(issue1883KotlinBouncyCastleVersionAliases.getValue(module)),
+                    ),
+                )
+            }
+        }
+    }
 }
 
 private val issue1883ForbiddenRequestedCoordinates = setOf(
@@ -596,6 +641,7 @@ private val issue1883ForbiddenRequestedCoordinates = setOf(
     "com.google.guava:guava:33.5.0-jre",
     "com.google.guava:guava:33.6.0-jre",
     "org.apache.avro:avro-compiler:1.11.3",
+    "org.bouncycastle:bc-jdk18on-bom:1.84",
     "org.bouncycastle:bcpg-jdk18on:1.84",
     "org.bouncycastle:bcpkix-jdk18on:1.84",
     "org.bouncycastle:bcprov-jdk18on:1.84",
@@ -607,6 +653,7 @@ private val issue1883ProjectConfigurationScopes = listOf(
     "runtimeClasspath" to "runtime",
     "testCompileClasspath" to "test-only",
     "testRuntimeClasspath" to "test-only",
+    "kotlinBouncyCastleConfiguration" to "build-only",
     "apiElements" to "published",
     "runtimeElements" to "published",
 )
