@@ -20,6 +20,11 @@ Issue [#1887](https://github.com/bluetape4k/bluetape4k-projects/issues/1887)은
   requested coordinate를 검사한다. Guava는 등록된 과거 취약 버전만
   비교하지 않고 `33.7.2` 미만이거나 숫자로 판정할 수 없는 요청을 모두
   거부한다.
+- resolvable configuration도 직접 요청한 dependency에는 같은 Guava 범위
+  검사를 적용하고, 전체 transitive graph에는 기존 historical forbidden 목록을
+  유지해 외부 라이브러리의 무관한 과거 selector를 새 계약과 혼동하지 않는다.
+- published declaration에서 version이 비어 있으면 `<unspecified>` marker로
+  보존해 Guava 요청을 fail-open으로 버리지 않는다.
 - 대표 project가 없어지거나 graph report가 생성되지 않으면
   `issue1883DependencyGraphCheck`가 즉시 실패한다. 누락을 빈 목록으로
   바꾸지 않는다.
@@ -37,6 +42,8 @@ Issue [#1887](https://github.com/bluetape4k/bluetape4k-projects/issues/1887)은
 - `./gradlew issue1883DependencyGraphCheck --no-configuration-cache --no-daemon`
   이 7개 대표 project의 `apiElements`/`runtimeElements`를
   `non-resolvable-declarations=<count>`로 기록하고 통과했다.
+- P1 보강 후 resolvable direct request, dynamic selector, versionless marker
+  fixture를 포함한 guard 계약과 동일 graph check가 다시 통과했다.
 - exact `develop` HEAD `7c3b9f3bf5f70785be70ce095ec09e66433beaaa`의
   Dependency Submission run `42585681379` SBOM에는 Guava
   `33.7.2-jre`만 남고 `33.6.0-jre`는 없다.
