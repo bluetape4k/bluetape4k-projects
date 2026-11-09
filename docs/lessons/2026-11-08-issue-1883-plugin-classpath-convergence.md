@@ -123,12 +123,39 @@ action은 `canBeResolved` configuration을 모두 순회하므로 별도 수렴 
   'bluetape4k/core/README.md'의 'Wrong AST Tree' 오류로 실패했다. 이
   문서 파서는 이번 보안 수정 범위 밖이므로 별도 결함으로 남긴다.
 
+## 2026-11-09 머지 후속 발견과 보정
+
+- PR [#1886](https://github.com/bluetape4k/bluetape4k-projects/pull/1886)은
+  exact head `030f3ee7d27635b065118b15536349611b7ebbc7`에 대해 fresh merge
+  approval을 받은 뒤 merge commit
+  `008d4c22d772b575b8d1cbfe498d03060fac67e8`로 머지됐다. 해당 머지의
+  Dependency Submission ([run 42553647126](https://github.com/bluetape4k/bluetape4k-projects/actions/runs/42553647126))은 성공했지만, 새 SBOM에도
+  `org.bouncycastle:*:1.84` 네 좌표와 `bc-jdk18on-bom:1.84`가 남았다.
+- 로컬 exact-head에서 Gradle Dependency Submission plugin의
+  `DependencyResolutionListener`를 추적한 결과, 잔여 요청은 Spring
+  Dependency Management plugin의 Maven BOM/exclusion 처리 중 생성되는
+  root `detachedConfiguration42`, `43`, `65`에서 발생했다. 이 configuration은
+  제품 runtime/test graph가 아니라 imported BOM metadata를 해석하기 위한
+  내부 작업 범위다.
+- 따라서 buildscript/project graph에 global `resolutionStrategy.force`를
+  추가하지 않고, 공식 Dependency Submission action이 제공하는
+  configuration 정규식 필터로 `detachedConfiguration.*`만 제외한다. 이
+  필터는 실제 project classpath와 buildscript classpath 제출은 보존하면서
+  Spring plugin의 내부 BOM parser graph만 제출 대상에서 제거한다.
+- RED 회귀 계약은 workflow에
+  `dependency-graph-exclude-configurations: 'detachedConfiguration.*'`가
+  없을 때 실패하도록 고정했다. exact-head 로컬 graph에 동일 필터를 적용한
+  결과 Gradle task가 성공했고, Bouncy Castle은 1.86 및 별도 LTS
+  `2.73.13`만 남았으며 1.84 좌표는 관찰되지 않았다.
+- 이 보정은 별도 후속 PR의 exact-head Dependency Submission과 live SBOM,
+  Dependabot `#231`, `#233` read-back이 끝나야 hosted 수렴으로 승격한다.
+
 ## 잔여 검증
 
-Dependency Submission 재실행 뒤 exact-head live SBOM과 Dependabot alerts
-'#235', '#231' read-back이 필요하다. plugin-only 좌표의 alert scope와
-runtime 영향은 hosted graph에서 다시 확인하며, 로컬 'buildEnvironment'
-성공만으로 live SBOM 수렴을 주장하지 않는다.
+후속 PR의 Dependency Submission 재실행 뒤 exact-head live SBOM과 Dependabot
+alerts '#231', '#233' read-back이 필요하다. plugin-only 좌표의 alert scope와
+runtime 영향은 hosted graph에서 다시 확인하며, 로컬 graph 성공만으로 live
+SBOM 수렴을 주장하지 않는다.
 
 ## Live alert 좌표와 잔여 위험
 
