@@ -66,7 +66,7 @@ kuromoji = "0.9.0"  # https://mvnrepository.com/artifact/com.atilika.kuromoji/ku
 
 # Plugin versions
 
-dependabot-jackson2 = "2.22.4"
+dependabot-jackson2 = "2.23.0"
 dependabot-amqp-client = "5.37.0"
 dependabot-netty = "4.2.19.Final"
 dependabot-bouncycastle-bcprov = "1.86"
