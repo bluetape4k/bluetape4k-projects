@@ -4285,6 +4285,9 @@ class CatalogWorkflowsTest(unittest.TestCase):
         for path in branch_tests:
             with self.subTest(path=path):
                 source = path.read_text()
+                branch_test = source[
+                    source.index("fun `branching stream`()") : source.index("    private fun createConsumer")
+                ]
                 self.assertIn("StreamsBuilderFactoryBean", source)
                 self.assertIn("KafkaStreams.State.RUNNING", source)
                 self.assertIn("CountDownLatch(1)", source)
@@ -4293,6 +4296,20 @@ class CatalogWorkflowsTest(unittest.TestCase):
                 self.assertIn("minRecords = 2", source)
                 self.assertIn("minRecords = 1", source)
                 self.assertIn(".use {", source)
+
+                lifecycle_markers = (
+                    "this.streamsBuilderFactoryBean.stop()",
+                    "this.streamsBuilderFactoryBean.setStateListener",
+                    "this.streamsBuilderFactoryBean.start()",
+                    "runningLatch.await(60, TimeUnit.SECONDS).shouldBeTrue()",
+                )
+                lifecycle_positions = [branch_test.index(marker) for marker in lifecycle_markers]
+                self.assertEqual(lifecycle_positions, sorted(lifecycle_positions))
+                self.assertEqual(branch_test.count("createConsumer().use {"), 2)
+                self.assertLess(
+                    branch_test.index("trueConsumer.getRecords(Duration.ofSeconds(30), minRecords = 2)"),
+                    branch_test.index("falseConsumer.getRecords(Duration.ofSeconds(30), minRecords = 1)"),
+                )
 
 
 if __name__ == "__main__":
