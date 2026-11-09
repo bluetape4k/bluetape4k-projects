@@ -4274,6 +4274,26 @@ class CatalogWorkflowsTest(unittest.TestCase):
             build,
         )
 
+    def test_kafka_branch_tests_wait_for_streams_delivery_and_cleanup(self) -> None:
+        branch_tests = (
+            ROOT
+            / "infra/kafka/src/test/kotlin/org/springframework/kafka/streams/KafkaStreamsBranchTests.kt",
+            ROOT
+            / "infra/kafka4/src/test/kotlin/org/springframework/kafka/streams/KafkaStreamsBranchTests.kt",
+        )
+
+        for path in branch_tests:
+            with self.subTest(path=path):
+                source = path.read_text()
+                self.assertIn("StreamsBuilderFactoryBean", source)
+                self.assertIn("KafkaStreams.State.RUNNING", source)
+                self.assertIn("CountDownLatch(1)", source)
+                self.assertIn("sendDefault(true.toString()).get(60, TimeUnit.SECONDS)", source)
+                self.assertIn("sendDefault(false.toString()).get(60, TimeUnit.SECONDS)", source)
+                self.assertIn("minRecords = 2", source)
+                self.assertIn("minRecords = 1", source)
+                self.assertIn(".use {", source)
+
 
 if __name__ == "__main__":
     unittest.main()
