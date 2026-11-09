@@ -147,22 +147,38 @@ action은 `canBeResolved` configuration을 모두 순회하므로 별도 수렴 
   없을 때 실패하도록 고정했다. exact-head 로컬 graph에 동일 필터를 적용한
   결과 Gradle task가 성공했고, Bouncy Castle은 1.86 및 별도 LTS
   `2.73.13`만 남았으며 1.84 좌표는 관찰되지 않았다.
-- 이 보정은 별도 후속 PR의 exact-head Dependency Submission과 live SBOM,
-  Dependabot `#231`, `#233` read-back이 끝나야 hosted 수렴으로 승격한다.
+- 이 보정은 후속 PR [#1890](https://github.com/bluetape4k/bluetape4k-projects/pull/1890)로
+  exact head `d46cfb91f8249d658ea478b8f09f8d8605037a9d`에서 머지됐고, merge
+  commit은 `f4d05be11a9a40945624f3ae5d0b74cf5461fa80`이다.
 
-## 잔여 검증
+## 2026-11-09 hosted 검증 완료
 
-후속 PR의 Dependency Submission 재실행 뒤 exact-head live SBOM과 Dependabot
-alerts '#231', '#233' read-back이 필요하다. plugin-only 좌표의 alert scope와
-runtime 영향은 hosted graph에서 다시 확인하며, 로컬 graph 성공만으로 live
-SBOM 수렴을 주장하지 않는다.
+머지 후 Dependency Submission ([run 42579168618](https://github.com/bluetape4k/bluetape4k-projects/actions/runs/42579168618))은
+성공했고, `dependency_submission-dependency-submission.json` 제출 결과가
+업데이트됐다. live SBOM은 `2026-11-09T07:26:52Z`에 생성됐으며 1,697개
+패키지를 포함한다.
+
+- `org.bouncycastle:bcprov-jdk18on`: `1.86`
+- `org.bouncycastle:bcpkix-jdk18on`: `1.86`
+- `org.bouncycastle:bcpg-jdk18on`: `1.86`
+- `org.bouncycastle:bcutil-jdk18on`: `1.86`
+- `org.bouncycastle:bcprov-lts8on`: `2.73.13`
+- Bouncy Castle `1.84` 좌표: 없음
+- Dependabot `#231` critical: `fixed`
+- Dependabot `#233` high: `fixed`
+
+따라서 Issue #1883의 Bouncy Castle requested-edge 및 hosted SBOM 수렴
+게이트를 완료했다. SBOM에 남은 `org.apache.pulsar:bouncy-castle-bc:4.2.5`는
+`org.bouncycastle` 보안 좌표와 다른 패키지이므로 Bouncy Castle `1.84`
+잔존으로 분류하지 않는다.
 
 ## Live alert 좌표와 잔여 위험
 
-아래 표는 2026-11-08에 default branch에서 읽은 17개 open alert를 요청
-좌표별로 묶은 것이다. `local candidate`는 현재 branch의 대표 graph에서
-확인한 후보 범위이고, `hosted pending`은 exact-head Dependency Submission
-후에만 확정할 수 있는 project/configuration 경계다.
+아래 표는 2026-11-08에 default branch에서 읽은 17개 open alert의 당시
+스냅샷을 요청 좌표별로 묶은 것이다. `local candidate`는 당시 branch의
+대표 graph에서 확인한 후보 범위이고, `hosted pending`은 그 시점에
+exact-head Dependency Submission 후 확정해야 했던 project/configuration
+경계다. 2026-11-09 최종 read-back 결과는 위 hosted 검증 완료 절을 따른다.
 
 | Alert | 요청 좌표 | local candidate | 잔여 위험 |
 |---|---|---|---|
