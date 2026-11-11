@@ -19,6 +19,7 @@ import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.artifacts.component.ModuleComponentSelector
 import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
@@ -29,7 +30,10 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import java.io.File
 
+private val issue1895FirstPatchedOrgJsonVersion = "20260719"
+
 buildscript {
+    val issue1895FirstPatchedOrgJsonVersion = "20260719"
     val issue1883Catalog = project.extensions
         .getByType<VersionCatalogsExtension>()
         .named("bt4k")
@@ -221,8 +225,24 @@ buildscript {
         }
     }
 
+    val issue1895PluginClasspathMetadataRules: DependencyHandler.() -> Unit = {
+        components {
+            withModule("redis.clients:jedis") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group == "org.json" && dependency.name == "json"
+                        }
+                        add("org.json:json:" + issue1895FirstPatchedOrgJsonVersion)
+                    }
+                }
+            }
+        }
+    }
+
     dependencies {
         issue1883PluginClasspathMetadataRules()
+        issue1895PluginClasspathMetadataRules()
         constraints {
             issue1883PluginClasspathConstraints.forEach { (coordinate, reason) ->
                 classpath(coordinate) {
@@ -236,6 +256,7 @@ buildscript {
         buildscript {
             dependencies {
                 issue1883PluginClasspathMetadataRules()
+                issue1895PluginClasspathMetadataRules()
                 constraints {
                     issue1883PluginClasspathConstraints.forEach { (coordinate, reason) ->
                         classpath(coordinate) {
@@ -313,6 +334,24 @@ private val issue1883KotlinBouncyCastleVersionAliases = mapOf(
     "bcprov-jdk18on" to "bouncycastle-bcprov",
     "bcutil-jdk18on" to "bouncycastle-bcprov",
 )
+
+// Jedis 7.5.0의 취약한 org.json 전이 요청이 published graph에 남지 않게 한다.
+// 중앙 catalog에 아직 org-json alias가 없으므로 shared security train에 alias가
+// 추가될 때까지 이 좁은 metadata rule로 첫 패치 릴리스를 고정한다.
+val issue1895ProjectMetadataRules: DependencyHandler.() -> Unit = {
+    components {
+        withModule("redis.clients:jedis") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "org.json" && dependency.name == "json"
+                    }
+                    add("org.json:json:" + issue1895FirstPatchedOrgJsonVersion)
+                }
+            }
+        }
+    }
+}
 
 // Dependency Submission also walks published project configurations. Keep the
 // same metadata rewrites on those configurations so a selected patched version
@@ -557,6 +596,7 @@ allprojects {
 
     dependencies {
         issue1883ProjectMetadataRules()
+        issue1895ProjectMetadataRules()
     }
 
     repositories {
@@ -648,6 +688,23 @@ private val issue1883ForbiddenRequestedCoordinates = setOf(
     "org.bouncycastle:bcutil-jdk18on:1.84",
 )
 
+private val issue1895ForbiddenRequestedCoordinates = setOf(
+    "org.json:json:20231013",
+    "org.json:json:20250107",
+    "org.json:json:20251224",
+)
+
+private fun issue1895IsVulnerableCoordinate(
+    group: String,
+    name: String,
+    version: String,
+): Boolean {
+    return group == "org.json" &&
+        name == "json" &&
+        ("$group:$name:$version" in issue1895ForbiddenRequestedCoordinates ||
+            version.toIntOrNull()?.let { it < issue1895FirstPatchedOrgJsonVersion.toInt() } == true)
+}
+
 private val issue1883ProjectConfigurationScopes = listOf(
     "compileClasspath" to "runtime",
     "runtimeClasspath" to "runtime",
@@ -690,6 +747,55 @@ private fun issue1883ForbiddenViolations(
             owner.path + ":" + configurationScope + ":" + configuration.name + " -> " + it
         }
     }.distinct()
+}
+
+private fun issue1895RequestedViolations(
+    owner: Project,
+    configurationScope: String,
+    configuration: org.gradle.api.artifacts.Configuration,
+): List<String> {
+    if (!configuration.isCanBeResolved) {
+        return emptyList()
+    }
+
+    return configuration.incoming.resolutionResult.allDependencies.mapNotNull { dependency ->
+        val requested = dependency.requested as? ModuleComponentSelector ?: return@mapNotNull null
+        if (!issue1895IsVulnerableCoordinate(requested.group, requested.module, requested.version)) {
+            return@mapNotNull null
+        }
+        owner.path + ":" + configurationScope + ":" + configuration.name +
+            " -> requested " + requested.group + ":" + requested.module + ":" + requested.version
+    }.distinct()
+}
+
+private fun issue1895SelectedViolations(
+    owner: Project,
+    configurationScope: String,
+    configuration: org.gradle.api.artifacts.Configuration,
+): List<String> {
+    if (!configuration.isCanBeResolved) {
+        return emptyList()
+    }
+
+    return configuration.incoming.resolutionResult.allDependencies.mapNotNull { dependency ->
+        val selected = (dependency as? ResolvedDependencyResult)?.selected
+            ?: return@mapNotNull null
+        val moduleVersion = selected.moduleVersion ?: return@mapNotNull null
+        if (!issue1895IsVulnerableCoordinate(moduleVersion.group, moduleVersion.name, moduleVersion.version)) {
+            return@mapNotNull null
+        }
+        owner.path + ":" + configurationScope + ":" + configuration.name +
+            " -> selected " + moduleVersion.group + ":" + moduleVersion.name + ":" + moduleVersion.version
+    }.distinct()
+}
+
+private fun issue1895DependencyViolations(
+    owner: Project,
+    configurationScope: String,
+    configuration: org.gradle.api.artifacts.Configuration,
+): List<String> {
+    return (issue1895RequestedViolations(owner, configurationScope, configuration) +
+        issue1895SelectedViolations(owner, configurationScope, configuration)).distinct()
 }
 
 val issue1883ProjectGraphCheckTasks = issue1883RepresentativeProjects.mapNotNull { projectPath ->
@@ -786,6 +892,104 @@ tasks.register("issue1883DependencyGraphCheck") {
 
         check(violations.isEmpty()) {
             "Issue #1883 forbidden requested coordinates remain:\n" + violations.joinToString("\n")
+        }
+    }
+}
+
+val issue1895ProjectGraphCheckTasks = issue1883RepresentativeProjects.mapNotNull { projectPath ->
+    findProject(projectPath)?.tasks?.register("issue1895ProjectDependencyGraphCheck") {
+        group = LifecycleBasePlugin.VERIFICATION_GROUP
+        description = "Checks Issue #1895 requested and selected org.json coordinates for this project's dependency scopes."
+
+        doLast {
+            val candidate = project(projectPath)
+            val scopeLines = mutableListOf<String>()
+            val violations = mutableListOf<String>()
+            val buildscriptConfiguration = candidate.buildscript.configurations.findByName("classpath")
+            when {
+                buildscriptConfiguration == null -> scopeLines +=
+                    "${candidate.path}:build-only:classpath:absent"
+
+                !buildscriptConfiguration.isCanBeResolved -> scopeLines +=
+                    "${candidate.path}:build-only:classpath:non-resolvable"
+
+                else -> {
+                    scopeLines += "${candidate.path}:build-only:classpath:resolved"
+                    violations += issue1895DependencyViolations(
+                        candidate,
+                        "build-only",
+                        buildscriptConfiguration,
+                    )
+                }
+            }
+            for ((configurationName, configurationScope) in issue1883ProjectConfigurationScopes) {
+                val configuration = candidate.configurations.findByName(configurationName)
+                when {
+                    configuration == null -> scopeLines +=
+                        "${candidate.path}:$configurationScope:$configurationName:absent"
+
+                    !configuration.isCanBeResolved -> scopeLines +=
+                        "${candidate.path}:$configurationScope:$configurationName:non-resolvable"
+
+                    else -> {
+                        scopeLines += "${candidate.path}:$configurationScope:$configurationName:resolved"
+                        violations += issue1895DependencyViolations(candidate, configurationScope, configuration)
+                    }
+                }
+            }
+
+            val reportFile = candidate.layout.buildDirectory
+                .file("reports/issue1895/${candidate.name}-dependency-graph.txt")
+                .get()
+                .asFile
+            reportFile.parentFile.mkdirs()
+            reportFile.writeText(
+                (scopeLines + violations.map { "VIOLATION $it" }).joinToString("\n") + "\n",
+            )
+        }
+    }
+}
+
+tasks.register("issue1895DependencyGraphCheck") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Rejects Issue #1895 vulnerable org.json coordinates in representative plugin and project graphs."
+    dependsOn(issue1895ProjectGraphCheckTasks)
+
+    doLast {
+        val rootBuildscript = Issue1883ConfigurationScope(
+            owner = rootProject,
+            configuration = rootProject.buildscript.configurations.getByName("classpath"),
+            scope = "build-only",
+        )
+        val rootViolations = issue1895DependencyViolations(
+            rootBuildscript.owner,
+            rootBuildscript.scope,
+            rootBuildscript.configuration,
+        )
+        val rootScopeLine = "${rootProject.path}:build-only:classpath:resolved"
+        val projectReports = issue1883RepresentativeProjects.mapNotNull { projectPath ->
+            findProject(projectPath)?.layout?.buildDirectory
+                ?.file("reports/issue1895/${projectPath.substringAfterLast(':')}-dependency-graph.txt")
+                ?.get()
+                ?.asFile
+        }
+        val scopeLines = projectReports.flatMap { reportFile ->
+            if (reportFile.isFile) reportFile.readLines() else emptyList()
+        }
+
+        logger.lifecycle(
+            "Issue #1895 inspected graph scopes:\n" +
+                (listOf(rootScopeLine) + scopeLines.filterNot { it.startsWith("VIOLATION ") })
+                    .joinToString("\n"),
+        )
+
+        val violations = (rootViolations + scopeLines
+            .filter { it.startsWith("VIOLATION ") }
+            .map { it.removePrefix("VIOLATION ") })
+            .distinct()
+
+        check(violations.isEmpty()) {
+            "Issue #1895 vulnerable requested or selected coordinates remain:\n" + violations.joinToString("\n")
         }
     }
 }

@@ -4274,6 +4274,30 @@ class CatalogWorkflowsTest(unittest.TestCase):
             build,
         )
 
+    def test_org_json_security_train_rewrites_jedis_and_checks_requested_and_selected_edges(self) -> None:
+        build = (ROOT / "build.gradle.kts").read_text()
+
+        self.assertIn(
+            'private val issue1895FirstPatchedOrgJsonVersion = "20260719"',
+            build,
+        )
+        self.assertIn("val issue1895ProjectMetadataRules", build)
+        self.assertIn('withModule("redis.clients:jedis")', build)
+        self.assertIn(
+            'dependency.group == "org.json" && dependency.name == "json"',
+            build,
+        )
+        self.assertIn(
+            'add("org.json:json:" + issue1895FirstPatchedOrgJsonVersion)',
+            build,
+        )
+        self.assertIn("issue1895ProjectMetadataRules()", build)
+        self.assertIn("issue1895ForbiddenRequestedCoordinates", build)
+        self.assertIn("ResolvedDependencyResult", build)
+        self.assertIn("selected.moduleVersion", build)
+        self.assertIn("issue1895DependencyGraphCheck", build)
+        self.assertIn("Issue #1895", build)
+
     def test_kafka_branch_tests_wait_for_streams_delivery_and_cleanup(self) -> None:
         branch_tests = (
             ROOT
