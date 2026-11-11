@@ -4302,6 +4302,55 @@ class CatalogWorkflowsTest(unittest.TestCase):
             with self.subTest(fixture=fixture):
                 self.assertIn(fixture, build)
 
+    def test_kafka_branch_tests_wait_for_streams_delivery_and_cleanup(self) -> None:
+        branch_tests = (
+            ROOT
+            / "infra/kafka/src/test/kotlin/org/springframework/kafka/streams/KafkaStreamsBranchTests.kt",
+            ROOT
+            / "infra/kafka4/src/test/kotlin/org/springframework/kafka/streams/KafkaStreamsBranchTests.kt",
+        )
+
+        for path in branch_tests:
+            with self.subTest(path=path):
+                source = path.read_text()
+                branch_test = source[
+                    source.index("fun `branching stream`()") : source.index("    private fun createConsumer")
+                ]
+                self.assertIn("StreamsBuilderFactoryBean", source)
+                self.assertIn("KafkaStreams.State.RUNNING", source)
+                self.assertIn("CountDownLatch(1)", source)
+                self.assertIn("sendDefault(true.toString()).get(60, TimeUnit.SECONDS)", source)
+                self.assertIn("sendDefault(false.toString()).get(60, TimeUnit.SECONDS)", source)
+                self.assertIn("minRecords = 2", source)
+                self.assertIn("minRecords = 1", source)
+                self.assertIn(".use {", source)
+
+                lifecycle_markers = (
+                    "this.streamsBuilderFactoryBean.stop()",
+                    "this.streamsBuilderFactoryBean.setStateListener",
+                    "this.streamsBuilderFactoryBean.start()",
+                    "runningLatch.await(60, TimeUnit.SECONDS).shouldBeTrue()",
+                )
+                lifecycle_positions = [branch_test.index(marker) for marker in lifecycle_markers]
+                self.assertEqual(lifecycle_positions, sorted(lifecycle_positions))
+                self.assertEqual(branch_test.count("createConsumer().use {"), 2)
+                self.assertLess(
+                    branch_test.index("trueConsumer.getRecords(Duration.ofSeconds(30), minRecords = 2)"),
+                    branch_test.index("falseConsumer.getRecords(Duration.ofSeconds(30), minRecords = 1)"),
+                )
+
+    def test_catalog_governance_tracks_current_dependabot_ruby_action_pin(self) -> None:
+        verifier = (ROOT / "scripts/verify-catalog-workflows.py").read_text()
+
+        self.assertIn(
+            "ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1",
+            verifier,
+        )
+        self.assertNotIn(
+            "ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1",
+            verifier,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
