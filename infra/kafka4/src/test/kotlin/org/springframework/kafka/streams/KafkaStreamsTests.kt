@@ -150,9 +150,8 @@ class KafkaStreamsTests {
         val payload1 = "foo" + Base58.randomString(32) // UUID.randomUUID().toString()
         val payload2 = "foo" + Base58.randomString(32) // UUID.randomUUID().toString()
 
-        this.kafkaTemplate.sendDefault(0, payload1)
-        this.kafkaTemplate.sendDefault(0, payload2)
-        this.kafkaTemplate.flush()
+        this.kafkaTemplate.sendDefault(0, payload1).get(60.seconds)
+        this.kafkaTemplate.sendDefault(0, payload2).get(60.seconds)
 
         val result = resultFuture.get(60.seconds)
 
