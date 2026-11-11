@@ -4274,6 +4274,18 @@ class CatalogWorkflowsTest(unittest.TestCase):
             build,
         )
 
+    def test_catalog_governance_tracks_current_dependabot_ruby_action_pin(self) -> None:
+        verifier = (ROOT / "scripts/verify-catalog-workflows.py").read_text()
+
+        self.assertIn(
+            "ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1",
+            verifier,
+        )
+        self.assertNotIn(
+            "ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1",
+            verifier,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
