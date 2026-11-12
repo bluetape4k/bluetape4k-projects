@@ -4274,6 +4274,34 @@ class CatalogWorkflowsTest(unittest.TestCase):
             build,
         )
 
+    def test_issue_1887_guava_graph_check_inspects_published_declarations_and_reports(self) -> None:
+        build = (ROOT / "build.gradle.kts").read_text()
+
+        self.assertIn(
+            'require(isAtLeastDottedRelease(bt4kVersion("guava").removeSuffix("-jre"), "33.7.2"))',
+            build,
+        )
+        self.assertIn("configuration.allDependencies", build)
+        self.assertIn("configuration.allDependencyConstraints", build)
+        self.assertIn("non-resolvable-declarations", build)
+        self.assertIn("missing project graph reports", build)
+        self.assertIn("issue1883PublishedRequestedCoordinates", build)
+        self.assertIn("issue1883IsForbiddenRequestedCoordinate", build)
+        self.assertIn("issue1883GuavaRequestedVersionIsVulnerable", build)
+        self.assertIn('version ?: "<unspecified>"', build)
+        self.assertGreaterEqual(
+            build.count("coordinate.takeIf(::issue1883IsForbiddenRequestedCoordinate)"),
+            2,
+        )
+        for fixture in (
+            '"com.google.guava:guava:33.7.1-jre" to true',
+            '"com.google.guava:guava:33.+" to true',
+            '"com.google.guava:guava:<unspecified>" to true',
+            '"com.google.guava:guava:33.7.2-jre" to false',
+        ):
+            with self.subTest(fixture=fixture):
+                self.assertIn(fixture, build)
+
     def test_kafka_branch_tests_wait_for_streams_delivery_and_cleanup(self) -> None:
         branch_tests = (
             ROOT

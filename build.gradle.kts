@@ -533,6 +533,10 @@ fun isAtLeastDottedRelease(version: String, minimum: String): Boolean {
     return true
 }
 
+require(isAtLeastDottedRelease(bt4kVersion("guava").removeSuffix("-jre"), "33.7.2")) {
+    "Issue #1887 requires the central Guava catalog to be at least 33.7.2-jre"
+}
+
 val dokkaJsoupVersion = bt4kVersion("jsoup")
 require(isAtLeastDottedRelease(dokkaJsoupVersion, "1.23.1")) {
     "Dokka jsoup version $dokkaJsoupVersion is below the first patched release 1.23.1"
@@ -648,6 +652,38 @@ private val issue1883ForbiddenRequestedCoordinates = setOf(
     "org.bouncycastle:bcutil-jdk18on:1.84",
 )
 
+private fun issue1883GuavaRequestedVersionIsVulnerable(version: String): Boolean {
+    val normalizedVersion = version.removeSuffix("-jre")
+    return runCatching {
+        !isAtLeastDottedRelease(normalizedVersion, "33.7.2")
+    }.getOrDefault(true)
+}
+
+private fun issue1883IsForbiddenRequestedCoordinate(coordinate: String): Boolean {
+    if (coordinate in issue1883ForbiddenRequestedCoordinates) {
+        return true
+    }
+
+    val parts = coordinate.split(":", limit = 3)
+    return parts.size == 3 &&
+        parts[0] == "com.google.guava" &&
+        parts[1] == "guava" &&
+        issue1883GuavaRequestedVersionIsVulnerable(parts[2])
+}
+
+private val issue1883GuavaRequestedCoordinateFixtures = mapOf(
+    "com.google.guava:guava:33.7.1-jre" to true,
+    "com.google.guava:guava:33.+" to true,
+    "com.google.guava:guava:<unspecified>" to true,
+    "com.google.guava:guava:33.7.2-jre" to false,
+)
+
+issue1883GuavaRequestedCoordinateFixtures.forEach { (coordinate, expectedForbidden) ->
+    check(issue1883IsForbiddenRequestedCoordinate(coordinate) == expectedForbidden) {
+        "Issue #1887 Guava coordinate guard regression for $coordinate"
+    }
+}
+
 private val issue1883ProjectConfigurationScopes = listOf(
     "compileClasspath" to "runtime",
     "runtimeClasspath" to "runtime",
@@ -663,6 +699,38 @@ private data class Issue1883ConfigurationScope(
     val configuration: org.gradle.api.artifacts.Configuration,
     val scope: String,
 )
+
+private fun issue1883Coordinate(
+    group: String?,
+    name: String?,
+    version: String?,
+): String? {
+    if (group.isNullOrBlank() || name.isNullOrBlank()) {
+        return null
+    }
+    val requestedVersion = version ?: "<unspecified>"
+    return "$group:$name:${requestedVersion.takeIf { it.isNotBlank() } ?: "<unspecified>"}"
+}
+
+private fun issue1883PublishedRequestedCoordinates(
+    owner: Project,
+    configurationScope: String,
+    configuration: org.gradle.api.artifacts.Configuration,
+): List<String> {
+    val declaredCoordinates = (
+        configuration.allDependencies.mapNotNull { dependency ->
+            issue1883Coordinate(dependency.group, dependency.name, dependency.version)
+        } + configuration.allDependencyConstraints.mapNotNull { constraint ->
+            issue1883Coordinate(constraint.group, constraint.name, constraint.version)
+        }
+        ).distinct()
+
+    return declaredCoordinates.mapNotNull { coordinate ->
+        coordinate.takeIf(::issue1883IsForbiddenRequestedCoordinate)?.let {
+            owner.path + ":" + configurationScope + ":" + configuration.name + " -> " + it
+        }
+    }
+}
 
 private val issue1883RepresentativeProjects = listOf(
     ":bluetape4k-core",
@@ -680,16 +748,30 @@ private fun issue1883ForbiddenViolations(
     configuration: org.gradle.api.artifacts.Configuration,
 ): List<String> {
     if (!configuration.isCanBeResolved) {
-        return emptyList()
+        return if (configuration.isCanBeConsumed) {
+            issue1883PublishedRequestedCoordinates(owner, configurationScope, configuration)
+        } else {
+            emptyList()
+        }
     }
 
-    return configuration.incoming.resolutionResult.allDependencies.mapNotNull { dependency ->
+    val directViolations = configuration.incoming.resolutionResult.root.dependencies.mapNotNull { dependency ->
         val requested = dependency.requested as? ModuleComponentSelector ?: return@mapNotNull null
-        val coordinate = requested.group + ":" + requested.module + ":" + requested.version
+        val coordinate = issue1883Coordinate(requested.group, requested.module, requested.version)
+            ?: return@mapNotNull null
+        coordinate.takeIf(::issue1883IsForbiddenRequestedCoordinate)?.let {
+            owner.path + ":" + configurationScope + ":" + configuration.name + " -> " + it
+        }
+    }
+    val historicalTransitiveViolations = configuration.incoming.resolutionResult.allDependencies.mapNotNull { dependency ->
+        val requested = dependency.requested as? ModuleComponentSelector ?: return@mapNotNull null
+        val coordinate = issue1883Coordinate(requested.group, requested.module, requested.version)
+            ?: return@mapNotNull null
         coordinate.takeIf { it in issue1883ForbiddenRequestedCoordinates }?.let {
             owner.path + ":" + configurationScope + ":" + configuration.name + " -> " + it
         }
-    }.distinct()
+    }
+    return (directViolations + historicalTransitiveViolations).distinct()
 }
 
 val issue1883ProjectGraphCheckTasks = issue1883RepresentativeProjects.mapNotNull { projectPath ->
@@ -723,6 +805,18 @@ val issue1883ProjectGraphCheckTasks = issue1883RepresentativeProjects.mapNotNull
                 when {
                     configuration == null -> scopeLines +=
                         "${candidate.path}:$configurationScope:$configurationName:absent"
+
+                    !configuration.isCanBeResolved && configuration.isCanBeConsumed -> {
+                        val declarationCount =
+                            configuration.allDependencies.count() + configuration.allDependencyConstraints.count()
+                        scopeLines +=
+                            "${candidate.path}:$configurationScope:$configurationName:non-resolvable-declarations=$declarationCount"
+                        violations += issue1883PublishedRequestedCoordinates(
+                            candidate,
+                            configurationScope,
+                            configuration,
+                        )
+                    }
 
                     !configuration.isCanBeResolved -> scopeLines +=
                         "${candidate.path}:$configurationScope:$configurationName:non-resolvable"
@@ -762,15 +856,29 @@ tasks.register("issue1883DependencyGraphCheck") {
             rootBuildscript.scope,
             rootBuildscript.configuration,
         )
-        val rootScopeLine = "${rootProject.path}:build-only:classpath:resolved"
-        val projectReports = issue1883RepresentativeProjects.mapNotNull { projectPath ->
-            findProject(projectPath)?.layout?.buildDirectory
-                ?.file("reports/issue1883/${projectPath.substringAfterLast(':')}-dependency-graph.txt")
-                ?.get()
-                ?.asFile
+        val rootScopeLine = if (rootBuildscript.configuration.isCanBeResolved) {
+            "${rootProject.path}:build-only:classpath:resolved"
+        } else {
+            "${rootProject.path}:build-only:classpath:non-resolvable"
+        }
+        val missingRepresentativeProjects = issue1883RepresentativeProjects.filter { findProject(it) == null }
+        check(missingRepresentativeProjects.isEmpty()) {
+            "Issue #1883 missing representative projects: " + missingRepresentativeProjects.joinToString(", ")
+        }
+        val projectReports = issue1883RepresentativeProjects.map { projectPath ->
+            requireNotNull(findProject(projectPath))
+                .layout.buildDirectory
+                .file("reports/issue1883/${projectPath.substringAfterLast(':')}-dependency-graph.txt")
+                .get()
+                .asFile
+        }
+        val missingProjectReports = projectReports.filterNot(File::isFile)
+        check(missingProjectReports.isEmpty()) {
+            "Issue #1883 missing project graph reports: " +
+                missingProjectReports.joinToString(", ") { it.absolutePath }
         }
         val scopeLines = projectReports.flatMap { reportFile ->
-            if (reportFile.isFile) reportFile.readLines() else emptyList()
+            reportFile.readLines()
         }
 
         logger.lifecycle(
