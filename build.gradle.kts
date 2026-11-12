@@ -835,7 +835,7 @@ private val issue1883RepresentativeProjects = listOf(
 )
 
 private val issue1895RepresentativeProjects =
-    (issue1883RepresentativeProjects + ":bluetape4k-ktor-openapi").distinct()
+    (issue1883RepresentativeProjects + ":bluetape4k-ktor-openapi" + ":bluetape4k-jackson3").distinct()
 
 private fun issue1883ForbiddenViolations(
     owner: Project,
@@ -2335,4 +2335,5 @@ val checkDisabledTests = tasks.register<DisabledTestReportTask>("checkDisabledTe
 
 tasks.named("check") {
     dependsOn(checkDisabledTests)
+    dependsOn("issue1895DependencyGraphCheck")
 }

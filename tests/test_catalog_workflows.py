@@ -4289,6 +4289,25 @@ class CatalogWorkflowsTest(unittest.TestCase):
             "io.swagger.codegen.v3:swagger-codegen",
         ):
             self.assertIn(f'"{module}"', build)
+        plugin_rule_block = build[
+            build.index("val issue1895PluginClasspathMetadataRules") : build.index(
+                "val issue1895ProjectMetadataRules",
+            )
+        ]
+        project_rule_block = build[
+            build.index("val issue1895ProjectMetadataRules") : build.index(
+                "// Dependency Submission also walks published project configurations.",
+            )
+        ]
+        for module in (
+            "redis.clients:jedis",
+            "tools.jackson.datatype:jackson-datatype-json-org",
+            "io.swagger:swagger-codegen",
+            "io.swagger.codegen.v3:swagger-codegen",
+        ):
+            with self.subTest(metadata_rule_module=module):
+                self.assertIn(f'"{module}"', plugin_rule_block)
+                self.assertIn(f'"{module}"', project_rule_block)
         self.assertIn("issue1895OrgJsonMetadataRuleModules.forEach", build)
         self.assertIn(
             'dependency.group == "org.json" && dependency.name == "json"',
@@ -4299,7 +4318,13 @@ class CatalogWorkflowsTest(unittest.TestCase):
             build,
         )
         self.assertIn("issue1895ProjectMetadataRules()", build)
-        self.assertIn('":bluetape4k-ktor-openapi"', build)
+        representative_projects = build[
+            build.index("private val issue1895RepresentativeProjects") : build.index(
+                "private fun issue1883ForbiddenViolations",
+            )
+        ]
+        for project_path in (":bluetape4k-ktor-openapi", ":bluetape4k-jackson3"):
+            self.assertIn(f'"{project_path}"', representative_projects)
         self.assertIn("issue1895ForbiddenRequestedCoordinates", build)
         self.assertIn("issue1895OrgJsonCoordinateFixtures", build)
         self.assertIn("issue1895PublishedRequestedCoordinates", build)
@@ -4316,6 +4341,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
         self.assertIn("ResolvedDependencyResult", build)
         self.assertIn("selected.moduleVersion", build)
         self.assertIn("issue1895DependencyGraphCheck", build)
+        self.assertIn('dependsOn("issue1895DependencyGraphCheck")', build)
         self.assertIn("Issue #1895", build)
 
     def test_issue_1887_guava_graph_check_inspects_published_declarations_and_reports(self) -> None:
