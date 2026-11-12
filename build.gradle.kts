@@ -941,6 +941,19 @@ val issue1883ProjectGraphCheckTasks = issue1883RepresentativeProjects.mapNotNull
                 buildscriptConfiguration == null -> scopeLines +=
                     "${candidate.path}:build-only:classpath:absent"
 
+                !buildscriptConfiguration.isCanBeResolved && buildscriptConfiguration.isCanBeConsumed -> {
+                    val declarationCount =
+                        buildscriptConfiguration.allDependencies.count() +
+                            buildscriptConfiguration.allDependencyConstraints.count()
+                    scopeLines +=
+                        "${candidate.path}:build-only:classpath:non-resolvable-declarations=$declarationCount"
+                    violations += issue1895PublishedRequestedCoordinates(
+                        candidate,
+                        "build-only",
+                        buildscriptConfiguration,
+                    )
+                }
+
                 !buildscriptConfiguration.isCanBeResolved -> scopeLines +=
                     "${candidate.path}:build-only:classpath:non-resolvable"
 
@@ -1083,6 +1096,18 @@ val issue1895ProjectGraphCheckTasks = issue1883RepresentativeProjects.mapNotNull
                     configuration == null -> scopeLines +=
                         "${candidate.path}:$configurationScope:$configurationName:absent"
 
+                    !configuration.isCanBeResolved && configuration.isCanBeConsumed -> {
+                        val declarationCount =
+                            configuration.allDependencies.count() + configuration.allDependencyConstraints.count()
+                        scopeLines +=
+                            "${candidate.path}:$configurationScope:$configurationName:non-resolvable-declarations=$declarationCount"
+                        violations += issue1895PublishedRequestedCoordinates(
+                            candidate,
+                            configurationScope,
+                            configuration,
+                        )
+                    }
+
                     !configuration.isCanBeResolved -> scopeLines +=
                         "${candidate.path}:$configurationScope:$configurationName:non-resolvable"
 
@@ -1122,14 +1147,24 @@ tasks.register("issue1895DependencyGraphCheck") {
             rootBuildscript.configuration,
         )
         val rootScopeLine = "${rootProject.path}:build-only:classpath:resolved"
-        val projectReports = issue1883RepresentativeProjects.mapNotNull { projectPath ->
-            findProject(projectPath)?.layout?.buildDirectory
-                ?.file("reports/issue1895/${projectPath.substringAfterLast(':')}-dependency-graph.txt")
-                ?.get()
-                ?.asFile
+        val missingRepresentativeProjects = issue1883RepresentativeProjects.filter { findProject(it) == null }
+        check(missingRepresentativeProjects.isEmpty()) {
+            "Issue #1895 missing representative projects: " + missingRepresentativeProjects.joinToString(", ")
+        }
+        val projectReports = issue1883RepresentativeProjects.map { projectPath ->
+            requireNotNull(findProject(projectPath))
+                .layout.buildDirectory
+                .file("reports/issue1895/${projectPath.substringAfterLast(':')}-dependency-graph.txt")
+                .get()
+                .asFile
+        }
+        val missingProjectReports = projectReports.filterNot(File::isFile)
+        check(missingProjectReports.isEmpty()) {
+            "Issue #1895 missing project graph reports: " +
+                missingProjectReports.joinToString(", ") { it.absolutePath }
         }
         val scopeLines = projectReports.flatMap { reportFile ->
-            if (reportFile.isFile) reportFile.readLines() else emptyList()
+            reportFile.readLines()
         }
 
         logger.lifecycle(
