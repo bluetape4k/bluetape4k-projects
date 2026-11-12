@@ -703,10 +703,27 @@ private fun issue1895IsVulnerableCoordinate(
     name: String,
     version: String,
 ): Boolean {
-    return group == "org.json" &&
-        name == "json" &&
-        ("$group:$name:$version" in issue1895ForbiddenRequestedCoordinates ||
-            version.toIntOrNull()?.let { it < issue1895FirstPatchedOrgJsonVersion.toInt() } == true)
+    if (group != "org.json" || name != "json") {
+        return false
+    }
+
+    return "$group:$name:$version" in issue1895ForbiddenRequestedCoordinates ||
+        version.toIntOrNull()?.let { it < issue1895FirstPatchedOrgJsonVersion.toInt() } ?: true
+}
+
+private val issue1895OrgJsonCoordinateFixtures = mapOf(
+    "org.json:json:20251224" to true,
+    "org.json:json:20260718" to true,
+    "org.json:json:20260719" to false,
+    "org.json:json:20260719+" to true,
+    "org.json:json:<unspecified>" to true,
+)
+
+issue1895OrgJsonCoordinateFixtures.forEach { (coordinate, expectedVulnerable) ->
+    val parts = coordinate.split(":", limit = 3)
+    check(parts.size == 3 && issue1895IsVulnerableCoordinate(parts[0], parts[1], parts[2]) == expectedVulnerable) {
+        "Issue #1895 org.json coordinate guard regression for $coordinate"
+    }
 }
 
 private fun issue1883GuavaRequestedVersionIsVulnerable(version: String): Boolean {
@@ -850,6 +867,28 @@ private fun issue1895RequestedViolations(
     }.distinct()
 }
 
+private fun issue1895PublishedRequestedCoordinates(
+    owner: Project,
+    configurationScope: String,
+    configuration: org.gradle.api.artifacts.Configuration,
+): List<String> {
+    val declaredCoordinates = (
+        configuration.allDependencies.mapNotNull { dependency ->
+            issue1883Coordinate(dependency.group, dependency.name, dependency.version)
+        } + configuration.allDependencyConstraints.mapNotNull { constraint ->
+            issue1883Coordinate(constraint.group, constraint.name, constraint.version)
+        }
+        ).distinct()
+
+    return declaredCoordinates.mapNotNull { coordinate ->
+        val parts = coordinate.split(":", limit = 3)
+        if (parts.size != 3 || !issue1895IsVulnerableCoordinate(parts[0], parts[1], parts[2])) {
+            return@mapNotNull null
+        }
+        owner.path + ":" + configurationScope + ":" + configuration.name + " -> requested " + coordinate
+    }
+}
+
 private fun issue1895SelectedViolations(
     owner: Project,
     configurationScope: String,
@@ -876,6 +915,14 @@ private fun issue1895DependencyViolations(
     configurationScope: String,
     configuration: org.gradle.api.artifacts.Configuration,
 ): List<String> {
+    if (!configuration.isCanBeResolved) {
+        return if (configuration.isCanBeConsumed) {
+            issue1895PublishedRequestedCoordinates(owner, configurationScope, configuration)
+        } else {
+            emptyList()
+        }
+    }
+
     return (issue1895RequestedViolations(owner, configurationScope, configuration) +
         issue1895SelectedViolations(owner, configurationScope, configuration)).distinct()
 }
