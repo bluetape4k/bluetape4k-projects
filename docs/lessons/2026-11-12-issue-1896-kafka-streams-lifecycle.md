@@ -41,10 +41,13 @@ Kafka3와 Kafka4의 동일한 테스트 순서를 함께 고정한다.
 - Kafka4 targeted test: `1 passing`, `BUILD SUCCESSFUL`, `rc=0`; 확인한 종료 경고 패턴은 0건이었다.
 - Catalog contract suite: `149 tests`, `OK`.
 - `git diff --check`: 통과.
+- hosted exact-head: PR #1898 head `619922e3bd2c2bffbdc712765c2f1c124aeb6fa2`, run
+  `43137635277`의 Build, Kafka Infra, Coverage Report, catalog, policy와 secret checks가
+  모두 성공했다. 변경 모듈 외 matrix는 skipping으로 분리했다.
 
 Kafka3 종료 경고는 이번 순서 수정만으로 해결됐다고 주장하지 않는다. 이는 broker/test-kit
-cleanup lifecycle의 별도 위험으로 남기며, hosted exact-head Kafka3/Kafka4 matrix와 Coverage
-Report read-back은 아직 수행하지 않았다.
+cleanup lifecycle의 별도 위험으로 남긴다. hosted 성공은 producer acknowledgement 순서와
+결과 전달 계약을 확인하지만 broker cleanup 경고의 근본 원인까지 해결했다는 뜻은 아니다.
 
 ## 향후 가드
 
