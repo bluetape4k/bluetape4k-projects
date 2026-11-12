@@ -7,7 +7,7 @@ Issue #1896은 `KafkaStreamsTests`가 hosted CI에서 `TimeoutException`,
 `NoSuchFileException`, `KafkaStorageException`과 함께 실패한 사건을 다룬다.
 문제가 보고된 원본 head는 `bdecb8183cdb77356831e4a42f8fcacc986a2197`이고, 실패한
 workflow run은 `43053814741`이다. 현재 `origin/develop` head는
-`619eb71f89259f943f64fb995d7f16b7d2608be6`이다.
+`779d4659275b0670cac016ef2779d18caec1cda5`이다.
 
 테스트는 `KafkaStreams.State.RUNNING` 상태를 기다린 뒤 두 개의 레코드를 보내고
 `flush()`를 호출했다. 그러나 `sendDefault`가 반환한 future를 관찰하지 않았기 때문에
@@ -39,7 +39,7 @@ Kafka3와 Kafka4의 동일한 테스트 순서를 함께 고정한다.
 - Kafka3 targeted test: `1 passing`, `BUILD SUCCESSFUL`, `rc=0`. 종료 경로에는
   `KafkaStorageException` 57건, `NoSuchFileException` 2건, `TimeoutException` 3건이 남았다.
 - Kafka4 targeted test: `1 passing`, `BUILD SUCCESSFUL`, `rc=0`; 확인한 종료 경고 패턴은 0건이었다.
-- Catalog contract suite: `148 tests`, `OK`.
+- Catalog contract suite: `149 tests`, `OK`.
 - `git diff --check`: 통과.
 
 Kafka3 종료 경고는 이번 순서 수정만으로 해결됐다고 주장하지 않는다. 이는 broker/test-kit
