@@ -226,14 +226,23 @@ buildscript {
     }
 
     val issue1895PluginClasspathMetadataRules: DependencyHandler.() -> Unit = {
+        val issue1895OrgJsonMetadataRuleModules = setOf(
+            "redis.clients:jedis",
+            "tools.jackson.datatype:jackson-datatype-json-org",
+            "io.swagger:swagger-codegen",
+            "io.swagger.codegen.v3:swagger-codegen",
+        )
+
         components {
-            withModule("redis.clients:jedis") {
-                allVariants {
-                    withDependencies {
-                        removeAll { dependency ->
-                            dependency.group == "org.json" && dependency.name == "json"
+            issue1895OrgJsonMetadataRuleModules.forEach { module ->
+                withModule(module) {
+                    allVariants {
+                        withDependencies {
+                            removeAll { dependency ->
+                                dependency.group == "org.json" && dependency.name == "json"
+                            }
+                            add("org.json:json:" + issue1895FirstPatchedOrgJsonVersion)
                         }
-                        add("org.json:json:" + issue1895FirstPatchedOrgJsonVersion)
                     }
                 }
             }
@@ -335,18 +344,27 @@ private val issue1883KotlinBouncyCastleVersionAliases = mapOf(
     "bcutil-jdk18on" to "bouncycastle-bcprov",
 )
 
-// Jedis 7.5.0의 취약한 org.json 전이 요청이 published graph에 남지 않게 한다.
+// 알려진 org.json producer의 취약한 전이 요청이 published graph에 남지 않게 한다.
 // 중앙 catalog에 아직 org-json alias가 없으므로 shared security train에 alias가
 // 추가될 때까지 이 좁은 metadata rule로 첫 패치 릴리스를 고정한다.
 val issue1895ProjectMetadataRules: DependencyHandler.() -> Unit = {
+    val issue1895OrgJsonMetadataRuleModules = setOf(
+        "redis.clients:jedis",
+        "tools.jackson.datatype:jackson-datatype-json-org",
+        "io.swagger:swagger-codegen",
+        "io.swagger.codegen.v3:swagger-codegen",
+    )
+
     components {
-        withModule("redis.clients:jedis") {
-            allVariants {
-                withDependencies {
-                    removeAll { dependency ->
-                        dependency.group == "org.json" && dependency.name == "json"
+        issue1895OrgJsonMetadataRuleModules.forEach { module ->
+            withModule(module) {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group == "org.json" && dependency.name == "json"
+                        }
+                        add("org.json:json:" + issue1895FirstPatchedOrgJsonVersion)
                     }
-                    add("org.json:json:" + issue1895FirstPatchedOrgJsonVersion)
                 }
             }
         }
@@ -816,6 +834,9 @@ private val issue1883RepresentativeProjects = listOf(
     ":bluetape4k-nats",
 )
 
+private val issue1895RepresentativeProjects =
+    (issue1883RepresentativeProjects + ":bluetape4k-ktor-openapi" + ":bluetape4k-jackson3").distinct()
+
 private fun issue1883ForbiddenViolations(
     owner: Project,
     configurationScope: String,
@@ -1051,7 +1072,7 @@ tasks.register("issue1883DependencyGraphCheck") {
     }
 }
 
-val issue1895ProjectGraphCheckTasks = issue1883RepresentativeProjects.mapNotNull { projectPath ->
+val issue1895ProjectGraphCheckTasks = issue1895RepresentativeProjects.mapNotNull { projectPath ->
     findProject(projectPath)?.tasks?.register("issue1895ProjectDependencyGraphCheck") {
         group = LifecycleBasePlugin.VERIFICATION_GROUP
         description = "Checks Issue #1895 requested and selected org.json coordinates for this project's dependency scopes."
@@ -1147,11 +1168,11 @@ tasks.register("issue1895DependencyGraphCheck") {
             rootBuildscript.configuration,
         )
         val rootScopeLine = "${rootProject.path}:build-only:classpath:resolved"
-        val missingRepresentativeProjects = issue1883RepresentativeProjects.filter { findProject(it) == null }
+        val missingRepresentativeProjects = issue1895RepresentativeProjects.filter { findProject(it) == null }
         check(missingRepresentativeProjects.isEmpty()) {
             "Issue #1895 missing representative projects: " + missingRepresentativeProjects.joinToString(", ")
         }
-        val projectReports = issue1883RepresentativeProjects.map { projectPath ->
+        val projectReports = issue1895RepresentativeProjects.map { projectPath ->
             requireNotNull(findProject(projectPath))
                 .layout.buildDirectory
                 .file("reports/issue1895/${projectPath.substringAfterLast(':')}-dependency-graph.txt")
@@ -2314,4 +2335,5 @@ val checkDisabledTests = tasks.register<DisabledTestReportTask>("checkDisabledTe
 
 tasks.named("check") {
     dependsOn(checkDisabledTests)
+    dependsOn("issue1895DependencyGraphCheck")
 }
