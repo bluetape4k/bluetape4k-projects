@@ -4274,6 +4274,42 @@ class CatalogWorkflowsTest(unittest.TestCase):
             build,
         )
 
+    def test_org_json_security_train_rewrites_jedis_and_checks_requested_and_selected_edges(self) -> None:
+        build = (ROOT / "build.gradle.kts").read_text()
+
+        self.assertIn(
+            'private val issue1895FirstPatchedOrgJsonVersion = "20260719"',
+            build,
+        )
+        self.assertIn("val issue1895ProjectMetadataRules", build)
+        self.assertIn('withModule("redis.clients:jedis")', build)
+        self.assertIn(
+            'dependency.group == "org.json" && dependency.name == "json"',
+            build,
+        )
+        self.assertIn(
+            'add("org.json:json:" + issue1895FirstPatchedOrgJsonVersion)',
+            build,
+        )
+        self.assertIn("issue1895ProjectMetadataRules()", build)
+        self.assertIn("issue1895ForbiddenRequestedCoordinates", build)
+        self.assertIn("issue1895OrgJsonCoordinateFixtures", build)
+        self.assertIn("issue1895PublishedRequestedCoordinates", build)
+        self.assertIn("configuration.isCanBeConsumed", build)
+        self.assertIn("non-resolvable-declarations=", build)
+        self.assertIn("Issue #1895 missing representative projects", build)
+        self.assertIn("Issue #1895 missing project graph reports", build)
+        issue1895_graph = build[build.index("val issue1895ProjectGraphCheckTasks") :]
+        published_branch = issue1895_graph.index("!configuration.isCanBeResolved && configuration.isCanBeConsumed")
+        generic_non_resolvable_branch = issue1895_graph.index("!configuration.isCanBeResolved -> scopeLines")
+        self.assertLess(published_branch, generic_non_resolvable_branch)
+        self.assertIn("version.toIntOrNull()?.let", build)
+        self.assertIn("?: true", build)
+        self.assertIn("ResolvedDependencyResult", build)
+        self.assertIn("selected.moduleVersion", build)
+        self.assertIn("issue1895DependencyGraphCheck", build)
+        self.assertIn("Issue #1895", build)
+
     def test_issue_1887_guava_graph_check_inspects_published_declarations_and_reports(self) -> None:
         build = (ROOT / "build.gradle.kts").read_text()
 
