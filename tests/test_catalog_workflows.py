@@ -4282,7 +4282,14 @@ class CatalogWorkflowsTest(unittest.TestCase):
             build,
         )
         self.assertIn("val issue1895ProjectMetadataRules", build)
-        self.assertIn('withModule("redis.clients:jedis")', build)
+        for module in (
+            "redis.clients:jedis",
+            "tools.jackson.datatype:jackson-datatype-json-org",
+            "io.swagger:swagger-codegen",
+            "io.swagger.codegen.v3:swagger-codegen",
+        ):
+            self.assertIn(f'"{module}"', build)
+        self.assertIn("issue1895OrgJsonMetadataRuleModules.forEach", build)
         self.assertIn(
             'dependency.group == "org.json" && dependency.name == "json"',
             build,
@@ -4292,6 +4299,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
             build,
         )
         self.assertIn("issue1895ProjectMetadataRules()", build)
+        self.assertIn('":bluetape4k-ktor-openapi"', build)
         self.assertIn("issue1895ForbiddenRequestedCoordinates", build)
         self.assertIn("issue1895OrgJsonCoordinateFixtures", build)
         self.assertIn("issue1895PublishedRequestedCoordinates", build)
