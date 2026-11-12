@@ -941,19 +941,6 @@ val issue1883ProjectGraphCheckTasks = issue1883RepresentativeProjects.mapNotNull
                 buildscriptConfiguration == null -> scopeLines +=
                     "${candidate.path}:build-only:classpath:absent"
 
-                !buildscriptConfiguration.isCanBeResolved && buildscriptConfiguration.isCanBeConsumed -> {
-                    val declarationCount =
-                        buildscriptConfiguration.allDependencies.count() +
-                            buildscriptConfiguration.allDependencyConstraints.count()
-                    scopeLines +=
-                        "${candidate.path}:build-only:classpath:non-resolvable-declarations=$declarationCount"
-                    violations += issue1895PublishedRequestedCoordinates(
-                        candidate,
-                        "build-only",
-                        buildscriptConfiguration,
-                    )
-                }
-
                 !buildscriptConfiguration.isCanBeResolved -> scopeLines +=
                     "${candidate.path}:build-only:classpath:non-resolvable"
 
@@ -1077,6 +1064,19 @@ val issue1895ProjectGraphCheckTasks = issue1883RepresentativeProjects.mapNotNull
             when {
                 buildscriptConfiguration == null -> scopeLines +=
                     "${candidate.path}:build-only:classpath:absent"
+
+                !buildscriptConfiguration.isCanBeResolved && buildscriptConfiguration.isCanBeConsumed -> {
+                    val declarationCount =
+                        buildscriptConfiguration.allDependencies.count() +
+                            buildscriptConfiguration.allDependencyConstraints.count()
+                    scopeLines +=
+                        "${candidate.path}:build-only:classpath:non-resolvable-declarations=$declarationCount"
+                    violations += issue1895PublishedRequestedCoordinates(
+                        candidate,
+                        "build-only",
+                        buildscriptConfiguration,
+                    )
+                }
 
                 !buildscriptConfiguration.isCanBeResolved -> scopeLines +=
                     "${candidate.path}:build-only:classpath:non-resolvable"
