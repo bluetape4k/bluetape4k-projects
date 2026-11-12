@@ -4375,6 +4375,29 @@ class CatalogWorkflowsTest(unittest.TestCase):
                     branch_test.index("falseConsumer.getRecords(Duration.ofSeconds(30), minRecords = 1)"),
                 )
 
+    def test_kafka_streams_tests_wait_for_producer_ack_before_result_future(self) -> None:
+        streams_tests = (
+            ROOT / "infra/kafka/src/test/kotlin/org/springframework/kafka/streams/KafkaStreamsTests.kt",
+            ROOT / "infra/kafka4/src/test/kotlin/org/springframework/kafka/streams/KafkaStreamsTests.kt",
+        )
+
+        for path in streams_tests:
+            with self.subTest(path=path):
+                source = path.read_text()
+                test_body = source[
+                    source.index("fun `test KStreams`()") : source.index("    @Configuration")
+                ]
+                self.assertIn("sendDefault(0, payload1).get(60.seconds)", test_body)
+                self.assertIn("sendDefault(0, payload2).get(60.seconds)", test_body)
+                self.assertLess(
+                    test_body.index("sendDefault(0, payload1).get(60.seconds)"),
+                    test_body.index("resultFuture.get(60.seconds)"),
+                )
+                self.assertLess(
+                    test_body.index("sendDefault(0, payload2).get(60.seconds)"),
+                    test_body.index("resultFuture.get(60.seconds)"),
+                )
+
     def test_catalog_governance_tracks_current_dependabot_ruby_action_pin(self) -> None:
         verifier = (ROOT / "scripts/verify-catalog-workflows.py").read_text()
 
