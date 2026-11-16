@@ -185,7 +185,7 @@ class LockDocumentationContractTest(unittest.TestCase):
             self.assertIn(english_fragment, english)
             self.assertIn(korean_fragment, korean)
 
-    def test_lock_examples_release_holds_and_reconcile_ambiguous_completion(self) -> None:
+    def test_lock_examples_completion_holds_and_reconcile_ambiguous_completion(self) -> None:
         for locale in ("CoordinationLocks.md", "CoordinationLocks.ko.md"):
             content = read(f"infra/lettuce/{locale}")
             for fragment in (
