@@ -5,7 +5,6 @@ import io.bluetape4k.assertions.shouldBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.concurrent.await
 import io.bluetape4k.concurrent.awaitTermination
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import java.lang.ref.ReferenceQueue
@@ -21,7 +20,6 @@ import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 
-@Tag("tenant-retention-stress")
 @Timeout(value = 120, unit = TimeUnit.SECONDS)
 class TenantContextRetentionStressTest {
 

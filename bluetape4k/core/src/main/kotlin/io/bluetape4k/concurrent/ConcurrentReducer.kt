@@ -139,7 +139,7 @@ class ConcurrentReducer<T> internal constructor(
     }
 
     private fun schedulePump() {
-        if (!pumpScheduled.compareAndSet(false, true)) return
+        if (!pumpScheduled.compareAndSet(expect = false, update = true)) return
 
         try {
             pumpExecutor.execute {
@@ -254,7 +254,7 @@ class ConcurrentReducer<T> internal constructor(
      */
     override fun close() {
         val jobsToCancel = synchronized(admissionLock) {
-            if (!closed.compareAndSet(false, true)) return
+            if (!closed.compareAndSet(expect = false, update = true)) return
 
             val queuedJobs = mutableListOf<Job<T>>()
             while (true) {
@@ -301,7 +301,7 @@ class ConcurrentReducer<T> internal constructor(
 
         fun tryComplete(): Boolean = state.compareAndSet(RUNNING, COMPLETED)
 
-        fun tryCancelStage(): Boolean = stageCancellationRequested.compareAndSet(false, true)
+        fun tryCancelStage(): Boolean = stageCancellationRequested.compareAndSet(expect = false, update = true)
 
         fun tryCancel(): CancellationPhase? {
             while (true) {
