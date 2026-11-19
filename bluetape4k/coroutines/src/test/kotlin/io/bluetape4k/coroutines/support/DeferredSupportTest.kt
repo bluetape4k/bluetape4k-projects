@@ -230,4 +230,23 @@ class DeferredSupportTest {
         source.isCancelled.shouldBeFalse()
         source.complete(42).shouldBeTrue()
     }
+
+    @Test
+    fun `awaitAllUntil waits for all deferred values`() = runTest {
+        val deferreds = listOf(
+            async { 10 },
+            async { 20 },
+        )
+
+        deferreds.awaitAllUntil(1.seconds) shouldBeEqualTo listOf(10, 20)
+    }
+
+    @Test
+    fun `awaitAllUntilOrNull returns null on timeout without cancelling deferreds`() = runTest {
+        val pending = CompletableDeferred<Int>()
+
+        listOf(pending).awaitAllUntilOrNull(Duration.ZERO) shouldBeEqualTo null
+        pending.isCancelled.shouldBeFalse()
+        pending.complete(42).shouldBeTrue()
+    }
 }

@@ -735,7 +735,7 @@ fun <V> CompletableFuture<V>.get(duration: java.time.Duration): V =
 fun <V> CompletableFuture<V>.get(duration: kotlin.time.Duration, defaultValue: V): V =
     try {
         get(duration)
-    } catch (e: Throwable) {
+    } catch (_: TimeoutException) {
         defaultValue
     }
 
@@ -755,7 +755,7 @@ fun <V> CompletableFuture<V>.get(duration: kotlin.time.Duration, defaultValue: V
 fun <V> CompletableFuture<V>.get(duration: java.time.Duration, defaultValue: V): V =
     try {
         get(duration)
-    } catch (e: Throwable) {
+    } catch (_: TimeoutException) {
         defaultValue
     }
 

@@ -7,6 +7,7 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldNotBeNull
 import io.bluetape4k.assertions.shouldBeTrue
 import org.junit.jupiter.api.Test
+import java.time.Duration as JavaDuration
 import java.util.concurrent.AbstractExecutorService
 import java.util.concurrent.Callable
 import java.util.concurrent.CompletableFuture
@@ -22,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 
 class ExecutorServiceExtensionsTest {
@@ -235,6 +237,19 @@ class ExecutorServiceExtensionsTest {
         executor.shutdown()
     }
 
+    @Test
+    fun `awaitTermination preserves Duration nanoseconds`() {
+        val executor = RecordingTerminationExecutorService()
+
+        executor.awaitTermination(1500.nanoseconds).shouldBeTrue()
+
+        executor.lastTimeout shouldBeEqualTo 1500L
+        executor.lastUnit shouldBeEqualTo TimeUnit.NANOSECONDS
+        executor.awaitTermination(JavaDuration.ofNanos(2500)).shouldBeTrue()
+        executor.lastTimeout shouldBeEqualTo 2500L
+        executor.lastUnit shouldBeEqualTo TimeUnit.NANOSECONDS
+    }
+
     private fun interruptibleTask(
         started: CountDownLatch,
         interrupted: CountDownLatch,
@@ -375,5 +390,22 @@ class ExecutorServiceExtensionsTest {
         override fun isShutdown(): Boolean = false
         override fun isTerminated(): Boolean = false
         override fun awaitTermination(timeout: Long, unit: TimeUnit): Boolean = true
+    }
+
+    private class RecordingTerminationExecutorService: AbstractExecutorService() {
+        var lastTimeout: Long = 0
+        var lastUnit: TimeUnit? = null
+
+        override fun execute(command: Runnable) = error("recording executor does not execute commands")
+
+        override fun shutdown() = Unit
+        override fun shutdownNow(): MutableList<Runnable> = mutableListOf()
+        override fun isShutdown(): Boolean = false
+        override fun isTerminated(): Boolean = false
+        override fun awaitTermination(timeout: Long, unit: TimeUnit): Boolean {
+            lastTimeout = timeout
+            lastUnit = unit
+            return true
+        }
     }
 }

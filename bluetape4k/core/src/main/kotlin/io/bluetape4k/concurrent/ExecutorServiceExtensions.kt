@@ -102,7 +102,7 @@ fun <T> ExecutorService.invokeAny(
  * @return 제한 시간 안에 executor가 종료되면 `true`입니다.
  */
 fun ExecutorService.awaitTermination(timeout: kotlin.time.Duration) =
-    awaitTermination(timeout.inWholeMicroseconds, TimeUnit.NANOSECONDS)
+    awaitTermination(timeout.inWholeNanoseconds, TimeUnit.NANOSECONDS)
 
 /**
  * executor 종료를 지정한 시간 동안 기다립니다.
