@@ -19,6 +19,9 @@ tasks.register<Test>("tenantRetentionStress") {
     maxHeapSize = "256m"
     testClassesDirs = sourceSets["test"].output.classesDirs
     classpath = sourceSets["test"].runtimeClasspath
+    filter {
+        isFailOnNoMatchingTests = true
+    }
     useJUnitPlatform {
         includeTags("tenant-retention-stress")
     }
