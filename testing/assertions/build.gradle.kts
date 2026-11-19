@@ -17,7 +17,7 @@ dependencies {
     api(bt4k.junit.jupiter.api)
 
     // Coroutines — FlowAssertions 가 main 소스에 있으므로 소비자 classpath 필요
-    compileOnly(libs.kotlinx.coroutines.core)
+    api(libs.kotlinx.coroutines.core)
 
     // Turbine — TurbineSupport 사용 시 소비자가 직접 추가 필요
     compileOnly(bt4k.turbine)

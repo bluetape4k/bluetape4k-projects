@@ -120,6 +120,8 @@ require_once(kover_tokens, KAFKA4_KOVER_TASK, "Kafka Kover command")
 
 all_task_tokens = steps.flat_map do |step|
   [step["run"], step.dig("with", "command")].compact.flat_map do |command|
+    next [] unless command.include?("./gradlew")
+
     allowed_excluded_tasks = command.include?(KAFKA4_KOVER_TASK) ? ["test"] : []
     command_tokens({ "run" => command }, "Kafka CI command", allowed_excluded_tasks: allowed_excluded_tasks)
   end

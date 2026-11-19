@@ -123,6 +123,69 @@ class PublishingSigningSupportTest {
     }
 
     @Test
+    fun `생략된 Maven 기본 type과 명시된 jar 및 빈 classifier는 같은 관리 좌표로 정리한다`() {
+        val pom = generatePomWithManagedDependencies(
+            ManagedDependencyFixture(version = "1.0", type = null),
+            lateFixtures = listOf(
+                ManagedDependencyFixture(version = "1.0", type = "jar", classifier = ""),
+            ),
+        )
+
+        try {
+            assertEquals(1, managedDependencies(XmlParser(false, false).parse(pom)).size)
+        } finally {
+            assertTrue(pom.delete(), "합성 POM을 정리해야 한다")
+        }
+    }
+
+    @Test
+    fun `type이 다른 관리 좌표는 각각 보존한다`() {
+        val pom = generatePomWithManagedDependencies(
+            ManagedDependencyFixture(version = "1.0", type = "jar"),
+            lateFixtures = listOf(
+                ManagedDependencyFixture(version = "1.0", type = "pom"),
+            ),
+        )
+
+        try {
+            assertEquals(2, managedDependencies(XmlParser(false, false).parse(pom)).size)
+        } finally {
+            assertTrue(pom.delete(), "합성 POM을 정리해야 한다")
+        }
+    }
+
+    @Test
+    fun `classifier가 다른 관리 좌표는 각각 보존한다`() {
+        val pom = generatePomWithManagedDependencies(
+            ManagedDependencyFixture(version = "1.0", type = "jar"),
+            lateFixtures = listOf(
+                ManagedDependencyFixture(version = "1.0", type = "jar", classifier = "sources"),
+            ),
+        )
+
+        try {
+            assertEquals(2, managedDependencies(XmlParser(false, false).parse(pom)).size)
+        } finally {
+            assertTrue(pom.delete(), "합성 POM을 정리해야 한다")
+        }
+    }
+
+    @Test
+    fun `같은 관리 좌표에서 scope가 다르면 명시적으로 실패한다`() {
+        val failure = assertFailsWith<GradleException> {
+            generatePomWithManagedDependencies(
+                ManagedDependencyFixture(version = "4.1.139.Final", scope = "import"),
+                lateFixtures = listOf(
+                    ManagedDependencyFixture(version = "4.1.139.Final", scope = "compile"),
+                ),
+            )
+        }
+
+        assertTrue(failure.message.orEmpty().contains("io.netty:netty-bom@pom"))
+        assertTrue(failure.message.orEmpty().contains("conflicting dependencyManagement entries"))
+    }
+
+    @Test
     fun `fingerprint 연결 충돌로 서로 다른 exclusion을 가진 항목을 동일 취급하지 않는다`() {
         val pom = XmlParser(false, false).parseText(
             """
@@ -315,6 +378,9 @@ class PublishingSigningSupportTest {
         val version: String,
         val groupId: String = "io.netty",
         val artifactId: String = "netty-bom",
+        val type: String? = "pom",
+        val classifier: String? = null,
+        val scope: String = if (type == "pom") "import" else "compile",
         val exclusions: List<Pair<String, String>> = emptyList(),
     )
 
@@ -369,8 +435,9 @@ class PublishingSigningSupportTest {
             Node(dependency, "groupId", fixture.groupId)
             Node(dependency, "artifactId", fixture.artifactId)
             Node(dependency, "version", fixture.version)
-            Node(dependency, "type", "pom")
-            Node(dependency, "scope", "import")
+            fixture.type?.let { Node(dependency, "type", it) }
+            fixture.classifier?.let { Node(dependency, "classifier", it) }
+            Node(dependency, "scope", fixture.scope)
             if (fixture.exclusions.isNotEmpty()) {
                 val exclusions = Node(dependency, "exclusions")
                 fixture.exclusions.forEach { (groupId, artifactId) ->

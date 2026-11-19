@@ -30,7 +30,7 @@ fun JavaDuration.requireNegative(parameterName: String): JavaDuration = apply {
 }
 
 fun JavaDuration.requireNegative(message: () -> String): JavaDuration = apply {
-    require(!this.isNegative, message)
+    require(this.isNegative, message)
 }
 
 /** Java Duration가 양수가 아닌지 검증한다. */
@@ -68,7 +68,7 @@ fun KotlinDuration.requireNegative(parameterName: String): KotlinDuration = appl
 }
 
 fun KotlinDuration.requireNegative(message: () -> String): KotlinDuration = apply {
-    require(!this.isNegative(), message)
+    require(this.isNegative(), message)
 }
 
 /** Kotlin Duration가 양수가 아닌지 검증한다. */

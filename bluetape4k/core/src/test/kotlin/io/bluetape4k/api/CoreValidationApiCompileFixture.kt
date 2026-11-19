@@ -73,6 +73,7 @@ import io.bluetape4k.support.requireNotInRange
 import io.bluetape4k.support.requireNotLengthInRange
 import io.bluetape4k.support.requireNotSizeInRange
 import io.bluetape4k.support.requireNotStartsWith
+import io.bluetape4k.support.requireNegative
 import io.bluetape4k.support.requirePositiveNumber
 import io.bluetape4k.support.requireNullOrBlank
 import io.bluetape4k.support.requireNullOrEmpty
@@ -247,6 +248,8 @@ internal object CoreValidationApiCompileFixture {
 
     private fun compileDurationHelpers() {
         val javaDuration = JavaDuration.ofSeconds(1)
+        JavaDuration.ofSeconds(-1).requireNegative("duration")
+        JavaDuration.ofSeconds(-1).requireNegative { "duration" }
         javaDuration.requireJavaPositiveDuration("duration")
         JavaDuration.ZERO.requireJavaZeroOrPositiveDuration("duration")
         JavaDuration.ofSeconds(-1).requireJavaNegativeDuration("duration")
@@ -257,6 +260,8 @@ internal object CoreValidationApiCompileFixture {
         JavaDuration.ZERO.checkJavaZeroOrNegativeDuration("duration")
 
         val kotlinDuration = 1.seconds
+        (-1).seconds.requireNegative("duration")
+        (-1).seconds.requireNegative { "duration" }
         kotlinDuration.requireKotlinPositiveDuration("duration")
         KotlinDuration.ZERO.requireKotlinZeroOrPositiveDuration("duration")
         (-1).seconds.requireKotlinNegativeDuration("duration")

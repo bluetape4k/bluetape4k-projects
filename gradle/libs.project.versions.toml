@@ -1,0 +1,603 @@
+# @formatter:off
+# Gradle Version Catalog — migrated from buildSrc/src/main/kotlin/Libs.kt
+
+[versions]
+kotlinx-benchmark = "0.4.17"  # https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-benchmark-runtime
+
+spring-statemachine = "4.0.1"  # https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-bom
+
+blockhound = "1.0.16.RELEASE"  # https://mvnrepository.com/artifact/io.projectreactor.tools/blockhound
+
+mutiny = "3.2.0"  # https://mvnrepository.com/artifact/io.smallrye.reactive/mutiny
+
+swagger = "2.2.49"  # https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-core
+problem = "0.29.1"  # https://mvnrepository.com/artifact/org.zalando/problem
+
+bucket4j = "8.18.0"  # https://mvnrepository.com/artifact/com.bucket4j/bucket4j_jdk17-core
+resilience4j = "2.4.0"  # https://mvnrepository.com/artifact/io.github.resilience4j/resilience4j-bom
+
+aws-smithy-kotlin = "1.6.14"  # https://mvnrepository.com/artifact/aws.smithy.kotlin/http-jvm
+
+grpc = "1.81.0"  # https://mvnrepository.com/artifact/io.grpc/grpc-bom
+
+retrofit2 = "3.0.0"  # https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
+
+fastjson2 = "2.0.62"  # https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2
+jjwt = "0.13.0"  # https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
+
+mapstruct = "1.6.3"  # https://mvnrepository.com/artifact/org.mapstruct/mapstruct
+
+mongo-driver = "5.7.0"  # https://mvnrepository.com/artifact/org.mongodb/mongodb-driver-sync
+
+hibernate-validator = "9.1.0.Final"  # https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator
+
+
+blaze-persistence = "3.34.6"  # https://mvnrepository.com/artifact/com.blazebit/blaze-persistence-core-api
+blaze-persistence-jakarta = "1.6.16"  # https://repo1.maven.org/maven2/com/blazebit/blaze-persistence-integration-hibernate-7.0/
+javers = "7.11.0"  # https://mvnrepository.com/artifact/org.javers/javers-core
+
+
+prometheus = "0.16.0"  # https://mvnrepository.com/artifact/io.prometheus/simpleclient
+micrometer-tracing = "1.6.5"  # https://mvnrepository.com/artifact/io.micrometer/micrometer-tracing-bom
+
+opentelemetry-javaagent = "2.29.0"  # https://mvnrepository.com/artifact/io.opentelemetry.javaagent/opentelemetry-javaagent
+
+caffeine = "3.2.4"  # https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine
+ehcache = "3.12.0"  # https://mvnrepository.com/artifact/org.ehcache/ehcache
+cache2k = "2.6.1.Final"  # https://mvnrepository.com/artifact/org.cache2k/cache2k-api
+
+cassandra = "4.19.2"  # https://mvnrepository.com/artifact/org.apache.cassandra/java-driver-core
+elasticsearch = "9.4.0"  # https://mvnrepository.com/artifact/org.elasticsearch.client/elasticsearch-rest-client
+
+eclipse-collections = "13.0.0"  # https://mvnrepository.com/artifact/org.eclipse.collections/eclipse-collections
+
+junit-jupiter = "6.0.3"  # https://mvnrepository.com/artifact/org.junit/junit-bom
+junit-platform = "6.0.3"  # https://mvnrepository.com/artifact/org.junit.platform/junit-platform-commons
+jna = "5.18.1"  # https://mvnrepository.com/artifact/net.java.dev.jna/jna
+archunit = "1.4.2"  # https://mvnrepository.com/artifact/com.tngtech.archunit/archunit
+rest-assured = "6.0.0"  # https://mvnrepository.com/artifact/io.rest-assured/rest-assured
+
+
+
+batik = "1.19"  # https://mvnrepository.com/artifact/org.apache.xmlgraphics/batik-transcoder
+
+
+kuromoji = "0.9.0"  # https://mvnrepository.com/artifact/com.atilika.kuromoji/kuromoji-ipadic
+
+# Plugin versions
+
+[plugins]
+
+
+[libraries]
+
+# Kotlin
+kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
+kotlin-stdlib-common = { module = "org.jetbrains.kotlin:kotlin-stdlib-common" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
+kotlin-test-common = { module = "org.jetbrains.kotlin:kotlin-test-common" }
+kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5" }
+kotlin-scripting-jsr223 = { module = "org.jetbrains.kotlin:kotlin-scripting-jsr223" }
+kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler" }
+kotlin-scripting-dependencies = { module = "org.jetbrains.kotlin:kotlin-scripting-dependencies" }
+kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable" }
+kotlin-daemon-client = { module = "org.jetbrains.kotlin:kotlin-daemon-client" }
+kotlin-scripting-common = { module = "org.jetbrains.kotlin:kotlin-scripting-common" }
+kotlin-scripting-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable" }
+kotlin-scripting-compiler-impl-embeddable = { module = "org.jetbrains.kotlin:kotlin-scripting-compiler-impl-embeddable" }
+kotlin-scripting-jvm = { module = "org.jetbrains.kotlin:kotlin-scripting-jvm" }
+kotlin-scripting-jvm-host = { module = "org.jetbrains.kotlin:kotlin-scripting-jvm-host" }
+kotlin-script-runtime = { module = "org.jetbrains.kotlin:kotlin-script-runtime" }
+
+# Kotlinx Coroutines
+kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core" }
+kotlinx-coroutines-core-jvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm" }
+kotlinx-coroutines-debug = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-debug" }
+kotlinx-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive" }
+kotlinx-coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor" }
+kotlinx-coroutines-rx2 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-rx2" }
+kotlinx-coroutines-rx3 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-rx3" }
+kotlinx-coroutines-slf4j = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test" }
+kotlinx-coroutines-test-jvm = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test-jvm" }
+
+# Kotlinx Serialization
+kotlinx-serialization-json-jvm = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm" }
+kotlinx-serialization-properties = { module = "org.jetbrains.kotlinx:kotlinx-serialization-properties" }
+kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf" }
+
+# Ktor
+ktor-client-core = { module = "io.ktor:ktor-client-core" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation" }
+ktor-client-mock = { module = "io.ktor:ktor-client-mock" }
+ktor-server-core = { module = "io.ktor:ktor-server-core" }
+ktor-server-cio = { module = "io.ktor:ktor-server-cio" }
+ktor-server-call-id = { module = "io.ktor:ktor-server-call-id" }
+ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation" }
+ktor-server-metrics-micrometer = { module = "io.ktor:ktor-server-metrics-micrometer" }
+ktor-server-openapi = { module = "io.ktor:ktor-server-openapi" }
+ktor-server-routing-openapi = { module = "io.ktor:ktor-server-routing-openapi" }
+ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages" }
+ktor-server-swagger = { module = "io.ktor:ktor-server-swagger" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json" }
+ktor-server-test-host = { module = "io.ktor:ktor-server-test-host" }
+
+# Kotlinx AtomicFU
+
+# Kotlinx Benchmark
+
+# Turbine
+
+# Java Cache
+
+# Java Money
+
+# Jakarta
+
+# Apache Commons
+
+# SLF4J
+slf4j-simple = { module = "org.slf4j:slf4j-simple" }
+jcl-over-slf4j = { module = "org.slf4j:jcl-over-slf4j" }
+jul-to-slf4j = { module = "org.slf4j:jul-to-slf4j" }
+log4j-over-slf4j = { module = "org.slf4j:log4j-over-slf4j" }
+
+# Logback
+
+# Log4j
+log4j-api = { module = "org.apache.logging.log4j:log4j-api" }
+log4j-jcl = { module = "org.apache.logging.log4j:log4j-jcl" }
+log4j-jul = { module = "org.apache.logging.log4j:log4j-jul" }
+log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl" }
+log4j-web = { module = "org.apache.logging.log4j:log4j-web" }
+
+
+
+
+
+# Spring Boot
+spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies" }
+
+# Spring Cloud
+
+# Spring Statemachine
+
+# Chaos Monkey
+
+# Vert.x
+vertx-lang-kotlin = { module = "io.vertx:vertx-lang-kotlin" }
+vertx-lang-kotlin-coroutines = { module = "io.vertx:vertx-lang-kotlin-coroutines" }
+vertx-jdbc-client = { module = "io.vertx:vertx-jdbc-client" }
+vertx-sql-client = { module = "io.vertx:vertx-sql-client" }
+vertx-sql-client-templates = { module = "io.vertx:vertx-sql-client-templates" }
+vertx-mysql-client = { module = "io.vertx:vertx-mysql-client" }
+vertx-pg-client = { module = "io.vertx:vertx-pg-client" }
+vertx-web = { module = "io.vertx:vertx-web" }
+vertx-web-client = { module = "io.vertx:vertx-web-client" }
+vertx-junit5 = { module = "io.vertx:vertx-junit5" }
+
+# Resilience4j
+
+# Bucket4j
+
+# Netty
+netty-all = { module = "io.netty:netty-all" }
+netty-common = { module = "io.netty:netty-common" }
+netty-buffer = { module = "io.netty:netty-buffer" }
+netty-codec = { module = "io.netty:netty-codec" }
+netty-codec-dns = { module = "io.netty:netty-codec-dns" }
+netty-codec-protobuf = { module = "io.netty:netty-codec-protobuf" }
+netty-handler = { module = "io.netty:netty-handler" }
+netty-handler-proxy = { module = "io.netty:netty-handler-proxy" }
+netty-resolver = { module = "io.netty:netty-resolver" }
+netty-resolver-dns = { module = "io.netty:netty-resolver-dns" }
+netty-resolver-dns-classes-macos = { module = "io.netty:netty-resolver-dns-classes-macos" }
+netty-resolver-dns-native-macos = { module = "io.netty:netty-resolver-dns-native-macos" }
+netty-transport = { module = "io.netty:netty-transport" }
+netty-transport-classes-epoll = { module = "io.netty:netty-transport-classes-epoll" }
+netty-transport-classes-kqueue = { module = "io.netty:netty-transport-classes-kqueue" }
+netty-transport-native-epoll = { module = "io.netty:netty-transport-native-epoll" }
+netty-transport-native-kqueue = { module = "io.netty:netty-transport-native-kqueue" }
+
+# gRPC
+
+# Protobuf
+protobuf-protoc = { module = "com.google.protobuf:protoc" }
+protobuf-java-util = { module = "com.google.protobuf:protobuf-java-util" }
+protobuf-kotlin = { module = "com.google.protobuf:protobuf-kotlin" }
+
+# Avro
+avro-ipc = { module = "org.apache.avro:avro-ipc" }
+avro-ipc-netty = { module = "org.apache.avro:avro-ipc-netty" }
+avro-protobuf = { module = "org.apache.avro:avro-protobuf" }
+
+# AWS SDK v2
+aws2-applicationautoscaling = { module = "software.amazon.awssdk:applicationautoscaling" }
+aws2-apache-client = { module = "software.amazon.awssdk:apache-client" }
+aws2-auth = { module = "software.amazon.awssdk:auth" }
+aws2-aws-core = { module = "software.amazon.awssdk:aws-core" }
+aws2-aws-crt-client = { module = "software.amazon.awssdk:aws-crt-client" }
+aws2-sdk-core = { module = "software.amazon.awssdk:sdk-core" }
+aws2-cloudwatch = { module = "software.amazon.awssdk:cloudwatch" }
+aws2-cloudwatchevents = { module = "software.amazon.awssdk:cloudwatchevents" }
+aws2-cloudwatchlogs = { module = "software.amazon.awssdk:cloudwatchlogs" }
+aws2-ec2 = { module = "software.amazon.awssdk:ec2" }
+aws2-elasticache = { module = "software.amazon.awssdk:elasticache" }
+aws2-kafka = { module = "software.amazon.awssdk:kafka" }
+aws2-kinesis = { module = "software.amazon.awssdk:kinesis" }
+aws2-kms = { module = "software.amazon.awssdk:kms" }
+aws2-lambda = { module = "software.amazon.awssdk:lambda" }
+aws2-netty-nio-client = { module = "software.amazon.awssdk:netty-nio-client" }
+aws2-s3 = { module = "software.amazon.awssdk:s3" }
+aws2-s3-transfer-manager = { module = "software.amazon.awssdk:s3-transfer-manager" }
+aws2-ses = { module = "software.amazon.awssdk:ses" }
+aws2-sesv2 = { module = "software.amazon.awssdk:sesv2" }
+aws2-sns = { module = "software.amazon.awssdk:sns" }
+aws2-sqs = { module = "software.amazon.awssdk:sqs" }
+aws2-sts = { module = "software.amazon.awssdk:sts" }
+aws2-dynamodb-enhanced = { module = "software.amazon.awssdk:dynamodb-enhanced" }
+aws2-url-connection-client = { module = "software.amazon.awssdk:url-connection-client" }
+aws2-utils = { module = "software.amazon.awssdk:utils" }
+aws2-test-utils = { module = "software.amazon.awssdk:test-utils" }
+
+
+# AWS Kotlin SDK
+aws-kotlin-aws-config = { module = "aws.sdk.kotlin:aws-config" }
+aws-kotlin-aws-endpoint = { module = "aws.sdk.kotlin:aws-endpoint" }
+aws-kotlin-aws-http = { module = "aws.sdk.kotlin:aws-http" }
+aws-kotlin-batch = { module = "aws.sdk.kotlin:batch" }
+aws-kotlin-cloudwatch = { module = "aws.sdk.kotlin:cloudwatch" }
+aws-kotlin-cloudwatchlogs = { module = "aws.sdk.kotlin:cloudwatchlogs" }
+aws-kotlin-dynamodb = { module = "aws.sdk.kotlin:dynamodb" }
+aws-kotlin-dynamodbstreams = { module = "aws.sdk.kotlin:dynamodbstreams" }
+aws-kotlin-http-client-engine-crt = { module = "aws.sdk.kotlin:http-client-engine-crt" }
+aws-kotlin-kafka = { module = "aws.sdk.kotlin:kafka" }
+aws-kotlin-kinesis = { module = "aws.sdk.kotlin:kinesis" }
+aws-kotlin-kms = { module = "aws.sdk.kotlin:kms" }
+aws-kotlin-lambda = { module = "aws.sdk.kotlin:lambda" }
+aws-kotlin-rds = { module = "aws.sdk.kotlin:rds" }
+aws-kotlin-s3 = { module = "aws.sdk.kotlin:s3" }
+aws-kotlin-ses = { module = "aws.sdk.kotlin:ses" }
+aws-kotlin-sns = { module = "aws.sdk.kotlin:sns" }
+aws-kotlin-sqs = { module = "aws.sdk.kotlin:sqs" }
+aws-kotlin-sts = { module = "aws.sdk.kotlin:sts" }
+aws-kotlin-sesv2 = { module = "aws.sdk.kotlin:sesv2" }
+
+# AWS Smithy Kotlin
+
+# Apache HttpComponents
+httpclient5-cache = { module = "org.apache.httpcomponents.client5:httpclient5-cache" }
+httpclient5-fluent = { module = "org.apache.httpcomponents.client5:httpclient5-fluent" }
+httpclient5-testing = { module = "org.apache.httpcomponents.client5:httpclient5-testing" }
+httpcore5-testing = { module = "org.apache.httpcomponents.core5:httpcore5-testing" }
+
+# OpenFeign
+
+# Retrofit2
+
+# OkHttp3
+
+# Okio
+
+# MapStruct
+
+# Jackson 2
+jackson-bom = { module = "com.fasterxml.jackson:jackson-bom" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations" }  # version from bt4k catalog
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" }
+jackson-datatype-jsr353 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr353" }
+jackson-datatype-jdk8 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jdk8" }
+jackson-datatype-joda = { module = "com.fasterxml.jackson.datatype:jackson-datatype-joda" }
+jackson-datatype-guava = { module = "com.fasterxml.jackson.datatype:jackson-datatype-guava" }
+jackson-dataformat-avro = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-avro" }
+jackson-dataformat-cbor = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor" }
+jackson-dataformat-ion = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-ion" }
+jackson-dataformat-protobuf = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-protobuf" }
+jackson-dataformat-smile = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-smile" }
+jackson-dataformat-csv = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-csv" }
+jackson-dataformat-properties = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-properties" }
+jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml" }
+jackson-dataformat-toml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-toml" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
+jackson-module-paranamer = { module = "com.fasterxml.jackson.module:jackson-module-parameter" }
+jackson-module-parameter-names = { module = "com.fasterxml.jackson.module:jackson-module-parameter-names" }
+jackson-module-blackbird = { module = "com.fasterxml.jackson.module:jackson-module-blackbird" }
+jackson-module-json-schema = { module = "com.fasterxml.jackson.module:jackson-module-jsonSchema" }
+
+# Jackson 3
+jackson3-bom = { module = "tools.jackson:jackson-bom" }
+jackson3-core = { module = "tools.jackson.core:jackson-core" }
+jackson3-databind = { module = "tools.jackson.core:jackson-databind" }
+jackson3-datatype-eclipse-collections = { module = "tools.jackson.datatype:jackson-datatype-eclipse-collections" }
+jackson3-datatype-guava = { module = "tools.jackson.datatype:jackson-datatype-guava" }
+jackson3-datatype-json-org = { module = "tools.jackson.datatype:jackson-datatype-json-org" }
+jackson3-datatype-jsr353 = { module = "tools.jackson.datatype:jackson-datatype-jsr353" }
+jackson3-datatype-javax-money = { module = "tools.jackson.datatype:jackson-datatype-javax-money" }
+jackson3-datatype-moneta = { module = "tools.jackson.datatype:jackson-datatype-moneta" }
+jackson3-dataformat-avro = { module = "tools.jackson.dataformat:jackson-dataformat-avro" }
+jackson3-dataformat-cbor = { module = "tools.jackson.dataformat:jackson-dataformat-cbor" }
+jackson3-dataformat-ion = { module = "tools.jackson.dataformat:jackson-dataformat-ion" }
+jackson3-dataformat-protobuf = { module = "tools.jackson.dataformat:jackson-dataformat-protobuf" }
+jackson3-dataformat-properties = { module = "tools.jackson.dataformat:jackson-dataformat-properties" }
+jackson3-dataformat-csv = { module = "tools.jackson.dataformat:jackson-dataformat-csv" }
+jackson3-dataformat-smile = { module = "tools.jackson.dataformat:jackson-dataformat-smile" }
+jackson3-dataformat-yaml = { module = "tools.jackson.dataformat:jackson-dataformat-yaml" }
+jackson3-dataformat-toml = { module = "tools.jackson.dataformat:jackson-dataformat-toml" }
+jackson3-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin" }
+jackson3-module-blackbird = { module = "tools.jackson.module:jackson-module-blackbird" }
+jackson3-module-no-ctor-deser = { module = "tools.jackson.module:jackson-module-no-ctor-deser" }
+
+# FastJson2
+
+# JSON assertions
+
+# GSON
+
+# JWT
+
+# Compression
+
+# Cryptography
+
+# Hashing
+
+# Typesafe (HOCON)
+
+# MVEL
+
+# Janino
+
+# Groovy
+
+# Reactor
+reactor-core = { module = "io.projectreactor:reactor-core" }
+reactor-core-micrometer = { module = "io.projectreactor:reactor-core-micrometer" }
+reactor-netty = { module = "io.projectreactor.netty:reactor-netty" }
+reactor-test = { module = "io.projectreactor:reactor-test" }
+reactor-tools = { module = "io.projectreactor:reactor-tools" }
+reactor-kotlin-extensions = { module = "io.projectreactor.kotlin:reactor-kotlin-extensions" }
+reactor-addons-adapter = { module = "io.projectreactor.addons:reactor-adapter" }
+reactor-addons-extra = { module = "io.projectreactor.addons:reactor-extra" }
+reactor-addons-pool = { module = "io.projectreactor.addons:reactor-pool" }
+
+# Smallrye Mutiny
+
+# Prometheus
+
+# Micrometer
+micrometer-commons = { module = "io.micrometer:micrometer-commons" }
+micrometer-core = { module = "io.micrometer:micrometer-core" }
+micrometer-observation = { module = "io.micrometer:micrometer-observation" }
+micrometer-observation-test = { module = "io.micrometer:micrometer-observation-test" }
+micrometer-test = { module = "io.micrometer:micrometer-test" }
+micrometer-registry-cloudwatch = { module = "io.micrometer:micrometer-registry-cloudwatch" }
+micrometer-registry-datadog = { module = "io.micrometer:micrometer-registry-datadog" }
+micrometer-registry-elastic = { module = "io.micrometer:micrometer-registry-elastic" }
+micrometer-registry-graphite = { module = "io.micrometer:micrometer-registry-graphite" }
+micrometer-registry-new-relic = { module = "io.micrometer:micrometer-registry-new-relic" }
+micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus" }
+micrometer-registry-jmx = { module = "io.micrometer:micrometer-registry-jmx" }
+
+# Micrometer Tracing
+
+# OpenTelemetry
+opentelemetry-api-incubator = { module = "io.opentelemetry:opentelemetry-api-incubator" }
+opentelemetry-extension-aws = { module = "io.opentelemetry:opentelemetry-extension-aws" }
+opentelemetry-extension-kotlin = { module = "io.opentelemetry:opentelemetry-extension-kotlin" }
+opentelemetry-extension-annotations = { module = "io.opentelemetry:opentelemetry-extension-annotations" }
+opentelemetry-exporter-logging = { module = "io.opentelemetry:opentelemetry-exporter-logging" }
+opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp" }
+opentelemetry-exporter-prometheus = { module = "io.opentelemetry:opentelemetry-exporter-prometheus" }
+opentelemetry-exporter-zipkin = { module = "io.opentelemetry:opentelemetry-exporter-zipkin" }
+opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk" }
+opentelemetry-sdk-metrics = { module = "io.opentelemetry:opentelemetry-sdk-metrics" }
+opentelemetry-sdk-logs = { module = "io.opentelemetry:opentelemetry-sdk-logs" }
+opentelemetry-sdk-trace = { module = "io.opentelemetry:opentelemetry-sdk-trace" }
+opentelemetry-sdk-testing = { module = "io.opentelemetry:opentelemetry-sdk-testing" }
+opentelemetry-sdk-extensions-autoconfigure = { module = "io.opentelemetry:opentelemetry-sdk-extension-autoconfigure" }
+opentelemetry-logback-appender = { module = "io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0" }
+opentelemetry-logback-mdc = { module = "io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0" }
+opentelemetry-ktor = { module = "io.opentelemetry.instrumentation:opentelemetry-ktor-3.0" }
+opentelemetry-spring-boot-starter = { module = "io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter" }
+opentelemetry-spring-webflux = { module = "io.opentelemetry.instrumentation:opentelemetry-spring-webflux-5.3" }
+
+# Reflectasm
+reflectasm = { module = "com.esotericsoftware:reflectasm" }
+
+# MongoDB
+
+# Redis — Lettuce
+lettuce-core = { module = "io.lettuce:lettuce-core" }
+
+# Redis — Redisson
+redisson-spring-boot-starter = { module = "org.redisson:redisson-spring-boot-starter" }
+redisson-spring-data-34 = { module = "org.redisson:redisson-spring-data-34" }
+redisson-spring-data-35 = { module = "org.redisson:redisson-spring-data-35" }
+redisson-spring-data-40 = { module = "org.redisson:redisson-spring-data-40" }
+
+# Cassandra
+
+# ElasticSearch
+
+# InfluxDB
+
+# RabbitMQ
+
+# Kafka modules not governed by the central compatibility aliases
+kafka-server = { module = "org.apache.kafka:kafka-server" }
+
+# Pulsar
+
+# Nats
+
+# Timefold Solver
+timefold-solver-benchmark = { module = "ai.timefold.solver:timefold-solver-benchmark" }
+timefold-solver-core = { module = "ai.timefold.solver:timefold-solver-core" }
+timefold-solver-jackson = { module = "ai.timefold.solver:timefold-solver-jackson" }
+timefold-solver-spring-boot-starter = { module = "ai.timefold.solver:timefold-solver-spring-boot-starter" }
+
+# Zipkin
+
+# Hashicorp Vault
+
+# Keycloak
+
+# Hibernate
+hibernate-micrometer = { module = "org.hibernate.orm:hibernate-micrometer" }
+hibernate-testing = { module = "org.hibernate.orm:hibernate-testing" }
+hibernate-envers = { module = "org.hibernate.orm:hibernate-envers" }
+hibernate-jpamodelgen = { module = "org.hibernate.orm:hibernate-jpamodelgen" }
+hibernate-hikaricp = { module = "org.hibernate.orm:hibernate-hikaricp" }
+hibernate-spatial = { module = "org.hibernate.orm:hibernate-spatial" }
+
+# Validators
+
+# Exposed
+exposed-bom = { module = "org.jetbrains.exposed:exposed-bom" }
+exposed-crypt = { module = "org.jetbrains.exposed:exposed-crypt" }
+exposed-dao = { module = "org.jetbrains.exposed:exposed-dao" }
+exposed-json = { module = "org.jetbrains.exposed:exposed-json" }
+exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime" }
+exposed-migration-core = { module = "org.jetbrains.exposed:exposed-migration-core" }
+exposed-migration-r2dbc = { module = "org.jetbrains.exposed:exposed-migration-r2dbc" }
+exposed-money = { module = "org.jetbrains.exposed:exposed-money" }
+exposed-spring-transaction = { module = "org.jetbrains.exposed:spring-transaction" }
+
+# R2DBC
+
+# QueryDSL
+querydsl-kotlin = { module = "io.github.openfeign.querydsl:querydsl-kotlin" }
+querydsl-kotlin-codegen = { module = "io.github.openfeign.querydsl:querydsl-kotlin-codegen" }
+
+# MyBatis
+
+# Agroal
+agroal-api = { module = "io.agroal:agroal-api" }
+agroal-narayana = { module = "io.agroal:agroal-narayana" }
+agroal-spring-boot-starter = { module = "io.agroal:agroal-spring-boot-starter" }
+
+# JDBC / Connection Pool
+
+# Neo4j
+
+# FalkorDB
+
+# Minio
+
+# Milvus
+
+# Immudb
+
+# Zookeeper
+
+# Weaviate
+
+# UUID Generator
+
+# Cache2K
+
+# Caffeine
+
+# Ehcache
+
+# Hazelcast
+hazelcast-spring = { module = "com.hazelcast:hazelcast-spring" }
+
+# OW2 ASM
+ow2-asm-commons = { module = "org.ow2.asm:asm-commons" }
+ow2-asm-util = { module = "org.ow2.asm:asm-util" }
+ow2-asm-tree = { module = "org.ow2.asm:asm-tree" }
+
+
+# ByteBuddy
+
+# JUnit 5
+opentest4j = { module = "org.opentest4j:opentest4j" }
+
+assertj-core = { module = "org.assertj:assertj-core" }
+awaitility-kotlin = { module = "org.awaitility:awaitility-kotlin" }
+
+random-beans = { module = "io.github.benas:random-beans" }
+
+
+# JMH
+
+# Testcontainers
+testcontainers-openfga = { module = "org.testcontainers:testcontainers-openfga" }
+testcontainers-qdrant = { module = "org.testcontainers:testcontainers-qdrant" }
+testcontainers-bom = { module = "org.testcontainers:testcontainers-bom" }
+testcontainers = { module = "org.testcontainers:testcontainers" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter" }
+testcontainers-cassandra = { module = "org.testcontainers:testcontainers-cassandra" }
+testcontainers-chromadb = { module = "org.testcontainers:testcontainers-chromadb" }
+testcontainers-clickhouse = { module = "org.testcontainers:testcontainers-clickhouse" }
+testcontainers-cockroachdb = { module = "org.testcontainers:testcontainers-cockroachdb" }
+testcontainers-elasticsearch = { module = "org.testcontainers:testcontainers-elasticsearch" }
+testcontainers-influxdb = { module = "org.testcontainers:testcontainers-influxdb" }
+testcontainers-mariadb = { module = "org.testcontainers:testcontainers-mariadb" }
+testcontainers-mongodb = { module = "org.testcontainers:testcontainers-mongodb" }
+testcontainers-mysql = { module = "org.testcontainers:testcontainers-mysql" }
+testcontainers-ollama = { module = "org.testcontainers:testcontainers-ollama" }
+testcontainers-oracle-xe = { module = "org.testcontainers:testcontainers-oracle-xe" }
+testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql" }
+testcontainers-kafka = { module = "org.testcontainers:testcontainers-kafka" }
+testcontainers-pulsar = { module = "org.testcontainers:testcontainers-pulsar" }
+testcontainers-redpanda = { module = "org.testcontainers:testcontainers-redpanda" }
+testcontainers-rabbitmq = { module = "org.testcontainers:testcontainers-rabbitmq" }
+testcontainers-vault = { module = "org.testcontainers:testcontainers-vault" }
+testcontainers-localstack = { module = "org.testcontainers:testcontainers-localstack" }
+testcontainers-mockserver = { module = "org.testcontainers:testcontainers-mockserver" }
+testcontainers-nginx = { module = "org.testcontainers:testcontainers-nginx" }
+testcontainers-r2dbc = { module = "org.testcontainers:testcontainers-r2dbc" }
+testcontainers-gcloud = { module = "org.testcontainers:testcontainers-gcloud" }
+testcontainers-neo4j = { module = "org.testcontainers:testcontainers-neo4j" }
+testcontainers-trino = { module = "org.testcontainers:testcontainers-trino" }
+testcontainers-toxiproxy = { module = "org.testcontainers:testcontainers-toxiproxy" }
+testcontainers-k3s = { module = "org.testcontainers:testcontainers-k3s" }
+testcontainers-minio = { module = "org.testcontainers:testcontainers-minio" }
+testcontainers-weaviate = { module = "org.testcontainers:testcontainers-weaviate" }
+
+# JNA
+
+# Wiremock
+
+# Kubernetes
+
+# Rest Assured
+
+# Springdoc OpenAPI
+springdoc-openapi-webmvc-api = { module = "org.springdoc:springdoc-openapi-starter-webmvc-api" }
+springdoc-openapi-webflux-ui = { module = "org.springdoc:springdoc-openapi-starter-webflux-ui" }
+
+# ArchUnit
+
+# Detekt
+
+# Logback Appenders
+
+# Scrimage
+scrimage-filters = { module = "com.sksamuel.scrimage:scrimage-filters" }
+scrimage-webp = { module = "com.sksamuel.scrimage:scrimage-webp" }
+
+# Metadata Extractor
+
+# TwelveMonkeys ImageIO
+
+# Batik
+
+# libvips
+
+# NLP
+
+# Science / GIS
+
+# Spring Batch
+spring-batch-test = { module = "org.springframework.batch:spring-batch-test" }
+# @formatter:on

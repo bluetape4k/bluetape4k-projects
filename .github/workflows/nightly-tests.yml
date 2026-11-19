@@ -296,12 +296,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
         with:
           gradle-version: wrapper
           cache-read-only: false
@@ -368,12 +368,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
         with:
           gradle-version: wrapper
           cache-read-only: true
@@ -413,12 +413,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
         with:
           gradle-version: wrapper
           cache-read-only: true
@@ -487,12 +487,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
         with:
           gradle-version: wrapper
           cache-read-only: true
@@ -565,12 +565,12 @@ jobs:
       steps:
           -   uses: actions/checkout@v7
 
-          -   uses: actions/setup-java@v6.0.1
+          -   uses: actions/setup-java@v6.2.0
               with:
                   java-version: ${{ env.JAVA_VERSION }}
                   distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-          -   uses: gradle/actions/setup-gradle@v6.4.0
+          -   uses: gradle/actions/setup-gradle@v6.4.1
               with:
                   gradle-version: wrapper
                   cache-read-only: true
@@ -632,12 +632,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
         with:
           gradle-version: wrapper
           cache-read-only: true
@@ -698,12 +698,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
         with:
           gradle-version: wrapper
           cache-read-only: true
@@ -799,12 +799,12 @@ jobs:
         id: validate-kover-isolation
         run: ruby scripts/validate-nightly-kover-isolation.rb
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
         with:
           gradle-version: wrapper
           cache-read-only: true
@@ -927,12 +927,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
         with:
           gradle-version: wrapper
           cache-read-only: true
@@ -993,7 +993,7 @@ jobs:
   # 2 groups run in parallel on separate runners
   test-data:
     name: Test / Data (${{ matrix.group }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.group == 'nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}
     needs: [build, plan]
     if: ${{ needs.plan.outputs.run_standard == 'true' }}
     strategy:
@@ -1023,15 +1023,24 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
         with:
           gradle-version: wrapper
           cache-read-only: true
+
+      - name: Report runner image and kernel
+        if: ${{ matrix.group == 'nosql' }}
+        shell: bash
+        run: |
+          echo "ImageOS=${ImageOS:-<unset>}"
+          echo "ImageVersion=${ImageVersion:-<unset>}"
+          cat /etc/os-release
+          uname -r
 
       - name: Test data modules (${{ matrix.group }})
         uses: nick-fields/retry@v4
@@ -1075,7 +1084,7 @@ jobs:
   # PR CI의 spring-boot/** 변경도 같은 세 group을 별도 test-spring-boot job으로 실행한다.
   test-spring-docker:
     name: Test / Spring Boot (${{ matrix.group }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.group == 'batch-nosql' && 'ubuntu-22.04' || 'ubuntu-latest' }}
     needs: [build, plan]
     if: ${{ needs.plan.outputs.run_standard == 'true' }}
     strategy:
@@ -1108,15 +1117,24 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
         with:
           gradle-version: wrapper
           cache-read-only: true
+
+      - name: Report runner image and kernel
+        if: ${{ matrix.group == 'batch-nosql' }}
+        shell: bash
+        run: |
+          echo "ImageOS=${ImageOS:-<unset>}"
+          echo "ImageVersion=${ImageVersion:-<unset>}"
+          cat /etc/os-release
+          uname -r
 
       - name: Build mock-web-server Docker image
         run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
@@ -1170,7 +1188,7 @@ jobs:
   # does not hold the full nightly critical path.
   test-testcontainers:
     name: Test / Testcontainers (${{ matrix.group }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.group == 'storage-cache' && 'ubuntu-22.04' || 'ubuntu-latest' }}
     needs: [build, plan]
     strategy:
       fail-fast: false
@@ -1179,12 +1197,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
         with:
           gradle-version: wrapper
           cache-read-only: true
@@ -1204,6 +1222,15 @@ jobs:
       - name: Pre-pull Memgraph Docker image
         if: ${{ matrix.group == 'graphdb-memgraph' }}
         run: timeout --kill-after=60s 10m docker pull memgraph/memgraph:3.12.0
+
+      - name: Report runner image and kernel
+        if: ${{ matrix.group == 'storage-cache' }}
+        shell: bash
+        run: |
+          echo "ImageOS=${ImageOS:-<unset>}"
+          echo "ImageVersion=${ImageVersion:-<unset>}"
+          cat /etc/os-release
+          uname -r
 
       - name: Test testcontainers (${{ matrix.group }})
         uses: nick-fields/retry@v4
@@ -1255,7 +1282,7 @@ jobs:
   # ── Testcontainers image startup/workload gate — full Nightly 전용 ────────
   test-testcontainers-image-gate-shard:
     name: Test / Testcontainers image startup-workload gate shard ${{ matrix.shard }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 180
     needs: [build, plan]
     if: ${{ needs.plan.outputs.scope == 'full' }}
@@ -1270,19 +1297,27 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.12'
 
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
         with:
           gradle-version: wrapper
           cache-read-only: true
+
+      - name: Report runner image and kernel
+        shell: bash
+        run: |
+          echo "ImageOS=${ImageOS:-<unset>}"
+          echo "ImageVersion=${ImageVersion:-<unset>}"
+          cat /etc/os-release
+          uname -r
 
       - name: Build mock-web-server Docker image
         run: ./gradlew :bluetape4k-mock-web-server:jibDockerBuild --no-configuration-cache
@@ -1291,6 +1326,7 @@ jobs:
         run: ./gradlew :bluetape4k-mock-webflux-server:jibDockerBuild --no-configuration-cache
 
       - name: Run image family gate shard sequentially
+        shell: bash
         env:
           DOCKER_AUTH_CONFIG: ${{ secrets.TESTCONTAINERS_DOCKER_AUTH_CONFIG }}
         run: >-
@@ -1380,7 +1416,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.12'
 
@@ -1394,6 +1430,7 @@ jobs:
 
       - name: Aggregate and verify image gate evidence
         if: always()
+        shell: bash
         env:
           SHARD_RESULT: ${{ needs.test-testcontainers-image-gate-shard.result }}
         run: |
@@ -1459,17 +1496,18 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v6.0.1
+      - uses: actions/setup-java@v6.2.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
 
-      - uses: gradle/actions/setup-gradle@v6.4.0
+      - uses: gradle/actions/setup-gradle@v6.4.1
         with:
           gradle-version: wrapper
           cache-read-only: true
 
       - name: Test Testcontainers Spring bridge
+        shell: bash
         run: ./gradlew :bluetape4k-testcontainers-spring:test --no-configuration-cache
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -1661,14 +1699,65 @@ jobs:
     if: always()
     steps:
       - name: Check all jobs
+        shell: bash
         env:
+          EXPECTED_SCOPE: ${{ github.event_name == 'workflow_dispatch' && inputs.scope || github.event.schedule == '0 18 * * 0' && 'full' || 'smoke' }}
+          PLAN_RESULT: ${{ needs.plan.result }}
           RESULTS: ${{ join(needs.*.result, ',') }}
           SCOPE: ${{ needs.plan.outputs.scope }}
+          DETEKT_RESULT: ${{ needs.detekt.result }}
+          TEST_CORE_RESULT: ${{ needs.test-core.result }}
+          TEST_DATA_RESULT: ${{ needs.test-data.result }}
+          TEST_SPRING_DOCKER_RESULT: ${{ needs.test-spring-docker.result }}
+          TESTCONTAINERS_RESULT: ${{ needs.test-testcontainers.result }}
+          TESTCONTAINERS_SPRING_RESULT: ${{ needs.test-testcontainers-spring.result }}
           X64_GATE_RESULT: ${{ needs.test-testcontainers-image-gate.result }}
+          COVERAGE_REPORT_RESULT: ${{ needs.coverage-report.result }}
         run: |
           echo "Nightly results: $RESULTS"
           if echo "$RESULTS" | grep -qE "failure|cancelled"; then
             echo "Nightly tests failed"
+            exit 1
+          fi
+          if [ "$SCOPE" = full ]; then
+            IFS=, read -ra full_results <<< "$RESULTS"
+            for result in "${full_results[@]}"; do
+              if [ "$result" != success ]; then
+                echo "Full Nightly required jobs must all succeed"
+                exit 1
+              fi
+            done
+          fi
+          if [ "$PLAN_RESULT" != success ]; then
+            echo "Nightly plan job is not successful"
+            exit 1
+          fi
+          if [ "$SCOPE" != "$EXPECTED_SCOPE" ]; then
+            echo "Nightly plan scope does not match the requested scope"
+            exit 1
+          fi
+          if [ "$COVERAGE_REPORT_RESULT" != success ]; then
+            echo "Nightly coverage report job is not successful"
+            exit 1
+          fi
+          if [ "$TESTCONTAINERS_RESULT" != success ]; then
+            echo "Nightly Testcontainers job is not successful for the selected scope"
+            exit 1
+          fi
+          if [ "$SCOPE" = smoke ] && { [ "$DETEKT_RESULT" != success ] || [ "$TEST_CORE_RESULT" != success ]; }; then
+            echo "Smoke Nightly Detekt and core tests must succeed"
+            exit 1
+          fi
+          if { [ "$SCOPE" = full ] || [ "$SCOPE" = testcontainers ]; } && [ "$TESTCONTAINERS_SPRING_RESULT" != success ]; then
+            echo "Nightly Testcontainers Spring bridge is not successful for the selected scope"
+            exit 1
+          fi
+          if [ "$SCOPE" = full ] && [ "$TEST_DATA_RESULT" != success ]; then
+            echo "Full Nightly data tests are not successful"
+            exit 1
+          fi
+          if [ "$SCOPE" = full ] && [ "$TEST_SPRING_DOCKER_RESULT" != success ]; then
+            echo "Full Nightly Spring Docker tests are not successful"
             exit 1
           fi
           if [ "$SCOPE" = full ] && [ "$X64_GATE_RESULT" != success ]; then

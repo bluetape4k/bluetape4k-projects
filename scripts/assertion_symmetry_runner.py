@@ -40,20 +40,44 @@ MODULES = {
         "directory": Path("bluetape4k/core"),
     },
 }
-ASSERTIONS_OWNERS = (
+
+# Source-file renames must not silently change the published Java facade owner.
+# Keep this mapping explicit so the javap runner follows both the current source
+# names and the compatibility owners promised to existing consumers.
+ASSERTIONS_SOURCE_FACADE_OWNERS = {
+    "JavaDateTimesInstantZoned.kt": "DateTimesInstantZonedKt",
+    "JavaDateTimesLegacy.kt": "DateTimesLegacyKt",
+    "JavaDateTimesLocal.kt": "DateTimesLocalKt",
+    "JavaDurations.kt": "JavaDurationsKt",
+    "KotlinDurations.kt": "DurationAssertionsKt",
+}
+ASSERTIONS_COMMON_OWNERS = (
     "BasicKt",
     "ArraysKt",
     "CharSequencesKt",
     "CollectionsKt",
-    "DateTimesInstantZonedKt",
-    "DateTimesLegacyKt",
-    "DateTimesLocalKt",
     "MapsKt",
     "NumericalKt",
     "ReflectionKt",
     "InvokingBlock",
     "CoInvokingBlock",
 )
+ASSERTIONS_BASELINE_OWNERS = ASSERTIONS_COMMON_OWNERS + (
+    "JavaDateTimesInstantZonedKt",
+    "JavaDateTimesLegacyKt",
+    "JavaDateTimesLocalKt",
+    "JavaDurationsKt",
+    "KotlinDurationsKt",
+)
+ASSERTIONS_FINAL_OWNERS = ASSERTIONS_COMMON_OWNERS + (
+    ASSERTIONS_SOURCE_FACADE_OWNERS["JavaDateTimesInstantZoned.kt"],
+    ASSERTIONS_SOURCE_FACADE_OWNERS["JavaDateTimesLegacy.kt"],
+    ASSERTIONS_SOURCE_FACADE_OWNERS["JavaDateTimesLocal.kt"],
+    ASSERTIONS_SOURCE_FACADE_OWNERS["JavaDurations.kt"],
+    ASSERTIONS_SOURCE_FACADE_OWNERS["KotlinDurations.kt"],
+)
+# Keep the historical constant name available to callers that imported it.
+ASSERTIONS_OWNERS = ASSERTIONS_FINAL_OWNERS
 CORE_OWNERS = (
     "io.bluetape4k.javatimes.DurationSupportKt",
     "io.bluetape4k.support.KotlinDurationSupportKt",
@@ -66,13 +90,13 @@ BASELINE_TEST_CLASSES = {
         "ArraysTest",
         "CharSequencesTest",
         "CollectionsTest",
-        "DateTimesTest$InstantAssertions",
-        "DateTimesTest$ZonedDateTimeAssertions",
-        "DateTimesTest$OffsetDateTimeAssertions",
-        "DateTimesTest$LocalDateTimeAssertions",
-        "DateTimesTest$LocalDateAssertions",
-        "DateTimesTest$LocalTimeAssertions",
-        "DateTimesTest$JavaUtilDateAssertions",
+        "JavaDateTimesTest$InstantAssertions",
+        "JavaDateTimesTest$ZonedDateTimeAssertions",
+        "JavaDateTimesTest$OffsetDateTimeAssertions",
+        "JavaDateTimesTest$LocalDateTimeAssertions",
+        "JavaDateTimesTest$LocalDateAssertions",
+        "JavaDateTimesTest$LocalTimeAssertions",
+        "JavaDateTimesTest$JavaUtilDateAssertions",
         "MapsTest",
         "NumericalTest",
     ),
@@ -84,7 +108,13 @@ BASELINE_TEST_CLASSES = {
     ),
 }
 FINAL_TEST_CLASSES = {
-    "assertions": BASELINE_TEST_CLASSES["assertions"] + ("DurationAssertionsTest", "AssertionSymmetryTest"),
+    "assertions": BASELINE_TEST_CLASSES["assertions"] + (
+        "JavaDurationsTest",
+        "KotlinDurataionsTest",
+        "AssertionSymmetryTest",
+        "AssertionFacadeCompatibilityTest",
+        "AssertionJavaCompatibilityTest",
+    ),
     "core": BASELINE_TEST_CLASSES["core"],
 }
 
@@ -169,6 +199,12 @@ def write_json(path: Path, value: dict, *, replace: bool = False) -> None:
 
 def _fixed_alias_phase_is_valid(alias: str, phase: str) -> bool:
     return alias in ALIAS_PHASES and phase in ALIAS_PHASES[alias]
+
+
+def assertions_owners(phase: str) -> tuple[str, ...]:
+    if phase not in {"baseline", "final"}:
+        raise ValueError(f"unsupported assertions phase: {phase}")
+    return ASSERTIONS_BASELINE_OWNERS if phase == "baseline" else ASSERTIONS_FINAL_OWNERS
 
 
 def validate_request(alias: str, run_id: str, phase: str) -> None:
@@ -261,7 +297,7 @@ def build_steps(alias: str, phase: str, repository_root: Path) -> tuple[CommandS
         )
     if alias in {"javap-assertions", "javap-core"}:
         module = "assertions" if alias.endswith("assertions") else "core"
-        owners = ASSERTIONS_OWNERS + (("DurationAssertionsKt",) if phase == "final" else ()) if module == "assertions" else CORE_OWNERS
+        owners = assertions_owners(phase) if module == "assertions" else CORE_OWNERS
         package_prefix = "io.bluetape4k.assertions." if module == "assertions" else ""
         classpath = str(MODULES[module]["directory"] / "build/classes/kotlin/main")
         steps = []

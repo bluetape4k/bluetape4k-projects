@@ -1,5 +1,7 @@
 package io.bluetape4k.gradle
 
+import groovy.util.Node
+import groovy.xml.XmlParser
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import java.io.File
@@ -54,6 +56,65 @@ class PublishingSigningIntegrationTest {
             assertTrue(result.output.contains("Could not read PGP secret key"), "PGP 키 파싱 실패여야 한다")
         }
     }
+
+    @Test
+    fun `실제 dependency-management POM 생성에서 Maven 기본 type과 classifier 표현을 정규화한다`() {
+        withFixture { fixture ->
+            val project = fixture.mavenPomProject("maven-defaults")
+            val result = fixture.runner(
+                project,
+                "generatePomFileForReleasePublication",
+                pluginClasspath = fixture.dependencyManagementPluginClasspath(),
+            ).build()
+
+            assertEquals(
+                TaskOutcome.SUCCESS,
+                result.task(":generatePomFileForReleasePublication")?.outcome,
+                result.output,
+            )
+
+            val pom = XmlParser(false, false).parse(project.resolve("build/generated-pom.xml"))
+            val matches = managedDependencies(pom).filter { dependency ->
+                dependency.childText("groupId") == "com.example" &&
+                    dependency.childText("artifactId") == "library"
+            }
+
+            val dependency = matches.single()
+            assertEquals("1.0", dependency.childText("version"))
+            assertFalse(dependency.hasChildElement("type"))
+            assertFalse(dependency.hasChildElement("classifier"))
+        }
+    }
+
+    private fun managedDependencies(pom: Node): List<Node> =
+        pom.children()
+            .filterIsInstance<Node>()
+            .filter { it.elementName() == "dependencyManagement" }
+            .flatMap { dependencyManagement ->
+                dependencyManagement.children()
+                    .filterIsInstance<Node>()
+                    .filter { it.elementName() == "dependencies" }
+                    .flatMap { dependencies ->
+                        dependencies.children()
+                            .filterIsInstance<Node>()
+                            .filter { it.elementName() == "dependency" }
+                    }
+            }
+
+    private fun Node.childText(name: String): String =
+        children()
+            .filterIsInstance<Node>()
+            .firstOrNull { it.elementName() == name }
+            ?.text()
+            ?.trim()
+            .orEmpty()
+
+    private fun Node.hasChildElement(name: String): Boolean =
+        children()
+            .filterIsInstance<Node>()
+            .any { it.elementName() == name }
+
+    private fun Node.elementName(): String = name().toString().substringAfterLast('}')
 
     private fun withFixture(block: (SigningFixture) -> Unit) {
         // macOS 기본 임시 경로는 gpg-agent Unix 소켓 경로 제한을 넘을 수 있다.
@@ -130,12 +191,94 @@ class PublishingSigningIntegrationTest {
             return dir
         }
 
-        fun runner(project: File): GradleRunner = GradleRunner.create()
-            .withProjectDir(project)
-            .withTestKitDir(root.resolve("testkit"))
-            .withEnvironment(environment)
-            .withArguments("signReleasePublication", "--offline", "--no-configuration-cache",
-                "--no-build-cache", "--max-workers=1", "--console=plain", "--stacktrace")
+        fun mavenPomProject(name: String): File {
+            val dir = root.resolve(name).apply { mkdirs() }
+            dir.resolve("settings.gradle").writeText("rootProject.name = 'maven-pom-fixture'\n")
+            dir.resolve("payload.txt").writeText("합성 Maven POM fixture\n")
+            val classpath = listOf(PublishingSigningConfig::class.java, Unit::class.java)
+                .map { File(it.protectionDomain.codeSource.location.toURI()).absolutePath }
+                .joinToString(", ") { "'" + it.replace("\\", "\\\\").replace("'", "\\'") + "'" }
+            dir.resolve("build.gradle").writeText(
+                """
+                buildscript {
+                    dependencies {
+                        classpath files($classpath)
+                    }
+                }
+                plugins {
+                    id 'io.spring.dependency-management'
+                }
+                apply plugin: 'maven-publish'
+                apply plugin: 'signing'
+
+                group = 'com.example'
+                version = '1.0'
+
+                dependencyManagement {
+                    dependencies {
+                        dependency 'com.example:library:1.0'
+                    }
+                }
+
+                publishing {
+                    publications {
+                        release(MavenPublication) {
+                            artifact(file('payload.txt'))
+                            pom.withXml { xml ->
+                                def dependencies = xml.asNode()
+                                    .appendNode('dependencyManagement')
+                                    .appendNode('dependencies')
+                                def dependency = dependencies.appendNode('dependency')
+                                dependency.appendNode('groupId', 'com.example')
+                                dependency.appendNode('artifactId', 'library')
+                                dependency.appendNode('version', '1.0')
+                                dependency.appendNode('type', 'jar')
+                                dependency.appendNode('classifier', '')
+                            }
+                        }
+                    }
+                }
+
+                io.bluetape4k.gradle.PublishingSigningSupportKt.configurePublishingSigning(
+                    project, 'release', true, '서명 키가 필요합니다')
+                tasks.named('generatePomFileForReleasePublication') {
+                    destination = file('build/generated-pom.xml')
+                }
+                """.trimIndent() + "\n",
+            )
+            return dir
+        }
+
+        fun runner(
+            project: File,
+            vararg requestedTasks: String,
+            pluginClasspath: List<File> = emptyList(),
+        ): GradleRunner {
+            val tasks = requestedTasks.toList().ifEmpty { listOf("signReleasePublication") }
+            val arguments = tasks + listOf(
+                "--offline",
+                "--no-configuration-cache",
+                "--no-build-cache",
+                "--max-workers=1",
+                "--console=plain",
+                "--stacktrace",
+            )
+            val runner = GradleRunner.create()
+                .withProjectDir(project)
+                .withTestKitDir(root.resolve("testkit"))
+                .withEnvironment(environment)
+                .withArguments(*arguments.toTypedArray())
+            if (pluginClasspath.isNotEmpty()) {
+                runner.withPluginClasspath(pluginClasspath)
+            }
+            return runner
+        }
+
+        fun dependencyManagementPluginClasspath(): List<File> =
+            requireNotNull(System.getProperty("bluetape4k.test.dependency-management-plugin-classpath"))
+                .split(File.pathSeparator)
+                .filter(String::isNotBlank)
+                .map(::File)
 
         fun verify(signature: File, artifact: File, expectedSuccess: Boolean = true) {
             command(gpg, "--batch", "--verify", signature.absolutePath, artifact.absolutePath,

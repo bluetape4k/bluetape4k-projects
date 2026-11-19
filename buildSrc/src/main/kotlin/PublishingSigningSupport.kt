@@ -154,7 +154,9 @@ fun normalizeDependencyManagementDuplicates(pom: Node) {
                                     type = dependency.childText("type").ifBlank { "jar" },
                                     classifier = dependency.childText("classifier"),
                                 ),
-                                fingerprint = dependency.canonicalFingerprint(),
+                                fingerprint = dependency.canonicalFingerprint(
+                                    ignoredChildElements = setOf("type", "classifier"),
+                                ),
                             )
                         }
                 }
@@ -187,10 +189,13 @@ private fun Node.childText(name: String): String =
 
 private fun Node.elementName(): String = name().toString().substringAfterLast('}')
 
-private fun Node.canonicalFingerprint(): String {
+private fun Node.canonicalFingerprint(ignoredChildElements: Set<String> = emptySet()): String {
     val normalizedAttributes = (attributes() as Map<*, *>).entries
         .sortedBy { it.key.toString() }
     val normalizedChildren = children()
+        .filterNot { child ->
+            child is Node && child.elementName() in ignoredChildElements
+        }
         .mapNotNull { child ->
             when (child) {
                 is Node -> "N${child.canonicalFingerprint()}"

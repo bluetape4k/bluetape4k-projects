@@ -16,6 +16,10 @@ import nmcp.NmcpAggregationExtension
 import nmcp.NmcpExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.artifacts.component.ModuleComponentSelector
+import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
@@ -25,6 +29,254 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import java.io.File
+
+private val issue1895FirstPatchedOrgJsonVersion = "20260719"
+
+buildscript {
+    val issue1895FirstPatchedOrgJsonVersion = "20260719"
+    val issue1883Catalog = project.extensions
+        .getByType<VersionCatalogsExtension>()
+        .named("bt4k")
+    val issue1883FreemarkerVersion = issue1883Catalog.findVersion("freemarker").get().requiredVersion
+    val issue1883JsoupVersion = issue1883Catalog.findVersion("jsoup").get().requiredVersion
+    val issue1883JacksonVersion = issue1883Catalog.findVersion("jackson2").get().requiredVersion
+    val issue1883JacksonAnnotationsVersion =
+        issue1883Catalog.findVersion("jackson-annotations").get().requiredVersion
+    val issue1883AvroVersion = issue1883Catalog.findVersion("avro").get().requiredVersion
+    val issue1883GuavaVersion = issue1883Catalog.findVersion("guava").get().requiredVersion
+    val issue1883BcpgVersion = issue1883Catalog.findVersion("bouncycastle-bcpg").get().requiredVersion
+    val issue1883BcpkixVersion = issue1883Catalog.findVersion("bouncycastle-bcpkix").get().requiredVersion
+    val issue1883BcprovVersion = issue1883Catalog.findVersion("bouncycastle-bcprov").get().requiredVersion
+
+    val issue1883PluginClasspathConstraints = mapOf(
+        "org.freemarker:freemarker:" + issue1883FreemarkerVersion to
+            "Issue #1883: Dokka build-only FreeMarker를 패치 릴리스로 고정",
+        "org.jsoup:jsoup:" + issue1883JsoupVersion to
+            "Issue #1883: Dokka build-only jsoup을 패치 릴리스로 고정",
+        "com.fasterxml.jackson.core:jackson-annotations:" + issue1883JacksonAnnotationsVersion to
+            "Issue #1883: 플러그인 classpath Jackson annotations를 중앙 카탈로그에 정렬",
+        "com.fasterxml.jackson.core:jackson-core:" + issue1883JacksonVersion to
+            "Issue #1883: 플러그인 classpath Jackson core를 중앙 카탈로그에 정렬",
+        "com.fasterxml.jackson.core:jackson-databind:" + issue1883JacksonVersion to
+            "Issue #1883: 플러그인 classpath Jackson databind를 중앙 카탈로그에 정렬",
+        "com.fasterxml.jackson:jackson-bom:" + issue1883JacksonVersion to
+            "Issue #1883: 플러그인 classpath Jackson BOM을 중앙 카탈로그에 정렬",
+        "com.google.guava:guava:" + issue1883GuavaVersion to
+            "Issue #1883: 플러그인 classpath Guava를 중앙 카탈로그에 정렬",
+        "org.bouncycastle:bcpg-jdk18on:" + issue1883BcpgVersion to
+            "Issue #1883: 플러그인 classpath Bouncy Castle 구성요소를 패치 릴리스로 정렬",
+        "org.bouncycastle:bcpkix-jdk18on:" + issue1883BcpkixVersion to
+            "Issue #1883: 플러그인 classpath Bouncy Castle 구성요소를 패치 릴리스로 정렬",
+        "org.bouncycastle:bc-jdk18on-bom:" + issue1883BcprovVersion to
+            "Issue #1883: 플러그인 classpath Bouncy Castle BOM을 패치 릴리스로 고정",
+        "org.bouncycastle:bcprov-jdk18on:" + issue1883BcprovVersion to
+            "Issue #1883: 플러그인 classpath Bouncy Castle을 패치 릴리스로 고정",
+        "org.bouncycastle:bcutil-jdk18on:" + issue1883BcprovVersion to
+            "Issue #1883: 플러그인 classpath Bouncy Castle 구성요소를 패치 릴리스로 정렬",
+    )
+
+    val issue1883PluginClasspathMetadataRules: DependencyHandler.() -> Unit = {
+        components {
+            withModule("org.jetbrains.dokka:dokka-core") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                        add("com.fasterxml.jackson.module:jackson-module-kotlin:" + issue1883JacksonVersion)
+                        add("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:" + issue1883JacksonVersion)
+                    }
+                    withDependencyConstraints {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                    }
+                }
+            }
+            withModule("org.jetbrains.dokka:dokka-base") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group == "org.freemarker" ||
+                                dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                        removeAll { dependency ->
+                            dependency.group == "org.jsoup" && dependency.name == "jsoup"
+                        }
+                        add("org.freemarker:freemarker:" + issue1883FreemarkerVersion)
+                        add("com.fasterxml.jackson.module:jackson-module-kotlin:" + issue1883JacksonVersion)
+                        add("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:" + issue1883JacksonVersion)
+                        add("org.jsoup:jsoup:" + issue1883JsoupVersion)
+                    }
+                    withDependencyConstraints {
+                        removeAll { dependency ->
+                            dependency.group == "org.freemarker" ||
+                                dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                    }
+                }
+            }
+            withModule("org.jetbrains.dokka:analysis-markdown") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group == "org.jsoup" && dependency.name == "jsoup"
+                        }
+                        add("org.jsoup:jsoup:" + issue1883JsoupVersion)
+                    }
+                }
+            }
+            withModule("org.jetbrains.dokka:templating-plugin") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group == "org.jsoup" && dependency.name == "jsoup"
+                        }
+                        add("org.jsoup:jsoup:" + issue1883JsoupVersion)
+                    }
+                }
+            }
+            withModule("com.github.davidmc24.gradle.plugin:gradle-avro-plugin") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group == "org.apache.avro" && dependency.name == "avro-compiler"
+                        }
+                        add("org.apache.avro:avro-compiler:" + issue1883AvroVersion)
+                    }
+                    withDependencyConstraints {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                    }
+                }
+            }
+            withModule("org.apache.avro:avro") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                        add("com.fasterxml.jackson.core:jackson-annotations:" + issue1883JacksonAnnotationsVersion)
+                        add("com.fasterxml.jackson.core:jackson-core:" + issue1883JacksonVersion)
+                        add("com.fasterxml.jackson.core:jackson-databind:" + issue1883JacksonVersion)
+                    }
+                    withDependencyConstraints {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                    }
+                }
+            }
+            withModule("org.apache.avro:avro-compiler") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                        add("com.fasterxml.jackson.core:jackson-annotations:" + issue1883JacksonAnnotationsVersion)
+                        add("com.fasterxml.jackson.core:jackson-core:" + issue1883JacksonVersion)
+                        add("com.fasterxml.jackson.core:jackson-databind:" + issue1883JacksonVersion)
+                    }
+                    withDependencyConstraints {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                    }
+                }
+            }
+            withModule("com.google.cloud.tools:jib-gradle-plugin") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            (dependency.group == "com.google.guava" && dependency.name == "guava") ||
+                                (dependency.group == "com.fasterxml.jackson" && dependency.name == "jackson-bom")
+                        }
+                        add("com.google.guava:guava:" + issue1883GuavaVersion)
+                        add("com.fasterxml.jackson:jackson-bom:" + issue1883JacksonVersion)
+                    }
+                    withDependencyConstraints {
+                        removeAll { dependency ->
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                        }
+                    }
+                }
+            }
+            withModule("io.gatling:gatling-enterprise-plugin-commons") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group == "com.fasterxml.jackson.core" && dependency.name == "jackson-databind"
+                        }
+                        add("com.fasterxml.jackson.core:jackson-databind:" + issue1883JacksonVersion)
+                    }
+                }
+            }
+            withModule("org.jetbrains.intellij.deps:coverage-report") {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group == "org.freemarker" && dependency.name == "freemarker"
+                        }
+                        add("org.freemarker:freemarker:" + issue1883FreemarkerVersion)
+                    }
+                }
+            }
+        }
+    }
+
+    val issue1895PluginClasspathMetadataRules: DependencyHandler.() -> Unit = {
+        val issue1895OrgJsonMetadataRuleModules = setOf(
+            "redis.clients:jedis",
+            "tools.jackson.datatype:jackson-datatype-json-org",
+            "io.swagger:swagger-codegen",
+            "io.swagger.codegen.v3:swagger-codegen",
+        )
+
+        components {
+            issue1895OrgJsonMetadataRuleModules.forEach { module ->
+                withModule(module) {
+                    allVariants {
+                        withDependencies {
+                            removeAll { dependency ->
+                                dependency.group == "org.json" && dependency.name == "json"
+                            }
+                            add("org.json:json:" + issue1895FirstPatchedOrgJsonVersion)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    dependencies {
+        issue1883PluginClasspathMetadataRules()
+        issue1895PluginClasspathMetadataRules()
+        constraints {
+            issue1883PluginClasspathConstraints.forEach { (coordinate, reason) ->
+                classpath(coordinate) {
+                    because(reason)
+                }
+            }
+        }
+    }
+
+    project.gradle.beforeProject {
+        buildscript {
+            dependencies {
+                issue1883PluginClasspathMetadataRules()
+                issue1895PluginClasspathMetadataRules()
+                constraints {
+                    issue1883PluginClasspathConstraints.forEach { (coordinate, reason) ->
+                        classpath(coordinate) {
+                            because(reason)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 plugins {
     base
@@ -56,8 +308,6 @@ plugins {
     alias(bt4k.plugins.nmcp.aggregation)
     alias(bt4k.plugins.nmcp) apply false
 
-    alias(bt4k.plugins.dependency.check)
-
     // 테스트 커버리지 (Kotlin inline/suspend 정확 지원)
     alias(bt4k.plugins.kover)
 }
@@ -78,6 +328,281 @@ val excludeBenchmarks = providers.gradleProperty("excludeBenchmarks")
     .map(String::toBoolean)
     .orElse(false)
 
+val bt4kCatalog = extensions.getByType<org.gradle.api.artifacts.VersionCatalogsExtension>().named("bt4k")
+fun bt4kVersion(alias: String): String {
+    val version = bt4kCatalog.findVersion(alias).get()
+    return version.requiredVersion
+        .ifBlank { version.preferredVersion }
+        .ifBlank { version.strictVersion }
+}
+
+private val issue1883KotlinBouncyCastleVersionAliases = mapOf(
+    "bc-jdk18on-bom" to "bouncycastle-bcprov",
+    "bcpg-jdk18on" to "bouncycastle-bcpg",
+    "bcpkix-jdk18on" to "bouncycastle-bcpkix",
+    "bcprov-jdk18on" to "bouncycastle-bcprov",
+    "bcutil-jdk18on" to "bouncycastle-bcprov",
+)
+
+// 알려진 org.json producer의 취약한 전이 요청이 published graph에 남지 않게 한다.
+// 중앙 catalog에 아직 org-json alias가 없으므로 shared security train에 alias가
+// 추가될 때까지 이 좁은 metadata rule로 첫 패치 릴리스를 고정한다.
+val issue1895ProjectMetadataRules: DependencyHandler.() -> Unit = {
+    val issue1895OrgJsonMetadataRuleModules = setOf(
+        "redis.clients:jedis",
+        "tools.jackson.datatype:jackson-datatype-json-org",
+        "io.swagger:swagger-codegen",
+        "io.swagger.codegen.v3:swagger-codegen",
+    )
+
+    components {
+        issue1895OrgJsonMetadataRuleModules.forEach { module ->
+            withModule(module) {
+                allVariants {
+                    withDependencies {
+                        removeAll { dependency ->
+                            dependency.group == "org.json" && dependency.name == "json"
+                        }
+                        add("org.json:json:" + issue1895FirstPatchedOrgJsonVersion)
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Dependency Submission also walks published project configurations. Keep the
+// same metadata rewrites on those configurations so a selected patched version
+// does not hide an old requested edge in the hosted graph.
+val issue1883ProjectMetadataRules: DependencyHandler.() -> Unit = {
+    val issue1883ProjectFreemarkerVersion = bt4kVersion("freemarker")
+    val issue1883ProjectJsoupVersion = bt4kVersion("jsoup")
+    val issue1883ProjectJacksonVersion = bt4kVersion("jackson2")
+    val issue1883ProjectAvroVersion = bt4kVersion("avro")
+    val issue1883ProjectGuavaVersion = bt4kVersion("guava")
+    val issue1883ProjectBcprovVersion = bt4kVersion("bouncycastle-bcprov")
+
+    components {
+        withModule("org.jetbrains.dokka:dokka-core") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                    add("com.fasterxml.jackson.module:jackson-module-kotlin:" + issue1883ProjectJacksonVersion)
+                    add("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:" + issue1883ProjectJacksonVersion)
+                }
+                withDependencyConstraints {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                }
+            }
+        }
+        withModule("org.jetbrains.dokka:dokka-base") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "org.freemarker" ||
+                            dependency.group == "org.jsoup" && dependency.name == "jsoup" ||
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                    add("org.freemarker:freemarker:" + issue1883ProjectFreemarkerVersion)
+                    add("org.jsoup:jsoup:" + issue1883ProjectJsoupVersion)
+                    add("com.fasterxml.jackson.module:jackson-module-kotlin:" + issue1883ProjectJacksonVersion)
+                    add("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:" + issue1883ProjectJacksonVersion)
+                }
+                withDependencyConstraints {
+                    removeAll { dependency ->
+                        dependency.group == "org.freemarker" ||
+                            dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                }
+            }
+        }
+        withModule("org.jetbrains.dokka:analysis-markdown") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "org.jsoup" && dependency.name == "jsoup"
+                    }
+                    add("org.jsoup:jsoup:" + issue1883ProjectJsoupVersion)
+                }
+            }
+        }
+        withModule("org.jetbrains.dokka:templating-plugin") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "org.jsoup" && dependency.name == "jsoup"
+                    }
+                    add("org.jsoup:jsoup:" + issue1883ProjectJsoupVersion)
+                }
+            }
+        }
+        withModule("com.github.davidmc24.gradle.plugin:gradle-avro-plugin") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "org.apache.avro" && dependency.name == "avro-compiler"
+                    }
+                    add("org.apache.avro:avro-compiler:" + issue1883ProjectAvroVersion)
+                }
+                withDependencyConstraints {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                }
+            }
+        }
+        withModule("org.apache.avro:avro") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                    add("com.fasterxml.jackson.core:jackson-annotations:" + bt4kVersion("jackson-annotations"))
+                    add("com.fasterxml.jackson.core:jackson-core:" + issue1883ProjectJacksonVersion)
+                    add("com.fasterxml.jackson.core:jackson-databind:" + issue1883ProjectJacksonVersion)
+                }
+                withDependencyConstraints {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                }
+            }
+        }
+        withModule("org.apache.avro:avro-compiler") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                    add("com.fasterxml.jackson.core:jackson-annotations:" + bt4kVersion("jackson-annotations"))
+                    add("com.fasterxml.jackson.core:jackson-core:" + issue1883ProjectJacksonVersion)
+                    add("com.fasterxml.jackson.core:jackson-databind:" + issue1883ProjectJacksonVersion)
+                }
+                withDependencyConstraints {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                }
+            }
+        }
+        withModule("com.google.cloud.tools:jib-gradle-plugin") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        (dependency.group == "com.google.guava" && dependency.name == "guava") ||
+                            (dependency.group == "com.fasterxml.jackson" && dependency.name == "jackson-bom")
+                    }
+                    add("com.google.guava:guava:" + issue1883ProjectGuavaVersion)
+                    add("com.fasterxml.jackson:jackson-bom:" + issue1883ProjectJacksonVersion)
+                }
+                withDependencyConstraints {
+                    removeAll { dependency ->
+                        dependency.group?.startsWith("com.fasterxml.jackson") == true
+                    }
+                }
+            }
+        }
+        withModule("io.gatling:gatling-enterprise-plugin-commons") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "com.fasterxml.jackson.core" && dependency.name == "jackson-databind"
+                    }
+                    add("com.fasterxml.jackson.core:jackson-databind:" + issue1883ProjectJacksonVersion)
+                }
+            }
+        }
+        withModule("org.jetbrains.intellij.deps:coverage-report") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "org.freemarker" && dependency.name == "freemarker"
+                    }
+                    add("org.freemarker:freemarker:" + issue1883ProjectFreemarkerVersion)
+                }
+            }
+        }
+        withModule("org.wiremock:wiremock") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "com.google.guava" && dependency.name == "guava"
+                    }
+                    add("com.google.guava:guava:" + issue1883ProjectGuavaVersion)
+                }
+            }
+        }
+        withModule("co.elastic.clients:elasticsearch-java") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        dependency.group == "com.fasterxml.jackson.core" &&
+                            (dependency.name == "jackson-core" || dependency.name == "jackson-databind")
+                    }
+                    add("com.fasterxml.jackson.core:jackson-core:" + issue1883ProjectJacksonVersion)
+                    add("com.fasterxml.jackson.core:jackson-databind:" + issue1883ProjectJacksonVersion)
+                }
+            }
+        }
+        withModule("io.minio:minio") {
+            allVariants {
+                withDependencies {
+                    removeAll { dependency ->
+                        (dependency.group == "org.bouncycastle" && dependency.name == "bcprov-jdk18on") ||
+                            (dependency.group == "com.google.guava" && dependency.name == "guava")
+                    }
+                    add("org.bouncycastle:bcprov-jdk18on:" + issue1883ProjectBcprovVersion)
+                    add("com.google.guava:guava:" + issue1883ProjectGuavaVersion)
+                }
+            }
+        }
+    }
+}
+
+fun dottedReleaseComponents(version: String): List<Int> {
+    val components = version.split('.')
+    require(components.isNotEmpty() && components.all(String::isNotEmpty)) {
+        "Expected a dotted-release version, found: $version"
+    }
+    return components.map { component ->
+        require(component.all(Char::isDigit)) {
+            "Expected a dotted-release version, found: $version"
+        }
+        component.toIntOrNull()
+            ?: error("Dotted-release version component is out of range: $version")
+    }
+}
+
+fun isAtLeastDottedRelease(version: String, minimum: String): Boolean {
+    val actual = dottedReleaseComponents(version)
+    val required = dottedReleaseComponents(minimum)
+    for (index in 0 until maxOf(actual.size, required.size)) {
+        val actualComponent = actual.getOrElse(index) { 0 }
+        val requiredComponent = required.getOrElse(index) { 0 }
+        if (actualComponent != requiredComponent) {
+            return actualComponent > requiredComponent
+        }
+    }
+    return true
+}
+
+require(isAtLeastDottedRelease(bt4kVersion("guava").removeSuffix("-jre"), "33.7.2")) {
+    "Issue #1887 requires the central Guava catalog to be at least 33.7.2-jre"
+}
+
+val dokkaJsoupVersion = bt4kVersion("jsoup")
+require(isAtLeastDottedRelease(dokkaJsoupVersion, "1.23.1")) {
+    "Dokka jsoup version $dokkaJsoupVersion is below the first patched release 1.23.1"
+}
+val dokkaFreemarkerVersion = bt4kVersion("freemarker")
+require(isAtLeastDottedRelease(dokkaFreemarkerVersion, "2.3.35")) {
+    "Dokka FreeMarker version $dokkaFreemarkerVersion is below the first patched release 2.3.35"
+}
+
 abstract class TestcontainersMutexService: BuildService<BuildServiceParameters.None>
 
 val testcontainersMutex = gradle.sharedServices.registerIfAbsent(
@@ -91,6 +616,11 @@ allprojects {
     group = projectGroup
     version = baseVersion + snapshotVersion
 
+    dependencies {
+        issue1883ProjectMetadataRules()
+        issue1895ProjectMetadataRules()
+    }
+
     repositories {
         mavenCentral()
         google()
@@ -102,14 +632,575 @@ allprojects {
 
     configurations.matching { it.name.startsWith("dokka") }.configureEach {
         resolutionStrategy.eachDependency {
-            if (
-                requested.group == "org.jsoup" &&
-                requested.name == "jsoup" &&
-                requested.version == "1.16.1"
-            ) {
-                useVersion("1.23.1")
-                because("CVE-2026-71497: Dokka tooling must use the first patched jsoup release")
+            when (requested.group to requested.name) {
+                "org.jsoup" to "jsoup" -> {
+                    useVersion(dokkaJsoupVersion)
+                    because("Dokka tooling must use the centrally managed jsoup version")
+                }
+                "org.freemarker" to "freemarker" -> {
+                    useVersion(dokkaFreemarkerVersion)
+                    because("Dokka tooling must use the centrally managed FreeMarker version")
+                }
             }
+        }
+    }
+
+    configurations.matching { it.name == "kotlinBouncyCastleConfiguration" }.configureEach {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "org.bouncycastle" &&
+                requested.name in issue1883KotlinBouncyCastleVersionAliases
+            ) {
+                useVersion(
+                    bt4kVersion(issue1883KotlinBouncyCastleVersionAliases.getValue(requested.name)),
+                )
+                because("Issue #1883: Kotlin build-only Bouncy Castle validation configuration must use the central security train")
+            }
+        }
+
+        withDependencies {
+            val requestedBouncyCastleModules = asSequence()
+                .filter { dependency ->
+                    dependency.group == "org.bouncycastle" &&
+                        dependency.name in issue1883KotlinBouncyCastleVersionAliases
+                }
+                .map { dependency -> dependency.name }
+                .toSet()
+
+            removeAll { dependency ->
+                dependency.group == "org.bouncycastle" &&
+                    dependency.name in requestedBouncyCastleModules
+            }
+
+            requestedBouncyCastleModules.forEach { module ->
+                add(
+                    project.dependencies.create(
+                        "org.bouncycastle:$module:" +
+                            bt4kVersion(issue1883KotlinBouncyCastleVersionAliases.getValue(module)),
+                    ),
+                )
+            }
+        }
+    }
+}
+
+private val issue1883ForbiddenRequestedCoordinates = setOf(
+    "org.jsoup:jsoup:1.16.1",
+    "org.freemarker:freemarker:2.3.32",
+    "com.fasterxml.jackson.core:jackson-annotations:2.15.3",
+    "com.fasterxml.jackson.core:jackson-core:2.15.3",
+    "com.fasterxml.jackson.core:jackson-core:2.20.0",
+    "com.fasterxml.jackson.core:jackson-databind:2.14.2",
+    "com.fasterxml.jackson.core:jackson-databind:2.15.3",
+    "com.fasterxml.jackson.core:jackson-databind:2.20.0",
+    "com.fasterxml.jackson.core:jackson-annotations:2.22.2",
+    "com.fasterxml.jackson.core:jackson-core:2.22.2",
+    "com.fasterxml.jackson.core:jackson-databind:2.22.2",
+    "com.fasterxml.jackson:jackson-bom:2.22.2",
+    "com.google.guava:guava:29.0-jre",
+    "com.google.guava:guava:30.1.1-jre",
+    "com.google.guava:guava:31.0.1-jre",
+    "com.google.guava:guava:32.1.2-jre",
+    "com.google.guava:guava:33.5.0-jre",
+    "com.google.guava:guava:33.6.0-jre",
+    "org.apache.avro:avro-compiler:1.11.3",
+    "org.bouncycastle:bc-jdk18on-bom:1.84",
+    "org.bouncycastle:bcpg-jdk18on:1.84",
+    "org.bouncycastle:bcpkix-jdk18on:1.84",
+    "org.bouncycastle:bcprov-jdk18on:1.84",
+    "org.bouncycastle:bcutil-jdk18on:1.84",
+)
+
+private val issue1895ForbiddenRequestedCoordinates = setOf(
+    "org.json:json:20231013",
+    "org.json:json:20250107",
+    "org.json:json:20251224",
+)
+
+private fun issue1895IsVulnerableCoordinate(
+    group: String,
+    name: String,
+    version: String,
+): Boolean {
+    if (group != "org.json" || name != "json") {
+        return false
+    }
+
+    return "$group:$name:$version" in issue1895ForbiddenRequestedCoordinates ||
+        version.toIntOrNull()?.let { it < issue1895FirstPatchedOrgJsonVersion.toInt() } ?: true
+}
+
+private val issue1895OrgJsonCoordinateFixtures = mapOf(
+    "org.json:json:20251224" to true,
+    "org.json:json:20260718" to true,
+    "org.json:json:20260719" to false,
+    "org.json:json:20260719+" to true,
+    "org.json:json:<unspecified>" to true,
+)
+
+issue1895OrgJsonCoordinateFixtures.forEach { (coordinate, expectedVulnerable) ->
+    val parts = coordinate.split(":", limit = 3)
+    check(parts.size == 3 && issue1895IsVulnerableCoordinate(parts[0], parts[1], parts[2]) == expectedVulnerable) {
+        "Issue #1895 org.json coordinate guard regression for $coordinate"
+    }
+}
+
+private fun issue1883GuavaRequestedVersionIsVulnerable(version: String): Boolean {
+    val normalizedVersion = version.removeSuffix("-jre")
+    return runCatching {
+        !isAtLeastDottedRelease(normalizedVersion, "33.7.2")
+    }.getOrDefault(true)
+}
+
+private fun issue1883IsForbiddenRequestedCoordinate(coordinate: String): Boolean {
+    if (coordinate in issue1883ForbiddenRequestedCoordinates) {
+        return true
+    }
+
+    val parts = coordinate.split(":", limit = 3)
+    return parts.size == 3 &&
+        parts[0] == "com.google.guava" &&
+        parts[1] == "guava" &&
+        issue1883GuavaRequestedVersionIsVulnerable(parts[2])
+}
+
+private val issue1883GuavaRequestedCoordinateFixtures = mapOf(
+    "com.google.guava:guava:33.7.1-jre" to true,
+    "com.google.guava:guava:33.+" to true,
+    "com.google.guava:guava:<unspecified>" to true,
+    "com.google.guava:guava:33.7.2-jre" to false,
+)
+
+issue1883GuavaRequestedCoordinateFixtures.forEach { (coordinate, expectedForbidden) ->
+    check(issue1883IsForbiddenRequestedCoordinate(coordinate) == expectedForbidden) {
+        "Issue #1887 Guava coordinate guard regression for $coordinate"
+    }
+}
+
+private val issue1883ProjectConfigurationScopes = listOf(
+    "compileClasspath" to "runtime",
+    "runtimeClasspath" to "runtime",
+    "testCompileClasspath" to "test-only",
+    "testRuntimeClasspath" to "test-only",
+    "kotlinBouncyCastleConfiguration" to "build-only",
+    "apiElements" to "published",
+    "runtimeElements" to "published",
+)
+
+private data class Issue1883ConfigurationScope(
+    val owner: Project,
+    val configuration: org.gradle.api.artifacts.Configuration,
+    val scope: String,
+)
+
+private fun issue1883Coordinate(
+    group: String?,
+    name: String?,
+    version: String?,
+): String? {
+    if (group.isNullOrBlank() || name.isNullOrBlank()) {
+        return null
+    }
+    val requestedVersion = version ?: "<unspecified>"
+    return "$group:$name:${requestedVersion.takeIf { it.isNotBlank() } ?: "<unspecified>"}"
+}
+
+private fun issue1883PublishedRequestedCoordinates(
+    owner: Project,
+    configurationScope: String,
+    configuration: org.gradle.api.artifacts.Configuration,
+): List<String> {
+    val declaredCoordinates = (
+        configuration.allDependencies.mapNotNull { dependency ->
+            issue1883Coordinate(dependency.group, dependency.name, dependency.version)
+        } + configuration.allDependencyConstraints.mapNotNull { constraint ->
+            issue1883Coordinate(constraint.group, constraint.name, constraint.version)
+        }
+        ).distinct()
+
+    return declaredCoordinates.mapNotNull { coordinate ->
+        coordinate.takeIf(::issue1883IsForbiddenRequestedCoordinate)?.let {
+            owner.path + ":" + configurationScope + ":" + configuration.name + " -> " + it
+        }
+    }
+}
+
+private val issue1883RepresentativeProjects = listOf(
+    ":bluetape4k-core",
+    ":bluetape4k-avro",
+    ":bluetape4k-mock-web-server",
+    ":bluetape4k-mock-webflux-server",
+    ":bluetape4k-testcontainers",
+    ":bluetape4k-jwt",
+    ":bluetape4k-nats",
+)
+
+private val issue1895RepresentativeProjects =
+    (issue1883RepresentativeProjects + ":bluetape4k-ktor-openapi" + ":bluetape4k-jackson3").distinct()
+
+private fun issue1883ForbiddenViolations(
+    owner: Project,
+    configurationScope: String,
+    configuration: org.gradle.api.artifacts.Configuration,
+): List<String> {
+    if (!configuration.isCanBeResolved) {
+        return if (configuration.isCanBeConsumed) {
+            issue1883PublishedRequestedCoordinates(owner, configurationScope, configuration)
+        } else {
+            emptyList()
+        }
+    }
+
+    val directViolations = configuration.incoming.resolutionResult.root.dependencies.mapNotNull { dependency ->
+        val requested = dependency.requested as? ModuleComponentSelector ?: return@mapNotNull null
+        val coordinate = issue1883Coordinate(requested.group, requested.module, requested.version)
+            ?: return@mapNotNull null
+        coordinate.takeIf(::issue1883IsForbiddenRequestedCoordinate)?.let {
+            owner.path + ":" + configurationScope + ":" + configuration.name + " -> " + it
+        }
+    }
+    val historicalTransitiveViolations = configuration.incoming.resolutionResult.allDependencies.mapNotNull { dependency ->
+        val requested = dependency.requested as? ModuleComponentSelector ?: return@mapNotNull null
+        val coordinate = issue1883Coordinate(requested.group, requested.module, requested.version)
+            ?: return@mapNotNull null
+        coordinate.takeIf { it in issue1883ForbiddenRequestedCoordinates }?.let {
+            owner.path + ":" + configurationScope + ":" + configuration.name + " -> " + it
+        }
+    }
+    return (directViolations + historicalTransitiveViolations).distinct()
+}
+
+private fun issue1895RequestedViolations(
+    owner: Project,
+    configurationScope: String,
+    configuration: org.gradle.api.artifacts.Configuration,
+): List<String> {
+    if (!configuration.isCanBeResolved) {
+        return emptyList()
+    }
+
+    return configuration.incoming.resolutionResult.allDependencies.mapNotNull { dependency ->
+        val requested = dependency.requested as? ModuleComponentSelector ?: return@mapNotNull null
+        if (!issue1895IsVulnerableCoordinate(requested.group, requested.module, requested.version)) {
+            return@mapNotNull null
+        }
+        owner.path + ":" + configurationScope + ":" + configuration.name +
+            " -> requested " + requested.group + ":" + requested.module + ":" + requested.version
+    }.distinct()
+}
+
+private fun issue1895PublishedRequestedCoordinates(
+    owner: Project,
+    configurationScope: String,
+    configuration: org.gradle.api.artifacts.Configuration,
+): List<String> {
+    val declaredCoordinates = (
+        configuration.allDependencies.mapNotNull { dependency ->
+            issue1883Coordinate(dependency.group, dependency.name, dependency.version)
+        } + configuration.allDependencyConstraints.mapNotNull { constraint ->
+            issue1883Coordinate(constraint.group, constraint.name, constraint.version)
+        }
+        ).distinct()
+
+    return declaredCoordinates.mapNotNull { coordinate ->
+        val parts = coordinate.split(":", limit = 3)
+        if (parts.size != 3 || !issue1895IsVulnerableCoordinate(parts[0], parts[1], parts[2])) {
+            return@mapNotNull null
+        }
+        owner.path + ":" + configurationScope + ":" + configuration.name + " -> requested " + coordinate
+    }
+}
+
+private fun issue1895SelectedViolations(
+    owner: Project,
+    configurationScope: String,
+    configuration: org.gradle.api.artifacts.Configuration,
+): List<String> {
+    if (!configuration.isCanBeResolved) {
+        return emptyList()
+    }
+
+    return configuration.incoming.resolutionResult.allDependencies.mapNotNull { dependency ->
+        val selected = (dependency as? ResolvedDependencyResult)?.selected
+            ?: return@mapNotNull null
+        val moduleVersion = selected.moduleVersion ?: return@mapNotNull null
+        if (!issue1895IsVulnerableCoordinate(moduleVersion.group, moduleVersion.name, moduleVersion.version)) {
+            return@mapNotNull null
+        }
+        owner.path + ":" + configurationScope + ":" + configuration.name +
+            " -> selected " + moduleVersion.group + ":" + moduleVersion.name + ":" + moduleVersion.version
+    }.distinct()
+}
+
+private fun issue1895DependencyViolations(
+    owner: Project,
+    configurationScope: String,
+    configuration: org.gradle.api.artifacts.Configuration,
+): List<String> {
+    if (!configuration.isCanBeResolved) {
+        return if (configuration.isCanBeConsumed) {
+            issue1895PublishedRequestedCoordinates(owner, configurationScope, configuration)
+        } else {
+            emptyList()
+        }
+    }
+
+    return (issue1895RequestedViolations(owner, configurationScope, configuration) +
+        issue1895SelectedViolations(owner, configurationScope, configuration)).distinct()
+}
+
+val issue1883ProjectGraphCheckTasks = issue1883RepresentativeProjects.mapNotNull { projectPath ->
+    findProject(projectPath)?.tasks?.register("issue1883ProjectDependencyGraphCheck") {
+        group = LifecycleBasePlugin.VERIFICATION_GROUP
+        description = "Checks Issue #1883 requested coordinates for this project's dependency scopes."
+
+        doLast {
+            val candidate = project(projectPath)
+            val scopeLines = mutableListOf<String>()
+            val violations = mutableListOf<String>()
+            val buildscriptConfiguration = candidate.buildscript.configurations.findByName("classpath")
+            when {
+                buildscriptConfiguration == null -> scopeLines +=
+                    "${candidate.path}:build-only:classpath:absent"
+
+                !buildscriptConfiguration.isCanBeResolved -> scopeLines +=
+                    "${candidate.path}:build-only:classpath:non-resolvable"
+
+                else -> {
+                    scopeLines += "${candidate.path}:build-only:classpath:resolved"
+                    violations += issue1883ForbiddenViolations(
+                        candidate,
+                        "build-only",
+                        buildscriptConfiguration,
+                    )
+                }
+            }
+            for ((configurationName, configurationScope) in issue1883ProjectConfigurationScopes) {
+                val configuration = candidate.configurations.findByName(configurationName)
+                when {
+                    configuration == null -> scopeLines +=
+                        "${candidate.path}:$configurationScope:$configurationName:absent"
+
+                    !configuration.isCanBeResolved && configuration.isCanBeConsumed -> {
+                        val declarationCount =
+                            configuration.allDependencies.count() + configuration.allDependencyConstraints.count()
+                        scopeLines +=
+                            "${candidate.path}:$configurationScope:$configurationName:non-resolvable-declarations=$declarationCount"
+                        violations += issue1883PublishedRequestedCoordinates(
+                            candidate,
+                            configurationScope,
+                            configuration,
+                        )
+                    }
+
+                    !configuration.isCanBeResolved -> scopeLines +=
+                        "${candidate.path}:$configurationScope:$configurationName:non-resolvable"
+
+                    else -> {
+                        scopeLines += "${candidate.path}:$configurationScope:$configurationName:resolved"
+                        violations += issue1883ForbiddenViolations(candidate, configurationScope, configuration)
+                    }
+                }
+            }
+
+            val reportFile = candidate.layout.buildDirectory
+                .file("reports/issue1883/${candidate.name}-dependency-graph.txt")
+                .get()
+                .asFile
+            reportFile.parentFile.mkdirs()
+            reportFile.writeText(
+                (scopeLines + violations.map { "VIOLATION $it" }).joinToString("\n") + "\n",
+            )
+        }
+    }
+}
+
+tasks.register("issue1883DependencyGraphCheck") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Rejects Issue #1883 vulnerable requested coordinates in representative plugin and project graphs."
+    dependsOn(issue1883ProjectGraphCheckTasks)
+
+    doLast {
+        val rootBuildscript = Issue1883ConfigurationScope(
+            owner = rootProject,
+            configuration = rootProject.buildscript.configurations.getByName("classpath"),
+            scope = "build-only",
+        )
+        val rootViolations = issue1883ForbiddenViolations(
+            rootBuildscript.owner,
+            rootBuildscript.scope,
+            rootBuildscript.configuration,
+        )
+        val rootScopeLine = if (rootBuildscript.configuration.isCanBeResolved) {
+            "${rootProject.path}:build-only:classpath:resolved"
+        } else {
+            "${rootProject.path}:build-only:classpath:non-resolvable"
+        }
+        val missingRepresentativeProjects = issue1883RepresentativeProjects.filter { findProject(it) == null }
+        check(missingRepresentativeProjects.isEmpty()) {
+            "Issue #1883 missing representative projects: " + missingRepresentativeProjects.joinToString(", ")
+        }
+        val projectReports = issue1883RepresentativeProjects.map { projectPath ->
+            requireNotNull(findProject(projectPath))
+                .layout.buildDirectory
+                .file("reports/issue1883/${projectPath.substringAfterLast(':')}-dependency-graph.txt")
+                .get()
+                .asFile
+        }
+        val missingProjectReports = projectReports.filterNot(File::isFile)
+        check(missingProjectReports.isEmpty()) {
+            "Issue #1883 missing project graph reports: " +
+                missingProjectReports.joinToString(", ") { it.absolutePath }
+        }
+        val scopeLines = projectReports.flatMap { reportFile ->
+            reportFile.readLines()
+        }
+
+        logger.lifecycle(
+            "Issue #1883 inspected graph scopes:\n" +
+                (listOf(rootScopeLine) + scopeLines.filterNot { it.startsWith("VIOLATION ") })
+                    .joinToString("\n"),
+        )
+
+        val violations = (rootViolations + scopeLines
+            .filter { it.startsWith("VIOLATION ") }
+            .map { it.removePrefix("VIOLATION ") })
+            .distinct()
+
+        check(violations.isEmpty()) {
+            "Issue #1883 forbidden requested coordinates remain:\n" + violations.joinToString("\n")
+        }
+    }
+}
+
+val issue1895ProjectGraphCheckTasks = issue1895RepresentativeProjects.mapNotNull { projectPath ->
+    findProject(projectPath)?.tasks?.register("issue1895ProjectDependencyGraphCheck") {
+        group = LifecycleBasePlugin.VERIFICATION_GROUP
+        description = "Checks Issue #1895 requested and selected org.json coordinates for this project's dependency scopes."
+
+        doLast {
+            val candidate = project(projectPath)
+            val scopeLines = mutableListOf<String>()
+            val violations = mutableListOf<String>()
+            val buildscriptConfiguration = candidate.buildscript.configurations.findByName("classpath")
+            when {
+                buildscriptConfiguration == null -> scopeLines +=
+                    "${candidate.path}:build-only:classpath:absent"
+
+                !buildscriptConfiguration.isCanBeResolved && buildscriptConfiguration.isCanBeConsumed -> {
+                    val declarationCount =
+                        buildscriptConfiguration.allDependencies.count() +
+                            buildscriptConfiguration.allDependencyConstraints.count()
+                    scopeLines +=
+                        "${candidate.path}:build-only:classpath:non-resolvable-declarations=$declarationCount"
+                    violations += issue1895PublishedRequestedCoordinates(
+                        candidate,
+                        "build-only",
+                        buildscriptConfiguration,
+                    )
+                }
+
+                !buildscriptConfiguration.isCanBeResolved -> scopeLines +=
+                    "${candidate.path}:build-only:classpath:non-resolvable"
+
+                else -> {
+                    scopeLines += "${candidate.path}:build-only:classpath:resolved"
+                    violations += issue1895DependencyViolations(
+                        candidate,
+                        "build-only",
+                        buildscriptConfiguration,
+                    )
+                }
+            }
+            for ((configurationName, configurationScope) in issue1883ProjectConfigurationScopes) {
+                val configuration = candidate.configurations.findByName(configurationName)
+                when {
+                    configuration == null -> scopeLines +=
+                        "${candidate.path}:$configurationScope:$configurationName:absent"
+
+                    !configuration.isCanBeResolved && configuration.isCanBeConsumed -> {
+                        val declarationCount =
+                            configuration.allDependencies.count() + configuration.allDependencyConstraints.count()
+                        scopeLines +=
+                            "${candidate.path}:$configurationScope:$configurationName:non-resolvable-declarations=$declarationCount"
+                        violations += issue1895PublishedRequestedCoordinates(
+                            candidate,
+                            configurationScope,
+                            configuration,
+                        )
+                    }
+
+                    !configuration.isCanBeResolved -> scopeLines +=
+                        "${candidate.path}:$configurationScope:$configurationName:non-resolvable"
+
+                    else -> {
+                        scopeLines += "${candidate.path}:$configurationScope:$configurationName:resolved"
+                        violations += issue1895DependencyViolations(candidate, configurationScope, configuration)
+                    }
+                }
+            }
+
+            val reportFile = candidate.layout.buildDirectory
+                .file("reports/issue1895/${candidate.name}-dependency-graph.txt")
+                .get()
+                .asFile
+            reportFile.parentFile.mkdirs()
+            reportFile.writeText(
+                (scopeLines + violations.map { "VIOLATION $it" }).joinToString("\n") + "\n",
+            )
+        }
+    }
+}
+
+tasks.register("issue1895DependencyGraphCheck") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Rejects Issue #1895 vulnerable org.json coordinates in representative plugin and project graphs."
+    dependsOn(issue1895ProjectGraphCheckTasks)
+
+    doLast {
+        val rootBuildscript = Issue1883ConfigurationScope(
+            owner = rootProject,
+            configuration = rootProject.buildscript.configurations.getByName("classpath"),
+            scope = "build-only",
+        )
+        val rootViolations = issue1895DependencyViolations(
+            rootBuildscript.owner,
+            rootBuildscript.scope,
+            rootBuildscript.configuration,
+        )
+        val rootScopeLine = "${rootProject.path}:build-only:classpath:resolved"
+        val missingRepresentativeProjects = issue1895RepresentativeProjects.filter { findProject(it) == null }
+        check(missingRepresentativeProjects.isEmpty()) {
+            "Issue #1895 missing representative projects: " + missingRepresentativeProjects.joinToString(", ")
+        }
+        val projectReports = issue1895RepresentativeProjects.map { projectPath ->
+            requireNotNull(findProject(projectPath))
+                .layout.buildDirectory
+                .file("reports/issue1895/${projectPath.substringAfterLast(':')}-dependency-graph.txt")
+                .get()
+                .asFile
+        }
+        val missingProjectReports = projectReports.filterNot(File::isFile)
+        check(missingProjectReports.isEmpty()) {
+            "Issue #1895 missing project graph reports: " +
+                missingProjectReports.joinToString(", ") { it.absolutePath }
+        }
+        val scopeLines = projectReports.flatMap { reportFile ->
+            reportFile.readLines()
+        }
+
+        logger.lifecycle(
+            "Issue #1895 inspected graph scopes:\n" +
+                (listOf(rootScopeLine) + scopeLines.filterNot { it.startsWith("VIOLATION ") })
+                    .joinToString("\n"),
+        )
+
+        val violations = (rootViolations + scopeLines
+            .filter { it.startsWith("VIOLATION ") }
+            .map { it.removePrefix("VIOLATION ") })
+            .distinct()
+
+        check(violations.isEmpty()) {
+            "Issue #1895 vulnerable requested or selected coordinates remain:\n" + violations.joinToString("\n")
         }
     }
 }
@@ -118,14 +1209,7 @@ allprojects {
 // where `libs` is not in scope (different receiver type in the lambda).
 val rootLibs = libs
 val rootBt4k = bt4k
-val bt4kCatalog = extensions.getByType<org.gradle.api.artifacts.VersionCatalogsExtension>().named("bt4k")
 fun bt4kLibrary(alias: String) = bt4kCatalog.findLibrary(alias).get()
-fun bt4kVersion(alias: String): String {
-    val version = bt4kCatalog.findVersion(alias).get()
-    return version.requiredVersion
-        .ifBlank { version.preferredVersion }
-        .ifBlank { version.strictVersion }
-}
 
 
 fun Project.isSampleOrBenchmarkProject(): Boolean {
@@ -1212,22 +2296,6 @@ tasks.register("exportManualModuleInventory") {
     }
 }
 
-// ── OWASP Dependency Check ────────────────────────────────────────────────
-dependencyCheck {
-    // NVD API 키 (환경변수 NVD_API_KEY 또는 Gradle 프로퍼티로 전달)
-    nvd.apiKey = providers.environmentVariable("NVD_API_KEY")
-        .orElse(providers.gradleProperty("nvdApiKey"))
-        .orElse("")
-        .get()
-    // 취약점 점수 7.0 이상이면 빌드 실패 (CVSS High/Critical)
-    failBuildOnCVSS = 7.0f
-    // 분석 제외: 테스트, 컴파일 전용 의존성
-    skipConfigurations = listOf("testRuntimeClasspath", "testCompileClasspath")
-    formats = listOf("HTML", "SARIF")
-    outputDirectory = layout.buildDirectory.dir("reports").get().asFile
-    suppressionFile = "config/owasp-suppressions.xml"
-}
-
 // ─── Kover 집계 설정 ────────────────────────────────────────────────────
 // 루트 프로젝트에서 모든 측정 대상 서브모듈을 `kover` 의존성으로 등록하여
 // `./gradlew koverXmlReport` / `koverHtmlReport` 실행 시 집계된 리포트를 생성한다.
@@ -1267,4 +2335,5 @@ val checkDisabledTests = tasks.register<DisabledTestReportTask>("checkDisabledTe
 
 tasks.named("check") {
     dependsOn(checkDisabledTests)
+    dependsOn("issue1895DependencyGraphCheck")
 }

@@ -1,6 +1,7 @@
 package org.springframework.kafka.streams
 
 import io.bluetape4k.assertions.shouldContainSame
+import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.kafka.spring.test.utils.consumerProps
 import io.bluetape4k.kafka.spring.test.utils.getRecords
@@ -11,6 +12,7 @@ import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.common.serialization.StringDeserializer
+import org.apache.kafka.streams.KafkaStreams
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.kstream.Consumed
@@ -25,6 +27,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.annotation.EnableKafkaStreams
 import org.springframework.kafka.annotation.KafkaStreamsDefaultConfiguration
 import org.springframework.kafka.config.KafkaStreamsConfiguration
+import org.springframework.kafka.config.StreamsBuilderFactoryBean
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaTemplate
@@ -36,6 +39,9 @@ import org.springframework.kafka.support.KafkaStreamBrancher
 import org.springframework.kafka.test.EmbeddedKafkaBroker
 import org.springframework.kafka.test.context.EmbeddedKafka
 import org.springframework.kafka.test.utils.KafkaTestUtils
+import java.time.Duration
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @SpringBootTest
 @EmbeddedKafka(
@@ -57,29 +63,41 @@ class KafkaStreamsBranchTests {
     @Autowired
     private val embeddedKafka: EmbeddedKafkaBroker = uninitialized()
 
+    @Autowired
+    private val streamsBuilderFactoryBean: StreamsBuilderFactoryBean = uninitialized()
+
     @Test
     fun `branching stream`() {
-        val falseConsumer = createConsumer()
-        this.embeddedKafka.consumeFromEmbeddedTopics(falseConsumer, FALSE_TOPIC)
+        this.streamsBuilderFactoryBean.stop()
+        val runningLatch = CountDownLatch(1)
+        this.streamsBuilderFactoryBean.setStateListener { newState, _ ->
+            if (newState == KafkaStreams.State.RUNNING) {
+                runningLatch.countDown()
+            }
+        }
+        this.streamsBuilderFactoryBean.start()
+        runningLatch.await(60, TimeUnit.SECONDS).shouldBeTrue()
 
-        val trueConsumer = createConsumer()
-        this.embeddedKafka.consumeFromEmbeddedTopics(trueConsumer, TRUE_TOPIC)
+        createConsumer().use { falseConsumer ->
+            this.embeddedKafka.consumeFromEmbeddedTopics(falseConsumer, FALSE_TOPIC)
 
-        this.kafkaTemplate.sendDefault(true.toString())
-        this.kafkaTemplate.sendDefault(true.toString())
-        this.kafkaTemplate.sendDefault(false.toString())
+            createConsumer().use { trueConsumer ->
+                this.embeddedKafka.consumeFromEmbeddedTopics(trueConsumer, TRUE_TOPIC)
 
-        val trueRecords = trueConsumer.getRecords()
-        val falseRecords = falseConsumer.getRecords()
+                this.kafkaTemplate.sendDefault(true.toString()).get(60, TimeUnit.SECONDS)
+                this.kafkaTemplate.sendDefault(true.toString()).get(60, TimeUnit.SECONDS)
+                this.kafkaTemplate.sendDefault(false.toString()).get(60, TimeUnit.SECONDS)
 
-        val trueValues = trueRecords.map { it.value() }
-        val falseValues = falseRecords.map { it.value() }
+                val trueRecords = trueConsumer.getRecords(Duration.ofSeconds(30), minRecords = 2)
+                val falseRecords = falseConsumer.getRecords(Duration.ofSeconds(30), minRecords = 1)
 
-        trueValues shouldContainSame listOf("true", "true")
-        falseValues shouldContainSame listOf("false")
+                val trueValues = trueRecords.map { it.value() }
+                val falseValues = falseRecords.map { it.value() }
 
-        falseConsumer.close()
-        trueConsumer.close()
+                trueValues shouldContainSame listOf("true", "true")
+                falseValues shouldContainSame listOf("false")
+            }
+        }
     }
 
     private fun createConsumer(): Consumer<String, String> {
