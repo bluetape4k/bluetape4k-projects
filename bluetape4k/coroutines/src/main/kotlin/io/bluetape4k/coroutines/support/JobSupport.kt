@@ -2,6 +2,7 @@ package io.bluetape4k.coroutines.support
 
 import io.bluetape4k.support.requireNotEmpty
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withTimeout
 
@@ -119,4 +120,9 @@ suspend fun Collection<Job>.joinAnyAndCancelOthers() {
  */
 suspend fun Job.joinUntil(timeout: kotlin.time.Duration) {
     withTimeout(timeout) { join() }
+}
+
+
+suspend fun Collection<Job>.joinAllUntil(timeout: kotlin.time.Duration) {
+    return withTimeout(timeout) { joinAll() }
 }

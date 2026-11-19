@@ -149,4 +149,27 @@ class JobSupportTest {
             ownerJob.cancelAndJoin()
         }
     }
+
+    @Test
+    fun `joinAllUntil waits for all jobs`() = runTest {
+        val jobs = listOf(
+            launch { delay(100.milliseconds) },
+            launch { delay(200.milliseconds) },
+        )
+
+        jobs.joinAllUntil(1.seconds)
+
+        jobs.all { it.isCompleted }.shouldBeTrue()
+    }
+
+    @Test
+    fun `joinAllUntil timeout does not cancel target jobs`() = runTest {
+        val target = Job()
+
+        assertFailsWith<kotlinx.coroutines.TimeoutCancellationException> {
+            listOf(target).joinAllUntil(Duration.ZERO)
+        }
+        target.isActive.shouldBeTrue()
+        target.cancelAndJoin()
+    }
 }

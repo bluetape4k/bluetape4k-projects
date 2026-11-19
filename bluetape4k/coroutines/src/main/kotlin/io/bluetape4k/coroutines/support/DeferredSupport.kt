@@ -4,6 +4,7 @@ import io.bluetape4k.support.requireNotEmpty
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -44,7 +45,7 @@ suspend inline fun <T1, T2, R> zip(
 suspend inline fun <T1, T2, R> Deferred<T1>.zipWith(
     other: Deferred<T2>,
     coroutineStart: CoroutineStart = CoroutineStart.DEFAULT,
-    crossinline zipper: suspend (T1, T2) -> R
+    crossinline zipper: suspend (T1, T2) -> R,
 ): Deferred<R> =
     zip(this, other, coroutineStart, zipper)
 
@@ -236,3 +237,9 @@ suspend fun <T> Deferred<T>.awaitUntil(timeout: kotlin.time.Duration = 5.seconds
  */
 suspend fun <T> Deferred<T>.awaitUntilOrNull(timeout: kotlin.time.Duration = 5.seconds): T? =
     withTimeoutOrNull(timeout) { await() }
+
+suspend fun <T> Collection<Deferred<T>>.awaitAllUntil(timeout: kotlin.time.Duration = 5.seconds): List<T> =
+    withTimeout(timeout) { awaitAll() }
+
+suspend fun <T> Collection<Deferred<T>>.awaitAllUntilOrNull(timeout: kotlin.time.Duration = 5.seconds): List<T>? =
+    withTimeoutOrNull(timeout) { awaitAll() }

@@ -9,6 +9,7 @@ import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.Test
+import java.time.Duration as JavaDuration
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CancellationException
 import java.util.concurrent.CountDownLatch
@@ -357,6 +358,28 @@ class CompletableFutureSupportTest {
             .forEach { operation ->
             assertFailsWith<CancellationException> { operation(cancelled) }
         }
+    }
+
+    @Test
+    fun `java duration overloads preserve timeout defaults and exceptional completion`() {
+        val timeout = JavaDuration.ofNanos(1)
+        val pending = CompletableFuture<Int>()
+
+        pending.get(timeout, -1) shouldBeEqualTo -1
+        pending.getOrNull(timeout) shouldBeEqualTo null
+        pending.join(timeout, -1) shouldBeEqualTo -1
+        pending.joinOrNull(timeout) shouldBeEqualTo null
+
+        val failure = IllegalStateException("business failure")
+        val failed = failedCompletableFutureOf<Int>(failure)
+        assertFailsWith<ExecutionException> { failed.get(JavaDuration.ofSeconds(1), -1) }
+            .cause shouldBeEqualTo failure
+        assertFailsWith<IllegalStateException> { failed.join(JavaDuration.ofSeconds(1), -1) }
+            .message shouldBeEqualTo failure.message
+
+        val cancelled = CompletableFuture<Int>().also { it.cancel(true) }
+        assertFailsWith<CancellationException> { cancelled.get(JavaDuration.ofSeconds(1), -1) }
+        assertFailsWith<CancellationException> { cancelled.join(JavaDuration.ofSeconds(1), -1) }
     }
 
     @Test

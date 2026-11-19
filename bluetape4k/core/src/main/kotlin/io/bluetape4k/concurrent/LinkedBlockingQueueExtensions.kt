@@ -7,5 +7,13 @@ import java.util.concurrent.TimeUnit
 fun <E: Any> LinkedBlockingQueue<E>.offer(item: E, timeout: kotlin.time.Duration): Boolean =
     offer(item, timeout.inWholeNanoseconds, TimeUnit.NANOSECONDS)
 
+fun <E: Any> LinkedBlockingQueue<E>.offer(item: E, timeout: java.time.Duration): Boolean =
+    offer(item, timeout.toNanos(), TimeUnit.NANOSECONDS)
+
+
 fun <E: Any> LinkedBlockingQueue<E>.poll(timeout: kotlin.time.Duration): E? =
     poll(timeout.inWholeNanoseconds, TimeUnit.NANOSECONDS)
+
+
+fun <E: Any> LinkedBlockingQueue<E>.poll(timeout: java.time.Duration): E? =
+    poll(timeout.toNanos(), TimeUnit.NANOSECONDS)
