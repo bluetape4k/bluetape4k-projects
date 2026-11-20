@@ -66,14 +66,12 @@ kuromoji = "0.9.0"  # https://mvnrepository.com/artifact/com.atilika.kuromoji/ku
 
 # Plugin versions
 
-dependabot-jackson2 = "2.22.4"
 dependabot-amqp-client = "5.37.0"
 dependabot-netty = "4.2.19.Final"
 dependabot-bouncycastle-bcprov = "1.86"
 dependabot-bouncycastle-bcprov-lts8on = "2.73.13"
 dependabot-freemarker = "2.3.35"
 dependabot-jsoup = "1.23.2"
-dependabot-jackson3 = "3.2.4"
 [plugins]
 
 
@@ -297,8 +295,8 @@ httpcore5-testing = { module = "org.apache.httpcomponents.core5:httpcore5-testin
 # Jackson 2
 jackson-bom = { module = "com.fasterxml.jackson:jackson-bom" }
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations" }  # version from bt4k catalog
-jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "dependabot-jackson2" }
-jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "dependabot-jackson2" }
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core" }  # version from bt4k catalog
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }  # version from bt4k catalog
 jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" }
 jackson-datatype-jsr353 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr353" }
 jackson-datatype-jdk8 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jdk8" }
@@ -321,8 +319,8 @@ jackson-module-json-schema = { module = "com.fasterxml.jackson.module:jackson-mo
 
 # Jackson 3
 jackson3-bom = { module = "tools.jackson:jackson-bom" }
-jackson3-core = { module = "tools.jackson.core:jackson-core", version.ref = "dependabot-jackson3" }
-jackson3-databind = { module = "tools.jackson.core:jackson-databind", version.ref = "dependabot-jackson3" }
+jackson3-core = { module = "tools.jackson.core:jackson-core" }  # version from bt4k catalog
+jackson3-databind = { module = "tools.jackson.core:jackson-databind" }  # version from bt4k catalog
 jackson3-datatype-eclipse-collections = { module = "tools.jackson.datatype:jackson-datatype-eclipse-collections" }
 jackson3-datatype-guava = { module = "tools.jackson.datatype:jackson-datatype-guava" }
 jackson3-datatype-json-org = { module = "tools.jackson.datatype:jackson-datatype-json-org" }
