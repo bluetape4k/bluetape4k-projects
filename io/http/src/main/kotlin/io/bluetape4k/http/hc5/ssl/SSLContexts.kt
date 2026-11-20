@@ -32,7 +32,9 @@ inline fun sslContext(
  *
  * @return [SSLContext]
  */
-fun sslContextOf(): SSLContext = SSLContexts.createDefault()
+fun sslContextOf(): SSLContext = SSLContexts.custom()
+    .setProtocol("TLS")
+    .build()
 
 /**
  * 시스템 기본 [SSLContext] 를 생성합니다.

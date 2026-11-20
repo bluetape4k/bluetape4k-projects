@@ -179,6 +179,7 @@ open class JacksonSerializer(
         } catch (e: Error) {
             throw e
         } catch (e: Throwable) {
+            findCauseFailure(e)?.let { throw it }
             throw JsonSerializationException("Fail to deserialize by Jackson. targetType=${clazz.name}", e)
         }
 
@@ -240,6 +241,7 @@ inline fun <reified T: Any> JacksonSerializer.deserialize(source: ByteBuffer): T
     } catch (e: Error) {
         throw e
     } catch (e: Throwable) {
+        findCauseFailure(e)?.let { throw it }
         throw JsonSerializationException("Fail to deserialize by Jackson. targetType=${T::class.java.name}", e)
     }
 
@@ -248,7 +250,8 @@ private fun jacksonWriteFailure(failure: Throwable, graph: Any): Throwable {
     return JsonSerializationException("Fail to serialize by Jackson. graphType=${graph.javaClass.name}", failure)
 }
 
-private fun findCauseFailure(root: Throwable): Throwable? {
+@PublishedApi
+internal fun findCauseFailure(root: Throwable): Throwable? {
     var current: Throwable? = root
     var depth = 0
     while (current != null && depth < 64) {
