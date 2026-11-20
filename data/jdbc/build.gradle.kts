@@ -23,6 +23,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "junit", module = "junit")
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+        exclude(group = "org.mockito", module = "mockito-core")
+        exclude(group = "org.mockito", module = "mockito-junit-jupiter")
     }
 
     testRuntimeOnly(bt4k.h2.v2)

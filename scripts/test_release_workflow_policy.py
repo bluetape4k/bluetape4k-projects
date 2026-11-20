@@ -48,6 +48,14 @@ REPOSITORY_ACTION_REF = re.compile(
     r"@(?P<ref>[^\s#]+)"
 )
 FULL_COMMIT_SHA = re.compile(r"^[0-9a-f]{40}$")
+SNAPSHOT_PUBLISH_JOB_IF = (
+    "${{ github.event_name == 'workflow_dispatch' || "
+    "github.event.workflow_run.conclusion == 'success' }}"
+)
+SNAPSHOT_SOURCE_SHA = (
+    "${{ github.event_name == 'workflow_run' && "
+    "github.event.workflow_run.head_sha || github.sha }}"
+)
 PUBLICATION_VALIDATION_COMMANDS = (
     "      - name: Validate publication metadata\n"
     "        run: |\n"
@@ -673,11 +681,23 @@ def snapshot_policy_errors(workflow: str) -> list[str]:
         errors.append("snapshot workflow must not contain release or issue-specific machinery")
     if job_ids(workflow) != {"publish"}:
         errors.append("snapshot workflow must contain only the publish job")
-    errors.extend(publication_validation_errors(workflow, "publish"))
+    errors.extend(
+        publication_validation_errors(
+            workflow, "publish", SNAPSHOT_PUBLISH_JOB_IF
+        )
+    )
     if not snapshot_command_valid:
         errors.append("snapshot publication must disable the configuration cache")
     if "workflow_dispatch:" not in workflow:
         errors.append("snapshot workflow must be manually dispatched")
+    required_trigger = (
+        '  workflow_run:\n'
+        '    workflows: ["Nightly"]\n'
+        '    types: [completed]\n'
+        '    branches: [develop]\n'
+    )
+    if required_trigger not in workflow:
+        errors.append("snapshot workflow must run after completed Nightly on develop")
     trigger_block = (
         workflow.split("\non:", 1)[1].split("\n\nconcurrency:", 1)[0]
         if "\non:" in workflow
@@ -686,8 +706,8 @@ def snapshot_policy_errors(workflow: str) -> list[str]:
     trigger_keys = set(
         re.findall(r"^  ([a-z0-9_-]+):\s*$", trigger_block, re.MULTILINE)
     )
-    if trigger_keys != {"workflow_dispatch"}:
-        errors.append("snapshot workflow must use only the workflow_dispatch trigger")
+    if trigger_keys != {"workflow_run", "workflow_dispatch"}:
+        errors.append("snapshot workflow must use only Nightly and manual triggers")
     if re.search(r"^ {4}inputs:\s*$", workflow, re.MULTILINE):
         errors.append("snapshot workflow must not define workflow inputs")
     removed_markers = (
@@ -718,6 +738,18 @@ def snapshot_policy_errors(workflow: str) -> list[str]:
         errors.append("snapshot workflow must not request write permissions")
     if "environment: maven-central-release" not in workflow:
         errors.append("snapshot publication must use the protected Maven Central environment")
+    required_secrets = {
+        "CENTRAL_USERNAME",
+        "CENTRAL_PASSWORD",
+        "SIGNING_KEY_ID",
+        "SIGNING_KEY",
+        "SIGNING_PASSWORD",
+    }
+    secret_refs = set(
+        re.findall(r"\$\{\{ secrets\.([A-Z0-9_]+) \}\}", workflow)
+    )
+    if secret_refs != required_secrets:
+        errors.append("snapshot publication must use only the five Maven Central secrets")
 
     publish_steps = workflow_step_records(workflow, "publish")
     checkout_steps = [
@@ -730,12 +762,12 @@ def snapshot_policy_errors(workflow: str) -> list[str]:
         len(checkout_steps) == 1
         and not checkout_steps[0][4]
         and workflow_step_field_values(checkout_steps[0][2], "ref")
-        == ["${{ github.sha }}"]
+        == [SNAPSHOT_SOURCE_SHA]
         and workflow_step_field_values(checkout_steps[0][2], "fetch-depth")
         == ["0"]
     )
     if not checkout_contract:
-        errors.append("snapshot publication must checkout the dispatch SHA")
+        errors.append("snapshot publication must checkout the triggering source SHA")
 
     exact_checkout_runs = workflow_step_runs(
         workflow, "publish", "Verify exact checkout"
@@ -758,7 +790,7 @@ def snapshot_policy_errors(workflow: str) -> list[str]:
         or workflow_step_field_values(
             exact_checkout_steps[0][2], "EXPECTED_HEAD_SHA"
         )
-        != ["${{ github.sha }}"]
+        != [SNAPSHOT_SOURCE_SHA]
     ):
         errors.append("snapshot publication must verify the exact checkout SHA")
 
@@ -772,14 +804,14 @@ def snapshot_policy_errors(workflow: str) -> list[str]:
         and all(
             marker in "\n".join(summary_runs[0][0][1])
             for marker in (
-                'echo "trigger: workflow_dispatch"',
-                'echo "SOURCE_SHA=${{ github.sha }}"',
+                'echo "trigger: ${{ github.event_name }}"',
+                f'echo "SOURCE_SHA={SNAPSHOT_SOURCE_SHA}"',
                 'echo "repeated publication allowed"',
             )
         )
     )
     if not summary_run_valid:
-        errors.append("snapshot workflow must summarize dispatch, source SHA, and repeatability")
+        errors.append("snapshot workflow must summarize trigger, source SHA, and repeatability")
     named_steps = [step[0] for step in publish_steps if step[0] is not None]
     if not named_steps or named_steps[-1] != "Summarize SNAPSHOT publication":
         errors.append("snapshot workflow must end with the publication summary")
@@ -871,7 +903,7 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
         workflow_jobs = {
             "ci.yml": ("build", None),
             "release.yml": ("publish", None),
-            "publish-snapshot.yml": ("publish", None),
+            "publish-snapshot.yml": ("publish", SNAPSHOT_PUBLISH_JOB_IF),
         }
         for workflow_name, (expected_job, expected_if) in workflow_jobs.items():
             with self.subTest(workflow=workflow_name):
@@ -931,20 +963,20 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
     def test_snapshot_publication_rejects_checkout_source_drift(self) -> None:
         workflow = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
         mutated = workflow.replace(
-            "          ref: ${{ github.sha }}",
+            f"          ref: {SNAPSHOT_SOURCE_SHA}",
             "          ref: develop",
             1,
         )
 
         self.assertIn(
-            "snapshot publication must checkout the dispatch SHA",
+            "snapshot publication must checkout the triggering source SHA",
             snapshot_policy_errors(mutated),
         )
 
     def test_snapshot_publication_rejects_checkout_verification_drift(self) -> None:
         workflow = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
         mutated = workflow.replace(
-            "          EXPECTED_HEAD_SHA: ${{ github.sha }}\n"
+            f"          EXPECTED_HEAD_SHA: {SNAPSHOT_SOURCE_SHA}\n"
             "        run: test \"$(git rev-parse HEAD)\" = \"$EXPECTED_HEAD_SHA\"",
             "          EXPECTED_HEAD_SHA: ${{ github.ref }}\n"
             "        run: test \"$(git rev-parse HEAD)\" = \"$EXPECTED_HEAD_SHA\"",
@@ -1428,33 +1460,45 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
         self.assertIn("Publish SNAPSHOT to Maven Central", workflow)
         self.assertEqual([], snapshot_policy_errors(workflow))
 
-    def test_snapshot_workflow_is_input_free_manual_dispatch(self) -> None:
+    def test_snapshot_workflow_publishes_only_after_successful_nightly_or_manual_dispatch(self) -> None:
         workflow = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
 
         self.assertEqual({"publish"}, job_ids(workflow))
-        self.assertIn("on:\n  workflow_dispatch:\n", workflow)
-        self.assertNotIn("workflow_run:", workflow)
+        self.assertIn(f"    if: {SNAPSHOT_PUBLISH_JOB_IF}", workflow)
+        self.assertIn("environment: maven-central-release", workflow)
+        self.assertEqual(
+            {
+                "CENTRAL_USERNAME",
+                "CENTRAL_PASSWORD",
+                "SIGNING_KEY_ID",
+                "SIGNING_KEY",
+                "SIGNING_PASSWORD",
+            },
+            set(re.findall(r"\$\{\{ secrets\.([A-Z0-9_]+) \}\}", workflow)),
+        )
+        self.assertNotIn("needs:", workflow)
         self.assertNotIn("inputs:", workflow)
         self.assertEqual([], snapshot_policy_errors(workflow))
 
-        with_inputs = workflow.replace(
-            "  workflow_dispatch:\n",
-            "  workflow_dispatch:\n    inputs:\n      source:\n        required: false\n",
+        without_success_guard = workflow.replace(
+            "github.event.workflow_run.conclusion == 'success'",
+            "github.event.workflow_run.conclusion != 'cancelled'",
             1,
         )
         self.assertIn(
-            "snapshot workflow must not define workflow inputs",
-            snapshot_policy_errors(with_inputs),
+            "publication job must use the exact execution guard contract",
+            snapshot_policy_errors(without_success_guard),
         )
 
-        automatic = workflow.replace(
-            "  workflow_dispatch:\n",
-            '  workflow_run:\n    workflows: ["Nightly"]\n    types: [completed]\n  workflow_dispatch:\n',
+        with_extra_secret = workflow.replace(
+            "          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}\n",
+            "          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}\n"
+            "          EXTRA_TOKEN: ${{ secrets.EXTRA_TOKEN }}\n",
             1,
         )
         self.assertIn(
-            "snapshot workflow must use only the workflow_dispatch trigger",
-            snapshot_policy_errors(automatic),
+            "snapshot publication must use only the five Maven Central secrets",
+            snapshot_policy_errors(with_extra_secret),
         )
 
     def test_nightly_matrix_contract_matches_current_workflow_groups(self) -> None:
@@ -1602,23 +1646,41 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
 
         self.assertIn(f"non-success job: {jobs[0]['name']}", errors)
 
-    def test_snapshot_workflow_records_dispatch_sha_and_summary(self) -> None:
+    def test_snapshot_workflow_runs_after_successful_nightly_and_keeps_manual_dispatch(self) -> None:
         workflow = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
 
-        self.assertIn("          ref: ${{ github.sha }}", workflow)
         self.assertIn(
-            "          EXPECTED_HEAD_SHA: ${{ github.sha }}\n"
-            "        run: test \"$(git rev-parse HEAD)\" = \"$EXPECTED_HEAD_SHA\"",
+            '  workflow_run:\n'
+            '    workflows: ["Nightly"]\n'
+            '    types: [completed]\n'
+            '    branches: [develop]\n',
             workflow,
         )
-        self.assertIn('echo "trigger: workflow_dispatch"', workflow)
-        self.assertIn('echo "SOURCE_SHA=${{ github.sha }}"', workflow)
-        self.assertIn('echo "repeated publication allowed"', workflow)
+        self.assertIn("  workflow_dispatch:\n", workflow)
+        self.assertIn(f"    if: {SNAPSHOT_PUBLISH_JOB_IF}", workflow)
+        self.assertGreaterEqual(workflow.count(SNAPSHOT_SOURCE_SHA), 3)
+        self.assertEqual([], snapshot_policy_errors(workflow))
+
+        without_develop_filter = workflow.replace(
+            "    branches: [develop]\n",
+            "",
+            1,
+        )
         self.assertIn(
-            '            echo "repeated publication allowed"\n'
-            '          } >> "$GITHUB_STEP_SUMMARY"',
+            "snapshot workflow must run after completed Nightly on develop",
+            snapshot_policy_errors(without_develop_filter),
+        )
+
+    def test_snapshot_source_identity_covers_automatic_and_manual_triggers(self) -> None:
+        workflow = (WORKFLOWS / "publish-snapshot.yml").read_text(encoding="utf-8")
+
+        self.assertIn(f"          ref: {SNAPSHOT_SOURCE_SHA}", workflow)
+        self.assertIn(f"          EXPECTED_HEAD_SHA: {SNAPSHOT_SOURCE_SHA}", workflow)
+        self.assertIn(
+            f'            echo "SOURCE_SHA={SNAPSHOT_SOURCE_SHA}"',
             workflow,
         )
+        self.assertIn("environment: maven-central-release", workflow)
         self.assertEqual([], snapshot_policy_errors(workflow))
 
     def test_snapshot_dispatch_sha_contract_rejects_drift(self) -> None:
@@ -1626,15 +1688,15 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
         mutations = (
             (
                 workflow.replace(
-                    "          ref: ${{ github.sha }}",
+                    f"          ref: {SNAPSHOT_SOURCE_SHA}",
                     "          ref: develop",
                     1,
                 ),
-                "snapshot publication must checkout the dispatch SHA",
+                "snapshot publication must checkout the triggering source SHA",
             ),
             (
                 workflow.replace(
-                    "          EXPECTED_HEAD_SHA: ${{ github.sha }}",
+                    f"          EXPECTED_HEAD_SHA: {SNAPSHOT_SOURCE_SHA}",
                     "          EXPECTED_HEAD_SHA: ${{ github.ref }}",
                     1,
                 ),
@@ -1642,11 +1704,11 @@ class ReleaseWorkflowPolicyTest(unittest.TestCase):
             ),
             (
                 workflow.replace(
-                    '            echo "SOURCE_SHA=${{ github.sha }}"',
+                    f'            echo "SOURCE_SHA={SNAPSHOT_SOURCE_SHA}"',
                     '            echo "SOURCE_SHA=${{ github.ref }}"',
                     1,
                 ),
-                "snapshot workflow must summarize dispatch, source SHA, and repeatability",
+                "snapshot workflow must summarize trigger, source SHA, and repeatability",
             ),
         )
         for mutated, expected_error in mutations:
