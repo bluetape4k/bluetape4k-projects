@@ -224,7 +224,7 @@ dependencies {
     compileOnly(libs.aws2.auth)
     testImplementation(libs.aws2.aws.core)
     testImplementation(libs.aws2.sdk.core)
-    testImplementation(libs.aws2.apache.client)
+    testImplementation(libs.aws2.apache5.client)
     testImplementation(libs.aws2.cloudwatch)
     testImplementation(libs.aws2.cloudwatchevents)
     testImplementation(libs.aws2.cloudwatchlogs)

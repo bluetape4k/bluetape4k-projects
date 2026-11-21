@@ -2,6 +2,7 @@ package io.bluetape4k.tink
 
 import com.google.crypto.tink.KeyTemplate
 import com.google.crypto.tink.KeysetHandle
+import com.google.crypto.tink.RegistryConfiguration
 import com.google.crypto.tink.aead.AeadConfig
 import com.google.crypto.tink.aead.AesGcmKeyManager
 import com.google.crypto.tink.daead.AesSivKeyManager
@@ -46,7 +47,7 @@ fun registerTink() {
  */
 fun aeadKeysetHandle(keyTemplate: KeyTemplate = AesGcmKeyManager.aes256GcmTemplate()): KeysetHandle {
     registerTink()
-    return KeysetHandle.generateNew(keyTemplate)
+    return KeysetHandle.generateNew(keyTemplate.toParameters(), RegistryConfiguration.get())
 }
 
 /**
@@ -59,7 +60,7 @@ fun aeadKeysetHandle(keyTemplate: KeyTemplate = AesGcmKeyManager.aes256GcmTempla
  */
 fun daeadKeysetHandle(keyTemplate: KeyTemplate = AesSivKeyManager.aes256SivTemplate()): KeysetHandle {
     registerTink()
-    return KeysetHandle.generateNew(keyTemplate)
+    return KeysetHandle.generateNew(keyTemplate.toParameters(), RegistryConfiguration.get())
 }
 
 /**
@@ -72,5 +73,5 @@ fun daeadKeysetHandle(keyTemplate: KeyTemplate = AesSivKeyManager.aes256SivTempl
  */
 fun macKeysetHandle(keyTemplate: KeyTemplate = HmacKeyManager.hmacSha256Template()): KeysetHandle {
     registerTink()
-    return KeysetHandle.generateNew(keyTemplate)
+    return KeysetHandle.generateNew(keyTemplate.toParameters(), RegistryConfiguration.get())
 }

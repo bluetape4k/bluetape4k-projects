@@ -218,7 +218,7 @@ avro-protobuf = { module = "org.apache.avro:avro-protobuf" }
 
 # AWS SDK v2
 aws2-applicationautoscaling = { module = "software.amazon.awssdk:applicationautoscaling" }
-aws2-apache-client = { module = "software.amazon.awssdk:apache-client" }
+aws2-apache5-client = { module = "software.amazon.awssdk:apache5-client" }
 aws2-auth = { module = "software.amazon.awssdk:auth" }
 aws2-aws-core = { module = "software.amazon.awssdk:aws-core" }
 aws2-aws-crt-client = { module = "software.amazon.awssdk:aws-crt-client" }

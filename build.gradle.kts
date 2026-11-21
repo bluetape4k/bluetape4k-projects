@@ -1795,7 +1795,7 @@ subprojects {
             dependency("org.testcontainers:testcontainers-trino:${bt4kVersion("testcontainers")}")
             dependency("org.testcontainers:testcontainers-vault:${bt4kVersion("testcontainers")}")
             dependency("org.testcontainers:testcontainers-weaviate:${bt4kVersion("testcontainers")}")
-            dependency("software.amazon.awssdk:apache-client:${bt4kVersion("aws2")}")
+            dependency("software.amazon.awssdk:apache5-client:${bt4kVersion("aws2")}")
             dependency("software.amazon.awssdk:applicationautoscaling:${bt4kVersion("aws2")}")
             dependency("software.amazon.awssdk:auth:${bt4kVersion("aws2")}")
             dependency("software.amazon.awssdk:aws-core:${bt4kVersion("aws2")}")

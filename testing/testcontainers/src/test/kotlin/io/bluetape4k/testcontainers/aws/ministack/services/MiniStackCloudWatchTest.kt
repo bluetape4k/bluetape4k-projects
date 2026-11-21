@@ -15,7 +15,7 @@ import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
-import software.amazon.awssdk.http.apache.ApacheHttpClient
+import software.amazon.awssdk.http.apache5.Apache5HttpClient
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient
 import software.amazon.awssdk.services.cloudwatch.model.MetricDatum
@@ -41,7 +41,7 @@ class MiniStackCloudWatchTest: AbstractMiniStackServiceTest() {
             .endpointOverride(miniStack.awsEndpoint)
             .region(Region.of(miniStack.regionName))
             .credentialsProvider(miniStack.getCredentialProvider())
-            .httpClient(ApacheHttpClient.create())
+            .httpClient(Apache5HttpClient.create())
             .build()
             .apply { ShutdownQueue.register(this) }
     }
@@ -51,7 +51,7 @@ class MiniStackCloudWatchTest: AbstractMiniStackServiceTest() {
             .endpointOverride(miniStack.awsEndpoint)
             .region(Region.of(miniStack.regionName))
             .credentialsProvider(miniStack.getCredentialProvider())
-            .httpClient(ApacheHttpClient.create())
+            .httpClient(Apache5HttpClient.create())
             .build()
             .apply { ShutdownQueue.register(this) }
     }
