@@ -76,6 +76,18 @@
   ([#1600](https://github.com/bluetape4k/bluetape4k-projects/issues/1600),
   [#1619](https://github.com/bluetape4k/bluetape4k-projects/issues/1619)).
 
+## [2.1.0] - 2026-11-21
+
+### 추가
+
+- `bluetape4k-assertions`와 `bluetape4k-core`의 공개 검증 helper 대칭 API를
+  확장하고 Java/Kotlin Duration 및 finite/sign 계약을 보강했습니다.
+
+### 변경
+
+- 외부 API의 deprecated 호출을 최신 API로 전환하고 cancellation 및
+  Jakarta Persistence catalog 정합성을 유지했습니다.
+
 ## [2.0.0] — 2026-09-01
 
 ### 호환성 변경
