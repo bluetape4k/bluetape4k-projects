@@ -2,6 +2,7 @@ package io.bluetape4k.tink.keyset.redis
 
 import com.google.crypto.tink.KeyTemplate
 import com.google.crypto.tink.KeysetHandle
+import com.google.crypto.tink.RegistryConfiguration
 import io.bluetape4k.concurrent.tryLock
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -108,7 +109,7 @@ class RedissonVersionedKeysetStore(
         VersionedKeysetHandle(
             version = version,
             createdAt = Instant.now(clock),
-            keysetHandle = KeysetHandle.generateNew(keyTemplate),
+            keysetHandle = KeysetHandle.generateNew(keyTemplate.toParameters(), RegistryConfiguration.get()),
         )
 
     private fun persist(keyset: VersionedKeysetHandle, activate: Boolean) {

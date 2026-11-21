@@ -45,4 +45,4 @@ fun sslContextOf(): SSLContext = SSLContexts.custom()
  *
  * @return [SSLContext]
  */
-fun sslContextOfSystem(): SSLContext = SSLContexts.createSystemDefault()
+fun sslContextOfSystem(): SSLContext = SSLContexts.createDefault()

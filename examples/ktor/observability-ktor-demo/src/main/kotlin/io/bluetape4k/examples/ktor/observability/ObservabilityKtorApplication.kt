@@ -132,7 +132,7 @@ internal class OrderEventTelemetryService(
 
 internal fun observationRegistryFor(meterRegistry: MeterRegistry): ObservationRegistry =
     ObservationRegistry.create().apply {
-        observationConfig().observationHandler(DefaultMeterObservationHandler(meterRegistry))
+        observationConfig().observationHandler(DefaultMeterObservationHandler.builder(meterRegistry).build())
     }
 
 @Serializable

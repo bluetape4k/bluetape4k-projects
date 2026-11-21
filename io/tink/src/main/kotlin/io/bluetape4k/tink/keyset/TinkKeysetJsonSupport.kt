@@ -2,6 +2,7 @@ package io.bluetape4k.tink.keyset
 
 import com.google.crypto.tink.InsecureSecretKeyAccess
 import com.google.crypto.tink.KeysetHandle
+import com.google.crypto.tink.RegistryConfiguration
 import com.google.crypto.tink.TinkJsonProtoKeysetFormat
 import io.bluetape4k.support.requireNotBlank
 
@@ -19,6 +20,7 @@ import io.bluetape4k.support.requireNotBlank
 fun KeysetHandle.toJsonKeyset(): String =
     TinkJsonProtoKeysetFormat.serializeKeyset(
         this,
+        RegistryConfiguration.get(),
         InsecureSecretKeyAccess.get()
     )
 
@@ -33,5 +35,6 @@ fun KeysetHandle.toJsonKeyset(): String =
 fun keysetHandleOf(jsonKeyset: String): KeysetHandle =
     TinkJsonProtoKeysetFormat.parseKeyset(
         jsonKeyset.requireNotBlank("jsonKeyset"),
+        RegistryConfiguration.get(),
         InsecureSecretKeyAccess.get()
     )

@@ -31,7 +31,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
 import io.ktor.utils.io.ByteWriteChannel
-import io.ktor.utils.io.readRemaining
+import io.ktor.utils.io.readBuffer
 import io.ktor.utils.io.writeFully
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -724,7 +724,7 @@ private class KtorFakeIdempotencyApplication(
     private suspend fun ApplicationCall.receiveBoundedUtf8(maxBytes: Int): BoundedBodyRead {
         lastBodyReadBytes = 0
         request.contentLength()?.let { declared -> if (declared > maxBytes) return BoundedBodyRead.TooLarge }
-        val bytes = receiveChannel().readRemaining(maxBytes.toLong() + 1L).readByteArray()
+        val bytes = receiveChannel().readBuffer(maxBytes.toLong() + 1L).readByteArray()
         lastBodyReadBytes = bytes.size
 
         if (bytes.size > maxBytes) return BoundedBodyRead.TooLarge
