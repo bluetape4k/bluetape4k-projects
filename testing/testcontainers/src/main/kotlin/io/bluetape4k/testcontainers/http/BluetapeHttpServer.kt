@@ -43,7 +43,7 @@ class BluetapeHttpServer private constructor(
         const val IMAGE = "bluetape4k/mock-web-server"
 
         /** Docker 이미지 기본 태그. Jib는 snapshot 빌드에도 이 baseVersion 태그를 함께 생성합니다. */
-        const val TAG = "2.1.0"
+        const val TAG = "2.2.0"
 
         /** 서버 이름 (시스템 프로퍼티 네임스페이스로 사용됨) */
         const val NAME = "bluetape-http"
