@@ -173,8 +173,8 @@ for the image-selection contract.
 | Graph DB       | `MemgraphServer`         | `memgraph/memgraph`                                 | `3.12.0`                                                                     |
 | Graph DB       | `Neo4jServer`            | `neo4j`                                             | `5.26.29`                                                                    |
 | Graph DB       | `PostgreSQLAgeServer`    | `apache/age`                                        | `release_PG18_1.7.0`                                                         |
-| HTTP           | `BluetapeHttpServer`     | `bluetape4k/mock-web-server`                        | `2.1.0`                                                                      |
-| HTTP           | `BluetapeWebfluxServer`  | `bluetape4k/mock-webflux-server`                    | `2.1.0`                                                                      |
+| HTTP           | `BluetapeHttpServer`     | `bluetape4k/mock-web-server`                        | `2.2.0`                                                                      |
+| HTTP           | `BluetapeWebfluxServer`  | `bluetape4k/mock-webflux-server`                    | `2.2.0`                                                                      |
 | HTTP           | `NginxServer`            | `nginx`                                             | `1.30.4-alpine`                                                              |
 | HTTP           | `WireMockServer`         | `wiremock/wiremock`                                 | `3.13.2`                                                                     |
 | Infrastructure | `OpenFgaServer`          | `openfga/openfga`                                   | `v1.8.2`                                                                     |

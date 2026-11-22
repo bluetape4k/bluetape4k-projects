@@ -11,9 +11,9 @@ Shared Kotlin/JVM library collection for backend development
 
 English | [한국어](./README.ko.md)
 
-Current stable version: `2.0.0`
+Current stable version: `2.1.0`
 
-Current development line: `2.1.0-SNAPSHOT` on `develop`
+Current development line: `2.2.0-SNAPSHOT` on `develop`
 
 ![Bluetape4k Projects modular backend workbench](./docs/assets/projects-workbench.png)
 
@@ -359,7 +359,7 @@ Check `gradle.properties` for the current version:
 
 ```properties
 projectGroup=io.github.bluetape4k
-baseVersion=2.1.0
+baseVersion=2.2.0
 snapshotVersion=
 ```
 

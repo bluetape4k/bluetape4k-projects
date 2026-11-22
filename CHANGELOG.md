@@ -23,7 +23,7 @@
 
 ### 변경
 
-- `2.0.0` 정식 배포 후 다음 minor 개발선을 `2.1.0-SNAPSHOT`으로 열었다.
+- `2.1.0` 정식 배포 후 다음 minor 개발선을 `2.2.0-SNAPSHOT`으로 열었다.
 - 공통 Jakarta Persistence 관리 버전을 기존 catalog의 `3.2.0`으로 정렬해
   Hibernate가 사용하는 `FindOption`의 클래스 누락을 해소했다.
   QueryDSL 예제의 구현·annotation processing 의존성도 같은 버전으로 맞췄다.

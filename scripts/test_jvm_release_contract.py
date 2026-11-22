@@ -40,7 +40,7 @@ def block(text: str, marker: str = MARKER) -> str:
 class JvmReleaseContractTest(unittest.TestCase):
     def test_version_source_is_next_minor_development_line(self) -> None:
         properties = read("gradle.properties")
-        self.assertRegex(properties, r"(?m)^baseVersion=2\.1\.0$")
+        self.assertRegex(properties, r"(?m)^baseVersion=2\.2\.0$")
         self.assertRegex(properties, r"(?m)^snapshotVersion=$")
 
     def test_java_21_island_and_default_target_are_explicit(self) -> None:
