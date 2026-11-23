@@ -4,7 +4,7 @@
 
 - 대상 저장소: `bluetape4k-projects`, branch `feat/digest-api`, 계획 검토 시 HEAD `06634e9ebf985258f8f1c48aac3b6c6ff1853d7a`
 - 이슈: [#1917 — io 공통 SHA-256 API와 Workshop 소비자 이전](https://github.com/bluetape4k/bluetape4k-projects/issues/1917), milestone `2.2.0`, assignee `debop`, 검토 시 OPEN
-- 계획: `docs/superpowers/plans/2026-11-24-issue-1917-shared-digester-plan.md`, SHA-256 `fc8af928fe2f501b6c1e4c8345831073724cedbd3995f9e703c8e59125568931`
+- 계획: `docs/superpowers/plans/2026-11-24-issue-1917-shared-digester-plan.md`, SHA-256 `9d2f51014d7ee51f008b7b26af2f3b3bf2b26abba0b64a39a9327d5578a83582`
 - 설계 명세: `docs/superpowers/specs/2026-11-23-shared-digester-design.md`, SHA-256 `a8926875835e2b3744c721936e0fcebf83961013f10774d4c5dbe6b1b3ebbd39`
 - 명세 리뷰: `docs/superpowers/reviews/2026-11-23-shared-digester-spec-review.md`, SHA-256 `11853ab203a5ab8ae4a9887dd7d32d9838c695935cb79b4a326cc27ae0ef6ad8`
 - 검토 목적: 승인된 `Digesters.SHA256` API와 기존 `TinkDigester` 호환 어댑터, Workshop 이전의 구현 순서·검증·롤백이 명세를 빠짐없이 실행하는지 확인한다.
@@ -22,13 +22,14 @@
 | 호출자 | 독립 `writer`, 계획 SHA-256 현 해시와 검토 전후 동일 | 통과 | `Digesters` 이름, Kotlin/Java 예제, framing/output 보존, 9개 모듈·29개 파일 범위를 확인했다. |
 | 통합 | 주 세션에서 설계 명세, 구현 계획, repo/workspace 규칙을 대조 | 통과 | 명세 acceptance 14개 항목이 Traceability 표 및 Task 1–8에 연결되고 선행 산출물 의존이 뒤집히지 않는다. |
 
-중단된 네 review lane은 독립 통과로 기록하지 않는다. 보안, 안정성, 운영, API 관점의 인라인 검토는 workflow의 bounded fallback이며 독립 리뷰 증거와 구분한다. 성능 독립 리뷰는 최종 계획 해시 직전 버전에서 수행됐다. 현재 해시에서 바뀐 유일한 계획 내용은 Task 6의 regex call count 제거이며 성능 구간은 바뀌지 않았다.
+중단된 네 review lane은 독립 통과로 기록하지 않는다. 보안, 안정성, 운영, API 관점의 인라인 검토는 workflow의 bounded fallback이며 독립 리뷰 증거와 구분한다. 성능 독립 리뷰는 최종 계획 해시 직전 버전에서 수행됐다. 그 뒤의 변경은 Task 6의 regex call count 제거와 아래 URL-safe Base64 fixture 기대값 정정이다. 성능 구간은 바뀌지 않았다. 호출자 `writer` reviewer `plan_caller_r6`가 현재 SHA-256에서 URL-safe alphabet, padding, 인접 표준 예제를 다시 대조하고 추가 P0/P1 없이 통과했다.
 
 ## 발견 사항과 조치
 
 | 우선순위 | 관점 | 발견 및 근거 | 조치와 재검토 |
 |---|---|---|---|
 | P1 | 호출자 | 이전 계획은 `Digesters.SHA256.newSession()`과 뒤의 `DigestSession.digest*()`를 각각 세면서 정규식 합계가 35여야 통과했다. 한 논리 호출이 두 번 집계될 수 있었다. | Task 7 검증 스크립트에서 총 호출 수 조건을 제거하고 파일별 API 사용 여부만 검사한다. 35개 논리 호출은 Task 6의 35-row parity 표로만 증명한다. 독립 호출자 재검토는 현 계획 해시에서 이 수정을 확인하고 추가 P0/P1 없이 통과했다. |
+| P1 | API·호출자 | Java fixture는 `Base64Format.URL_SAFE_UNPADDED`를 호출하면서 SHA-256 기대값에 표준 alphabet `+`와 `/`를 기록했다. 이는 enum 이름과 명세의 URL-safe 계약에 모순된다. | 기대값을 `ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0`로 고쳤다. JDK `Base64.getUrlEncoder().withoutPadding()` 출력과 일치하며, 독립 호출자 리뷰가 현재 계획 hash에서 URL-safe 문자·padding 없음 및 인접 `STANDARD_UNPADDED` 예제를 확인했다. 남은 P0/P1은 없다. |
 | 보안·안정성 | 보안·안정성 | 초기 계획은 provider/예외 경계, 세션 상태 전이, 동시 격리, 취소 전파, rollback 및 benchmark 증거를 충분히 고정하지 않았다. | Task 1–7에 요청 사항을 반영했다. 인라인 재검토에서 구현 전에 각 계약을 증명할 위치, 테스트, 출력 보존 또는 rollback 경로를 확인했다. |
 | 성능 | 성능 | 초기 benchmark task는 측정 구간과 reproducibility/raw output 보존을 충분히 지정하지 않았다. | Task 5에 네 측정 경로, timed region, 세션 초기화 비용 귀속, 결정적 payload, 전체 실행 환경, fork별 오차와 원시 JMH 출력을 지정했다. 독립 performance reviewer가 수정 계획을 승인했다. |
 
@@ -40,7 +41,7 @@
 
 ## 통합 판단
 
-설계 명세와 계획은 같은 `Digesters` 이름과 `io.bluetape4k.io.digest` 계약을 사용한다. 계획은 public API와 기존 Tink ABI, `io/tink -> io/io` 의존 방향, strict Base64와 legacy matcher 차이, 소비자 framing/output, 키와 MAC 경계, 세션 수명, 동시성·취소, benchmark, 모듈 검증 및 rollback을 작업과 증거에 연결한다. Workshop의 기존 catalog/settings 변경을 제외하고 외부 게시·PR·merge는 실행하지 않는다.
+설계 명세와 정정 계획은 같은 `Digesters` 이름과 `io.bluetape4k.io.digest` 계약을 사용한다. 계획은 public API와 기존 Tink ABI, `io/tink -> io/io` 의존 방향, strict Base64와 legacy matcher 차이, 소비자 framing/output, 키와 MAC 경계, 세션 수명, 동시성·취소, benchmark, 모듈 검증 및 rollback을 작업과 증거에 연결한다. Java URL-safe unpadded 기대값은 JDK 출력과 독립 호출자 검토로 다시 고정했다. Workshop의 기존 catalog/settings 변경을 제외하고 외부 게시·PR·merge는 실행하지 않는다.
 
 35행 parity 표는 아직 작성되지 않았으므로 구현의 선행조건으로 남는다. 이 조건은 계획에 명시되어 있어 계획 승인 자체를 막지 않는다. 그 밖에 해결되지 않은 P0/P1 또는 계획 단계 P2/P3은 없다.
 

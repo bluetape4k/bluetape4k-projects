@@ -161,7 +161,7 @@ String codecExplicit = Base64Codec.encode(
     new byte[] {(byte) 0xfb, (byte) 0xff}, Base64Format.STANDARD_UNPADDED);
 byte[] codecExplicitDecoded = Base64Codec.decode("+/8", Base64Format.STANDARD_UNPADDED);
 assertEquals("ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0=", defaultBase64);
-assertEquals("ungWv48Bz+pBQUDeXa4iI7ADYaOWF3qctBD/YfIAFa0", explicitBase64);
+assertEquals("ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0", explicitBase64);
 assertEquals("-_8=", codecDefault);
 assertArrayEquals(new byte[] {(byte) 0xfb, (byte) 0xff}, codecDecoded);
 assertEquals("+/8", codecExplicit);
