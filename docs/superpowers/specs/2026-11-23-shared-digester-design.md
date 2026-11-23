@@ -25,7 +25,7 @@ Google Tink의 MAC은 공유 대칭 키로 인증 태그를 계산하고 검증�
 
 ### 포함
 
-- `io/io`에 `Digester`, 상태를 가진 `DigestSession`, JDK 기반 `JdkDigester`, SHA-256 기본 접근점 `DigestUtils.SHA256`을 추가한다.
+- `io/io`에 `Digester`, 상태를 가진 `DigestSession`, JDK 기반 `JdkDigester`, SHA-256 기본 접근점 `Digesters.SHA256`을 추가한다.
 - 다이제스트 바이트, UTF-8 문자열 입력, 증분 update, 소문자 16진수, Base64 인코딩 및 검증을 제공한다.
 - Base64 URL-safe/standard 알파벳과 padding 여부를 명시하는 API를 제공한다.
 - 기존 `TinkDigester`의 public 시그니처와 결과를 유지하면서 공통 `Digester` 인터페이스를 구현하게 한다.
@@ -41,7 +41,9 @@ Google Tink의 MAC은 공유 대칭 키로 인증 태그를 계산하고 검증�
 
 ## 선택한 API 경계
 
-공개 package는 `io.bluetape4k.io.digest`다. 소스 위치는 `io/io/src/main/kotlin/io/bluetape4k/io/digest/`이며 Gradle project 이름은 `:bluetape4k-io`다. 공개 파일은 `Digester.kt`, `DigestSession.kt`, `JdkDigester.kt`, `DigestUtils.kt`, `Base64Codec.kt`, `Base64Format.kt`로 나누고 각 public type/method의 한국어 KDoc을 작성한다. `JdkDigestSession`은 이 package의 internal 구현으로 둔다.
+공개 package는 `io.bluetape4k.io.digest`다. 소스 위치는 `io/io/src/main/kotlin/io/bluetape4k/io/digest/`이며 Gradle project 이름은 `:bluetape4k-io`다. 공개 파일은 `Digester.kt`, `DigestSession.kt`, `JdkDigester.kt`, `Digesters.kt`, `Base64Codec.kt`, `Base64Format.kt`로 나누고 각 public type/method의 한국어 KDoc을 작성한다. `JdkDigestSession`은 이 package의 internal 구현으로 둔다.
+
+SHA-256 기본 접근점의 이름은 `Digesters`다. 이전 설계 초안의 `DigestUtils` 이름은 이 문서에서 `Digesters`로 변경했으며, 새 API가 아직 공개·배포되지 않았으므로 이전 이름의 별칭은 추가하지 않는다. 기존 `io.bluetape4k.tink.digest.TinkDigesters`는 별도 API로 그대로 유지한다.
 
 `Digester`는 불변 알고리즘 제공자이며 여러 작업에서 공유할 수 있다. 각 `newSession()` 호출은 독립적인 `MessageDigest` 상태를 가진 새 `DigestSession`을 반환한다. 세션은 변경 가능하고 스레드 안전하지 않으므로 작업 단위마다 만든다. 여러 조각을 순서대로 `update`하면 배열을 합치는 중간 복사 없이 기존 계산을 표현할 수 있다. 기존 코드에 구분자나 길이 접두사가 있으면 그 바이트 조합을 그대로 유지한다.
 
@@ -75,7 +77,7 @@ interface DigestSession {
     fun digestHex(): String
 }
 
-object DigestUtils {
+object Digesters {
     @JvmField val SHA256: Digester = JdkDigester("SHA-256")
 }
 
@@ -96,15 +98,15 @@ object Base64Codec {
 }
 ```
 
-Java 소비자는 `DigestUtils.SHA256` 필드와 format 생략/명시 overload를 직접 호출한다. `Base64Codec` 공개 함수는 `@JvmStatic`으로 노출한다. `io/io/src/test/java/io/bluetape4k/io/digest/`에 실제 Java 호출 및 JVM descriptor 확인 fixture를 둔다.
+Java 소비자는 `Digesters.SHA256` 필드와 format 생략/명시 overload를 직접 호출한다. `Base64Codec` 공개 함수는 `@JvmStatic`으로 노출한다. `io/io/src/test/java/io/bluetape4k/io/digest/`에 실제 Java 호출 및 JVM descriptor 확인 fixture를 둔다.
 
 Kotlin 사용 예시는 입력 표현과 wire 형식을 구분한다.
 
 ```kotlin
-val rawHash = DigestUtils.SHA256.digest(payloadBytes)
-val textHash = DigestUtils.SHA256.digestUtf8("문자열 입력은 UTF-8")
-val fingerprint = DigestUtils.SHA256.digestBase64(payloadBytes, Base64Format.URL_SAFE_UNPADDED)
-val multipartHash = DigestUtils.SHA256.newSession()
+val rawHash = Digesters.SHA256.digest(payloadBytes)
+val textHash = Digesters.SHA256.digestUtf8("문자열 입력은 UTF-8")
+val fingerprint = Digesters.SHA256.digestBase64(payloadBytes, Base64Format.URL_SAFE_UNPADDED)
+val multipartHash = Digesters.SHA256.newSession()
     .update(firstField)
     .update(separatorByte)
     .update(secondField)
@@ -138,7 +140,7 @@ val multipartHash = DigestUtils.SHA256.newSession()
 
 ## 구현과 의존 방향
 
-1. `io/io`는 `io.bluetape4k.io.digest` package에 독립적인 `Digester` 계약, `DigestSession`, JDK 구현, Base64 codec, `DigestUtils.SHA256`을 소유한다. API KDoc은 한국어로 작성하고 `io/io/README.md`와 `README.ko.md`에 각각 해당 locale 예제를 추가한다.
+1. `io/io`는 `io.bluetape4k.io.digest` package에 독립적인 `Digester` 계약, `DigestSession`, JDK 구현, Base64 codec, `Digesters.SHA256`을 소유한다. API KDoc은 한국어로 작성하고 `io/io/README.md`와 `README.ko.md`에 각각 해당 locale 예제를 추가한다.
 2. `io/tink`는 `api(project(":bluetape4k-io"))` 방향으로 의존한다. `TinkDigester`는 기존 생성자와 메서드를 유지하고 하나의 `JdkDigester` 위임체로 공통 인터페이스를 구현한다. `algorithmName` 공개 property는 `Digester.algorithm`에 매핑하며 기존 JVM getter를 보존한다. 이 클래스가 실제 Tink primitive를 사용한다고 문서화하지 않는다.
 3. 기존 `TinkDigester` 공개 메서드는 다음처럼 위임하거나 호환 구현을 유지한다.
 
@@ -193,7 +195,7 @@ val multipartHash = DigestUtils.SHA256.newSession()
 `VoucherPoolKeyMaterialConfiguration`은 digest byte zeroization을 보존하므로 편의 `digestHex`로 바꾸지 않는다. `VoucherCodeService`의 Base58 checksum도 출력 변환을 그대로 남기고 digest byte만 공통 API에서 얻는다. 두 경로 모두 공개 API가 기존 특수 동작을 흡수하지 않는 예외다.
 
 4. `io/io`의 불필요한 `compileOnly(project(":bluetape4k-tink"))`를 제거해 역방향 의존과 cycle을 없앤다.
-5. Workshop은 기존 `bluetape4k-io` catalog alias를 사용해 dependency를 직접 선언하고 `DigestUtils.SHA256`의 one-shot 또는 session API를 사용한다. 실제 호출별 입력 조합 순서와 반환 표현은 migration table대로 기존과 같아야 한다.
+5. Workshop은 기존 `bluetape4k-io` catalog alias를 사용해 dependency를 직접 선언하고 `Digesters.SHA256`의 one-shot 또는 session API를 사용한다. 실제 호출별 입력 조합 순서와 반환 표현은 migration table대로 기존과 같아야 한다.
 6. 각 공개 type/method의 한국어 KDoc, 두 README locale의 사용 예, Workshop consumer migration 예제를 acceptance에 포함한다.
 
 ## 호환성 및 보안 경계
@@ -201,7 +203,7 @@ val multipartHash = DigestUtils.SHA256.newSession()
 - `TinkDigester` 생성자, `algorithmName` property, `digest(ByteArray)`, `digest(String)`, `digestHex(String)`, 두 `matches` overload, `matchesHex`, `toString`, `TinkDigesters` property 타입과 접근 방식을 보존한다.
 - `digest(String)` 결과는 UTF-8 + URL-safe padded Base64로 유지한다. `matches(String, String)`은 기존처럼 malformed Base64를 `false`로 처리한다. `matchesHex`는 길이와 lowercase `0-9a-f` 형식을 검사한 뒤 constant-time digest byte 비교를 한다.
 - 새 API는 일반 digest 출력만 제공한다. 일반 digest는 입력의 무결성/출처 인증을 하지 않는다. 공유 비밀을 가진 당사자 사이에서 인증 태그를 만들어 검증하려면 HMAC 같은 keyed MAC을 사용한다. 검증자가 비밀키를 가질 수 없고 공개 검증이 필요하면 서명을 사용한다. 키 없는 SHA-256은 어느 경우에도 인증을 대신하지 않는다.
-- `JdkDigester`는 JDK가 제공하는 알고리즘 이름을 그대로 받는다. MD5와 SHA-1은 레거시 비보안 checksum 호환 목적만 허용하고 인증·collision resistance가 필요한 목적에는 사용하지 않도록 constructor KDoc에서 경고한다. 일반 소비자는 `DigestUtils.SHA256`을 우선 사용한다.
+- `JdkDigester`는 JDK가 제공하는 알고리즘 이름을 그대로 받는다. MD5와 SHA-1은 레거시 비보안 checksum 호환 목적만 허용하고 인증·collision resistance가 필요한 목적에는 사용하지 않도록 constructor KDoc에서 경고한다. 일반 소비자는 `Digesters.SHA256`을 우선 사용한다.
 - `DigestSession`은 provider 내부 상태를 안전하게 지우는 `clear`/`close` 계약을 제공하지 않으며, `digest()`/`digestHex()`의 reset은 secure erasure 보장이 아니다. 이 API를 민감 데이터의 안전한 메모리 폐기 수단으로 사용하지 않는다. 호출자가 소유한 민감 `ByteArray`는 호출자가 관리하고 필요하면 직접 zeroize한다.
 - 기존 `TinkDigester.matches(String, String)`은 호환성을 위해 기존 Base64 decoder 허용 범위를 유지하며 `Base64Format`별 alphabet, padding, canonical pad bits 검증을 보장하지 않는다. 기존 메서드의 이 동작은 compatibility test로 고정한다. 프로토콜에서 Base64 표현의 canonical 형식도 검증해야 하면 새 `matchesBase64(data, expected, format)` 또는 `Base64Codec.decode(text, format)`을 사용한다. `TinkDigester.matches(String, String)`은 unkeyed digest 비교이므로 인증 수단으로 사용하지 않는다.
 - Workshop 이전은 계산 입력의 framing이나 출력을 바꾸지 않는다. 독립 JDK oracle이 이미 있는 테스트는 oracle 구현을 새 API로 치환하지 않는다.
@@ -210,6 +212,8 @@ val multipartHash = DigestUtils.SHA256.newSession()
 ## Workshop artifact 순서
 
 소스 변경 순서는 Projects API 구현·검증 후 Workshop 소비자 이전이다. 다만 현재 Workshop catalog는 `2.1.0`을 고정하고 `2.2.0-SNAPSHOT`은 원격에서 조회되지 않는다. 따라서 Workshop의 새 dependency version을 사용할 때는 Projects artifact가 실제로 사용 가능한 시점이 필요하다.
+
+각 Workshop 대상 module을 수정하기 전에 해당 worktree의 `git rev-parse HEAD`와 `git status --short --untracked-files=all` 결과를 기록하고, 기존 변경 파일과 작업이 새로 수정·추가한 파일을 module별 manifest로 구분한다. 롤백은 이 manifest의 작업 소유 경로만 migration 직전 상태로 되돌리고, 기준 목록에 없던 변경은 보존한다. 이 기준 정보와 롤백 결과는 구현 계획의 migration 증거에 남긴다.
 
 Workshop의 로컬 targeted compile/test는 Gradle CLI composite-build 옵션 `--include-build <projects-worktree>`로 실행한다. Projects build의 `group:name`은 `io.github.bluetape4k:bluetape4k-io`이고 Workshop catalog alias도 같은 module 좌표를 요청한다. `dependencyInsight` 결과에서 선택된 component가 Projects worktree의 `:bluetape4k-io`인지 확인한다. 이 방식은 Workshop `settings.gradle.kts`와 catalog를 임시 수정하지 않는다. 확인 뒤 `git status`, `git diff --check`, `git diff -- settings.gradle.kts gradle/libs.versions.toml`을 읽어 임시 설정이 남지 않았음을 증명한다.
 
@@ -226,13 +230,13 @@ Workshop의 로컬 targeted compile/test는 Gradle CLI composite-build 옵션 `-
 
 이번 작업은 publication을 자동으로 수행하지 않는다. 중앙에서 Projects `2.2.0-SNAPSHOT` artifact를 사용할 수 있기 전에는 외부 CI/기본 checkout에서 Workshop dependency resolution이 완료됐다고 주장하지 않는다. 이 publication 경계는 코드 구현과 별도 승인 사항으로 남긴다.
 
-Workshop migration compile/test에서 기존 bytes 또는 wire 표현이 달라지면 해당 변경을 중단한다. 실패 지점을 입력/framing/output table에 기록하고 task가 추가한 Workshop migration 파일만 migration 직전 tree로 되돌린다. Projects API 변경은 보존한다. CLI composite-build 인자 외에 `/tmp`의 task 전용 설정 파일이 추가된 경우 이를 삭제한 뒤 Workshop branch status/diff와 catalog/settings 비변경을 다시 확인하고, 보정된 매핑으로 migration을 재개한다.
+Workshop migration compile/test에서 기존 bytes 또는 wire 표현이 달라지면 해당 변경을 중단한다. 실패 지점을 입력/framing/output table에 기록하고 module별 기준 manifest에 기록한 작업 소유 경로만 migration 직전 tree로 되돌린다. Projects API 변경과 기준 manifest에 없던 기존 파일 변경은 보존한다. CLI composite-build 인자 외에 `/tmp`의 task 전용 설정 파일이 추가된 경우 이를 삭제한 뒤 Workshop branch status/diff와 catalog/settings 비변경을 다시 확인하고, 보정된 매핑으로 migration을 재개한다.
 
 ## 실패와 재시도 동작
 
 - `JdkDigester`가 지원하지 않는 알고리즘을 받으면 JDK의 `NoSuchAlgorithmException`이 발생한다. 이를 다른 알고리즘으로 대체하거나 예외를 숨기지 않는다.
 - Base64 decoder는 선택한 alphabet/padding 형식과 맞지 않거나 공백, non-canonical pad bits가 있는 입력을 `IllegalArgumentException`으로 거부한다. 신규 `matchesBase64`는 decoder의 해당 예외만 `false`로 바꾸고 다른 provider/runtime 오류는 전파한다. 기존 `matches(String, String)`은 레거시 decode 동작과 malformed 기대값 `false` 결과를 보존한다.
-- 각 digest 호출은 별도 세션을 사용한다. 공유 `Digester` 인스턴스 상태를 재사용하지 않아 요청 간 byte 혼합이 발생하지 않는다.
+- 각 digest 호출은 별도 세션을 사용한다. 공유 `Digester` 인스턴스로부터 동시에 만든 독립 세션도 요청 간 byte 상태를 섞지 않는다.
 - 같은 세션에서 `update → digest → update → digest` 및 `update → digestHex → update → digestHex`를 수행한 결과는 각 입력의 별도 one-shot 결과와 같아야 한다. `digest()`와 `digestHex()`는 각각 결과 반환 후 세션을 초기 상태로 되돌린다.
 - Workshop의 기존 데이터 계약을 보존하지 못하는 테스트가 발견되면 해당 사용처 이전을 중단하고 framing/output 차이를 바로잡는다. 데이터를 재작성하거나 읽기 호환을 임의로 도입하지 않는다.
 
@@ -251,14 +255,14 @@ Workshop migration compile/test에서 기존 bytes 또는 wire 표현이 달라�
 2. SHA-256 알려진 벡터 `abc`가 raw bytes, lowercase hex `ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad`, URL-safe padded Base64 `ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0=`와 일치한다.
 3. 네 Base64 형식 각각의 alphabet/padding round-trip과 wrong alphabet, padding 불일치, 공백, malformed input, non-canonical pad bits 거부를 테스트한다. Hex 검증은 길이 오류, uppercase, 일치/불일치를 다룬다.
 4. `matchesBase64`는 malformed decode의 `IllegalArgumentException`만 `false`로 바꾸며 다른 오류는 전파한다. raw/hex digest 비교는 `MessageDigest.isEqual`을 사용한다.
-5. 여러 번 update한 결과가 one-shot digest와 일치하고, 한 세션에서 `digest()` 또는 `digestHex()` 후 update/reuse한 결과도 각각의 독립 one-shot 결과와 같으며 세션 간 결과가 섞이지 않는다.
+5. 여러 번 update한 결과가 one-shot digest와 일치하고, 한 세션에서 `digest()` 또는 `digestHex()` 후 update/reuse한 결과도 각각의 독립 one-shot 결과와 같다. 공유 `Digesters.SHA256`에서 동시에 생성한 다수의 세션으로 서로 다른 입력을 계산하는 테스트가 각 결과를 독립 one-shot 벡터와 비교해 상태 혼합이 없음을 확인한다.
 6. 기존 `TinkDigesterTest` 결과와 public JVM signatures가 보존되며 신규 interface 경로도 같은 결과를 낸다. `getAlgorithmName()` descriptor, URL-safe padded golden output, 기존 `matches(String, String)`의 decoder 허용 동작과 malformed 입력의 `false` 결과를 확인한다.
-7. Java consumer fixture가 `DigestUtils.SHA256`, `Base64Codec` static API, format 기본/명시 overload를 컴파일·실행하고 해당 JVM descriptor를 확인한다.
+7. Java consumer fixture가 `Digesters.SHA256`, `Base64Codec` static API, format 기본/명시 overload를 컴파일·실행하고 해당 JVM descriptor를 확인한다.
 8. 공개 API 한국어 KDoc이 각 type/method에 있고 session reset과 secure erasure 비보장, strict `matchesBase64`와 legacy `TinkDigester.matches(String, String)`의 차이를 설명한다. `io/io/README.md`와 `README.ko.md`에 해당 언어의 사용 예가 있고 Workshop migration 예제는 raw bytes, UTF-8, 증분 update, 명시적 Base64 형식을 구분한다.
 9. migration table의 unkeyed SHA-256 production 소비자 29개 파일·35개 호출이 공통 API를 사용한다. HMAC, test oracle, fixture 데이터, 기존 field order/framing/digest bytes/Base64/hex/truncation 결과는 변경되지 않는다.
-10. `JdkDigester` KDoc은 MD5/SHA-1을 비보안 레거시 checksum 목적으로만 안내하고 일반 소비자는 `DigestUtils.SHA256` 사용을 권장한다. keyed MAC과 공개 검증이 필요한 signature의 선택 기준도 문서에 있다.
-11. Workshop의 각 영향 module은 Projects worktree를 포함한 `--include-build` targeted compile/test와 `dependencyInsight`로 검증하고 선택된 component가 Projects `:bluetape4k-io`인지 확인한다. Settings/catalog에 임시 변경이 없고 rollback 경로가 남아 있다. 원격 artifact가 없어 기본 CI에서 검증할 수 없는 상태도 기록한다.
-12. `io/io/src/test/kotlin/io/bluetape4k/io/benchmark/DigestBenchmark.kt`를 추가하고 `@State(Scope.Thread)`, `@BenchmarkMode(Mode.Throughput)`, `@Warmup(iterations = 2, time = 1, timeUnit = TimeUnit.SECONDS)`, `@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)`를 적용한다. 이는 기존 `SameConditionCompressorBenchmark.kt`의 측정 설정을 따른다. `@Param("64", "1024", "65536")` 입력을 `@Setup`에서 준비한다. 다음 네 경로를 비교한다: 매 호출에서 `MessageDigest.getInstance("SHA-256")`를 만드는 직접 one-shot baseline, `DigestUtils.SHA256.digest(payload)` one-shot, 매 호출에서 새 세션을 만드는 분할 입력 incremental, 미리 만든 thread-local 단일 세션을 반복 재사용하는 `update → digest` 경로. 분할 입력을 합친 바이트가 one-shot payload와 같은지 `@Setup`에서 검증한다. one-shot과 세션별 경로는 매 호출 세션 생성 비용을 포함하고, 세션 재사용 경로만 세션 생성 비용을 측정 구간 밖으로 둔다. `./gradlew :bluetape4k-io:benchmark`로 실행하며 JVM·OS·CPU, 실행 명령, 각 경로의 throughput 결과를 `io/io/src/test/kotlin/io/bluetape4k/io/benchmark/README.md`에 기록한다. 성능 향상 주장은 하지 않으며 이 측정은 반복 호출/증분 경로의 회귀 진단으로 취급한다.
+10. `JdkDigester` KDoc은 MD5/SHA-1을 비보안 레거시 checksum 목적으로만 안내하고 일반 소비자는 `Digesters.SHA256` 사용을 권장한다. keyed MAC과 공개 검증이 필요한 signature의 선택 기준도 문서에 있다.
+11. Workshop의 각 영향 module은 Projects worktree를 포함한 `--include-build` targeted compile/test와 `dependencyInsight`로 검증하고 선택된 component가 Projects `:bluetape4k-io`인지 확인한다. 이전 전 module별로 `git rev-parse HEAD`와 status/변경 경로 manifest를 저장하고, 롤백은 작업이 소유한 경로만 복원한다. Settings/catalog에 임시 변경이 없고 롤백 기준과 결과가 남아 있다. 원격 artifact가 없어 기본 CI에서 검증할 수 없는 상태도 기록한다.
+12. `io/io/src/test/kotlin/io/bluetape4k/io/benchmark/DigestBenchmark.kt`를 추가하고 `@State(Scope.Thread)`, `@BenchmarkMode(Mode.Throughput)`, `@Warmup(iterations = 2, time = 1, timeUnit = TimeUnit.SECONDS)`, `@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)`를 적용한다. 이는 기존 `SameConditionCompressorBenchmark.kt`의 측정 설정을 따른다. `@Param("64", "1024", "65536")` 입력을 `@Setup`에서 준비한다. 다음 네 경로를 비교한다: 매 호출에서 `MessageDigest.getInstance("SHA-256")`를 만드는 직접 one-shot baseline, `Digesters.SHA256.digest(payload)` one-shot, 매 호출에서 새 세션을 만드는 분할 입력 incremental, 미리 만든 thread-local 단일 세션을 반복 재사용하는 `update → digest` 경로. 분할 입력을 합친 바이트가 one-shot payload와 같은지 `@Setup`에서 검증한다. one-shot과 세션별 경로는 매 호출 세션 생성 비용을 포함하고, 세션 재사용 경로만 세션 생성 비용을 측정 구간 밖으로 둔다. `./gradlew :bluetape4k-io:testBenchmarkCompile`로 compile을 확인하고 `./gradlew :bluetape4k-io:testBenchmark`로 실행하며 JVM·OS·CPU, 실행 명령, 각 경로의 throughput 결과를 `io/io/src/test/kotlin/io/bluetape4k/io/benchmark/README.md`에 기록한다. 성능 향상 주장은 하지 않으며 이 측정은 반복 호출/증분 경로의 회귀 진단으로 취급한다.
 13. Projects와 Workshop targeted tests, Java/JVM API 확인, `git diff --check`가 통과하고 두 저장소 diff에 의도하지 않은 파일이 없다.
 14. PR, merge, tag, release, Projects `2.2.0-SNAPSHOT` artifact 게시를 수행하지 않는다.
 
