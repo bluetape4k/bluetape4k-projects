@@ -9,6 +9,12 @@ allOpen {
 }
 // https://github.com/Kotlin/kotlinx-benchmark
 benchmark {
+    configurations {
+        register("digest") {
+            include("io.bluetape4k.io.benchmark.DigestBenchmark.*")
+            advanced("jvmForks", "definedByJmh")
+        }
+    }
     targets {
         register("test") {
             this as kotlinx.benchmark.gradle.JvmBenchmarkTarget
@@ -29,7 +35,6 @@ configurations {
 dependencies {
     api(project(":bluetape4k-core"))
 
-    compileOnly(project(":bluetape4k-tink"))
     testImplementation(project(":bluetape4k-junit5"))
 
     // Apache Commons

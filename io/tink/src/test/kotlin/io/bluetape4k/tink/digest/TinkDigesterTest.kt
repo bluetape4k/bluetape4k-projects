@@ -1,12 +1,17 @@
 package io.bluetape4k.tink.digest
 
+import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEqualTo
+import io.bluetape4k.io.digest.Base64Format
+import io.bluetape4k.io.digest.Digester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toUtf8Bytes
 import io.bluetape4k.tink.AbstractTinkTest
+import java.security.NoSuchAlgorithmException
+import java.util.HexFormat
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -115,6 +120,56 @@ class TinkDigesterTest: AbstractTinkTest() {
     @Test
     fun `기존 문자열 digest는 Base64 계약을 유지한다`() {
         digester.digest("abc") shouldBeEqualTo "ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0="
+    }
+
+    @Test
+    fun `기존 Base64 matcher는 URL-safe unpadded 입력도 허용한다`() {
+        val expected = digester.digest("abc")
+
+        digester.matches("abc", expected.removeSuffix("=")).shouldBeTrue()
+        digester.matches("abc", "not-base64-!").shouldBeFalse()
+    }
+
+    @Test
+    fun `각 preset은 기존 호출과 공통 Digester 계약을 함께 제공한다`() {
+        val vectors = listOf(
+            TinkDigesters.MD5 to "900150983cd24fb0d6963f7d28e17f72",
+            TinkDigesters.SHA1 to "a9993e364706816aba3e25717850c26c9cd0d89d",
+            TinkDigesters.SHA256 to "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+            TinkDigesters.SHA384 to "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7",
+            TinkDigesters.SHA512 to "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",
+        )
+        val input = "abc"
+        val inputBytes = input.toUtf8Bytes()
+
+        vectors.forEach { (adapter, expectedHex) ->
+            val contract: Digester = adapter
+            val expectedDigest = HexFormat.of().parseHex(expectedHex)
+            val expectedBase64 = java.util.Base64.getUrlEncoder().encodeToString(expectedDigest)
+
+            adapter.algorithmName shouldBeEqualTo adapter.algorithm
+            adapter.digest(input) shouldBeEqualTo expectedBase64
+            adapter.digest(inputBytes) shouldBeEqualTo expectedDigest
+            adapter.digestHex(input) shouldBeEqualTo expectedHex
+            adapter.matches(inputBytes, expectedDigest).shouldBeTrue()
+            adapter.matches(input, expectedBase64).shouldBeTrue()
+            adapter.matchesHex(input, expectedHex).shouldBeTrue()
+
+            contract.digestUtf8(input) shouldBeEqualTo expectedDigest
+            contract.digestBase64Utf8(input, Base64Format.URL_SAFE_UNPADDED) shouldBeEqualTo expectedBase64.trimEnd('=')
+            contract.digestHexUtf8(input) shouldBeEqualTo expectedHex
+            contract.matchesBase64(inputBytes, expectedBase64).shouldBeTrue()
+            contract.matchesHexUtf8(input, expectedHex).shouldBeTrue()
+            contract.newSession().update(inputBytes).digest() shouldBeEqualTo expectedDigest
+        }
+    }
+
+    @Test
+    fun `지원하지 않는 알고리즘은 세션 생성 시 JDK 예외를 전달한다`() {
+        val unsupported = TinkDigester("issue-1917-unsupported")
+
+        assertFailsWith<NoSuchAlgorithmException> { unsupported.newSession() }
+        assertFailsWith<NoSuchAlgorithmException> { unsupported.digest("abc") }
     }
 
     @Test
