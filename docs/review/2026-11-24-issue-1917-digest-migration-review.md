@@ -317,11 +317,11 @@ Projects `feat/digest-api`의 리뷰 기준 HEAD는 `9122e244669f1667551d4964eb2
 
 성능·운영 초기 리뷰는 benchmark README가 `DigestBenchmark.kt`가 존재하지 않는 `9122e244...`를 실행 HEAD로 적은 P1을 찾았다. benchmark를 `ac67509466d88f348725be9dcf45eb9a4cb2d369`에서 다시 실행하고 README를 그 실행 커밋 및 source SHA-256 `61796235ba9c9549...`로 고쳤다. 커밋에는 benchmark source가 존재하며 source hash가 일치한다. README의 내장 JSON은 raw report `io/io/build/reports/benchmarks/digest/2026-11-24T14.49.54.414591/test.json`과 구조·수치가 동일하고, 12개 조합 각각 `forks=2`, 1 thread, warmup 2회, 측정 5회다. 성능 리뷰는 이 증거를 exact branch에서 독립 확인했다.
 
-운영 리뷰가 지적한 이전 기준 문서 표시는 이 갱신에서 과거 기록으로 명확히 구분했다. 기존 workflow receipt는 구현 단계 기록으로 유지하고, 완료 상태를 확인한다. PR 진행은 현재 branch/head를 명시한 별도 delivery receipt로 추적한다. 새 receipt에는 현재 exact-head 리뷰를 결속하며, 운영 관점 재검토 결과가 PASS가 될 때까지 PR 생성을 보류한다.
+운영 리뷰가 지적한 이전 기준 문서 표시는 이 갱신에서 과거 기록으로 명확히 구분했다. 기존 workflow receipt는 당시 구현 단계 기록으로 보존하며 PR delivery 증거로 사용하지 않는다. 불완전한 구현 단계 receipt는 그 범위와 미완료 gate를 남긴 채 종료하고, PR 진행은 현재 branch/head를 명시한 별도 delivery receipt로 추적한다. 새 receipt에는 현재 exact-head 리뷰를 결속하며, 운영 관점 재검토 결과가 PASS가 될 때까지 PR 생성을 보류한다.
 
 ### 통합 판단
 
-현재 코드 후보에서 P0=0, P1=1, P2=0, P3=0이다. 남은 P1은 코드 동작이 아니라 이전 리뷰 문서와 receipt의 기준 표시가 최신 코드 HEAD에 맞지 않던 문제다. 이 문서는 과거 리뷰를 이력으로 구분하고 새 Projects 검토 기준을 추가했다. 기존 구현 receipt를 완료하고 현재 HEAD용 PR delivery receipt를 생성한 뒤 운영 리뷰를 다시 수행한다. 이 순서가 끝날 때까지 PR 생성은 pending이다.
+현재 코드 후보에서 P0=0, P1=1, P2=0, P3=0이다. 남은 P1은 코드 동작이 아니라 이전 리뷰 문서와 receipt의 기준 표시가 최신 코드 HEAD에 맞지 않던 문제다. 이 문서는 과거 리뷰를 이력으로 구분하고 새 Projects 검토 기준을 추가했다. 기존 구현 receipt를 PR 근거로 승격하지 않고 구현 단계 기록으로 종료한 다음, 현재 HEAD용 PR delivery receipt를 생성하고 운영 리뷰를 다시 수행한다. 이 순서가 끝날 때까지 PR 생성은 pending이다.
 
 ### 아직 수행하지 않은 외부 검증
 
