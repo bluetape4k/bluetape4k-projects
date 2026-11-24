@@ -1,11 +1,12 @@
 package io.bluetape4k.tink.digest
 
 import io.bluetape4k.codec.decodeBase64ByteArray
-import io.bluetape4k.codec.encodeBase64String
+import io.bluetape4k.io.digest.DigestSession
+import io.bluetape4k.io.digest.Digester
+import io.bluetape4k.io.digest.JdkDigester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.support.toUtf8Bytes
 import java.security.MessageDigest
-import java.util.*
 
 /**
  * JDK [MessageDigest] 기반의 해시 다이제스트 클래스입니다.
@@ -25,9 +26,16 @@ import java.util.*
  */
 class TinkDigester(
     val algorithmName: String,
-) {
+): Digester {
 
     companion object: KLogging()
+
+    private val delegate = JdkDigester(algorithmName)
+
+    override val algorithm: String
+        get() = algorithmName
+
+    override fun newSession(): DigestSession = delegate.newSession()
 
     /**
      * 바이트 배열의 해시 다이제스트를 계산합니다.
@@ -35,7 +43,7 @@ class TinkDigester(
      * @param data 해시할 바이트 배열
      * @return 해시된 바이트 배열
      */
-    fun digest(data: ByteArray): ByteArray = MessageDigest.getInstance(algorithmName).digest(data)
+    override fun digest(data: ByteArray): ByteArray = delegate.digest(data)
 
     /**
      * 문자열의 해시 다이제스트를 계산합니다.
@@ -45,8 +53,7 @@ class TinkDigester(
      * @return Base64 인코딩된 해시 문자열
      */
     fun digest(data: String): String {
-        val hashBytes = digest(data.toUtf8Bytes())
-        return hashBytes.encodeBase64String()
+        return delegate.digestBase64Utf8(data)
     }
 
     /**
@@ -58,8 +65,7 @@ class TinkDigester(
      * @param data 해시할 문자열
      * @return lowercase hex로 인코딩한 해시 문자열
      */
-    fun digestHex(data: String): String =
-        HexFormat.of().formatHex(digest(data.toUtf8Bytes()))
+    fun digestHex(data: String): String = delegate.digestHexUtf8(data)
 
 
     /**
@@ -69,17 +75,19 @@ class TinkDigester(
      * @param expected 기대하는 해시 바이트 배열
      * @return 일치하면 `true`, 아니면 `false`
      */
-    fun matches(
+    override fun matches(
         data: ByteArray,
         expected: ByteArray,
-    ): Boolean = MessageDigest.isEqual(digest(data), expected)
+    ): Boolean = delegate.matches(data, expected)
 
     /**
      * 문자열의 해시가 기대값(Base64)과 일치하는지 constant-time으로 비교합니다.
      *
      * Base64 문자열을 바이트 배열로 디코딩한 뒤 [MessageDigest.isEqual]로 비교하여
      * 타이밍 공격을 방지합니다.
-     * [expected]가 Base64 형식이 아니면 예외를 던지지 않고 `false`를 반환합니다.
+     * 먼저 현재 알고리즘으로 digest를 계산하므로 지원하지 않는 알고리즘의 provider 예외는
+     * 기대값의 형식과 관계없이 그대로 전달합니다. 그 뒤 [expected]가 Base64 형식이 아니면
+     * 예외 대신 `false`를 반환합니다.
      *
      * @param data 원본 문자열
      * @param expected 기대하는 Base64 인코딩된 해시 문자열
@@ -89,7 +97,7 @@ class TinkDigester(
         data: String,
         expected: String,
     ): Boolean {
-        val dataHashBytes = digest(data.toUtf8Bytes())
+        val actualDigest = delegate.digest(data.toUtf8Bytes())
         // Boolean verifier API는 malformed expected digest도 불일치로 취급한다.
         // 호출자가 단순 검증 경로에서 Base64 예외를 별도 처리하지 않아도 된다.
         val expectedBytes = runCatching {
@@ -97,7 +105,7 @@ class TinkDigester(
         }.getOrElse {
             return false
         }
-        return MessageDigest.isEqual(dataHashBytes, expectedBytes)
+        return MessageDigest.isEqual(actualDigest, expectedBytes)
     }
 
     /**
@@ -115,14 +123,7 @@ class TinkDigester(
     fun matchesHex(
         data: String,
         expected: String,
-    ): Boolean {
-        val dataHashBytes = digest(data.toUtf8Bytes())
-        if (expected.length != dataHashBytes.size * 2 || expected.any { it !in '0'..'9' && it !in 'a'..'f' }) {
-            return false
-        }
-        val expectedBytes = HexFormat.of().parseHex(expected)
-        return MessageDigest.isEqual(dataHashBytes, expectedBytes)
-    }
+    ): Boolean = delegate.matchesHexUtf8(data, expected)
 
     override fun toString(): String = "TinkDigester(algorithm=$algorithmName)"
 }

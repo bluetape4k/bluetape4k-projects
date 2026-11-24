@@ -199,6 +199,35 @@ This allows callers to distinguish "corrupt input" (returns `null`) from "empty 
 
 ## Usage Examples
 
+### SHA-256 digests and stable fingerprints
+
+Use raw bytes for byte-oriented inputs and `digestUtf8` for UTF-8 text. Incremental sessions let callers provide the same bytes in ordered chunks:
+
+<!-- DIGESTERS_README_SAMPLE_START -->
+```kotlin
+import io.bluetape4k.io.digest.Base64Format
+import io.bluetape4k.io.digest.Digesters
+
+fun digestersReadmeExample() {
+    val fingerprint = "commerce:reservation:42"
+    val input = fingerprint.toByteArray(Charsets.UTF_8)
+    val rawDigest = Digesters.SHA256.digest(input)
+    val textDigest = Digesters.SHA256.digestUtf8(fingerprint)
+    val wireDigest = Digesters.SHA256.digestBase64Utf8(fingerprint, Base64Format.URL_SAFE_UNPADDED)
+    val sessionDigest = Digesters.SHA256.newSession()
+        .update("commerce:".toByteArray(Charsets.UTF_8))
+        .update("reservation:42".toByteArray(Charsets.UTF_8))
+        .digest()
+
+    check(rawDigest.contentEquals(textDigest))
+    check(rawDigest.contentEquals(sessionDigest))
+    check(Digesters.SHA256.matchesBase64(input, wireDigest, Base64Format.URL_SAFE_UNPADDED))
+}
+```
+<!-- DIGESTERS_README_SAMPLE_END -->
+
+Digest strings default to URL-safe padded Base64 for compatibility. Persisted values, wire formats, and other external contracts should name their `Base64Format` explicitly. An unkeyed digest detects changes only; use a keyed MAC for shared-secret authentication or a digital signature for public verification.
+
 ### Strictly bounded `InputStream` reads
 
 Use `readAllBytes(maxBytes)` when a complete body is required and exceeding the limit must fail without returning a partial result:

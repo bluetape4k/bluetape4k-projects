@@ -200,6 +200,35 @@ val restored = compressor.decompressOrNull(compressed) // 손상/null/empty 시 
 
 ## 사용 예제
 
+### SHA-256 다이제스트와 안정적인 fingerprint
+
+byte 단위 입력에는 raw byte API를, UTF-8 문자열에는 `digestUtf8`를 사용합니다. 증분 세션은 같은 입력을 순서대로 나누어 전달할 수 있습니다.
+
+<!-- DIGESTERS_README_SAMPLE_START -->
+```kotlin
+import io.bluetape4k.io.digest.Base64Format
+import io.bluetape4k.io.digest.Digesters
+
+fun digestersReadmeExample() {
+    val fingerprint = "commerce:reservation:42"
+    val input = fingerprint.toByteArray(Charsets.UTF_8)
+    val rawDigest = Digesters.SHA256.digest(input)
+    val textDigest = Digesters.SHA256.digestUtf8(fingerprint)
+    val wireDigest = Digesters.SHA256.digestBase64Utf8(fingerprint, Base64Format.URL_SAFE_UNPADDED)
+    val sessionDigest = Digesters.SHA256.newSession()
+        .update("commerce:".toByteArray(Charsets.UTF_8))
+        .update("reservation:42".toByteArray(Charsets.UTF_8))
+        .digest()
+
+    check(rawDigest.contentEquals(textDigest))
+    check(rawDigest.contentEquals(sessionDigest))
+    check(Digesters.SHA256.matchesBase64(input, wireDigest, Base64Format.URL_SAFE_UNPADDED))
+}
+```
+<!-- DIGESTERS_README_SAMPLE_END -->
+
+문자열 digest의 기본값은 호환성을 위해 URL-safe padded Base64입니다. 저장값, wire format, 외부 계약에는 `Base64Format`을 명시하세요. 키 없는 digest는 변경 탐지용이며 공유 비밀 인증에는 keyed MAC을, 공개 검증에는 전자 서명을 사용합니다.
+
 ### 엄격한 상한을 적용한 `InputStream` 읽기
 
 전체 본문이 필요하고 상한 초과 시 부분 결과 없이 실패해야 한다면
