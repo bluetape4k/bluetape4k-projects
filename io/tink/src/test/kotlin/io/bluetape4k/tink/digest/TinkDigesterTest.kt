@@ -170,6 +170,7 @@ class TinkDigesterTest: AbstractTinkTest() {
 
         assertFailsWith<NoSuchAlgorithmException> { unsupported.newSession() }
         assertFailsWith<NoSuchAlgorithmException> { unsupported.digest("abc") }
+        assertFailsWith<NoSuchAlgorithmException> { unsupported.matches("abc", "not-base64-!") }
     }
 
     @Test

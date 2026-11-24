@@ -85,7 +85,9 @@ class TinkDigester(
      *
      * Base64 문자열을 바이트 배열로 디코딩한 뒤 [MessageDigest.isEqual]로 비교하여
      * 타이밍 공격을 방지합니다.
-     * [expected]가 Base64 형식이 아니면 예외를 던지지 않고 `false`를 반환합니다.
+     * 먼저 현재 알고리즘으로 digest를 계산하므로 지원하지 않는 알고리즘의 provider 예외는
+     * 기대값의 형식과 관계없이 그대로 전달합니다. 그 뒤 [expected]가 Base64 형식이 아니면
+     * 예외 대신 `false`를 반환합니다.
      *
      * @param data 원본 문자열
      * @param expected 기대하는 Base64 인코딩된 해시 문자열
@@ -95,6 +97,7 @@ class TinkDigester(
         data: String,
         expected: String,
     ): Boolean {
+        val actualDigest = delegate.digest(data.toUtf8Bytes())
         // Boolean verifier API는 malformed expected digest도 불일치로 취급한다.
         // 호출자가 단순 검증 경로에서 Base64 예외를 별도 처리하지 않아도 된다.
         val expectedBytes = runCatching {
@@ -102,7 +105,7 @@ class TinkDigester(
         }.getOrElse {
             return false
         }
-        return delegate.matches(data.toUtf8Bytes(), expectedBytes)
+        return MessageDigest.isEqual(actualDigest, expectedBytes)
     }
 
     /**
