@@ -25,5 +25,7 @@
 5. 다중 모듈 hash migration은 각 모듈에서 compileKotlin, dependencyInsight, test를 순서대로 완료한 다음 다음 모듈로 이동한다. 오류가 나면 해당 모듈을 중단하고 framing, 결과 표현, security-sensitive path를 확인한다.
 6. 보안 계약은 단순 unkeyed digest 호출로 바꾸지 않는다. HMAC/Tink-MAC, MessageDigest.isEqual, key zeroization, Base58 checksum, coroutine cancellation과 기존 byte framing을 별도 검토한다.
 7. 신규 Kotlin 테스트는 `io.bluetape4k.assertions`의 목적별 matcher와 `assertFailsWith`를 사용하고, 동시성 검증은 저장소의 `MultithreadingTester`를 우선한다. Step 6-R에서 발견된 assertion/harness P2를 최종 리뷰 뒤 테스트 관례에 맞춰 수정하고 해당 모듈 테스트와 API 리뷰를 다시 통과시켰다.
+8. benchmark 결과는 source hash만으로 재현성이 증명되지 않는다. 문서에 기록한 실행 HEAD에서 benchmark source가 실제로 존재하는지 확인하고, 그 commit의 source hash와 전체 raw JSON·요약 표를 서로 대조한다. 실행 HEAD가 다르면 원시 결과를 새로 만들거나 해당 기록을 폐기한다.
+9. 레거시 matcher의 오류 순서도 호환성 계약이다. malformed expected 처리를 먼저 해 provider 호출을 건너뛰면 지원하지 않는 알고리즘의 예외를 숨길 수 있다. 실패 경로를 바꿀 때 supported algorithm + malformed input의 `false`와 unsupported algorithm + malformed input의 provider 예외를 함께 회귀 테스트한다.
 
 전체 검증 근거와 실패·재시도 구분은 docs/review/2026-11-24-issue-1917-digest-migration-review.md에 기록했다. GitHub CI는 PR을 만들지 않아 실행하지 않았다.

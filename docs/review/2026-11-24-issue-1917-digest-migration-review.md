@@ -3,7 +3,8 @@
 ## 범위와 기준 정보
 
 - Projects 작업 브랜치: `feat/digest-api`
-- Step 6-R 리뷰 기준 HEAD: Projects `9122e244669f1667551d4964eb2867a62e547521`, Workshop `3c86c23eaf95637ee7813560858543928e1a6a6f`
+- 초기 Step 6-R 리뷰 기준 HEAD(이 문서의 과거 기록): Projects `9122e244669f1667551d4964eb2867a62e547521`, Workshop `3c86c23eaf95637ee7813560858543928e1a6a6f`
+- 현재 Projects 코드 재검토 기준 HEAD: `f2cc3759bba728a688b1bb7ef1cb615b6650d05e`; 이 문서는 이후 문서 전용 커밋에서 갱신됐다.
 - 설계·계획 문서 커밋: `fb03e1841fe7c3985c5bc2e4b161ebf18866db1e`
 - 구현 전 Projects 기준 커밋: `06634e9ebf985258f8f1c48aac3b6c6ff1853d7a`
 - Workshop 소비자 브랜치: `feat/digest-api-consumers`
@@ -263,9 +264,11 @@ Projects 쪽 검증은 앞 절의 결과를 다시 확인했다. 공용 API 최�
 
 spec reviewer의 최종 재검토는 PASS였다. quality reviewer의 재검토는 두 수정사항 반영 후 APPROVE였으며, 현재 P0=0, P1=0이다. 정적 리뷰 결과와 위 로컬 테스트 증거를 분리해 보존한다.
 
-### 최종 Step 6-R 6관점 리뷰와 통합
+### 초기 Step 6-R 6관점 리뷰 기록 (이전 기준)
 
 Projects `feat/digest-api`의 리뷰 기준 HEAD는 `9122e244669f1667551d4964eb2867a62e547521`, Workshop `feat/digest-api-consumers`의 기준 HEAD는 `3c86c23eaf95637ee7813560858543928e1a6a6f`다. Workshop 변경은 production source 29개, Gradle 8개, test 6개, README 4개로 총 47개 경로다. 두 브랜치의 현재 변경 diff를 11개 모듈 슬라이스별로 성능, 안정성/lifecycle, 보안, 운영, 개발자/API, 사용자/호출자 관점에서 독립 검토했다. 표의 각 값은 `P0/P1/P2/P3` 건수다.
+
+아래 표는 해당 과거 기준의 검토 이력이다. 현재 Projects 코드 후보 `f2cc3759bba728a688b1bb7ef1cb615b6650d05e`의 사전 PR 검토 결과는 다음 절에 별도로 기록하며, 아래의 `9122...`/`3c86...` 값으로 현재 코드나 Workshop 상태를 판정하지 않는다.
 
 | 모듈 슬라이스 | 성능 | 안정성 | 보안 | 운영 | 개발자/API | 사용자/호출자 | 통합 |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -289,16 +292,51 @@ Projects `feat/digest-api`의 리뷰 기준 HEAD는 `9122e244669f1667551d4964eb2
 
 통합 결과는 11개 슬라이스 전부 P0=0, P1=0, P2=0, P3=0이다. P2 유예 항목은 없다. GitHub CI와 Workshop 전체 `integrationTest` matrix는 실행하지 않았으며, 일반 test 및 지정 대상 통합 테스트 증거와 구분한다. composite BOM resolver workaround 및 Gradle/Spring plugin 호환성 경계는 위 절의 위험으로 유지한다.
 
+## Projects 사전 PR 재검토 (2026-11-24)
+
+### 범위와 검증 기준
+
+- Projects 브랜치 `feat/digest-api`, 구현 코드 HEAD `f2cc3759bba728a688b1bb7ef1cb615b6650d05e`, 비교 기준 `905b9efa1ac164ff33c8f935112c7c63bc2feebe`.
+- 대상은 Projects `io/io`, `io/tink`, benchmark 기록과 이슈 #1917 승인 설계·계획의 추적성이다. Workshop 구현과 기존 소비자 parity 결과는 위 과거 절의 저장소별 증거로 분리한다.
+- GitHub 이슈 #1917은 `OPEN`, milestone `2.2.0`, assignee `debop`이며 label은 `enhancement`, `test`, `design`, `infra/io`다. 이 재검토 시점에는 feature remote ref와 Projects PR이 없었다.
+- 로컬 검증: `:bluetape4k-tink:test --tests io.bluetape4k.tink.digest.TinkDigesterTest` — 63 tests, failures=0, errors=0, skipped=0. 공개 API 검증은 Kotlin 17개와 Java 2개, ABI 비교는 기존 TinkDigester symbol 10개 보존 및 승인된 13개 추가를 기록한다.
+- Workshop 9개 모듈은 앞 절의 composite 검증에서 순차 실행해 883개 일반 테스트와 대상 `CorrectionReconciliationIntegrationTest` 2개가 통과했다. 전체 Workshop integrationTest matrix는 실행하지 않았다.
+
+### 정확한 HEAD에서 확인한 리뷰와 조치
+
+| 관점 | exact HEAD 결과 | 근거와 조치 |
+|---|---|---|
+| 개발자/API | P0/P1/P2/P3 = 0/0/0/0 | 독립 재검토에서 Kotlin/Java 공개 API, 기존 Tink ABI, Java fixture와 두 README 예제를 확인했다. |
+| 안정성 | P0/P1/P2/P3 = 0/0/0/0 | 독립 세션, reset/reuse, 범위 오류 후 재사용, 동시 격리 및 provider 실패 순서를 확인했다. |
+| 보안 | P0/P1/P2/P3 = 0/0/0/0 | malformed Base64 경계, constant-time 비교, 일반 digest와 MAC/signature 분리 및 key-material 부재를 확인했다. |
+| 호출자 | P0/P1/P2/P3 = 0/0/0/0 | 35행 migration parity, README·Java 예제, legacy URL-safe unpadded 입력과 malformed 입력 계약을 확인했다. |
+| 성능 | P0/P1/P2/P3 = 0/0/0/0 | benchmark source 및 raw JSON 일치, 12개 조합의 fork·measurement 설정과 Tink matcher 경로를 확인했다. |
+| 운영 | 초기 exact-head 재검토에서 P1=1 | 구현·Gradle 경계에는 이슈가 없었다. 이전 review 문서와 workflow receipt가 오래된 HEAD를 현재 근거처럼 보이게 한 점을 지적했다. 아래 조치와 새 receipt를 반영한 뒤 운영 관점 재검토를 수행한다. |
+
+기존 matcher는 malformed Base64를 decode한 뒤 `false`를 반환하느라 provider 계산을 생략할 수 있었다. 이는 지원하지 않는 알고리즘의 `NoSuchAlgorithmException`을 가렸다. `TinkDigester.matches(String, String)`이 digest를 먼저 계산하도록 순서를 바로잡았고, 지원하지 않는 알고리즘과 malformed Base64를 함께 전달하는 회귀 테스트를 추가했다. 지원되는 알고리즘의 malformed 입력은 계속 `false`를 반환하며 기존 URL-safe unpadded decode 허용 범위를 유지한다. 수정과 테스트는 코드 커밋 `f2cc3759bba728a688b1bb7ef1cb615b6650d05e`에 있다.
+
+성능·운영 초기 리뷰는 benchmark README가 `DigestBenchmark.kt`가 존재하지 않는 `9122e244...`를 실행 HEAD로 적은 P1을 찾았다. benchmark를 `ac67509466d88f348725be9dcf45eb9a4cb2d369`에서 다시 실행하고 README를 그 실행 커밋 및 source SHA-256 `61796235ba9c9549...`로 고쳤다. 커밋에는 benchmark source가 존재하며 source hash가 일치한다. README의 내장 JSON은 raw report `io/io/build/reports/benchmarks/digest/2026-11-24T14.49.54.414591/test.json`과 구조·수치가 동일하고, 12개 조합 각각 `forks=2`, 1 thread, warmup 2회, 측정 5회다. 성능 리뷰는 이 증거를 exact branch에서 독립 확인했다.
+
+운영 리뷰가 지적한 이전 기준 문서 표시는 이 갱신에서 과거 기록으로 명확히 구분했다. 기존 workflow receipt는 구현 단계 기록으로 유지하고, 완료 상태를 확인한다. PR 진행은 현재 branch/head를 명시한 별도 delivery receipt로 추적한다. 새 receipt에는 현재 exact-head 리뷰를 결속하며, 운영 관점 재검토 결과가 PASS가 될 때까지 PR 생성을 보류한다.
+
+### 통합 판단
+
+현재 코드 후보에서 P0=0, P1=1, P2=0, P3=0이다. 남은 P1은 코드 동작이 아니라 이전 리뷰 문서와 receipt의 기준 표시가 최신 코드 HEAD에 맞지 않던 문제다. 이 문서는 과거 리뷰를 이력으로 구분하고 새 Projects 검토 기준을 추가했다. 기존 구현 receipt를 완료하고 현재 HEAD용 PR delivery receipt를 생성한 뒤 운영 리뷰를 다시 수행한다. 이 순서가 끝날 때까지 PR 생성은 pending이다.
+
+### 아직 수행하지 않은 외부 검증
+
+PR은 생성 전이므로 hosted CI, GitHub review/thread read-back, mergeability, merge, canonical `develop` SNAPSHOT publication은 아직 실행하지 않았다. branch는 당시 `origin/develop`보다 2 commits 뒤였으므로 PR CI가 최신 base와의 merge result를 검증해야 한다. Workshop은 Projects artifact와 중앙 Dependencies BOM을 공개 SNAPSHOT에서 해석하기 전까지 게시 artifact를 사용하지 않는다.
+
 ## 문서와 실행 경계
 
-이 리뷰 기록은 기준 설계와 승인 계획을 수정하지 않고 실제 구현·검증 결과만 추가한다. 변경 경로는 Projects 및 Workshop task worktree에 한정했다. 다음 검증 항목은 전체 Workshop integrationTest matrix와 GitHub CI이며, PR 생성이 승인 범위에 없으므로 실행하지 않았다. 두 항목은 로컬 통과로 간주하지 않는다.
+이 리뷰 기록은 기준 설계와 승인 계획을 수정하지 않고 실제 구현·검증 결과만 추가한다. 변경 경로는 Projects 및 Workshop task worktree에 한정했다. PR 생성은 사용자가 승인했지만, 정확한 리뷰 근거와 delivery receipt 갱신 전까지 보류한다. 전체 Workshop integrationTest matrix와 GitHub CI는 아직 실행하지 않았으며 로컬 통과로 간주하지 않는다.
 
 
 ## SPW 문서 검증
 
 | artifact | SPW-01 근거 고정 | SPW-02 문서 계약 | SPW-03 한국어·용어 | SPW-04 기술 추적성 | SPW-05 최종 확인 |
 |---|---|---|---|---|---|
-| 이 리뷰 기록 | #1917, 승인 계획, 설계, source diff, 모듈 테스트 XML, ABI 결과, 독립 재검토를 근거로 고정 | 범위·severity·35-row 결과·실패/재시도·제약·미실행 항목을 포함 | KO-01~KO-07 수동 점검, 승인 이름 `Digesters`, 별도 기존 API `TinkDigesters` 구분 | 35-row parity, 9-module matrix, API/ABI, 품질·spec 재검토에 연결 | 최종 본문과 표를 다시 읽고 diff whitespace 검사 |
-| 이슈 #1917 lesson | 다음 Kotlin 작업자를 독자로 정하고 사용자 정정, composite 오류, 테스트 결과를 근거로 고정 | 맥락·결정·결과·놓친 점·재발 방지 guard를 포함 | KO-01~KO-07 수동 점검, 설계·계획·구현에서 `Digesters` 이름 대조 | 설계·계획·검토 기록과 성공/실패한 명령 결과에 연결 | 최종 파일을 다시 읽고 diff whitespace 검사 |
+| 이 리뷰 기록 | #1917, 승인 계획, 설계, source diff, 모듈 테스트 XML, ABI 결과, 독립 재검토를 근거로 고정 | 과거 6-R 기록과 현재 Projects exact-head addendum를 분리하고 finding·조치·외부 검증 대기를 포함 | KO-01~KO-07 수동 점검, `Digesters`와 기존 `TinkDigesters` 구분; term audit 2개 파일, findings=0 (clinic-appointment 규칙만 적용) | 35행 parity, 9개 모듈, API/ABI, f2cc3759 code review 결과와 연결 | 본문·표 read-back PASS; P1과 필요한 receipt/운영 후속 절차를 분명히 기록 |
+| 이슈 #1917 lesson | 다음 Kotlin 작업자를 독자로 정하고 사용자 정정, benchmark provenance, provider 오류 순서의 근거를 고정 | 맥락·결정·결과·놓친 점·재발 방지 guard를 포함 | KO-01~KO-07 수동 점검, 설계·계획·구현에서 `Digesters` 이름 대조; term audit 2개 파일, findings=0 (clinic-appointment 규칙만 적용) | 설계·계획·검토 기록과 성공/실패 명령 결과에 연결 | 최종 파일을 다시 읽고 diff whitespace를 확인한다 |
 
-두 artifact 모두 SPW-01부터 SPW-05까지 PASS다. 용어 감사 스크립트는 5개 파일에서 findings=0을 반환했지만 설치된 규칙 집합은 `clinic-appointment` 시리즈 전용이므로 이 프로젝트의 용어 계약 검증으로 계산하지 않았다. 대신 설계·계획·구현·양 README에서 승인 이름 `Digesters`와 기존 `TinkDigesters` API를 대조했다.
+기존 문서 본문과 lesson은 SPW-01부터 SPW-05까지 PASS였다. 이번 갱신에서도 두 파일을 다시 읽고 SPW-01~05를 통과했다. term audit는 2개 파일에서 findings=0을 반환했지만 설치된 규칙 집합은 `clinic-appointment` 전용이므로 프로젝트 용어 계약 검증으로 계산하지 않았다. 설계·계획·구현·양 README에서 승인 이름 `Digesters`와 기존 `TinkDigesters` API를 직접 대조했다. 문서 작성 DoD는 통과했으며, workflow의 기존 P1과 PR 전 운영 재검토는 별도 pending이다.
