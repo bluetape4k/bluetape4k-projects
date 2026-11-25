@@ -234,7 +234,7 @@ singleServerConfig:
 
 - [x] PR 직전에 이슈 #1916의 상태·본문·assignee·milestone·labels를 다시 읽고 구현 완료 근거를 보완한다. 현재 live read-back은 OPEN, assignee `debop`, milestone `2.2.0`, 계획한 labels다.
 - [x] `git fetch origin develop` 후 `git merge-base --is-ancestor origin/develop HEAD`로 현재 base가 feature head의 조상인지 확인했다. origin base와 feature head가 이 PR에 지정한 범위와 일치한다.
-- [x] `git push --set-upstream origin feat/issue-1916-catalog-contracts`로 PR 생성 당시 검증한 head `fd596550c3162288ced9639802c6ef72187a4843`를 게시했다. 이후 post-review 문서 커밋으로 branch tip은 `864050e2ed06298f3f6a88df13945b5b667c6636`까지 전진했다. 원격 branch API는 이를 보고하지만 GitHub PR head와 `refs/pull/1920/head`는 아직 `fd596550…`이므로 최신 tip의 PR CI/read-back을 기다린다.
+- [x] `git push --set-upstream origin feat/issue-1916-catalog-contracts`로 PR 생성 당시 검증한 head `fd596550c3162288ced9639802c6ef72187a4843`를 게시했다. post-review 문서 커밋 `864050e2…` 직후 branch API와 PR ref가 잠시 어긋났지만, 보정 commit `7a425e1db074f642f8071bf1c138c16b7dbf4d66` 후 GitHub PR head와 `refs/pull/1920/head`가 일치함을 확인했다. 새 PR CI run `45652510093`은 대기 중이고 Security History run `45652510317`은 진행 중이다.
 - [x] `.github/pull_request_template.md`의 모든 섹션을 유지하는 한국어 PR 본문을 작성했다. 변경 이유, 적용 범위, 검증과 `Closes #1916` 및 마지막 `## DoD Status`를 포함한다.
 - [x] PR 본문은 승인된 변경과 당시 검증 증거에 맞춰 채웠다. exact-head CI와 review 증거를 확인한 뒤 갱신한다.
 - [x] 승인된 계획 범위로 `bluetape4k/bluetape4k-projects` base `develop`, head `feat/issue-1916-catalog-contracts` PR을 만들었다. issue의 assignee `debop`, milestone `2.2.0`, 관련 labels를 반영했다.
