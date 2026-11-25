@@ -102,7 +102,7 @@ P0=0, P1=0, 미해결 P2/P3=0. Detekt의 기존 진단은 `RedissonClientExtensi
 
 ### Exact-head GitHub 증거
 
-- `gh pr checks 1920` — workflow run `45648798348`, head `fd596550c3162288ced9639802c6ef72187a4843`에서 `Build`, `Test / Infra (Redis)`, `Central Catalog Governance`, `Central Manual Contract`, `CI Status`, `Coverage Report`, `Release Workflow Policy`, `JVM Release Contract`, `Secret Scan`, `Historical Secret Scan`, `CodeQL Workflow Policy`, `Test / PR merge-result contract`, `Validate Gradle Wrapper` 및 상태 보고 작업이 PASS다. 변경 모듈 판정에 따라 다른 모듈 테스트들은 SKIPPED이며 PASS로 집계하지 않았다.
+- `gh pr checks 1920` — PR head `fd596550c3162288ced9639802c6ef72187a4843`에서 CI run `45648798348`의 `Build`, `Test / Infra (Redis)`, `Central Catalog Governance`, `Central Manual Contract`, `CI Status`, `Coverage Report`, `Release Workflow Policy`, `JVM Release Contract`, `Secret Scan`, `CodeQL Workflow Policy`, `Test / PR merge-result contract`, `Validate Gradle Wrapper`가 PASS다. 별도 Security History run `45648798309`의 `Security History Status`와 `Historical Secret Scan`도 PASS다. 변경 모듈 판정에 따라 다른 모듈 테스트들은 SKIPPED이며 PASS로 집계하지 않았다.
 - `gh pr view` — PR OPEN, base `develop`, 같은 exact head, assignee `debop`, milestone `2.2.0`, labels `documentation`, `management`, `test`, `dependencies`, `tech-debt`, `mergeable: MERGEABLE`, `mergeStateStatus: CLEAN`; formal review decision은 비어 있고 submitted review는 0건이다.
 - GraphQL review-thread read-back — `headRefOid`가 같은 exact head이고 `reviewThreads`는 0건, `hasNextPage: false`다.
 - `closingIssuesReferences`에는 #1916이 연결되어 있고 PR 본문에 `Closes #1916`이 있다. issue #1916 live read-back은 OPEN이며 assignee/milestone/labels가 PR 메타데이터와 일치한다.

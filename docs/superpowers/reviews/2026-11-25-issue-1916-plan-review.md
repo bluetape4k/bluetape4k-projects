@@ -109,7 +109,7 @@
 
 ## PR/merge 후속 순서 검토 — 2026-11-26
 
-계획 SHA-256 `d81936ff0443d967b523b425f6509bb6c78add61add0f1c2bbff397d70298962`를 공통 게이트 순서와 대조했다. 이후 PR #1920의 실행 증거에 따라 작업 7 완료 항목과 작업 8의 exact-head inline review만 표시했다. 현재 계획 SHA-256은 `fc788dc5b9fccf74d2deb6cc8aa97c6b213622b75ccb662ce5d472ed9c4ba914`다. 앞서 대조한 계획은 `gno update` 및 collection embed/search를 PR CI와 merge-ready 보고 앞에 배치했다. `common-gates.md`는 GNO를 CG-17 merge, CG-17A canonical checkout 동기화, CG-17B task cleanup 뒤의 CG-18에 둔다. 계획에서 GNO를 merge 이후 작업 9로 이동하고 fresh merge approval, merge read-back, canonical sync, cleanup을 앞에 명시했다.
+계획 SHA-256 `d81936ff0443d967b523b425f6509bb6c78add61add0f1c2bbff397d70298962`를 공통 게이트 순서와 대조했다. 이후 PR #1920의 실행 증거에 따라 작업 7 완료 항목과 작업 8의 exact-head inline review만 표시했다. branch tip과 GitHub PR head가 달라진 사실도 계획에 기록했다. 현재 계획 SHA-256은 `a42b92a9e3951035c275cfe4a7b642b79112f6b7d59b3610e258fd489e518a1c`다. 앞서 대조한 계획은 `gno update` 및 collection embed/search를 PR CI와 merge-ready 보고 앞에 배치했다. `common-gates.md`는 GNO를 CG-17 merge, CG-17A canonical checkout 동기화, CG-17B task cleanup 뒤의 CG-18에 둔다. 계획에서 GNO를 merge 이후 작업 9로 이동하고 fresh merge approval, merge read-back, canonical sync, cleanup을 앞에 명시했다.
 
 GNO 세 collection(`bluetape4k-github`, `bluetape4k-docs`, `bluetape4k-wiki`)의 넓은 검색과 좁힌 재검색은 모두 결과가 없었다. context-mode 대체 검색도 과거 CI/PR의 task-specific 근거를 제공하지 않았다. 현재 issue 본문은 `gh issue view`로 검증한 live GitHub 상태를 따른다. 이 검색 결과는 추후 CG-18 작업을 앞당기지 않는다.
 
@@ -120,5 +120,5 @@ GNO 세 collection(`bluetape4k-github`, `bluetape4k-docs`, `bluetape4k-wiki`)의
 | SPW-01 — 독자·목적·근거 | PASS | 대상은 #1916 승인 계획이며 공통 게이트와 GNO 검색 결과를 명시했다. |
 | SPW-02 — artifact 계약 | PASS | PR CI/merge-ready와 merge 후 sync/cleanup/GNO를 분리해 의존 순서를 보존했다. |
 | SPW-03 — 한국어 기술 문체 | PASS | 기존 용어와 machine-required gate id를 유지하고 한글 설명을 읽어 확인했다. |
-| SPW-04 — 사실·추적성 | PASS | 계획 SHA `fc788dc5…`의 PR 후속 체크 상태와 `common-gates.md`의 CG-17/17A/17B/18 순서를 대조했다. |
+| SPW-04 — 사실·추적성 | PASS | 계획 SHA `a42b92a9…`의 PR 후속 체크 상태와 `common-gates.md`의 CG-17/17A/17B/18 순서를 대조했다. |
 | SPW-05 — 최종 read-back | PASS | 계획과 이 검토의 변경 문단, 명령, code fence 및 상대 링크를 재확인했다. |
