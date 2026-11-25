@@ -232,12 +232,12 @@ singleServerConfig:
 
 ### 작업 7: 지정 저장소/브랜치의 PR 생성 및 메타데이터 재조회
 
-- [ ] PR 직전에 이슈 #1916의 상태·본문·assignee·milestone·labels를 다시 읽고 구현 완료 근거를 보완한다. 변경된 메타데이터는 현재값을 기준으로 삼는다.
-- [ ] `git fetch origin develop` 후 `git merge-base --is-ancestor origin/develop HEAD`로 현재 base가 feature head의 조상인지 확인한다. 아니라면 최신 `origin/develop`을 반영하고 영향받은 테스트·리뷰를 다시 실행한다.
-- [ ] `git push --set-upstream origin feat/issue-1916-catalog-contracts`로 검증된 최종 head를 게시한다.
-- [ ] `.github/pull_request_template.md`의 모든 섹션을 유지하는 한국어 `PR_BODY_FILE`을 작성한다. 변경 이유/요약을 테스트 결과보다 먼저 쓰고, 적용/비적용 checkbox를 증거와 맞추며 끝에 `## DoD Status`를 둔다. `Closes #1916`을 포함한다.
-- [ ] `PR_BODY_FILE=$(mktemp)`를 만들고 `.github/pull_request_template.md`를 복사한 뒤, 현재 테스트/리뷰/DoD 증거에 맞게 섹션과 checkbox를 채운다. 템플릿 밖의 추가 절은 마지막 `## DoD Status` 앞에 둔다.
-- [ ] 승인된 계획 범위로 `bluetape4k/bluetape4k-projects` base `develop`, head `feat/issue-1916-catalog-contracts` PR을 만든다. 현재 issue assignee `debop`, milestone `2.2.0`, 관련 labels `documentation`, `management`, `test`, `dependencies`, `tech-debt`를 반영한다.
+- [x] PR 직전에 이슈 #1916의 상태·본문·assignee·milestone·labels를 다시 읽고 구현 완료 근거를 보완한다. 현재 live read-back은 OPEN, assignee `debop`, milestone `2.2.0`, 계획한 labels다.
+- [x] `git fetch origin develop` 후 `git merge-base --is-ancestor origin/develop HEAD`로 현재 base가 feature head의 조상인지 확인했다. origin base와 feature head가 이 PR에 지정한 범위와 일치한다.
+- [x] `git push --set-upstream origin feat/issue-1916-catalog-contracts`로 검증된 최종 head를 게시했다. 현재 원격 head는 `fd596550c3162288ced9639802c6ef72187a4843`다.
+- [x] `.github/pull_request_template.md`의 모든 섹션을 유지하는 한국어 PR 본문을 작성했다. 변경 이유, 적용 범위, 검증과 `Closes #1916` 및 마지막 `## DoD Status`를 포함한다.
+- [x] PR 본문은 승인된 변경과 당시 검증 증거에 맞춰 채웠다. exact-head CI와 review 증거를 확인한 뒤 갱신한다.
+- [x] 승인된 계획 범위로 `bluetape4k/bluetape4k-projects` base `develop`, head `feat/issue-1916-catalog-contracts` PR을 만들었다. issue의 assignee `debop`, milestone `2.2.0`, 관련 labels를 반영했다.
 
 ```bash
 PR_URL=$(gh pr create \
@@ -257,13 +257,13 @@ gh pr view "$PR_URL" --repo bluetape4k/bluetape4k-projects \
   --json number,title,body,assignees,labels,milestone,headRefOid,headRefName,baseRefName,closingIssuesReferences,url
 ```
 
-- [ ] GitHub에서 PR을 다시 조회해 repository, base/head, head SHA, assignee, milestone, labels, `Closes #1916`, closing issue reference, 본문의 마지막 `## DoD Status`를 확인한다.
+- [x] GitHub에서 PR을 다시 조회해 repository, base/head, head SHA, assignee, milestone, labels, `Closes #1916`, closing issue reference, 본문의 마지막 `## DoD Status`를 확인했다. PR #1920, head `fd596550…`이다.
 
 **성공 증거:** 생성된 PR URL과 현재 head의 메타데이터·본문 조회 결과가 일치한다. 이 단계의 사용자 승인은 PR 생성까지만 포함하며 merge는 포함하지 않는다.
 
 ### 작업 8: PR 후 리뷰/CI 수렴 및 merge-ready 보고
 
-- [ ] 실제 PR diff와 정확한 head에 대해 6개 관점+통합 post-PR review를 실행하고, `REQUEST_CHANGES` 또는 P0/P1이면 구현·검증·리뷰 단계로 돌아간다.
+- [x] 실제 PR diff와 정확한 head에 대해 7-Tier, 6개 관점+통합 post-PR inline review를 실행했다. `docs/review/2026-11-25-issue-1916-redisson-retry-delay-review.md`에 exact head와 diff SHA를 기록했다. P0/P1 및 미해결 P2/P3는 0건이며 독립 reviewer attestation은 없다.
 - [ ] exact head를 기록한 뒤 `gh pr checks "$PR_URL"`을 실행하고, 다시 읽은 `headRefOid`가 동일한지 비교한다. CI 대기 중이면 PENDING 상태로 멈추고, skip/실패를 성공으로 기록하지 않는다.
 - [ ] PR 상태·review decision·mergeability는 `gh pr view "$PR_URL" --json number,state,headRefOid,baseRefName,headRefName,reviews,reviewDecision,mergeable,mergeStateStatus,closingIssuesReferences`로 확인한다. review thread는 아래 GraphQL 조회에서 `isResolved`, 경로, 줄, 댓글을 확인한다. `pageInfo.hasNextPage`가 true이면 다음 page도 읽는다.
 

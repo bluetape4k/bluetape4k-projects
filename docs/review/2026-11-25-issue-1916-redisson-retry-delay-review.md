@@ -76,3 +76,36 @@ P0=0, P1=0, 미해결 P2/P3=0. Detekt의 기존 진단은 `RedissonClientExtensi
 | SPW-03 — 한국어 기술 문체 | PASS | KO-01–KO-06 read-through를 적용했다. `audit-korean-terms.mjs`를 8개 문서에 실행해 findings=0을 확인했다. |
 | SPW-04 — 사실·추적성 | PASS | staged diff, Kotlin test, Gradle 결과, Redisson fixture, issue metadata를 대조했다. 독립 리뷰 불가 상태를 그대로 기록했다. |
 | SPW-05 — 최종 read-back | PASS | 검토 문서 전체, 표, 링크 및 코드 토큰을 read-back했고 Markdown/diff 검증을 수행했다. |
+
+## PR exact-head 후속 검토 — 2026-11-26
+
+- PR: [#1920](https://github.com/bluetape4k/bluetape4k-projects/pull/1920), base `develop`, head `fd596550c3162288ced9639802c6ef72187a4843`.
+- 검토 입력: 이 head의 base 대비 12개 파일 전체 diff, SHA-256 `2afe610ddc758414ba40c69c0d001a9474a47531f0836354ae9a2353106efafe`. 구현 네 파일과 설계·계획·리뷰·testlog·교훈·색인 문서 여덟 파일을 모두 read-back했다.
+- 변경 계약은 승인 명세와 일치한다. 구현 변경은 두 KDoc, Redis 비의존 설정 테스트 및 Redisson 4.8.0에서 파싱 가능한 YAML fixture에 한정된다. Catalog/버전/API·ABI 및 고동시성 설정의 1초 `ConstantDelay`는 그대로다.
+- 독립 post-PR reviewer는 code host 실행 파일 부재로 `UNASSESSABLE`이며 파일 검토나 verdict가 없다. 본 절은 주 세션의 인라인 fallback 결과이며 독립 attestation이 아니다.
+
+### 7-Tier 및 통합 판정
+
+| 계층/관점 | 판정 | exact-head 근거 |
+|---|---|---|
+| 보안 | PASS | 새 입력 경계, 비밀 값, 로그, Redis 연결이 없다. YAML은 정적 설정만 파싱한다. |
+| 운영 안정성 | PASS | 고동시성 재시도 횟수 3과 1초 고정 지연을 유지하며, 미지원 fixture 키만 제거했다. |
+| 구조·재사용 | PASS | 기존 Redisson `ConstantDelay`를 사용하고 새 추상화·모듈·의존성은 추가하지 않았다. |
+| Kotlin/API | PASS | production 차이는 KDoc뿐이고 공개 선언, 상수 식별자·값, Bluetape `writeRetryInterval`은 유지된다. |
+| 테스트 | PASS | YAML 파싱과 두 입력 인덱스의 1500ms, 고동시성 기본값의 1000ms를 Redis 연결 없이 확인하는 테스트를 검토했다. exact-head hosted Redis job도 통과했다. |
+| 성능 | PASS | hot path, 계산량, 할당과 요청 동작을 변경하지 않는다. |
+| 문서·근거 | PASS | 명세·계획·교훈·testlog는 fixture의 파싱 효과와 제품 설정 유지 범위를 구분한다. PR 본문은 승인된 이슈와 metadata를 연결한다. |
+| Performance / Stability / Security / Operator-Ops / Developer-API / User-caller | PASS | 여섯 관점 모두 위 구현 경계와 exact-head 검증에 일치한다. 타 모듈 변경·skip은 통과 근거로 계산하지 않았다. |
+| 통합 | PASS | 12개 파일의 PR diff, issue #1916, PR metadata, test evidence와 workflow 경계를 대조했다. 새 미해결 finding은 없다. |
+
+**Inline post-PR verdict: PASS; P0=0, P1=0, 미해결 P2/P3=0.** PR diff의 독립 검토가 성공한 것으로 간주하지 않는다.
+
+### Exact-head GitHub 증거
+
+- `gh pr checks 1920` — workflow run `45648798348`, head `fd596550c3162288ced9639802c6ef72187a4843`에서 `Build`, `Test / Infra (Redis)`, `Central Catalog Governance`, `Central Manual Contract`, `CI Status`, `Coverage Report`, `Release Workflow Policy`, `JVM Release Contract`, `Secret Scan`, `Historical Secret Scan`, `CodeQL Workflow Policy`, `Test / PR merge-result contract`, `Validate Gradle Wrapper` 및 상태 보고 작업이 PASS다. 변경 모듈 판정에 따라 다른 모듈 테스트들은 SKIPPED이며 PASS로 집계하지 않았다.
+- `gh pr view` — PR OPEN, base `develop`, 같은 exact head, assignee `debop`, milestone `2.2.0`, labels `documentation`, `management`, `test`, `dependencies`, `tech-debt`, `mergeable: MERGEABLE`, `mergeStateStatus: CLEAN`; formal review decision은 비어 있고 submitted review는 0건이다.
+- GraphQL review-thread read-back — `headRefOid`가 같은 exact head이고 `reviewThreads`는 0건, `hasNextPage: false`다.
+- `closingIssuesReferences`에는 #1916이 연결되어 있고 PR 본문에 `Closes #1916`이 있다. issue #1916 live read-back은 OPEN이며 assignee/milestone/labels가 PR 메타데이터와 일치한다.
+- helper run `20261125T143918Z-19207977`의 완료 확인은 여전히 `retry-delay-contract`, `main-session`, `main verification`을 누락으로 보고한다. 실제 lane을 소급 생성하지 않았으며 `WF-04A`는 PENDING이다. Human review만 단독 개발자 범위에 따라 N/A이고, 독립 리뷰·CI·thread 증거를 대체하지 않는다.
+
+이 결과는 검토한 `fd596550…` head의 기록이다. 이후 PR head가 달라지면 CI, metadata 및 thread를 새 exact head에서 다시 확인한다. workflow receipt gap이 남아 있으므로 이 검토만으로 merge-ready 판정이나 fresh merge approval 단계로 넘어가지 않는다.
