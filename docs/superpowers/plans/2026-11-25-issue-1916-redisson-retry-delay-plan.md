@@ -264,8 +264,8 @@ gh pr view "$PR_URL" --repo bluetape4k/bluetape4k-projects \
 ### 작업 8: PR 후 리뷰/CI 수렴 및 merge-ready 보고
 
 - [x] 실제 PR diff와 정확한 head에 대해 7-Tier, 6개 관점+통합 post-PR inline review를 실행했다. `docs/review/2026-11-25-issue-1916-redisson-retry-delay-review.md`에 exact head와 diff SHA를 기록했다. P0/P1 및 미해결 P2/P3는 0건이며 독립 reviewer attestation은 없다.
-- [ ] exact head를 기록한 뒤 `gh pr checks "$PR_URL"`을 실행하고, 다시 읽은 `headRefOid`가 동일한지 비교한다. CI 대기 중이면 PENDING 상태로 멈추고, skip/실패를 성공으로 기록하지 않는다.
-- [ ] PR 상태·review decision·mergeability는 `gh pr view "$PR_URL" --json number,state,headRefOid,baseRefName,headRefName,reviews,reviewDecision,mergeable,mergeStateStatus,closingIssuesReferences`로 확인한다. review thread는 아래 GraphQL 조회에서 `isResolved`, 경로, 줄, 댓글을 확인한다. `pageInfo.hasNextPage`가 true이면 다음 page도 읽는다.
+- [x] exact head `2342e0692d218a02cbb0549090dc420010106bff`에서 `gh pr checks 1920`을 실행했다. CI run `45652937888`과 Security History run `45652937883`의 실행된 checks가 PASS다. 변경 모듈 선택으로 skip된 타 모듈 테스트는 PASS로 세지 않았다.
+- [x] PR 상태·review decision·mergeability를 다시 읽었다. GitHub head는 local/remote와 같은 exact SHA이고 PR은 OPEN, `mergeable: MERGEABLE`, `mergeStateStatus: CLEAN`, formal review는 0건이다. GraphQL review-thread 조회는 0건이며 `hasNextPage: false`다.
 
 ```bash
 PR_NUMBER=$(gh pr view "$PR_URL" --json number --jq .number)
@@ -276,8 +276,8 @@ gh api graphql \
   -f query='query($owner: String!, $name: String!, $number: Int!) { repository(owner: $owner, name: $name) { pullRequest(number: $number) { headRefOid reviewDecision mergeStateStatus reviewThreads(first: 100) { pageInfo { hasNextPage endCursor } nodes { isResolved comments(first: 100) { pageInfo { hasNextPage endCursor } nodes { author { login } body path line } } } } } } }' \
   --jq '.data.repository.pullRequest'
 ```
-- [ ] PR body의 `## DoD Status`를 최신 결과에 맞춰 갱신하고 `gh pr view`로 다시 확인한다.
-- [ ] merge-ready DoD를 작성한다. 정확한 head, 테스트, 검토, PR 메타데이터를 포함하고 fresh merge approval 전에는 `PENDING`으로 보고한다. GNO 색인은 merge 후 canonical checkout 동기화와 cleanup이 끝난 CG-18에서 수행한다.
+- [x] PR body의 `## DoD Status`를 최신 결과에 맞춰 갱신하고 `gh api .../pulls/1920`으로 다시 확인했다. `Required checks: 15/22; N/A: 2; Blocked: 0`, CG-14 PASS, 마지막 항목은 `WF-04A, CG-15–CG-18`이다.
+- [x] exact head, CI, 리뷰·thread, issue/PR metadata를 담은 merge-readiness 상태 보고를 작성했다. 전체 상태는 helper receipt 미완료로 PENDING이며 CG-15와 merge approval에 진입하지 않는다. GNO 색인은 merge 후 canonical checkout 동기화와 cleanup이 끝난 CG-18에서만 수행한다.
 
 **성공 증거:** PR이 최신 exact head에서 CI와 review gate를 통과했거나 외부 결과 대기로 명시적인 PENDING 상태다. merge는 별도 fresh approval 뒤에만 수행한다.
 
