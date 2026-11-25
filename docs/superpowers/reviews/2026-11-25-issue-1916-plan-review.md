@@ -83,3 +83,42 @@
 - 승인 spec SHA-256은 `2950ec6b4d11a9c83b7e52ab65ea30a9cc6867ca631aeb11008a25f8b177c66e`로 유지된다.
 - 구현 코드, YAML, Kotlin 테스트, Gradle 테스트/Detekt는 계획 단계이므로 변경·실행하지 않았다.
 - 계획 승인과 spec/plan 선행 커밋은 아직 대기 중이다. Step 2-R의 독립 review lane 실패도 해결되지 않았으며 inline 기록은 이를 대체하지 않는다.
+
+## 구현 중 계획 보정 및 검증 — 2026-11-25
+
+위 검토는 승인된 계획 SHA `275839b139f07ed489e6e958cf599327d294f2e6e0062213132973d6c1aeabd2`의 계획 단계 기록이다. 사용자가 구현 계획을 승인한 뒤 문서 커밋 `9379b746d17f2c6ffed1a827dec296f12815033c`를 만들고 구현했다. 실행 증거에 따라 현재 계획의 Gradle task path, YAML parser 설명과 reviewer fallback을 보정했다. 현재 보정된 계획 SHA-256은 `4cb38862c889f74b22625389eea120e7195aba1da6899f364f795e85ac9e502e`이다.
+
+- 테스트에서 확인한 Gradle task path는 `:bluetape4k-redisson`이며, 계획의 초기 추론 `:bluetape4k-infra-redisson`은 사용하지 않는다.
+- 기존 YAML은 `pingTimeout`, `retryInterval` 등에서 실제 parser 오류를 냈다. Redisson 4.8.0 JavaBean 속성을 대조해 다섯 미지원 fixture 키를 제거했고, `retryDelay: ConstantDelay(PT1.5S)`로 파싱 및 지연 계산을 검증했다.
+- 신규 테스트에서 `Config.getSingleServerConfig()`의 Kotlin synthetic 접근이 컴파일되지 않아 public `Config.useSingleServer()`를 사용한다. 테스트의 fixture 조회는 Kotlin 패턴 검토 후 `requireNotNull`에서 Bluetape `shouldNotBeNull()`로 바꿨다.
+- assertion 수정 뒤 targeted 테스트 2건과 모듈 테스트 456건이 통과했다. Detekt는 exit 0이고 진단은 수정하지 않은 기존 파일에만 남았다.
+- 독립 `code-reviewer` 실행은 로컬 code host 실행 파일 누락으로 exact diff에 대한 verdict를 내지 못해 `UNASSESSABLE`이다. workspace의 Independent Code Review Fallback에 따라 주 세션이 staged diff SHA-256 `d10355718b4e51fe2a75735fe0fdafa51abdc8d5fff3c25be5d110e96b92741d`를 인라인 검토했다. verdict는 `Inline verdict: PASS; P0=0, P1=0.`이며 독립 attestation이 아니다.
+- 구현 리뷰의 P2 두 건은 각각 테스트 assertion 관용구 수정과 이 fallback 처리 문구 보정이다. 수정 뒤 영향을 받는 대상/모듈 검증을 다시 실행했다. 미해결 P0/P1/P2/P3는 없다.
+- 초기 계획은 독립 reviewer 미완료만으로 PR을 금지했지만, 이는 workspace router의 fallback 계약과 충돌한다. 현재 계획은 inline review PASS로 PR 전 검토를 진행하되, 독립 provenance를 주장하지 않고 exact-head CI/review/thread 및 applicable reviewer lane 처리와 fresh merge approval을 유지한다.
+- 초기 `bluetape-flow.py` receipt가 없어서 독립 reviewer 시도와 같은 실행의 lane provenance는 기록되지 않았다. 뒤늦게 시작한 run에서 과거 lane을 만들어내지 않는다. PR/merge 단계 전에는 현재 workflow receipt와 reviewer lifecycle을 확인하고, 실제 terminal review lane이 있으면 helper의 inline resolution 절차를 따른다.
+
+### 보정된 계획 검토 Writer DoD
+
+| 항목 | 판정 | 증거 |
+|---|---|---|
+| SPW-01 — 독자·목적·근거 | PASS | 실행 계획 부록에서 Type B 구현, issue #1916, 작업 결과, source/diff와 workflow 근거를 식별했다. |
+| SPW-02 — artifact 계약 | PASS | 잘못된 task path, parser/Java accessor, reviewer fallback, 테스트 재실행, PR/merge 경계를 기록했다. |
+| SPW-03 — 한국어 기술 문체 | PASS | KO-01–KO-06 read-through를 적용했다. 첫 terminology audit에서 기존 testlog의 Catalog 항목 제목을 지적해 `중앙 Catalog ref 갱신`으로 고치고, 8개 문서를 재검사해 findings=0을 확인했다. |
+| SPW-04 — 사실·명세 추적 | PASS | 실제 parser 실패, staged diff, 테스트/Detekt 출력, reviewer 응답과 workspace router를 대조했다. |
+| SPW-05 — 최종 read-back | PASS | 계획 갱신 내용, 표, 명령, 체크 상태를 재독했다. 최종 SHA는 아래 검증 결과에 기록한다. |
+
+## PR/merge 후속 순서 검토 — 2026-11-26
+
+현재 계획 SHA-256 `d81936ff0443d967b523b425f6509bb6c78add61add0f1c2bbff397d70298962`를 공통 게이트 순서와 대조했다. 이전 계획은 `gno update` 및 collection embed/search를 PR CI와 merge-ready 보고 앞에 배치했다. `common-gates.md`는 GNO를 CG-17 merge, CG-17A canonical checkout 동기화, CG-17B task cleanup 뒤의 CG-18에 둔다. 계획에서 GNO를 merge 이후 작업 9로 이동하고 fresh merge approval, merge read-back, canonical sync, cleanup을 앞에 명시했다.
+
+GNO 세 collection(`bluetape4k-github`, `bluetape4k-docs`, `bluetape4k-wiki`)의 넓은 검색과 좁힌 재검색은 모두 결과가 없었다. context-mode 대체 검색도 과거 CI/PR의 task-specific 근거를 제공하지 않았다. 현재 issue 본문은 `gh issue view`로 검증한 live GitHub 상태를 따른다. 이 검색 결과는 추후 CG-18 작업을 앞당기지 않는다.
+
+**Inline plan-review verdict: PASS; P0=0, P1=0.** 이번 검토는 실행 순서를 공통 workflow와 대조한 주 세션 검토이며 독립 reviewer attestation이 아니다. 실제 PR 후속 단계와 fresh merge approval은 아직 완료되지 않았다.
+
+| Writer DoD | 판정 | 증거 |
+|---|---|---|
+| SPW-01 — 독자·목적·근거 | PASS | 대상은 #1916 승인 계획이며 공통 게이트와 GNO 검색 결과를 명시했다. |
+| SPW-02 — artifact 계약 | PASS | PR CI/merge-ready와 merge 후 sync/cleanup/GNO를 분리해 의존 순서를 보존했다. |
+| SPW-03 — 한국어 기술 문체 | PASS | 기존 용어와 machine-required gate id를 유지하고 한글 설명을 읽어 확인했다. |
+| SPW-04 — 사실·추적성 | PASS | 현재 계획 SHA와 `common-gates.md`의 CG-17/17A/17B/18 순서를 대조했다. |
+| SPW-05 — 최종 read-back | PASS | 계획과 이 검토의 변경 문단, 명령, code fence 및 상대 링크를 재확인했다. |
