@@ -56,4 +56,5 @@ val Dispatchers.VT: CoroutineDispatcher
  * 매 호출마다 새로운 Virtual Thread 기반 Dispatcher를 생성합니다. 재사용하려면 변수에 저장하세요.
  */
 fun Dispatchers.newVT(): CoroutineDispatcher =
-    VirtualThreads.executorService().asCoroutineDispatcher().apply { ShutdownQueue.register(this) }
+    VirtualThreads.executorService().asCoroutineDispatcher()
+        .apply { ShutdownQueue.register(this) }

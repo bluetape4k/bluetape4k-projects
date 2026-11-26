@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.concurrent.await
+import io.bluetape4k.javatimes.seconds
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.logging.debug
@@ -84,7 +85,7 @@ class VirtualFutureTest {
                     throw e
                 }
             },
-            timeout = 2.seconds.toJavaDuration(),
+            timeout = 2.seconds(),
         )
 
         try {

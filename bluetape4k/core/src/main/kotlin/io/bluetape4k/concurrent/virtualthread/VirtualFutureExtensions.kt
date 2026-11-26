@@ -1,11 +1,12 @@
 package io.bluetape4k.concurrent.virtualthread
 
 import io.bluetape4k.concurrent.asCompletableFuture
+import io.bluetape4k.concurrent.completableFutureOf
+import io.bluetape4k.concurrent.get
 import io.bluetape4k.concurrent.sequence
 import io.bluetape4k.concurrent.virtualthread.api.VirtualThreads
+import io.bluetape4k.javatimes.requirePositiveDuration
 import io.bluetape4k.utils.ShutdownQueue
-import java.time.Duration
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
 
@@ -37,11 +38,11 @@ object VirtualThreadExecutor: ExecutorService by VirtualThreads.executorService(
  * @return [VirtualFuture] 인스턴스
  */
 @JvmName("virtualFutureForCallable")
-fun <T> virtualFuture(
+inline fun <T> virtualFuture(
     executor: ExecutorService = VirtualThreadExecutor,
-    callable: () -> T,
+    crossinline callable: () -> T,
 ): VirtualFuture<T> {
-    return VirtualFuture(executor.submit<T>(callable))
+    return VirtualFuture(executor.submit<T> { callable() })
 }
 
 /**
@@ -67,13 +68,12 @@ fun <T> virtualFutureAll(
     executor: ExecutorService = VirtualThreadExecutor,
 ): VirtualFuture<List<T>> {
     if (tasks.isEmpty()) {
-        return VirtualFuture(CompletableFuture.completedFuture(emptyList()))
+        return VirtualFuture(completableFutureOf(emptyList()))
     }
     val futures = tasks.map { task ->
-        CompletableFuture.supplyAsync({ task() }, executor)
+        executor.submit<T> { task() }.asCompletableFuture()
     }
-    val combined = CompletableFuture.allOf(*futures.toTypedArray())
-        .thenApply { futures.map { it.join() } }
+    val combined = futures.sequence(executor)
 
     return VirtualFuture(combined)
 }
@@ -106,20 +106,21 @@ fun <T> virtualFutureAll(
 fun <T> virtualFutureAll(
     tasks: Collection<() -> T>,
     executor: ExecutorService = VirtualThreadExecutor,
-    timeout: Duration,
+    timeout: java.time.Duration,
 ): VirtualFuture<List<T>> {
     if (tasks.isEmpty()) {
-        return VirtualFuture(CompletableFuture.completedFuture(emptyList()))
+        return VirtualFuture(completableFutureOf(emptyList()))
     }
     val futures = tasks.map { task ->
-        executor.submit<T>(task).asCompletableFuture()
+        executor.submit<T> { task() }.asCompletableFuture()
     }
-    val combined = CompletableFuture.allOf(*futures.toTypedArray())
-        .thenApply { futures.map { it.join() } }
-        .orTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS)
+    val combined = futures.sequence(executor)
+        .orTimeout(timeout.toNanos(), TimeUnit.NANOSECONDS)
         .whenComplete { _, error ->
             if (error != null) {
-                futures.forEach { it.cancel(true) }
+                futures.forEach {
+                    it.cancel(true)
+                }
             }
         }
 
@@ -150,6 +151,7 @@ fun <T> Iterable<VirtualFuture<T>>.awaitAll(): List<T> {
 /**
  * 모든 [VirtualFuture]의 작업이 제한시간 [timeout] 동안 완료될 때까지 대기하고, 결과를 [List]로 반환합니다.
  * 제한 시간 내에 완료되지 않으면 [java.util.concurrent.TimeoutException]을 던집니다.
+ * 이 함수는 대기만 제한하며, 호출자가 소유한 입력 [VirtualFuture]는 취소하지 않습니다.
  *
  * ```kotlin
  * val futures = listOf(
@@ -163,12 +165,14 @@ fun <T> Iterable<VirtualFuture<T>>.awaitAll(): List<T> {
  * @return 모든 작업의 결과 목록 (입력 순서 유지)
  * @throws java.util.concurrent.TimeoutException 제한 시간 초과 시
  */
-fun <T> Iterable<VirtualFuture<T>>.awaitAll(timeout: Duration): List<T> {
+fun <T> Iterable<VirtualFuture<T>>.awaitAll(timeout: java.time.Duration): List<T> {
     if (this is Collection && isEmpty()) {
         return emptyList()
     }
-    return map { it.toCompletableFuture() }.sequence(VirtualThreadExecutor)
-        .get(timeout.toMillis(), TimeUnit.MILLISECONDS)
+
+    return map { it.toCompletableFuture() }
+        .sequence(VirtualThreadExecutor)
+        .get(timeout)
 }
 
 /**
@@ -205,6 +209,7 @@ fun <T> awaitAll(vararg vfutures: VirtualFuture<T>): List<T> {
  * @return 모든 작업의 결과 목록 (입력 순서 유지)
  * @throws java.util.concurrent.TimeoutException 제한 시간 초과 시
  */
-fun <T> awaitAll(timeout: Duration, vararg vfutures: VirtualFuture<T>): List<T> {
+fun <T> awaitAll(timeout: java.time.Duration, vararg vfutures: VirtualFuture<T>): List<T> {
+    timeout.requirePositiveDuration("timeout")
     return vfutures.toList().awaitAll(timeout)
 }
