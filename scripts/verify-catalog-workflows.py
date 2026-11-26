@@ -2297,7 +2297,7 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
             "repository: dependabot/dependabot-core",
             "ref: ${{ env.BLUETAPE4K_DEPENDABOT_CORE_SHA }}",
             "path: .gradle/dependabot-core",
-            "ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1",
+            "ruby/setup-ruby@be3c7df29b3349ec6bcfc6b4792f1cf9f5237d18 # v1",
             "DEPENDABOT_CORE_ROOT: ${{ github.workspace }}/.gradle/dependabot-core",
             "OUTPUT_PATH: ${{ github.workspace }}/.gradle/issue-1832-evidence/parser-receipt.json",
             "dependabot-parser-contract.rb",
@@ -2379,7 +2379,7 @@ def validate_workflows(ci_text: str, submission_text: str) -> list[str]:
         ruby_setup_steps = [
             step
             for step in _step_blocks(governance)
-            if _step_value(step, "uses") == "ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199"
+            if _step_value(step, "uses") == "ruby/setup-ruby@be3c7df29b3349ec6bcfc6b4792f1cf9f5237d18"
         ]
         if len(ruby_setup_steps) != 1 or _step_value(ruby_setup_steps[0], "bundler-cache") != "false":
             errors.append(

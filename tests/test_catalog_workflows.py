@@ -4436,7 +4436,7 @@ class CatalogWorkflowsTest(unittest.TestCase):
         verifier = (ROOT / "scripts/verify-catalog-workflows.py").read_text()
 
         self.assertIn(
-            "ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1",
+            "ruby/setup-ruby@be3c7df29b3349ec6bcfc6b4792f1cf9f5237d18 # v1",
             verifier,
         )
         self.assertNotIn(

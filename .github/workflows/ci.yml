@@ -98,7 +98,7 @@ jobs:
       - uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.12'
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -326,7 +326,7 @@ jobs:
           python-version: '3.13'
       - name: Record catalog governance Python
         run: python3 --version
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -378,7 +378,7 @@ jobs:
           ref: ${{ env.BLUETAPE4K_DEPENDABOT_CORE_SHA }}
           path: .gradle/dependabot-core
           fetch-depth: 1
-      - uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1
+      - uses: ruby/setup-ruby@be3c7df29b3349ec6bcfc6b4792f1cf9f5237d18 # v1
         with:
           working-directory: .gradle/dependabot-core
           bundler-cache: false
@@ -547,7 +547,7 @@ jobs:
         with:
           ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -600,7 +600,7 @@ jobs:
         with:
           ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -684,7 +684,7 @@ jobs:
         with:
           ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -762,7 +762,7 @@ jobs:
         with:
           ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -843,7 +843,7 @@ jobs:
         with:
           ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -891,7 +891,7 @@ jobs:
         with:
           ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -974,7 +974,7 @@ jobs:
           test "$(git -C .manual-site rev-parse HEAD)" = "$BLUETAPE4K_MANUAL_REF"
           echo "central manual commit=$BLUETAPE4K_MANUAL_REF"
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -1057,7 +1057,7 @@ jobs:
         with:
           ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -1115,7 +1115,7 @@ jobs:
         with:
           ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -1178,7 +1178,7 @@ jobs:
         with:
           ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -1246,7 +1246,7 @@ jobs:
         with:
           ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -1332,7 +1332,7 @@ jobs:
         with:
           ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -1396,7 +1396,7 @@ jobs:
         with:
           ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -1458,7 +1458,7 @@ jobs:
         with:
           ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -1522,7 +1522,7 @@ jobs:
         with:
           ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -1633,7 +1633,7 @@ jobs:
         with:
           ref: ${{ env.PROJECTS_EXPECTED_SHA }}
 
-      - uses: actions/setup-java@v6.2.0
+      - uses: actions/setup-java@v6.3.0
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: ${{ env.JAVA_DISTRIBUTION }}
