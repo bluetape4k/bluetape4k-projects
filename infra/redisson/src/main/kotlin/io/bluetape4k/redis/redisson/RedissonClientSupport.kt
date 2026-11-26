@@ -169,7 +169,7 @@ fun redissonReactiveClientOf(config: Config): RedissonReactiveClient {
  *   - connectTimeout: 3초
  *   - timeout: 5초
  *   - retryAttempts: 3
- *   - retryInterval: 1초
+ *   - retryDelay: 1초 고정 지연 (ConstantDelay)
  *
  * ```kotlin
  * val config = Config().applyHighConcurrencyDefaults()

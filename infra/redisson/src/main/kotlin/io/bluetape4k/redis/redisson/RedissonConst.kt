@@ -61,6 +61,6 @@ object RedissonConst {
     /** Redisson retry attempts on failure */
     const val DEFAULT_RETRY_ATTEMPTS: Int = 3
 
-    /** Redisson retry interval (ms) */
+    /** Redisson 기본 재시도 고정 지연 (ms) */
     const val DEFAULT_RETRY_INTERVAL_MILLIS: Int = 1_000
 }
