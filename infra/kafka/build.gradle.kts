@@ -1,6 +1,14 @@
 plugins {
     kotlin("plugin.spring")
     kotlin("plugin.noarg")
+    `java-test-fixtures`
+}
+
+sourceSets {
+    named("test") {
+        compileClasspath += sourceSets.named("testFixtures").get().output
+        runtimeClasspath += sourceSets.named("testFixtures").get().output
+    }
 }
 
 tasks.withType<Test> {
