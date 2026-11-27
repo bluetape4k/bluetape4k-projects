@@ -8,6 +8,7 @@ import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
 import io.bluetape4k.junit5.coroutines.runSuspendDefault
+import io.bluetape4k.junit5.time.MutableClock
 import io.bluetape4k.logging.coroutines.KLoggingChannel
 import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
@@ -21,10 +22,8 @@ import org.junit.jupiter.api.condition.JRE
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
-import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicLong
 
 class FlakeTest {
 
@@ -93,12 +92,12 @@ class FlakeTest {
     @Test
     fun `1 msec 이 지나면 sequence는 리셋되어야 합니다`() {
         val initialMillis = 1_700_000_000_000L
-        val clock = MutableClock(initialMillis)
+        val clock = MutableClock(Instant.ofEpochMilli(initialMillis))
         val customFlake = Flake({ 123456789L }, clock)
 
         val first = customFlake.nextId()
 
-        clock.advanceBy(Duration.ofMillis(1))
+        clock.advance(Duration.ofMillis(1))
         val second = customFlake.nextId()
 
         Flake.asComponentString(first) shouldBeEqualTo "$initialMillis-123456789-1"
@@ -160,23 +159,5 @@ class FlakeTest {
                 idMaps.putIfAbsent(id, 1).shouldBeNull()
             }
             .run()
-    }
-
-    private class MutableClock(
-        private val currentMillis: AtomicLong,
-        private val zone: ZoneId,
-    ): Clock() {
-
-        constructor(initialMillis: Long): this(AtomicLong(initialMillis), ZoneOffset.UTC)
-
-        override fun getZone(): ZoneId = zone
-
-        override fun withZone(zone: ZoneId): Clock = MutableClock(currentMillis, zone)
-
-        override fun instant(): Instant = Instant.ofEpochMilli(currentMillis.get())
-
-        fun advanceBy(duration: Duration) {
-            currentMillis.addAndGet(duration.toMillis())
-        }
     }
 }
