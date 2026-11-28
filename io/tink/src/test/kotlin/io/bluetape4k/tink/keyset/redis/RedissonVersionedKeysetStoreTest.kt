@@ -6,6 +6,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.time.MutableClock
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.RedisServer
 import io.bluetape4k.tink.AbstractTinkTest
@@ -14,10 +15,8 @@ import io.bluetape4k.tink.keyset.VersionedTinkDaead
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
 import org.redisson.api.RedissonClient
-import java.time.Clock
 import java.time.Duration
 import java.time.Instant
-import java.time.ZoneId
 
 class RedissonVersionedKeysetStoreTest: AbstractTinkTest() {
 
@@ -96,7 +95,7 @@ class RedissonVersionedKeysetStoreTest: AbstractTinkTest() {
         )
 
         store.current().version shouldBeEqualTo 1L
-        clock.advanceBy(Duration.ofDays(2))
+        clock.advance(Duration.ofDays(2))
 
         // Redisson lock은 대기형이므로, 동시 due check가 몰려도 lock 안의 재확인으로 단일 회전만 허용한다.
         MultithreadingTester()
@@ -108,21 +107,5 @@ class RedissonVersionedKeysetStoreTest: AbstractTinkTest() {
             .run()
 
         store.current().version shouldBeEqualTo 2L
-    }
-
-    private class MutableClock(
-        @Volatile private var current: Instant,
-        private val zone: ZoneId = ZoneId.of("UTC"),
-    ): Clock() {
-
-        override fun getZone(): ZoneId = zone
-
-        override fun withZone(zone: ZoneId): Clock = MutableClock(current, zone)
-
-        override fun instant(): Instant = current
-
-        fun advanceBy(duration: Duration) {
-            current = current.plus(duration)
-        }
     }
 }

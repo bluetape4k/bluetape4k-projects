@@ -8,6 +8,8 @@ dependencies {
 
     api(libs.netty.buffer)
     api(libs.netty.all)
+    // Reactor Netty adapter is optional; consumers that use it already provide the runtime.
+    compileOnly(libs.reactor.netty)
     compileOnly(bt4k.jctools.core)
 
     // Coroutines

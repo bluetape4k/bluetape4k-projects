@@ -9,6 +9,7 @@ import io.bluetape4k.assertions.shouldBeTrue
 import io.bluetape4k.assertions.shouldNotBeEqualTo
 import io.bluetape4k.codec.Base58
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
+import io.bluetape4k.junit5.time.MutableClock
 import io.bluetape4k.logging.KLogging
 import io.bluetape4k.testcontainers.storage.RedisServer
 import io.bluetape4k.tink.AbstractTinkTest
@@ -19,10 +20,8 @@ import io.lettuce.core.SetArgs
 import io.lettuce.core.codec.StringCodec
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.Test
-import java.time.Clock
 import java.time.Duration
 import java.time.Instant
-import java.time.ZoneId
 
 class LettuceVersionedKeysetStoreTest: AbstractTinkTest() {
 
@@ -172,7 +171,7 @@ class LettuceVersionedKeysetStoreTest: AbstractTinkTest() {
         )
 
         store.current().version shouldBeEqualTo 1L
-        clock.advanceBy(Duration.ofDays(2))
+        clock.advance(Duration.ofDays(2))
 
         // 모든 worker가 같은 due window에서 rotateIfDue를 호출해도 active version은 한 번만 증가해야 한다.
         MultithreadingTester()
@@ -184,21 +183,5 @@ class LettuceVersionedKeysetStoreTest: AbstractTinkTest() {
             .run()
 
         store.current().version shouldBeEqualTo 2L
-    }
-
-    private class MutableClock(
-        @Volatile private var current: Instant,
-        private val zone: ZoneId = ZoneId.of("UTC"),
-    ): Clock() {
-
-        override fun getZone(): ZoneId = zone
-
-        override fun withZone(zone: ZoneId): Clock = MutableClock(current, zone)
-
-        override fun instant(): Instant = current
-
-        fun advanceBy(duration: Duration) {
-            current = current.plus(duration)
-        }
     }
 }
