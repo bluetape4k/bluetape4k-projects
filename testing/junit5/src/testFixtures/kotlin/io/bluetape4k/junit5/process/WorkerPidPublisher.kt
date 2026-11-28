@@ -12,6 +12,9 @@ import java.nio.file.StandardOpenOption.WRITE
 /** 소유자 검증 후 현재 프로세스 PID를 한 번만 handoff하는 공용 test fixture입니다. */
 object WorkerPidPublisher {
 
+    const val DEFAULT_PID_FILE_PROPERTY = "workerPidFile"
+    const val DEFAULT_PROCESS_OWNER_PROPERTY = "processOwner"
+
     /** 설정된 handoff 경로에 현재 프로세스 PID를 원자적으로 기록합니다. */
     fun publishIfConfigured(
         pidFileProperty: String = DEFAULT_PID_FILE_PROPERTY,
@@ -48,6 +51,4 @@ object WorkerPidPublisher {
         }
     }
 
-    const val DEFAULT_PID_FILE_PROPERTY = "workerPidFile"
-    const val DEFAULT_PROCESS_OWNER_PROPERTY = "processOwner"
 }

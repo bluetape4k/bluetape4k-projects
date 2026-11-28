@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.concurrency.MultithreadingTester
 import io.bluetape4k.junit5.concurrency.StructuredTaskScopeTester
 import io.bluetape4k.junit5.coroutines.SuspendedJobTester
+import io.bluetape4k.logging.KLogging
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledForJreRange
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.condition.JRE
 import java.util.concurrent.atomic.AtomicInteger
 
 class StressTesterContractTest {
+
+    companion object: KLogging()
 
     @Test
     fun `멀티스레드 테스터는 WorkerStressTester 계약으로 실행된다`() {

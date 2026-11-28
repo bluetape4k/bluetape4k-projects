@@ -1,7 +1,8 @@
 package io.bluetape4k.junit5.awaitility
 
 import io.bluetape4k.assertions.assertFailsWith
-import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.assertions.shouldBeGreaterOrEqualTo
+import io.bluetape4k.assertions.shouldContain
 import io.bluetape4k.junit5.coroutines.runSuspendIO
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
@@ -28,7 +29,7 @@ class AwaitilityCoroutinesContractTest {
                 .untilSuspending { true }
         }
 
-        exception.message.orEmpty().contains("earlier than expected minimum timeout").shouldBeTrue()
+        exception.message shouldContain "earlier than expected minimum timeout"
     }
 
     @Test
@@ -44,7 +45,7 @@ class AwaitilityCoroutinesContractTest {
             }
 
         val elapsedMillis = (System.nanoTime() - startedAt).toDurationMillis()
-        (elapsedMillis >= 220).shouldBeTrue()
+        elapsedMillis shouldBeGreaterOrEqualTo 220
     }
 
     @Test
@@ -91,7 +92,7 @@ class AwaitilityCoroutinesContractTest {
             }
 
         val elapsedMillis = (firstPollAt.get() - startedAt).toDurationMillis()
-        (elapsedMillis >= 60).shouldBeTrue()
+        elapsedMillis shouldBeGreaterOrEqualTo 60
     }
 
     @Test
@@ -110,7 +111,7 @@ class AwaitilityCoroutinesContractTest {
                 true
             }
 
-        (attempts.get() >= 3).shouldBeTrue()
+        attempts.get() shouldBeGreaterOrEqualTo 3
     }
 
     @Test
@@ -129,7 +130,7 @@ class AwaitilityCoroutinesContractTest {
                 true
             }
 
-        (attempts.get() >= 2).shouldBeTrue()
+        attempts.get() shouldBeGreaterOrEqualTo 2
     }
 
     @Test

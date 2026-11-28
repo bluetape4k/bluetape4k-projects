@@ -4,6 +4,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeFalse
 import io.bluetape4k.assertions.shouldContain
+import io.bluetape4k.assertions.shouldContentEqual
 import io.bluetape4k.assertions.shouldNotBeNull
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -51,7 +52,7 @@ internal class WorkerPidPublisherTest {
             WorkerPidPublisher.publishIfConfigured()
         }
 
-        failure.message.shouldNotBeNull() shouldContain PROCESS_OWNER_PROPERTY
+        failure.message shouldContain PROCESS_OWNER_PROPERTY
         Files.exists(target).shouldBeFalse()
     }
 
@@ -68,7 +69,7 @@ internal class WorkerPidPublisherTest {
             WorkerPidPublisher.publishIfConfigured()
         }
 
-        failure.message.shouldNotBeNull() shouldContain "parent"
+        failure.message shouldContain "parent"
         Files.exists(outside.resolve("worker.pid")).shouldBeFalse()
     }
 
@@ -81,7 +82,7 @@ internal class WorkerPidPublisherTest {
         WorkerPidPublisher.publishIfConfigured()
 
         val expected = "${ProcessHandle.current().pid()}\n".toByteArray(Charsets.UTF_8)
-        Files.readAllBytes(target).toList() shouldBeEqualTo expected.toList()
+        Files.readAllBytes(target) shouldContentEqual expected
         Files.size(target) shouldBeEqualTo expected.size.toLong()
 
         val failure = assertFailsWith<FileAlreadyExistsException> {

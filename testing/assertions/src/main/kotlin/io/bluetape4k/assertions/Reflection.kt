@@ -2,7 +2,6 @@ package io.bluetape4k.assertions
 
 import io.bluetape4k.assertions.internal.Failures
 import io.bluetape4k.assertions.internal.Messages
-import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.reflect.KClass
 
@@ -17,7 +16,6 @@ import kotlin.reflect.KClass
  * @receiver 검증할 값 (nullable 허용)
  * @return [T]로 캐스팅된 receiver (체이닝 지원)
  */
-@OptIn(ExperimentalContracts::class)
 inline fun <reified T: Any> Any?.shouldBeInstanceOf(): T {
     contract {
         returns() implies (this@shouldBeInstanceOf is T)

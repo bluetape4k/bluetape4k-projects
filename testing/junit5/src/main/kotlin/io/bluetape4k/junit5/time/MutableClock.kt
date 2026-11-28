@@ -26,7 +26,9 @@ open class MutableClock private constructor(
 
     override fun instant(): Instant = current.get()
 
-    fun advance(duration: Duration): Instant = current.updateAndGet { it.plus(duration) }
+    fun advance(duration: Duration): Instant =
+        current.updateAndGet { it.plus(duration) }
 
-    fun advanceSeconds(seconds: Long): Instant = advance(Duration.ofSeconds(seconds))
+    fun advanceSeconds(seconds: Long): Instant =
+        advance(Duration.ofSeconds(seconds))
 }

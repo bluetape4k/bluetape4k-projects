@@ -3,6 +3,7 @@ package io.bluetape4k.junit5.coroutines
 import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeInstanceOf
 import io.bluetape4k.assertions.shouldBeTrue
+import io.bluetape4k.logging.coroutines.KLoggingChannel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
@@ -11,6 +12,8 @@ import kotlinx.coroutines.yield
 import org.junit.jupiter.api.Test
 
 class CancellationContractsTest {
+
+    companion object: KLoggingChannel()
 
     @Test
     fun `resultOfNonCancellation returns failure for non cancellation exception`() {

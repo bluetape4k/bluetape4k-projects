@@ -5,6 +5,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.assertions.shouldBeLessOrEqualTo
 import io.bluetape4k.logging.KLogging
+import io.bluetape4k.logging.debug
 import io.bluetape4k.logging.trace
 import kotlinx.atomicfu.atomic
 import org.junit.jupiter.api.Test
@@ -175,7 +176,7 @@ class MultithreadingTesterTest {
         override fun invoke() {
             Thread.sleep(1)
             counter.incrementAndGet()
-            log.trace { "Execution count: $count" }
+            log.debug { "Execution count: $count" }
         }
     }
 }
