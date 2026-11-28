@@ -1,5 +1,16 @@
+plugins {
+    `java-test-fixtures`
+}
+
 configurations {
     testImplementation.get().extendsFrom(compileOnly.get(), runtimeOnly.get())
+}
+
+sourceSets {
+    named("test") {
+        compileClasspath += sourceSets.named("testFixtures").get().output
+        runtimeClasspath += sourceSets.named("testFixtures").get().output
+    }
 }
 
 dependencies {
