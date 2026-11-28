@@ -79,6 +79,33 @@ val grpcPort = shared.grpcPort
 각 테스트는 고유 store/collection을 만들고 `finally`에서 정리해야 합니다.
 `start()`가 export한 JVM 속성은 `stop()`에서 자동 복원되지 않으므로 필요한 테스트는 이전 값을 보존·복원합니다. 인증 없는 테스트 전용 설정입니다. Docker의 host binding 정책을 따르며 임의 포트도 loopback 전용을 의미하지 않으므로 신뢰할 수 있는 Docker 호스트에서 사용합니다.
 
+## Redis 명시적 lifecycle runner
+
+`TestcontainersRedisRuntime`은 기존 `RedisServer`를 호출자 소유의 명시적
+`start()`/`close()` 계약으로 감쌉니다. 시작 실패 시 partial-start 자원을
+rollback하고, `close()`는 한 번만 정리하며 interrupt 상태를 복원합니다.
+
+```kotlin
+val runtime = TestcontainersRedisRuntime()
+runtime.use {
+    val endpoint = it.start()
+    val client = LettuceClients.clientOf(endpoint.url)
+    try {
+        LettuceClients.connect(client).use { connection ->
+            check(connection.sync().ping() == "PONG")
+        }
+    } finally {
+        LettuceClients.shutdown(client)
+    }
+}
+```
+
+`OwnedRedisRuntime`은 Testcontainers에 결합되지 않은
+`RedisContainerHandle`을 주입받으므로 다른 Redis 실행기에도 같은 소유권·rollback
+계약을 적용할 수 있습니다. Lettuce client 생성/connection cache/종료는
+`bluetape4k-lettuce`의 `LettuceClients`가 소유하며, 별도 factory wrapper를 만들지
+않습니다.
+
 ## 시스템 프로퍼티 Export (PropertyExportingServer)
 
 모든 서버 클래스는 `PropertyExportingServer` 인터페이스를 구현하여, `start()` 시 연결 정보를 시스템 프로퍼티로 자동 등록합니다.

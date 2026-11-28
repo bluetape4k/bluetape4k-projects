@@ -75,6 +75,34 @@ val grpcPort = shared.grpcPort
 
 Create unique stores/collections per test and remove them in `finally`. JVM properties exported by `start()` are not automatically restored by `stop()`; preserve and restore prior values when needed. These defaults are unauthenticated and intended for tests on a trusted Docker host. Docker controls host bindings; random ports do not imply loopback-only access.
 
+## Explicit Redis lifecycle runner
+
+`TestcontainersRedisRuntime` wraps the existing `RedisServer` with an explicit
+caller-owned `start()`/`close()` contract. A partial start is rolled back,
+`close()` is idempotent, and an interrupted stop restores the thread interrupt
+status.
+
+```kotlin
+val runtime = TestcontainersRedisRuntime()
+runtime.use {
+    val endpoint = it.start()
+    val client = LettuceClients.clientOf(endpoint.url)
+    try {
+        LettuceClients.connect(client).use { connection ->
+            check(connection.sync().ping() == "PONG")
+        }
+    } finally {
+        LettuceClients.shutdown(client)
+    }
+}
+```
+
+`OwnedRedisRuntime` accepts a `RedisContainerHandle` without coupling the
+contract to Testcontainers, so another Redis runner can reuse the same
+ownership and rollback semantics. Lettuce client creation, connection caching,
+and shutdown remain owned by `LettuceClients` from `bluetape4k-lettuce`; no
+additional factory wrapper is published.
+
 ## System Property Export (`PropertyExportingServer`)
 
 Every server implements
