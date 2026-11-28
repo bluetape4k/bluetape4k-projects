@@ -14,6 +14,7 @@ import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicInteger
 
 class TempFolderClassTest {
+
     companion object: KLogging()
 
     @Test

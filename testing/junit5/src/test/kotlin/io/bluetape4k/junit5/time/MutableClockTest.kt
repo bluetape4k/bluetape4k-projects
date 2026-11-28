@@ -1,15 +1,19 @@
 package io.bluetape4k.junit5.time
 
 import io.bluetape4k.assertions.shouldBeEqualTo
+import io.bluetape4k.logging.KLogging
+import org.junit.jupiter.api.Test
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import org.junit.jupiter.api.Test
 
 class MutableClockTest {
+
+    companion object: KLogging()
+
     @Test
     fun `initial instant and zone are observable`() {
         val initial = Instant.parse("2026-11-27T00:00:00Z")
@@ -49,8 +53,12 @@ class MutableClockTest {
         val executor = Executors.newFixedThreadPool(8)
 
         try {
-            val futures = List(256) { executor.submit { clock.advanceSeconds(1) } }
-            futures.forEach { it.get(5, TimeUnit.SECONDS) }
+            val futures = List(256) {
+                executor.submit { clock.advanceSeconds(1) }
+            }
+            futures.forEach {
+                it.get(5, TimeUnit.SECONDS)
+            }
         } finally {
             executor.shutdownNow()
         }

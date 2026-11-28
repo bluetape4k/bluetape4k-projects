@@ -5,7 +5,7 @@ import io.bluetape4k.assertions.assertFailsWith
 import io.bluetape4k.assertions.shouldBeEqualTo
 import io.bluetape4k.junit5.utils.MultiException
 import io.bluetape4k.logging.coroutines.KLoggingChannel
-import io.bluetape4k.logging.trace
+import io.bluetape4k.logging.debug
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
@@ -166,7 +166,7 @@ class SuspendedJobTesterTest {
         override suspend fun invoke() {
             delay(10.milliseconds)
             counter.incrementAndGet()
-            log.trace { "execution count: $count" }
+            log.debug { "execution count: $count" }
         }
     }
 }

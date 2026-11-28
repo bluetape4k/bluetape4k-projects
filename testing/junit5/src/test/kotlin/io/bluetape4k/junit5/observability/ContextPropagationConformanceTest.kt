@@ -109,8 +109,8 @@ class ContextPropagationConformanceTest {
 
     @Test
     fun `literal root is rejected because root context is represented by null`() {
-        val cases = listOf<() -> Unit>(
-            {
+        val cases: List<() -> Unit> = buildList {
+            add({
                 assertContextPropagationConformance(
                     propagationObservation().copy(
                         markerObservations = propagationObservation().markerObservations.map {
@@ -123,8 +123,8 @@ class ContextPropagationConformanceTest {
                     ),
                     propagationExpectation(),
                 )
-            },
-            {
+            })
+            add({
                 assertContextPropagationConformance(
                     propagationObservation(),
                     propagationExpectation().copy(
@@ -137,8 +137,8 @@ class ContextPropagationConformanceTest {
                         },
                     ),
                 )
-            },
-            {
+            })
+            add({
                 assertContextIsolation(
                     isolationObservation().copy(
                         samples = listOf(ContextIsolationSample(ContextRequestAlias.REQUEST_A, listOf("root"))),
@@ -151,8 +151,8 @@ class ContextPropagationConformanceTest {
                         ),
                     ),
                 )
-            },
-        )
+            })
+        }
 
         cases.forEach { failingAssertion ->
             assertFailsWith<AssertionError>(block = failingAssertion)
@@ -240,10 +240,10 @@ class ContextPropagationConformanceTest {
 
         assertFailsWith<AssertionError> {
             assertContextIsolation(
-                observation.copy(
+                observation = observation.copy(
                     samples = listOf(ContextIsolationSample(ContextRequestAlias.REQUEST_B, listOf(PARENT_MARKER))),
                 ),
-                isolationExpectation(expectation),
+                expectation = isolationExpectation(expectation),
             )
         }
     }
@@ -294,7 +294,10 @@ class ContextPropagationConformanceTest {
 
         invalidExpectations.forEach { invalidExpectation ->
             assertFailsWith<AssertionError> {
-                assertContextIsolation(isolationObservation(), isolationExpectation(invalidExpectation))
+                assertContextIsolation(
+                    observation = isolationObservation(),
+                    expectation = isolationExpectation(invalidExpectation)
+                )
             }
         }
     }
@@ -304,8 +307,14 @@ class ContextPropagationConformanceTest {
         val observation = ContextIsolationObservation(
             boundary = ContextPropagationBoundary.COROUTINE,
             samples = listOf(
-                ContextIsolationSample(ContextRequestAlias.REQUEST_A, listOf(REQUEST_A_MARKER)),
-                ContextIsolationSample(ContextRequestAlias.REQUEST_B, listOf(REQUEST_A_MARKER)),
+                ContextIsolationSample(
+                    requestAlias = ContextRequestAlias.REQUEST_A,
+                    observedMarkers = listOf(REQUEST_A_MARKER)
+                ),
+                ContextIsolationSample(
+                    requestAlias = ContextRequestAlias.REQUEST_B,
+                    observedMarkers = listOf(REQUEST_A_MARKER)
+                ),
             ),
             cleanupProbes = cleanupProbes(),
         )

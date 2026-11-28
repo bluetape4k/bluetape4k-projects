@@ -21,7 +21,7 @@ An extension library that reduces repetitive boilerplate in JUnit 5 tests.
 - Output capture helpers — capture `System.out`/`System.err` for assertion
 - Random/Faker data injection — inject fake or randomized objects into test fields/parameters
 - System property helpers — set properties before a test and restore them after
-- Awaitility + coroutine helpers — `suspendUntil` / `awaitSuspending`
+- Awaitility + coroutine helpers — `suspendUntil` / `awaitSuspending` / `untilAssertedSuspending`
 - Coroutine cancellation contracts — verify propagation, waiter cleanup, and resource cancellation
 - HTTP observability conformance — verify stable routes, classifications, correlation, and sensitive-data exclusion
 - Stress-testing utilities — `MultithreadingTester`, `SuspendedJobTester`, `StructuredTaskScopeTester`
@@ -494,8 +494,8 @@ The listener sequence below shows how JUnit callbacks become a Mermaid Gantt rep
 
 ### Awaitility + Coroutines
 
-`untilSuspending` and `awaitSuspending` keep the `ConditionFactory` timing contract while evaluating a
-`suspend` condition on a coroutine dispatcher.
+`untilSuspending`, `awaitSuspending`, and `untilAssertedSuspending` keep the `ConditionFactory` timing contract while evaluating a
+`suspend` condition or assertion block on a coroutine dispatcher.
 
 ```kotlin
 await
@@ -504,9 +504,15 @@ await
     .atMost(Duration.ofSeconds(2))
     .pollInterval(Duration.ofMillis(25))
     .untilSuspending { isReady() }
+
+await
+    .atMost(Duration.ofSeconds(2))
+    .untilAssertedSuspending {
+        response.status shouldBeEqualTo 200
+    }
 ```
 
-The coroutine adapter preserves `atLeast`, `during`, `failFast`, poll delay/interval, and ignored-exception settings. It rethrows coroutine cancellation and cancels an in-flight poll when the overall `atMost` deadline is reached. The condition itself must be cancellation-cooperative; a non-cooperative blocking call cannot be made non-blocking by this adapter. Awaitility settings are read through a small version adapter; an unsupported
+The coroutine adapter preserves `atLeast`, `during`, `failFast`, poll delay/interval, and ignored-exception settings. `untilAssertedSuspending` retries `AssertionError` and preserves the last assertion failure as the timeout cause. Other exceptions are propagated immediately unless the `ConditionFactory` ignore policy matches them; coroutine cancellation is always propagated. It cancels an in-flight poll when the overall `atMost` deadline is reached. The condition itself must be cancellation-cooperative; a non-cooperative blocking call cannot be made non-blocking by this adapter. Awaitility settings are read through a small version adapter; an unsupported
 `ConditionFactory` layout fails explicitly instead of silently applying arbitrary defaults.
 
 ## Best Practices

@@ -44,10 +44,9 @@ class MultiExceptionTest {
         val subject = MultiException()
         subject.add(IllegalArgumentException("single"))
 
-        val thrown =
-            assertFailsWith<IllegalArgumentException> {
-                subject.throwIfNotEmpty()
-            }
+        val thrown = assertFailsWith<IllegalArgumentException> {
+            subject.throwIfNotEmpty()
+        }
 
         thrown.message shouldBeEqualTo "single"
     }
@@ -58,10 +57,9 @@ class MultiExceptionTest {
         subject.add(IllegalArgumentException("one"))
         subject.add(IllegalStateException("two"))
 
-        val thrown =
-            assertFailsWith<MultiException> {
-                subject.throwIfNotEmpty()
-            }
+        val thrown = assertFailsWith<MultiException> {
+            subject.throwIfNotEmpty()
+        }
 
         thrown.message shouldContain "2 nested exceptions"
     }
@@ -76,10 +74,9 @@ class MultiExceptionTest {
         val subject = MultiException()
         subject.add(nested)
 
-        val thrown =
-            assertFailsWith<MultiException> {
-                subject.throwIfNotEmpty()
-            }
+        val thrown = assertFailsWith<MultiException> {
+            subject.throwIfNotEmpty()
+        }
 
         thrown.message shouldContain "2 nested exceptions"
         thrown.message shouldContain "IllegalArgumentException"
@@ -88,12 +85,11 @@ class MultiExceptionTest {
 
     @Test
     fun `message 는 예외 개수 정보를 포함한다`() {
-        val subject =
-            MultiException().apply {
-                add(RuntimeException("a"))
-                add(RuntimeException("b"))
-                add(RuntimeException("c"))
-            }
+        val subject = MultiException().apply {
+            add(RuntimeException("a"))
+            add(RuntimeException("b"))
+            add(RuntimeException("c"))
+        }
         subject.message shouldContain "3 nested exceptions"
     }
 }

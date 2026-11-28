@@ -204,9 +204,9 @@ infix fun <K, V> Map<K, V>?.shouldContainSame(expected: Map<K, V>?): Map<K, V> {
     }
     if (this != expected) {
         Failures.failComparison(
-            "Expected ${Messages.stringify(this)} to contain same entries as ${Messages.stringify(expected)}, but they differed.",
-            expected,
-            this
+            message = "Expected ${Messages.stringify(this)} to contain same entries as ${Messages.stringify(expected)}, but they differed.",
+            expected = expected,
+            actual = this
         )
     }
     return this
@@ -222,9 +222,9 @@ infix fun <K, V> Map<K, V>?.shouldContainSame(expected: Map<K, V>?): Map<K, V> {
 infix fun <K, V> Map<K, V>?.shouldNotContainSame(expected: Map<K, V>?): Map<K, V>? = apply {
     if (this == expected) {
         Failures.failComparison(
-            "Expected maps not to contain the same entries, but they did.",
-            expected,
-            this
+            message = "Expected maps not to contain the same entries, but they did.",
+            expected = expected,
+            actual = this
         )
     }
 }

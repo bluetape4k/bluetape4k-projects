@@ -21,7 +21,7 @@ JUnit 5 테스트 작성 시 반복 코드를 줄여주는 확장 라이브러�
 - **Output Capture**: System.out/err 및 로그 출력 캡처
 - **Random/Faker 확장**: 랜덤/가짜 데이터 주입
 - **System Property 확장**: 테스트 중 시스템 속성 설정/복원
-- **Awaitility + Coroutines**: suspend 조건 대기 유틸
+- **Awaitility + Coroutines**: suspend 조건·assertion 대기 유틸
 - **Coroutine Cancellation Contracts**: cancellation 전파, waiter 정리, resource cancellation 검증
 - **HTTP Observability Conformance**: 안정적인 route, 결과 분류, correlation, 민감 정보 제외 검증
 - **Stress Tester**: 멀티스레드/가상스레드/코루틴 기반 스트레스 테스트
@@ -220,7 +220,7 @@ fun `suspend 조건 대기`() = runSuspendTest {
 }
 ```
 
-`untilSuspending`/`awaitSuspending`은 `ConditionFactory`의 `atLeast`, `during`, `failFast`, poll delay/interval, ignore-exception 설정을 유지하면서 suspend 조건을 코루틴 dispatcher에서 평가합니다. `atMost` 기한에 도달하면 진행 중인 poll을 취소하고, 코루틴 cancellation은 호출자에게 다시 전달합니다.
+`untilSuspending`/`awaitSuspending`/`untilAssertedSuspending`은 `ConditionFactory`의 `atLeast`, `during`, `failFast`, poll delay/interval, ignore-exception 설정을 유지하면서 suspend 조건 또는 assertion 블록을 코루틴 dispatcher에서 평가합니다. `untilAssertedSuspending`은 `AssertionError`를 assertion 실패로 보고 재시도하며 마지막 assertion 실패를 timeout 원인으로 보존합니다. 그 밖의 예외는 `ConditionFactory`의 ignore-exception 정책에 매칭될 때만 재시도하고, 매칭되지 않는 예외와 코루틴 cancellation은 즉시 호출자에게 전달합니다. `atMost` 기한에 도달하면 진행 중인 poll을 취소하고, 코루틴 cancellation은 호출자에게 다시 전달합니다.
 
 조건 블록은 cancellation 협조적이어야 합니다. 협조하지 않는 blocking 호출을 이 adapter가 자동으로 non-blocking으로 바꾸지는 않습니다. Awaitility의 private 설정 구조를 지원하지 않는 버전에서는 임의 기본값으로 계속 진행하지 않고 명시적인 예외를 발생시켜 설정 손실에 따른 false-positive를 막습니다.
 
@@ -231,6 +231,10 @@ await
     .atMost(2.seconds)
     .pollInterval(25.milliseconds)
     .untilSuspending { isReady() }
+
+await atMost 2.seconds untilAssertedSuspending {
+    response.status shouldBeEqualTo 200
+}
 ```
 
 ### 8. Coroutine Cancellation Contracts

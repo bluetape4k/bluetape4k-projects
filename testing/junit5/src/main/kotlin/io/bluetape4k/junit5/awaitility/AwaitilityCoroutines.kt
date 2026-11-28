@@ -123,3 +123,52 @@ suspend infix fun ConditionFactory.untilSuspending(
         }
     }
 }
+
+/**
+ * suspend 블록의 assertion이 성공할 때까지 코루틴 폴링으로 반복합니다.
+ *
+ * ## 동작/계약
+ * - [block]이 정상적으로 반환되면 assertion이 성공한 것으로 보고 완료합니다.
+ * - [AssertionError]는 assertion 실패로 간주해 다음 poll에서 다시 평가합니다.
+ * - assertion 이외의 예외는 [ConditionFactory]의 ignore-exception 정책에 매칭될 때만
+ *   재시도하고, 그 밖의 예외와 코루틴 cancellation은 즉시 호출자에게 전파합니다.
+ * - assertion timeout은 마지막 [AssertionError]를 원인으로 보존합니다.
+ * - 타임아웃, 초기 지연, poll interval, 예외 무시 정책은 [untilSuspending]과
+ *   동일하게 수신한 [ConditionFactory] 설정을 따릅니다.
+ *
+ * ```kotlin
+ * await
+ *     .atMost(Duration.ofSeconds(1))
+ *     .untilAssertedSuspending {
+ *         response.status shouldBeEqualTo 200
+ *     }
+ * ```
+ *
+ * @param block assertion을 수행할 suspend 블록
+ */
+@Suppress("SwallowedException") // timeout cause를 assertion 원인으로 보강할 때만 예외를 대체합니다.
+suspend inline infix fun ConditionFactory.untilAssertedSuspending(
+    crossinline block: suspend () -> Unit,
+): Unit {
+    var lastAssertionError: AssertionError? = null
+    try {
+        untilSuspending {
+            try {
+                block()
+                true
+            } catch (e: AssertionError) {
+                lastAssertionError = e
+                false
+            }
+        }
+    } catch (e: ConditionTimeoutException) {
+        var rootCause = e.cause
+        while (rootCause is ConditionTimeoutException) {
+            rootCause = rootCause.cause
+        }
+        if (lastAssertionError != null && rootCause == null) {
+            throw ConditionTimeoutException(e.message ?: "Condition timed out.", lastAssertionError)
+        }
+        throw e
+    }
+}
